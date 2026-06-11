@@ -1,5 +1,6 @@
 import React from 'react';
 import { Book, Clock, Star, Users, Code, Layout, Database } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const ContinueCard = ({ title, icon: Icon, level, lessons, iconColor }: any) => (
   <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
@@ -20,8 +21,13 @@ const ContinueCard = ({ title, icon: Icon, level, lessons, iconColor }: any) => 
   </div>
 );
 
-const CourseGridCard = ({ title, tag, duration, instructor, description, image, badge }: any) => (
-  <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden hover:shadow-lg transition-all group flex flex-col">
+const CourseGridCard = ({ title, tag, duration, instructor, description, image, badge }: any) => {
+    const navigate = useNavigate();
+
+  return(
+  <div 
+  onClick={() => navigate(`/courses/${'234'}`)}
+  className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden hover:shadow-lg transition-all group flex flex-col">
     <div className="h-48 overflow-hidden relative">
       {badge && (
         <span className="absolute top-4 left-4 bg-orange-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg z-10">
@@ -49,7 +55,7 @@ const CourseGridCard = ({ title, tag, duration, instructor, description, image, 
       </div>
     </div>
   </div>
-);
+)};
 
 export default function CourseCatalog() {
   return (

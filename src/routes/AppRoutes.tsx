@@ -6,6 +6,7 @@ import CourseCatalog from "@/pages/courses/CourseCatalog";
 import MainLayout from "@/pages/layout/MainLayout";
 import { ProtectedRoute, PublicRoute } from "./RouteGuards"; // Fix import
 import React from "react";
+import CourseDetail from "@/pages/courses/CourseDetail";
 
 export default function AppRoutes() {
   return (
@@ -17,13 +18,13 @@ export default function AppRoutes() {
         <Route path="/register" element={<RegisterPage />} />
       </Route>
 
-      <Route element={<ProtectedRoute />}>
+      {/* <Route element={<ProtectedRoute />}> */}
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<div>Dashboard Home</div>} />
           <Route path="/courses" element={<CourseCatalog />} />
-          {/* ... other routes */}
+          <Route path="/courses/:courseId" element={<CourseDetail />} />
         </Route>
-      </Route>
+      {/* </Route> */}
 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

@@ -1,5 +1,6 @@
 import api from "@/lib/axios";
 import { Course, MyCourse } from "@/schemas/course.schema";
+import { CourseDetail } from "./course-detail.schema";
 
 export const CourseService = {
     // Get all available courses
@@ -18,5 +19,9 @@ export const CourseService = {
     enrollInCourse: async (courseId: string) => {
         const response = await api.post(`/courses/${courseId}/enroll`);
         return response.data;
-    }
+    },
+    getCourseById: async (id: string): Promise<CourseDetail> => {
+        const response = await api.get(`/courses/${id}`);
+        return response.data.course;
+    },
 };

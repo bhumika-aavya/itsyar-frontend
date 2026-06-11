@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Zap, Play, Users, Trophy, BarChart3, TrendingUp,
   Cloud, Cpu, Globe, Star, ExternalLink, ChevronRight, Layout, Code
 } from 'lucide-react';
 import HeroImage from '@/assets/landing-page.png';
 import { useNavigate } from 'react-router-dom';
+import { LandingService } from '@/services/landing.service';
 
 // Standardized Container Component
 const Container = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
@@ -132,33 +133,36 @@ const Hero = () => (
   </section>
 );
 
-const ImpactStats = () => (
-  <section className="bg-[#0B0E14] py-24 w-full">
-    <Container className="text-center space-y-20">
-      <div className="space-y-3">
-        <h3 className="text-white text-[15px] font-bold uppercase tracking-[0.3em]">Delivered Impact</h3>
-        <p className="text-slate-500 text-sm font-medium">Every program is designed to create outcomes that matter to the business.</p>
-      </div>
+const ImpactStats = ({ stats }: { stats: any }) => {
+  const metrics = [
+    { icon: Users, val: stats.developersSkilled, sub: 'Developers skilled through our programs' },
+    { icon: Layout, val: stats.industryExperts, sub: 'Mentors & Industry experts across tracks' },
+    { icon: BarChart3, val: stats.skillImprovementRate, sub: 'Learners report improved technical skills' },
+    { icon: TrendingUp, val: stats.placementMultiplier, sub: 'More placements after completing programs' },
+  ];
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-y-16 gap-x-8">
-        {[
-          { icon: Users, val: '25K+', sub: 'Developers skilled through our programs' },
-          { icon: Layout, val: '12K+', sub: 'Mentors & Industry experts across tracks' },
-          { icon: BarChart3, val: '70%', sub: 'Learners report improved technical skills' },
-          { icon: TrendingUp, val: '3x', sub: 'More placements after completing programs' },
-        ].map((s, i) => (
-          <div key={i} className="flex flex-col items-center gap-6 group">
-            <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-white transition-colors border border-white/5">
-              <s.icon size={24} />
+  return (
+    <section className="bg-[#0B0E14] py-24 w-full">
+      <Container className="text-center space-y-20">
+        <div className="space-y-3">
+          <h3 className="text-white text-[15px] font-bold uppercase tracking-[0.3em]">Delivered Impact</h3>
+          <p className="text-slate-500 text-sm font-medium">Every program is designed to create outcomes that matter to the business.</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-16 gap-x-8">
+          {metrics.map((s, i) => (
+            <div key={i} className="flex flex-col items-center gap-6 group">
+              <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-white border border-white/5">
+                <s.icon size={24} />
+              </div>
+              <div className="text-5xl font-black text-white tracking-tight">{s.val}</div>
+              <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed max-w-[180px] mx-auto">{s.sub}</p>
             </div>
-            <div className="text-5xl font-black text-white tracking-tight">{s.val}</div>
-            <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed max-w-[180px] mx-auto">{s.sub}</p>
-          </div>
-        ))}
-      </div>
-    </Container>
-  </section>
-);
+          ))}
+        </div>
+      </Container>
+    </section>
+  );
+};
 
 const ContentGrid = () => (
   <section className="py-24 bg-[#F9FAFC]">
@@ -234,10 +238,9 @@ const ContentGrid = () => (
   </section>
 );
 
-const SocialProof = () => (
+const SocialProof = ({ leaderboard }: { leaderboard: any[] }) => (
   <section id="leaderboard" className="py-24 bg-white">
     <Container className="grid lg:grid-cols-2 gap-20">
-      {/* Leaderboard */}
       <div className="space-y-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-[#4F39F6] font-extrabold uppercase text-[11px] tracking-widest ml-1">
@@ -247,12 +250,7 @@ const SocialProof = () => (
         </div>
 
         <div className="space-y-8 bg-slate-50/50 p-6 md:p-10 rounded-[40px] border border-slate-100">
-          {[
-            { rank: 1, name: '@nitish_dev', pts: '5,840 pts', pct: 90, img: 'https://i.pravatar.cc/100?u=1' },
-            { rank: 2, name: '@code_queen', pts: '4,210 pts', pct: 65, img: 'https://i.pravatar.cc/100?u=2' },
-            { rank: 3, name: '@build_master', pts: '3,750 pts', pct: 55, img: 'https://i.pravatar.cc/100?u=3' },
-            { rank: 4, name: '@hackpro89', pts: '3,100 pts', pct: 45, img: 'https://i.pravatar.cc/100?u=4' }
-          ].map((user) => (
+          {leaderboard.map((user) => (
             <div key={user.name} className="flex items-center justify-between group">
               <div className="flex items-center gap-3 md:gap-5">
                 <div className="text-xs font-bold text-slate-400 w-4">{user.rank}</div>
@@ -261,7 +259,7 @@ const SocialProof = () => (
               </div>
               <div className="flex items-center gap-4 md:gap-6">
                 <div className="h-2 w-20 md:w-32 bg-slate-200 rounded-full overflow-hidden hidden sm:block">
-                  <div className="h-full bg-[#4F39F6] transition-all duration-1000" style={{ width: `${user.pct}%` }} />
+                  <div className="h-full bg-[#4F39F6]" style={{ width: `${user.pct}%` }} />
                 </div>
                 <span className="text-[13px] font-bold text-slate-600 w-20 text-right">{user.pts}</span>
               </div>
@@ -382,14 +380,28 @@ const Footer = () => (
 );
 
 export default function LandingPage() {
+  const [metrics, setMetrics] = useState<any>(null);
+  const [content, setContent] = useState<any>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const statsData = await LandingService.getImpactMetrics();
+      const contentData = await LandingService.getLandingContent();
+      setMetrics(statsData);
+      setContent(contentData);
+    };
+    loadData();
+  }, []);
+
+  if (!metrics || !content) return null; // Or a loading spinner
+
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-indigo-100">
       <Navbar />
       <Hero />
-      <ImpactStats />
-      <ContentGrid />
-      <SocialProof />
-      {/* <FooterCTA /> */}
+      <ImpactStats stats={metrics} />
+      <ContentGrid hackathons={content.hackathons} />
+      <SocialProof leaderboard={content.leaderboard} />
       <Footer />
     </div>
   );
