@@ -21,7 +21,7 @@ export default function AppRoutes() {
 
       {/* <Route element={<ProtectedRoute />}> */}
       <Route element={<MainLayout />}>
-        <Route path="/dashboard" element={<div>Dashboard Home</div>} />
+        <Route path="/dashboard" element={<h2>Coming Soon...</h2>} />
         <Route path="/courses" element={<CourseCatalog />} />
         <Route path="/courses/:courseId" element={<CourseDetail />} />
         <Route path="/courses/:courseId/lessons/:lessonId" element={<LessonView />} />

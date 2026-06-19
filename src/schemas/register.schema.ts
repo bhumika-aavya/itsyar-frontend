@@ -5,7 +5,7 @@ export const registerSchema = z.object({
     email: z.string().min(1, "Email is required").email("Invalid email format"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
-    interest: z.string().min(1, "Please select an interest"),
+    // interest: z.string().min(1, "Please select an interest"),
     userType: z.enum(["Student", "Working Professional", "Other"], {
         errorMap: () => ({ message: "Please select your current role" }),
     }),

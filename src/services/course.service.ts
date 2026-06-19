@@ -2,8 +2,16 @@ import api from "@/lib/axios";
 import { Course, MyCourse } from "@/schemas/course.schema";
 import { CourseDetail } from "./course-detail.schema";
 
+// Helper to get headers with the token
+const getAuthHeaders = () => {
+    const token = localStorage.getItem("accessToken");
+    return {
+        headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+        },
+    };
+};
 
-// High-quality dummy data for "All Courses"
 const MOCK_COURSES: Course[] = [
     {
         _id: "c1",
@@ -105,7 +113,8 @@ const MOCK_COURSE_DETAILS: CourseDetail = {
 export const CourseService = {
     getAllCourses: async (): Promise<Course[]> => {
         try {
-            const response = await api.get("/courses");
+            // Passing the auth headers in the request config
+            const response = await api.get("/courses", getAuthHeaders());
             return response.data.courses;
         } catch (error) {
             console.warn("API Error: Falling back to mock data for Catalog");
@@ -115,8 +124,8 @@ export const CourseService = {
 
     getMyCourses: async (): Promise<MyCourse[]> => {
         try {
-            const response = await api.get("/courses/my-learning");
-            return response.data.myCourses;
+            const response = await api.get("/courses/my", getAuthHeaders());
+            return response.data.courses;
         } catch (error) {
             console.warn("API Error: Falling back to mock data for My Learning");
             return MOCK_MY_COURSES;
@@ -125,18 +134,18 @@ export const CourseService = {
 
     getCourseById: async (id: string): Promise<CourseDetail> => {
         try {
-            const response = await api.get(`/courses/${id}`);
-            return response.data.course;
+            const response = await api.get(`/courses/${id}`, getAuthHeaders());
+            console.log("Course details response:", response); // Debugging log
+            return response.data.data;
         } catch (error) {
             console.warn(`API Error: Falling back to mock data for course ${id}`);
-            // Return the specific mock or the first one available as a default
             return MOCK_COURSE_DETAILS;
         }
     },
 
     enrollInCourse: async (courseId: string) => {
         try {
-            const response = await api.post(`/courses/${courseId}/enroll`);
+            const response = await api.post(`/courses/${courseId}/enroll`, {}, getAuthHeaders());
             return response.data;
         } catch (error) {
             console.warn("API Error: Enrollment simulated via mock");
@@ -144,5 +153,3 @@ export const CourseService = {
         }
     }
 };
-
-

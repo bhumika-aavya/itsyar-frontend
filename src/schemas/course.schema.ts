@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const CourseSchema = z.object({
-  _id: z.string(),
+  id: z.string(),
   title: z.string(),
   tag: z.string(),
   duration: z.string(),
@@ -13,7 +13,7 @@ export const CourseSchema = z.object({
 });
 
 export const MyCourseSchema = z.object({
-  _id: z.string(),
+  id: z.string(),
   title: z.string(),
   level: z.string(),
   lessons: z.string(),

@@ -1,14 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext<any>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate(); // Hook for redirection
 
   useEffect(() => {
     // Check if user is already logged in on page load
-    const token = localStorage.getItem("access_token");
+    const token = localStorage.getItem("accessToken");
     const storedUser = localStorage.getItem("user");
 
     if (token && storedUser) {
@@ -18,15 +20,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = (token: string, userData: any) => {
-    localStorage.setItem("access_token", token);
+    localStorage.setItem("accessToken", token);
     localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
   };
 
   const logout = () => {
-    localStorage.removeItem("access_token");
+    localStorage.removeItem("accessToken");
     localStorage.removeItem("user");
     setUser(null);
+     navigate("/login", { replace: true });
   };
 
   return (

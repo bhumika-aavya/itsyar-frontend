@@ -45,7 +45,7 @@ const Navbar = () => {
           <div className="bg-[#4F39F6] p-1.5 rounded-lg">
             <Zap className="text-white fill-white" size={18} />
           </div>
-          <span className="text-xl font-bold tracking-tight text-slate-900">ITSYAR</span>
+          <span className="text-xl font-bold tracking-tight text-slate-900">ForgeInsight</span>
         </div>
 
         <div className="hidden md:flex items-center gap-10">
@@ -84,7 +84,13 @@ const Navbar = () => {
   );
 };
 
-const Hero = () => (
+const Hero = () =>{ 
+   const navigate = useNavigate();
+
+  const handleNavigation = (role: string) => {
+    navigate(`/login?role=${role}`);
+  };
+  return(
   <section id="home" className="py-16 lg:py-24 bg-white w-full overflow-hidden">
     <Container className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
       <div className="text-left space-y-8">
@@ -102,15 +108,21 @@ const Hero = () => (
         </p>
 
         <div className="flex flex-wrap items-center gap-4 pt-2">
-          <button className="flex items-center gap-2 bg-[#4F39F6] text-white px-8 py-4 rounded-2xl font-bold hover:scale-[1.02] transition-all shadow-xl shadow-indigo-200/50">
-            <Play size={18} fill="white" />
-            Start Learning
-          </button>
-          <button className="flex items-center gap-2 border-2 border-slate-100 bg-slate-50/30 px-8 py-4 rounded-2xl font-bold hover:bg-slate-50 transition-all">
-            <ChevronRight size={18} className="text-[#4F39F6]" />
-            Join Hackathon
-          </button>
-        </div>
+            <button 
+              onClick={() => handleNavigation('student')}
+              className="flex items-center gap-2 bg-[#4F39F6] text-white px-8 py-4 rounded-2xl font-bold hover:scale-[1.02] transition-all shadow-xl shadow-indigo-200/50"
+            >
+              <Play size={18} fill="white" />
+              Start Learning
+            </button>
+            <button 
+              onClick={() => handleNavigation('participant')}
+              className="flex items-center gap-2 border-2 border-slate-100 bg-slate-50/30 px-8 py-4 rounded-2xl font-bold hover:bg-slate-50 transition-all"
+            >
+              <ChevronRight size={18} className="text-[#4F39F6]" />
+              Join Hackathon
+            </button>
+          </div>
 
         <div className="grid grid-cols-2 gap-x-8 gap-y-4 pt-6">
           {['Hands-on Learning', 'Real-world Projects', 'Rank & Win Prizes', 'Global Community'].map((item) => (
@@ -131,7 +143,7 @@ const Hero = () => (
       </div>
     </Container>
   </section>
-);
+)};
 
 const ImpactStats = ({ stats }: { stats: any }) => {
   const metrics = [
@@ -307,34 +319,6 @@ const SocialProof = ({ leaderboard }: { leaderboard: any[] }) => (
   </section>
 );
 
-// const FooterCTA = () => (
-//   <section className="py-20 bg-white">
-//     <Container>
-//       <div className="bg-[#0B0E14] rounded-[56px] p-12 md:p-24 relative overflow-hidden">
-//         <div className="absolute right-0 bottom-[-50px] opacity-[0.03] select-none pointer-events-none scale-150 rotate-[-15deg]">
-//           <Code size={400} strokeWidth={1} className="text-white" />
-//         </div>
-
-//         <div className="relative z-10 space-y-10">
-//           <div className="space-y-4">
-//             <h2 className="text-4xl md:text-5xl font-extrabold text-white leading-tight max-w-2xl">Ready to level up your career?</h2>
-//             <p className="text-slate-500 text-lg font-medium max-w-lg">Join thousands of developers learning, building and winning together.</p>
-//           </div>
-
-//           <div className="flex flex-wrap items-center gap-4">
-//             <button className="bg-[#4F39F6] text-white px-10 py-4 rounded-xl font-bold shadow-2xl shadow-indigo-500/20">
-//               Start Learning
-//             </button>
-//             <button className="border border-white/10 text-white px-10 py-4 rounded-xl font-bold hover:bg-white/5 transition-all">
-//               Join Hackathon
-//             </button>
-//           </div>
-//         </div>
-//       </div>
-//     </Container>
-//   </section>
-// );
-
 const Footer = () => (
   <footer className="pt-24 pb-12 bg-white border-t border-slate-50">
     <Container className="grid grid-cols-2 md:grid-cols-5 gap-16 mb-24">
@@ -343,7 +327,7 @@ const Footer = () => (
           <div className="bg-[#4F39F6] p-1 rounded-lg">
             <Zap className="text-white fill-white" size={16} />
           </div>
-          <span className="text-lg font-bold tracking-tight">ITSYAR</span>
+          <span className="text-lg font-bold tracking-tight">ForgeInsight</span>
         </div>
         <p className="text-slate-500 text-[13px] font-medium leading-relaxed max-w-xs">
           The #1 platform to learn, build and compete in hackathons worldwide.
@@ -367,7 +351,7 @@ const Footer = () => (
     </Container>
 
     <Container className="pt-10 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between text-[11px] font-bold text-slate-300 uppercase tracking-widest gap-4">
-      <p>© 2024 Itsyar Inc. All rights reserved.</p>
+      <p>© 2024 ForgeInsight Inc. All rights reserved.</p>
       <div className="flex gap-8">
         <a href="#" className="hover:text-slate-900">Follow Us</a>
         <div className="flex gap-4">

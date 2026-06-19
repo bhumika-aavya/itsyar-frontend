@@ -1,5 +1,6 @@
 import RegisterForm from "@/components/auth/RegisterForm";
 import SocialLogin from "@/components/auth/SocialLogin";
+import React from "react";
 
 export default function RegisterPage() {
 
@@ -15,7 +16,7 @@ export default function RegisterPage() {
           </h1>
 
           <p className="text-gray-500">
-            Join Itsyar to learn,
+            Join ForgeInsight to learn,
             build and compete.
           </p>
 

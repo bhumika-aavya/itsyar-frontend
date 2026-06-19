@@ -12,7 +12,7 @@ export default function Logo() {
       </div>
 
       <h4 className="mt-5 text-2xl font-extrabold tracking-tight text-[#1A1C1E]">
-        ITSYAR
+        ForgeInsight
       </h4>
     </div>
   );

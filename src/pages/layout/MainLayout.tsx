@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
-  LayoutDashboard, BookOpen, Zap, Trophy, ClipboardList, User, Search, Bell, ChevronDown 
+  LayoutDashboard, BookOpen, Zap, Trophy, ClipboardList, 
+  User, Search, ChevronDown, LogOut, Settings 
 } from 'lucide-react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }: any) => (
   <button
@@ -21,6 +23,21 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }: any) => (
 export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useAuth(); // Accessing dynamic auth state
+  
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
@@ -33,12 +50,13 @@ export default function MainLayout() {
 
   return (
     <div className="flex min-h-screen bg-[#F9FAFD]">
+      {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-slate-100 p-6 flex flex-col sticky top-0 h-screen">
-        <div className="flex items-center gap-2 mb-10 px-2">
+        <div className="flex items-center gap-2 mb-10 px-2 cursor-pointer" onClick={() => navigate('/dashboard')}>
           <div className="bg-[#4F39F6] p-1.5 rounded-lg">
             <Zap className="text-white fill-white" size={20} />
           </div>
-          <span className="text-xl font-bold tracking-tight">ITSYAR</span>
+          <span className="text-xl font-bold tracking-tight">ForgeInsight</span>
         </div>
 
         <nav className="flex-1 space-y-2">
@@ -53,31 +71,80 @@ export default function MainLayout() {
         </nav>
       </aside>
 
+      {/* Main Area */}
       <main className="flex-1 flex flex-col">
-        <header className="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-10 sticky top-0 z-10">
-          <div className="relative w-96">
+        <header className="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-10 sticky top-0 z-40">
+          <div className="relative w-96 text-left">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input 
               type="text" 
               placeholder="Search courses..."
-              className="w-full h-11 bg-[#F5F6FA] border-none rounded-xl pl-12 pr-4 text-sm"
+              className="w-full h-11 bg-[#F5F6FA] border-none rounded-xl pl-12 pr-4 text-sm focus:ring-2 focus:ring-[#4F39F6]/20 transition-all"
             />
           </div>
 
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-3 cursor-pointer group">
-              <div className="text-right">
-                <div className="text-sm font-bold text-slate-900">John Doe</div>
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Participant</div>
+          {/* Dynamic User Section with Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <div 
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center gap-3 cursor-pointer group p-1.5 pr-3 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100"
+            >
+              <div className="w-10 h-10 rounded-full bg-indigo-50 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center">
+                {/* Fallback to first letter if no image */}
+                <span className="text-[#4F39F6] font-black text-sm uppercase">
+                  {user?.fullName?.charAt(0) || "U"}
+                </span>
               </div>
-              <div className="w-10 h-10 rounded-full bg-slate-200 border-2 border-white overflow-hidden">
-                <img src="https://i.pravatar.cc/150?u=john" alt="Avatar" />
+              <div className="text-right hidden sm:block">
+                <div className="text-sm font-bold text-slate-900 leading-tight">
+                  {user?.fullName || "Guest User"}
+                </div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  {user?.role || "Member"}
+                </div>
               </div>
+              <ChevronDown 
+                size={16} 
+                className={`text-slate-400 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} 
+              />
             </div>
+
+            {/* Dropdown Menu */}
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-200">
+                <div className="px-4 py-3 border-b border-slate-50 mb-1">
+                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Account</p>
+                   <p className="text-sm font-bold text-slate-700 truncate">{user?.email}</p>
+                </div>
+                
+                <button 
+                  onClick={() => { navigate('/profile'); setIsDropdownOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#4F39F6] transition-colors"
+                >
+                  <User size={16} /> My Profile
+                </button>
+                
+                <button 
+                  onClick={() => setIsDropdownOpen(false)}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#4F39F6] transition-colors"
+                >
+                  <Settings size={16} /> Settings
+                </button>
+
+                <div className="h-px bg-slate-50 my-1 mx-2" />
+
+                <button 
+                  onClick={() => { logout(); setIsDropdownOpen(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors"
+                >
+                  <LogOut size={16} /> Sign Out
+                </button>
+              </div>
+            )}
           </div>
         </header>
 
-        <div className="p-10 flex-1">
+        <div className="p-10 flex-1 overflow-y-auto">
           <Outlet />
         </div>
       </main>

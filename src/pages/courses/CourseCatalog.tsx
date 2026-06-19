@@ -32,9 +32,9 @@ const ContinueCard = ({ data }: { data: MyCourse }) => {
         <div className="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-1 rounded-md uppercase">{data.level}</div>
       </div>
       <div className="w-full h-1.5 bg-slate-100 rounded-full mb-6 overflow-hidden">
-        <div 
-          className="h-full bg-[#4F39F6] rounded-full transition-all duration-1000" 
-          style={{ width: `${data.progress}%` }} 
+        <div
+          className="h-full bg-[#4F39F6] rounded-full transition-all duration-1000"
+          style={{ width: `${data.progress}%` }}
         />
       </div>
       <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
@@ -48,8 +48,8 @@ const CourseGridCard = ({ data }: { data: Course }) => {
   const navigate = useNavigate();
 
   return (
-    <div 
-      onClick={() => navigate(`/courses/${data._id}`)}
+    <div
+      onClick={() => navigate(`/courses/${data.id}`)}
       className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden hover:shadow-lg transition-all group flex flex-col cursor-pointer text-left"
     >
       <div className="h-48 overflow-hidden relative">
@@ -58,7 +58,7 @@ const CourseGridCard = ({ data }: { data: Course }) => {
             {data.badge}
           </span>
         )}
-        <img src={data.image} alt={data.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        <img src={data.image || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=800"} alt={data.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
       </div>
       <div className="p-6 flex flex-col flex-1">
         <div className="flex gap-2 mb-4">
@@ -67,7 +67,7 @@ const CourseGridCard = ({ data }: { data: Course }) => {
         </div>
         <h3 className="font-bold text-slate-900 mb-3 group-hover:text-[#4F39F6] transition-colors">{data.title}</h3>
         <p className="text-xs text-slate-400 leading-relaxed font-medium mb-6 flex-1">{data.description}</p>
-        
+
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-50">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-slate-100 overflow-hidden">
@@ -117,7 +117,7 @@ export default function CourseCatalog() {
   return (
     <div className="space-y-12">
       <section className="text-left space-y-2">
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Available Courses</h1>
+        <h2 className="text-3xl font-black text-slate-900 tracking-tight">Available Courses</h2>
         <p className="text-slate-500 text-sm font-medium">Explore and enroll in wide variety of courses designed for you.</p>
       </section>
 
@@ -128,7 +128,7 @@ export default function CourseCatalog() {
             <button className="text-[11px] font-bold text-[#4F39F6] hover:underline uppercase tracking-widest">My Dashboard →</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {myCourses.map(item => <ContinueCard key={item._id} data={item} />)}
+            {myCourses.map(item => <ContinueCard key={item.id} data={item} />)}
           </div>
         </section>
       )}
@@ -136,7 +136,7 @@ export default function CourseCatalog() {
       <section className="space-y-6 pb-20">
         <h2 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] text-left">All Courses</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {courses.map(course => <CourseGridCard key={course._id} data={course} />)}
+          {courses.map(course => <CourseGridCard key={course.id} data={course} />)}
         </div>
       </section>
     </div>

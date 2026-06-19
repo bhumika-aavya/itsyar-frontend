@@ -38,7 +38,7 @@ export default function RegisterForm() {
     setIsLoading(true);
     setServerError("");
     try {
-      const response = await api.post<RegisterResponse>("/auth/register", data);
+      const response = await api.post<RegisterResponse>("/auth/signup", data);
 
       if (response.data.success) {
         navigate("/login");
@@ -152,7 +152,7 @@ export default function RegisterForm() {
             </div>
 
             {/* Interest Dropdown */}
-            <div className="flex flex-col space-y-1.5 items-start">
+            {/* <div className="flex flex-col space-y-1.5 items-start">
               <label className="text-[13px] font-bold text-slate-800 ml-1">Learning Interest</label>
               <div className="relative w-full">
                 <GraduationCap className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.interest ? 'text-red-400' : 'text-slate-400'}`} size={18} />
@@ -169,7 +169,7 @@ export default function RegisterForm() {
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18} />
               </div>
               <ErrorMsg message={errors.interest?.message} />
-            </div>
+            </div> */}
 
             {/* User Type Radio */}
             <div className="space-y-3 pt-2">

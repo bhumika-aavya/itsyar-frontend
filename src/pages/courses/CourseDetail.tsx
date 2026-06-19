@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { 
-    ChevronLeft, BarChart2, BookOpen, Clock, CheckCircle2, 
+import {
+    ChevronLeft, BarChart2, BookOpen, Clock, CheckCircle2,
     PlayCircle, FileText, HelpCircle, ChevronDown, ChevronUp,
-    Loader2, 
+    Loader2,
     Zap
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -42,7 +42,7 @@ const ModuleAccordion = ({ module, isOpen, onToggle }: { module: CourseModule, i
 export default function CourseDetailPage() {
     const { courseId } = useParams();
     const navigate = useNavigate();
-    
+
     const [course, setCourse] = useState<CourseDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [openModule, setOpenModule] = useState<string | null>(null);
@@ -63,7 +63,7 @@ export default function CourseDetailPage() {
                 }
             } catch (error) {
                 console.error("Error loading course", error);
-                navigate('/courses'); 
+                navigate('/courses');
             } finally {
                 setLoading(false);
             }
@@ -94,8 +94,8 @@ export default function CourseDetailPage() {
         );
     }
 
-    if (!course) return null;
-
+    // if (!course) return null;
+    console.log("Rendering course detail page with course:", JSON.parse(course?.takeaways));
     return (
         <div className="max-w-6xl mx-auto text-left pb-20">
             <button onClick={() => navigate('/courses')} className="flex items-center gap-2 text-slate-400 hover:text-[#4F39F6] font-bold text-xs transition-colors mb-6 uppercase">
@@ -109,7 +109,7 @@ export default function CourseDetailPage() {
                         {course?.category}
                     </span>
                     <h1 className="text-5xl font-black text-slate-900 leading-tight tracking-tight">{course?.title}</h1>
-                    <p className="text-lg text-slate-500 font-medium leading-relaxed max-w-xl">{course?.description}</p>
+                    <p className="text-lg text-slate-500 font-medium leading-relaxed max-w-xl">{course?.description || "Learn to bridge the gap between high-end design and high-performance frontend code for Palantir foundry."}</p>
 
                     <div className="flex flex-wrap gap-8 py-4">
                         <MetaItem icon={BarChart2} label="Level" val={course?.level} color="text-blue-500" bg="bg-blue-50" />
@@ -117,29 +117,28 @@ export default function CourseDetailPage() {
                         <MetaItem icon={Clock} label="Duration" val={course?.duration} color="text-orange-500" bg="bg-orange-50" />
                     </div>
 
-                    <button 
+                    <button
                         disabled={isEnrolling}
                         onClick={handleEnroll}
                         className="bg-[#4F39F6] text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-indigo-100 hover:bg-[#3f2dd1] transition-all transform active:scale-95 flex items-center gap-2"
                     >
-                        {isEnrolling ? <Loader2 className="animate-spin" size={20} /> : "Enroll Now"}
+                        {course?.isEnrolled ? "View Course" : isEnrolling ? <Loader2 className="animate-spin" size={20} /> : "Enroll Now"}
                     </button>
                 </div>
 
                 <div className="lg:col-span-2">
                     <div className="rounded-[40px] overflow-hidden shadow-2xl shadow-slate-200 border-8 border-white">
-                        <img src={course?.thumbnail} alt={course?.title} className="w-full aspect-video object-cover" />
+                        <img src={course?.thumbnail || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=800"} alt={course?.title} className="w-full aspect-video object-cover" />
                     </div>
                 </div>
             </section>
-
             <div className="grid lg:grid-cols-3 gap-12">
                 <div className="lg:col-span-2 space-y-12">
                     <section className="space-y-6">
                         <h2 className="text-2xl font-bold text-slate-900">About this course</h2>
                         <p className="text-[15px] text-slate-500 leading-relaxed font-medium">{course?.longDescription}</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 pt-2">
-                            {course?.takeaways.map((item, i) => (
+                            {course?.takeaways && JSON.parse(course?.takeaways)?.map((item, i) => (
                                 <div key={i} className="flex items-start gap-3">
                                     <CheckCircle2 size={18} className="text-[#4F39F6] shrink-0 mt-0.5" />
                                     <span className="text-[14px] font-semibold text-slate-600 leading-snug">{item}</span>
@@ -154,7 +153,18 @@ export default function CourseDetailPage() {
                             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{course?.modulesCount} Modules</span>
                         </div>
                         <div>
-                            {course?.curriculum.map((module) => (
+                            {[{
+                                id: "m1",
+                                order: 1,
+                                title: "Introduction to Palantir Foundry",
+                                items: [
+                                    { id: "l1", title: "The History & Use Cases of Python", type: "video", duration: "12:45" },
+                                    { id: "l2", title: "Setting up your Development Environment", type: "video", duration: "15:20" },
+                                    { id: "l3", title: "Module 1 Assessment", type: "assessment", questions: 10 },
+                                ]
+                            },
+                            { id: "m2", order: 2, title: "Variables and Data Types", items: [] },
+                            { id: "m3", order: 3, title: "Control Flow & Logic", items: [] }].map((module) => (
                                 <ModuleAccordion
                                     key={module.id}
                                     module={module}
@@ -170,7 +180,14 @@ export default function CourseDetailPage() {
                     <div className="bg-[#F9FAFF] border border-indigo-50 p-8 rounded-[32px] sticky top-28">
                         <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] mb-8">Course Includes</h3>
                         <div className="space-y-6">
-                            {course?.includes.map((item, idx) => (
+                            {[{
+                                "text": "Certificate of completion",
+                                "icon": ""
+                            },
+                            {
+                                "text": "Hands on experience with Foundry",
+                                "icon": ""
+                            }].map((item, idx) => (
                                 <div key={idx} className="flex items-center gap-4 text-slate-600">
                                     <Zap size={20} className="text-[#4F39F6]" />
                                     <span className="text-[13px] font-bold">{item.text}</span>

@@ -1,19 +1,19 @@
-import React, { useState } from "react";
-import { 
-  Eye, 
-  EyeOff, 
-  Lock, 
-  Mail, 
-  Loader2, 
-  UserCog, 
-  ChevronDown 
+import React, { useEffect, useState } from "react";
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  Loader2,
+  UserCog,
+  ChevronDown
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginFormValues } from "@/schemas/login.schema";
 import { ErrorMsg } from "@/components/ui/error";
 import api from "@/lib/axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import axios from "axios";
 import Logo from "./Logo";
@@ -21,7 +21,7 @@ import Logo from "./Logo";
 // Define the API response structure
 interface LoginResponse {
   success: boolean;
-  token: string;
+  accessToken: string;
   user: {
     id: string;
     fullName: string;
@@ -35,11 +35,11 @@ export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [serverError, setServerError] = useState("");
-  
+  const [searchParams] = useSearchParams(); // Read URL params
   const navigate = useNavigate();
   const { login } = useAuth(); // Using the auth context we built earlier
 
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
+  const { register, handleSubmit,setValue, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   });
 
@@ -48,13 +48,14 @@ export default function LoginForm() {
     setServerError("");
     try {
       const response = await api.post<LoginResponse>("/auth/login", data);
-
+      console.log("Login response:", response.data); // Debugging log
       if (response.data.success) {
         // Authenticate via context (handles localStorage and state)
-        login(response.data.token, response.data.user);
+        login(response.data.accessToken, response.data.user);
         navigate("/dashboard");
       }
     } catch (error: unknown) {
+      console.error("Login error:", error); // Debugging log
       if (axios.isAxiosError(error)) {
         setServerError(error.response?.data?.message || "Invalid credentials. Please try again.");
       } else {
@@ -70,6 +71,16 @@ export default function LoginForm() {
     window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
   };
 
+  useEffect(() => {
+    const roleParam = searchParams.get('role');
+    const validRoles = ["student", "participant", "organizer", "admin", "mentor", "judge"];
+    
+    if (roleParam && validRoles.includes(roleParam)) {
+      // @ts-ignore - bypassing strict string literal check for the dynamic param
+      setValue('role', roleParam);
+    }
+  }, [searchParams, setValue]);
+
   return (
     <div className="w-full flex flex-col items-center">
       <div className="mb-8">
@@ -79,7 +90,7 @@ export default function LoginForm() {
       <div className="w-full rounded-[32px] border border-slate-100 bg-white p-10 shadow-xl shadow-slate-200/40">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Welcome back</h2>
-          <p className="mt-2 text-sm font-medium text-slate-500">Sign in to your ITSYAR account.</p>
+          <p className="mt-2 text-sm font-medium text-slate-500">Sign in to your ForgeInsight account.</p>
         </div>
 
         {serverError && (
@@ -98,9 +109,8 @@ export default function LoginForm() {
                 {...register("email")}
                 type="email"
                 placeholder="name@company.com"
-                className={`h-14 w-full rounded-xl border-2 pl-12 pr-4 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 ${
-                  errors.email ? "border-red-400" : "border-transparent focus:border-[#4F39F6] focus:bg-white"
-                }`}
+                className={`h-14 w-full rounded-xl border-2 pl-12 pr-4 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 ${errors.email ? "border-red-400" : "border-transparent focus:border-[#4F39F6] focus:bg-white"
+                  }`}
               />
             </div>
             <ErrorMsg message={errors.email?.message} />
@@ -109,8 +119,8 @@ export default function LoginForm() {
           {/* Password */}
           <div className="flex flex-col space-y-1.5 items-start">
             <div className="flex justify-between items-center w-full px-1">
-               <label className="text-[13px] font-bold text-slate-800">Password</label>
-               <button type="button" className="text-[12px] font-bold text-[#4F39F6] hover:underline">Forgot password?</button>
+              <label className="text-[13px] font-bold text-slate-800">Password</label>
+              <button type="button" className="text-[12px] font-bold text-[#4F39F6] hover:underline">Forgot password?</button>
             </div>
             <div className="relative w-full">
               <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.password ? 'text-red-400' : 'text-slate-400'}`} size={18} />
@@ -118,13 +128,12 @@ export default function LoginForm() {
                 {...register("password")}
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-                className={`h-14 w-full rounded-xl border-2 pl-12 pr-12 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 ${
-                  errors.password ? "border-red-400" : "border-transparent focus:border-[#4F39F6] focus:bg-white"
-                }`}
+                className={`h-14 w-full rounded-xl border-2 pl-12 pr-12 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 ${errors.password ? "border-red-400" : "border-transparent focus:border-[#4F39F6] focus:bg-white"
+                  }`}
               />
-              <button 
-                type="button" 
-                onClick={() => setShowPassword(!showPassword)} 
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -140,9 +149,8 @@ export default function LoginForm() {
               <UserCog className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.role ? 'text-red-400' : 'text-slate-400'}`} size={18} />
               <select
                 {...register("role")}
-                className={`h-14 w-full appearance-none rounded-xl border-2 pl-12 pr-10 bg-[#F8F6FC] outline-none transition-all cursor-pointer font-bold text-slate-700 ${
-                  errors.role ? "border-red-400" : "border-transparent focus:border-[#4F39F6] focus:bg-white"
-                }`}
+                className={`h-14 w-full appearance-none rounded-xl border-2 pl-12 pr-10 bg-[#F8F6FC] outline-none transition-all cursor-pointer font-bold text-slate-700 ${errors.role ? "border-red-400" : "border-transparent focus:border-[#4F39F6] focus:bg-white"
+                  }`}
               >
                 <option value="">Select your role</option>
                 <option value="student">Student</option>
@@ -178,10 +186,10 @@ export default function LoginForm() {
             onClick={handleGoogleLogin}
             className="h-14 w-full rounded-xl border-2 border-slate-100 bg-white flex items-center justify-center gap-3 font-bold text-slate-700 hover:bg-slate-50 transition-all active:scale-[0.98]"
           >
-            <img 
-              src="https://www.svgrepo.com/show/475656/google-color.svg" 
-              alt="Google" 
-              className="w-5 h-5" 
+            <img
+              src="https://www.svgrepo.com/show/475656/google-color.svg"
+              alt="Google"
+              className="w-5 h-5"
             />
             Sign in with Google
           </button>
@@ -189,7 +197,7 @@ export default function LoginForm() {
 
         <p className="mt-8 text-center text-sm font-bold text-slate-500">
           Don't have an account?{" "}
-          <button 
+          <button
             type="button"
             onClick={() => navigate('/register')}
             className="text-[#4F39F6] hover:underline"
