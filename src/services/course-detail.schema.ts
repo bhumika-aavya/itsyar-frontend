@@ -31,6 +31,7 @@ export const CourseDetailSchema = z.object({
     text: z.string()
   })),
   curriculum: z.array(ModuleSchema),
+  isEnrolled: z.boolean().default(false),
 });
 
 export type CourseDetail = z.infer<typeof CourseDetailSchema>;

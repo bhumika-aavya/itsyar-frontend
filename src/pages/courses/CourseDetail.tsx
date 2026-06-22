@@ -56,10 +56,6 @@ export default function CourseDetailPage() {
                     const data = await CourseService.getCourseById(courseId);
                     console.log("Fetched course data:", data);
                     setCourse(data);
-                    // Open the first module by default
-                    // if (data.curriculum.length > 0) {
-                    //     setOpenModule(data.curriculum[0].id);
-                    // }
                 }
             } catch (error) {
                 console.error("Error loading course", error);
@@ -73,6 +69,10 @@ export default function CourseDetailPage() {
 
     const handleEnroll = async () => {
         if (!courseId) return;
+        if (course?.isEnrolled) {
+            navigate(`/courses/${courseId}/lessons/intro`);
+            return;
+        }
         setIsEnrolling(true);
         try {
             await CourseService.enrollInCourse(courseId);
@@ -94,8 +94,6 @@ export default function CourseDetailPage() {
         );
     }
 
-    // if (!course) return null;
-    console.log("Rendering course detail page with course:", JSON.parse(course?.takeaways));
     return (
         <div className="max-w-6xl mx-auto text-left pb-20">
             <button onClick={() => navigate('/courses')} className="flex items-center gap-2 text-slate-400 hover:text-[#4F39F6] font-bold text-xs transition-colors mb-6 uppercase">
@@ -163,8 +161,7 @@ export default function CourseDetailPage() {
                                     { id: "l3", title: "Module 1 Assessment", type: "assessment", questions: 10 },
                                 ]
                             },
-                            { id: "m2", order: 2, title: "Variables and Data Types", items: [] },
-                            { id: "m3", order: 3, title: "Control Flow & Logic", items: [] }].map((module) => (
+                            ].map((module) => (
                                 <ModuleAccordion
                                     key={module.id}
                                     module={module}
@@ -176,21 +173,34 @@ export default function CourseDetailPage() {
                     </section>
                 </div>
 
-                <div className="lg:col-span-1">
-                    <div className="bg-[#F9FAFF] border border-indigo-50 p-8 rounded-[32px] sticky top-28">
-                        <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] mb-8">Course Includes</h3>
-                        <div className="space-y-6">
-                            {[{
-                                "text": "Certificate of completion",
-                                "icon": ""
-                            },
-                            {
-                                "text": "Hands on experience with Foundry",
-                                "icon": ""
-                            }].map((item, idx) => (
-                                <div key={idx} className="flex items-center gap-4 text-slate-600">
-                                    <Zap size={20} className="text-[#4F39F6]" />
-                                    <span className="text-[13px] font-bold">{item.text}</span>
+                <div className="lg:col-span-1 text-left">
+                    <div className="bg-[#F9FAFF] border border-indigo-50 p-8 rounded-[40px] sticky top-28 shadow-sm flex flex-col gap-8">
+                        <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.25em] leading-none">
+                            Course Includes
+                        </h3>
+                        {/* List Container - Spacing between items */}
+                        <div className="flex flex-col gap-7">
+                            {[
+                                {
+                                    "text": "Certificate of completion",
+                                    "icon": ""
+                                },
+                                {
+                                    "text": "Hands on experience with Foundry",
+                                    "icon": ""
+                                },
+                                {
+                                    "text": "Lifetime access to all materials",
+                                    "icon": ""
+                                }
+                            ].map((item, idx) => (
+                                <div key={idx} className="flex items-start gap-4 group">
+                                    <div className="mt-0.5 shrink-0">
+                                        <Zap size={18} className="text-[#4F39F6] fill-[#4F39F6]/10" />
+                                    </div>
+                                    <span className="text-[14px] font-bold text-slate-600 leading-snug">
+                                        {item.text}
+                                    </span>
                                 </div>
                             ))}
                         </div>

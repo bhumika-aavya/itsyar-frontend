@@ -135,7 +135,6 @@ export const CourseService = {
     getCourseById: async (id: string): Promise<CourseDetail> => {
         try {
             const response = await api.get(`/courses/${id}`, getAuthHeaders());
-            console.log("Course details response:", response); // Debugging log
             return response.data.data;
         } catch (error) {
             console.warn(`API Error: Falling back to mock data for course ${id}`);

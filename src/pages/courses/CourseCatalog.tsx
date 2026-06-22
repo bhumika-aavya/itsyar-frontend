@@ -121,7 +121,7 @@ export default function CourseCatalog() {
         <p className="text-slate-500 text-sm font-medium">Explore and enroll in wide variety of courses designed for you.</p>
       </section>
 
-      {myCourses.length > 0 && (
+      {myCourses?.length > 0 && (
         <section className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-black text-[#4F39F6] uppercase tracking-[0.2em]">Continue Learning</h2>

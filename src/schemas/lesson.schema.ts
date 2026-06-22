@@ -5,7 +5,8 @@ export const MaterialSchema = z.object({
     title: z.string(),
     type: z.enum(["pdf", "link"]),
     size: z.string().optional(),
-    meta: z.string(), // e.g., "PDF DOCUMENT" or "GOOGLE COLAB"
+    meta: z.string(),
+    url: z.string().optional(),
 });
 
 export const LessonSchema = z.object({

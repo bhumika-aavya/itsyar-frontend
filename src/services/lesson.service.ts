@@ -1,72 +1,58 @@
 import api from "@/lib/axios";
-import { LessonData, QuizData } from "@/schemas/lesson.schema";
+import { QuizData } from "@/schemas/lesson.schema";
 
-// 1. Expanded Mock Database to support multiple individual lessons
-const LESSON_MOCKS: Record<string, LessonData> = {
-    "intro": {
-        id: "intro",
-        title: "Course Introduction",
-        videoUrl: "https://www.youtube.com/watch?v=rfscVS0vtbw",
-        summary: "Welcome to the course! In this introductory lesson, we cover the roadmap and goals.",
-        course_completion_percentage: 5,
-        materials: [
-            { id: "m0", title: "Course Roadmap", type: "pdf", meta: "1.2 MB" }
-        ]
-    },
-    "1-1": {
-        id: "1-1",
-        title: "Lesson 1.1: What is AI?",
-        videoUrl: "https://www.youtube.com/watch?v=ad79nYk2keg",
-        summary: "A fundamental look at Artificial Intelligence and its impact on the modern world.",
-        course_completion_percentage: 10,
-        materials: []
-    },
-    "3-1": {
-        id: "3-1",
-        title: "Lesson 3.1: Introduction to RNNs",
-        videoUrl: "https://www.youtube.com/watch?v=rfscVS0vtbw",
-        summary: "Recurrent Neural Networks (RNNs) are a type of neural network designed for processing sequential data...",
-        course_completion_percentage: 35,
-        materials: [
-            { id: "m1", title: "PDF Lecture Notes", type: "pdf", meta: "4.2 MB" }
-        ]
-    },
-    "3-2": {
-        id: "3-2",
-        title: "Lesson 3.2: LSTMs and GRUs",
-        videoUrl: "https://www.youtube.com/watch?v=WCUNPb-5EYI", // LSTM specific video
-        summary: "Deep dive into Long Short-Term Memory (LSTM) and Gated Recurrent Units (GRU). Learn how these architectures solve the vanishing gradient problem in standard RNNs.",
-        course_completion_percentage: 45,
-        materials: [
-            { id: "m3", title: "LSTM Architecture PDF", type: "pdf", meta: "2.1 MB" }
-        ]
-    },
-    "2-1": {
-        id: "2-1",
-        title: "Lesson 2.1: Intro to CNNs",
-        videoUrl: "https://www.youtube.com/watch?v=YRhxdVk_sIs", // CNN Tutorial
-        summary: "Introduction to Convolutional Neural Networks. Understanding filters, kernels, and spatial hierarchies in image processing.",
-        course_completion_percentage: 20,
-        materials: [
-            { id: "m4", title: "CNN Visualizer", type: "link", meta: "EXTERNAL TOOL" }
-        ]
-    }
+const getAuthHeaders = () => {
+    const token = localStorage.getItem("accessToken");
+    return {
+        headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+        },
+    };
+};
+
+const MOCK_COURSE_DATA = {
+    id: "1",
+    title: "Welcome to the World of Palantir",
+    description: "An introductory course designed to familiarize learners with the Palantir ecosystem, including Foundry, data integration, analytics, and real-world applications.",
+    curriculum: [
+        {
+            id: 1,
+            title: "Welcome to the World of Palantir",
+            lessons: [
+                {
+                    id: "1-1",
+                    title: "Welcome to the World of Palantir",
+                    videoUrl: "https://aavya.palantirfoundry.com/workspace/preview-app/ri.blobster.main.video.7fd1176e-db42-47ad-b611-f5e65a3a9afb",
+                    summary: "This course provides a foundational overview of Palantir's data integration and analytics platforms, designed for analysts, engineers, and business users new to the ecosystem. Participants will learn the core concepts behind Palantir's approach to connecting, transforming, and operationalizing data across an organization. By the end of the course, participants will understand what Palantir does through hands-on examples and learners will get to explore how to navigate the interface, work with datasets, and turn data into operational decisions.",
+                    materials: [
+                        {
+                            id: "m-1-pdf",
+                            title: "Course PDF Notes",
+                            type: "pdf",
+                            meta: "PDF Document",
+                            url: "https://www.africau.edu/images/default/sample.pdf"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
 };
 
 const MOCK_QUIZ: QuizData = {
     id: "q1",
-    title: "Module Test: Introduction to RNNs",
-    path: "Foundational Deep Learning Path",
+    title: "Module Test: Welcome to Palantir",
+    path: "Foundational Palantir Path",
     timeLimit: 10,
     questions: [
         {
             id: "q_1",
-            text: "What is the vanishing gradient problem in the context of RNNs, and how does it typically manifest?",
+            text: "What is Palantir Foundry primarily designed for?",
             options: [
-                "Gradients shrink exponentially through long sequences, making it difficult to learn long-range dependencies.",
-                "The weights become too large during training, causing overflows.",
-                "The network overfits to noise in the training data.",
-                "It refers to data loss in network packets during distributed training."
+                "Data integration, analytics, and operational decision-making at scale.",
+                "Social media management and content scheduling.",
+                "Cloud gaming and multimedia streaming.",
+                "E-commerce and payment gateway processing."
             ],
             correctAnswer: 0
         }
@@ -74,30 +60,28 @@ const MOCK_QUIZ: QuizData = {
 };
 
 export const LessonService = {
-    getLessonDetails: async (lessonId: string): Promise<LessonData> => {
+    getLessonDetails: async (courseId: string): Promise<any> => {
         try {
-            // Lower the timeout for the real API call so it fails faster and hits the mock
-            const response = await api.get(`/lessons/${lessonId}`, { timeout: 2000 });
-            return response.data.lesson;
+            const response = await api.get(`/courses/${courseId}/modules`, getAuthHeaders());
+            return response.data.course;
         } catch (error) {
-            // This is actually working correctly! It's finding the error and giving you mock data.
-            console.log(`Using Mock Data for: ${lessonId}`);
-            return LESSON_MOCKS[lessonId] || LESSON_MOCKS["intro"];
+            console.log(`Using mock data for course: ${courseId}`);
+            return MOCK_COURSE_DATA;
         }
     },
 
-    getModuleQuiz: async (lessonId: string): Promise<QuizData> => {
+    getModuleQuiz: async (courseId: string, lessonId: string): Promise<QuizData> => {
         try {
-            const response = await api.get(`/lessons/${lessonId}/quiz`);
+            const response = await api.get(`/courses/${courseId}/modules/${lessonId}/quiz`, getAuthHeaders());
             return response.data.quiz;
         } catch (error) {
-            console.warn("API Error: Falling back to Mock Quiz Data");
+            console.warn("API error: falling back to mock quiz data");
             return MOCK_QUIZ;
         }
     },
 
     submitQuiz: async (quizId: string, answers: number[]) => {
-        const response = await api.post(`/quizzes/${quizId}/submit`, { answers });
+        const response = await api.post(`/quizzes/${quizId}/submit`, { answers }, getAuthHeaders());
         return response.data;
     }
 };

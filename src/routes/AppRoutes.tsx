@@ -8,6 +8,8 @@ import { ProtectedRoute, PublicRoute } from "./RouteGuards"; // Fix import
 import React from "react";
 import CourseDetail from "@/pages/courses/CourseDetail";
 import LessonView from "@/pages/courses/LessonView";
+import HackathonListing from "@/pages/hackathon/HackathonListing";
+import HackathonDetail from "@/pages/hackathon/HackathonDetail";
 
 export default function AppRoutes() {
   return (
@@ -25,6 +27,9 @@ export default function AppRoutes() {
         <Route path="/courses" element={<CourseCatalog />} />
         <Route path="/courses/:courseId" element={<CourseDetail />} />
         <Route path="/courses/:courseId/lessons/:lessonId" element={<LessonView />} />
+
+        <Route path="/hackathons" element={<HackathonListing />} />
+        <Route path="/hackathons/:id" element={<HackathonDetail />} />
 
       </Route>
       {/* </Route> */}
