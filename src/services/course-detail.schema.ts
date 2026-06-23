@@ -17,6 +17,7 @@ const ModuleSchema = z.object({
 
 export const CourseDetailSchema = z.object({
   id: z.string(),
+  moduleId: z.string(),
   title: z.string(),
   category: z.string(),
   description: z.string(),

@@ -39,7 +39,7 @@ export default function LoginForm() {
   const navigate = useNavigate();
   const { login } = useAuth(); // Using the auth context we built earlier
 
-  const { register, handleSubmit,setValue, formState: { errors } } = useForm<LoginFormValues>({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   });
 
@@ -48,16 +48,24 @@ export default function LoginForm() {
     setServerError("");
     try {
       const response = await api.post<LoginResponse>("/auth/login", data);
-      console.log("Login response:", response.data); // Debugging log
+      console.log("Login response:", response); // Debugging log
       if (response.data.success) {
         // Authenticate via context (handles localStorage and state)
         login(response.data.accessToken, response.data.user);
         navigate("/dashboard");
       }
     } catch (error: unknown) {
-      console.error("Login error:", error); // Debugging log
+      console.error("Login error:", error);
+
       if (axios.isAxiosError(error)) {
-        setServerError(error.response?.data?.message || "Invalid credentials. Please try again.");
+        console.log("Status:", error.response?.status);
+        console.log("Response:", error.response?.data);
+        console.log("Full Error:", error);
+        const message =
+          error.response?.data?.error?.data?.message ??
+          "Something went wrong. Please try again.";
+
+        setServerError(message);
       } else {
         setServerError("An unexpected error occurred.");
       }
@@ -74,12 +82,13 @@ export default function LoginForm() {
   useEffect(() => {
     const roleParam = searchParams.get('role');
     const validRoles = ["student", "participant", "organizer", "admin", "mentor", "judge"];
-    
+
     if (roleParam && validRoles.includes(roleParam)) {
       // @ts-ignore - bypassing strict string literal check for the dynamic param
       setValue('role', roleParam);
     }
   }, [searchParams, setValue]);
+  console.log("Current role value:", serverError); // Debugging log
 
   return (
     <div className="w-full flex flex-col items-center">

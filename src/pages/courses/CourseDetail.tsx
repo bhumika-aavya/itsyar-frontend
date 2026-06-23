@@ -70,7 +70,7 @@ export default function CourseDetailPage() {
     const handleEnroll = async () => {
         if (!courseId) return;
         if (course?.isEnrolled) {
-            navigate(`/courses/${courseId}/lessons/intro`);
+            navigate(`/courses/${courseId}/lessons/${course?.moduleId}`);
             return;
         }
         setIsEnrolling(true);

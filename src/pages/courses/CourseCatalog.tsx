@@ -20,9 +20,10 @@ const iconColorMap: Record<string, string> = {
 const ContinueCard = ({ data }: { data: MyCourse }) => {
   const Icon = iconMap[data.category] || Book;
   const colors = iconColorMap[data.category] || "bg-slate-50 text-slate-500";
+  const navigate = useNavigate();
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow group cursor-pointer text-left">
+    <div onClick={() => navigate(`/courses/${data.id}/lessons/${data.moduleId}`)} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow group cursor-pointer text-left">
       <div className={`${colors} w-12 h-12 rounded-2xl flex items-center justify-center mb-6`}>
         <Icon size={24} />
       </div>
@@ -58,7 +59,7 @@ const CourseGridCard = ({ data }: { data: Course }) => {
             {data.badge}
           </span>
         )}
-        <img src={data.image || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=800"} alt={data.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        <img src={data.image} alt={data.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
       </div>
       <div className="p-6 flex flex-col flex-1">
         <div className="flex gap-2 mb-4">

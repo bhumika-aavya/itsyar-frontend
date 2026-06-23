@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import {
   PlayCircle, FileText, ChevronDown, ChevronUp, Zap, ChevronLeft,
-  Loader2, ExternalLink
+  Loader2, ExternalLink, Lock, Download,
+  Notebook,
+  NotebookText
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { LessonService } from '@/services/lesson.service';
 import { QuizData } from '@/schemas/lesson.schema';
 import QuizModal from './QuizModal';
+import { CourseService } from '@/services/course.service';
 
 export default function LessonView() {
   const navigate = useNavigate();
@@ -26,14 +29,12 @@ export default function LessonView() {
 
       try {
         const [courseRes, quizRes] = await Promise.all([
-          LessonService.getLessonDetails(courseId!),
-          LessonService.getModuleQuiz(courseId!, lessonId ?? '')
+          LessonService.getLessonDetails(courseId!), LessonService.getModuleQuiz(courseId!, lessonId ?? '')
         ]);
 
         setCourseData(courseRes);
         setQuizData(quizRes);
 
-        // If no lessonId in URL, redirect to the first lesson
         if (!lessonId) {
           const firstLesson = courseRes.curriculum?.[0]?.lessons?.[0];
           if (firstLesson) {
@@ -42,13 +43,10 @@ export default function LessonView() {
           }
         }
 
-        // Auto-open the accordion for the current (or first) module
         const currentMod = courseRes.curriculum?.find((m: any) =>
           m.lessons.some((l: any) => l.id === (lessonId ?? courseRes.curriculum?.[0]?.lessons?.[0]?.id))
         );
         if (currentMod) setActiveModule(currentMod.id);
-        else if (courseRes.curriculum?.[0]) setActiveModule(courseRes.curriculum[0].id);
-
       } catch (err) {
         console.error("Failed to load content", err);
       } finally {
@@ -65,30 +63,33 @@ export default function LessonView() {
     </div>
   );
 
-  // Use the matching lesson, falling back to the first lesson in the course
   const allLessons = courseData?.curriculum?.flatMap((m: any) => m.lessons) ?? [];
   const currentLesson = allLessons.find((l: any) => l.id === lessonId) ?? allLessons[0];
+  const isLastModule = courseData?.curriculum?.length > 0 &&
+    activeModule === courseData.curriculum[courseData.curriculum.length - 1].id;
 
-  console.log("Current lesson data:", quizData, currentLesson);
   return (
-    <div className="min-h-screen bg-[#F9FAFD] flex flex-col text-left">
+    <div className="min-h-screen bg-[#F9FAFD] flex flex-col text-left font-sans">
+      {/* 1. Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-slate-100 px-8 py-5">
         <div className="max-w-[1440px] mx-auto flex justify-between items-center">
           <div className="flex items-center gap-4">
             <button onClick={() => navigate(`/courses/${courseId}`)} className="p-2 hover:bg-slate-50 rounded-xl text-slate-400">
               <ChevronLeft size={24} />
             </button>
-            <div className="h-8 w-px bg-slate-100" />
+            <div className="h-8 w-px bg-slate-100 hidden md:block" />
             <h2 className="text-xl font-black text-slate-900 tracking-tight">
-              {currentLesson?.title ?? "Lesson View"}
+              {currentLesson?.title}
             </h2>
           </div>
         </div>
       </header>
 
+      {/* 2. Main Layout */}
       <main className="flex-1 w-full max-w-[1440px] mx-auto p-6 md:p-10">
         <div className="grid lg:grid-cols-12 gap-10 items-start">
 
+          {/* Left Column (Video/Summary) */}
           <div className="lg:col-span-8 space-y-10">
             <div className="relative pt-[56.25%] w-full bg-black rounded-[40px] overflow-hidden shadow-2xl border-8 border-white">
               {isUpdatingVideo ? (
@@ -103,13 +104,14 @@ export default function LessonView() {
                   autoPlay={false}
                   onEnded={() => setIsQuizOpen(true)}
                 >
-                  <source src={currentLesson?.videoUrl} type="video/mp4" />
+                  <source src={`${import.meta.env.VITE_IMAGE_URL}${currentLesson?.videoUrl}`} type="video/mp4" />
                 </video>
               )}
             </div>
 
+            {/* Info Grid (70% Summary / 30% Materials) */}
             <div className="grid md:grid-cols-10 gap-12 pt-4">
-              <div className="md:col-span-7 space-y-5">
+              <div className="md:col-span-6 space-y-5">
                 <div className="flex items-center gap-3 font-black text-[#4F39F6] uppercase text-sm tracking-widest">
                   <FileText size={20} /> Summary
                 </div>
@@ -118,22 +120,44 @@ export default function LessonView() {
                 </p>
               </div>
 
-              <div className="md:col-span-3 space-y-5">
+              <div className="md:col-span-4 space-y-5">
                 <div className="flex items-center gap-3 font-black text-[#4F39F6] uppercase text-sm tracking-widest">
-                  <Zap size={20} /> Materials
+                  <Zap size={20} /> Course Materials
                 </div>
                 <div className="flex flex-col gap-3">
                   {currentLesson?.materials?.map((mat: any) => (
-                    <MaterialCard key={mat.id} title={mat.title} type={mat.type} meta={mat.meta} url={mat.url} />
+                    <MaterialCard
+                      key={mat.id}
+                      title={mat.title}
+                      type={mat.type}
+                      meta={mat.meta}
+                      url={`${import.meta.env.VITE_IMAGE_URL}${mat.url}`}
+                    />
                   ))}
                 </div>
               </div>
             </div>
           </div>
 
+          {/* Right Column (Curriculum Sidebar) */}
           <div className="lg:col-span-4 space-y-8 sticky top-32">
-            <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-xl">
-              <h3 className="text-lg font-bold text-slate-900 mb-6 text-left">Course Curriculum</h3>
+            <div className="bg-white border border-slate-100 rounded-[32px] p-6 shadow-xl shadow-slate-200/40">
+              <h3 className="text-lg font-bold text-slate-900 mb-4 px-2">Course Curriculum</h3>
+
+              {/* Progress Section */}
+              <div className="px-2 mb-8">
+                <div className="w-full h-1.5 bg-slate-100 rounded-full mb-2 overflow-hidden">
+                  <div
+                    className="h-full bg-[#4F39F6] transition-all duration-1000"
+                    style={{ width: `${courseData?.course_completion_percentage || 0}%` }}
+                  />
+                </div>
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                  {courseData?.course_completion_percentage || 0}% Complete
+                </p>
+              </div>
+
+              {/* Accordion List */}
               <div className="space-y-2">
                 {courseData?.curriculum?.map((mod: any) => (
                   <ModuleAccordionItem
@@ -143,66 +167,104 @@ export default function LessonView() {
                     onHeaderClick={() => setActiveModule(activeModule === mod.id ? null : mod.id)}
                     currentLessonId={currentLesson?.id}
                     onLessonClick={(id: string) => navigate(`/courses/${courseId}/lessons/${id}`)}
+                    onQuizClick={() => setIsQuizOpen(true)}
                   />
                 ))}
               </div>
 
-              {quizData && (
-                <div className="mt-4 pt-4 border-t border-slate-100">
-                  <button
-                    onClick={() => setIsQuizOpen(true)}
-                    className="w-full flex items-center justify-between px-4 py-3.5 bg-[#4F39F6] hover:bg-indigo-700 active:scale-[0.98] text-white rounded-2xl font-bold text-sm transition-all shadow-md shadow-indigo-200"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Zap size={16} fill="currentColor" />
-                      <span>Take Module Quiz</span>
-                    </div>
-                    <span className="text-indigo-200 text-xs font-semibold">
-                      {quizData.questions.length} {quizData.questions.length === 1 ? 'question' : 'questions'}
-                    </span>
-                  </button>
-                </div>
-              )}
+              {/* Footer Sidebar Button (Disabled look from Figma) */}
+              {/* <div className="mt-8 px-2">
+                <button
+                  disabled
+                  className="w-full flex items-center justify-center gap-3 py-4 bg-[#DDE1E7] text-slate-400 rounded-2xl font-black text-sm cursor-not-allowed"
+                >
+                  <Lock size={18} />
+                  <span>Take Quiz</span>
+                </button>
+              </div> */}
             </div>
           </div>
         </div>
       </main>
 
-      {quizData && <QuizModal isOpen={isQuizOpen} onClose={() => setIsQuizOpen(false)} data={quizData} />}
+      {quizData &&
+        <QuizModal
+          isOpen={isQuizOpen}
+          isFinalQuiz={isLastModule}
+          onClose={() => setIsQuizOpen(false)}
+          data={quizData} />}
     </div>
   );
 }
 
-const ModuleAccordionItem = ({ module, isActive, onHeaderClick, currentLessonId, onLessonClick }: any) => (
-  <div className={`rounded-xl overflow-hidden border transition-all ${isActive ? "border-[#4F39F6]" : "border-slate-100"}`}>
-    <button onClick={onHeaderClick} className={`w-full p-4 flex items-center justify-between transition-colors ${isActive ? "bg-[#4F39F6] text-white" : "bg-white text-slate-600"}`}>
+// Sidebar Sub-component
+const ModuleAccordionItem = ({ module, isActive, onHeaderClick, currentLessonId, onLessonClick, onQuizClick }: any) => (
+  <div className={`rounded-xl overflow-hidden border transition-all duration-300 ${isActive ? "border-[#4F39F6]" : "border-slate-100"}`}>
+    <button
+      onClick={onHeaderClick}
+      className={`w-full p-4 flex items-center justify-between transition-colors ${isActive ? "bg-[#4F39F6] text-white" : "bg-white text-slate-600 hover:bg-slate-50"
+        }`}
+    >
       <div className="text-left">
-        <p className={`text-[9px] font-black uppercase mb-0.5 ${isActive ? "text-indigo-100" : "text-slate-400"}`}>Module {module.id}</p>
-        <p className="text-xs font-bold">{module.title}</p>
+        <p className={`text-[9px] font-black uppercase tracking-widest mb-0.5 ${isActive ? "text-indigo-100" : "text-slate-400"}`}>
+          Module {module.id}
+        </p>
+        <p className="text-xs font-bold leading-tight">{module.title}</p>
       </div>
-      {isActive ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+      {isActive ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
     </button>
+
     {isActive && (
       <div className="bg-white">
-        {module.lessons.map((l: any) => (
+        {module.lessons.map((lesson) => {
+          const isCurrent = currentLessonId === lesson.id;
+          console.log("Rendering lesson:", lesson, module.hasQuiz);
+          return (
+            <span key={lesson.id}>
+              <div
+                onClick={() => onLessonClick(lesson.id)}
+                className={`relative flex items-center gap-4 p-4 cursor-pointer transition-all border-l-4 ${isCurrent
+                  ? "bg-[#EEF0FF] border-[#4F39F6] text-[#4F39F6]"
+                  : "border-transparent text-slate-600 hover:bg-slate-50"
+                  }`}
+              >
+                <PlayCircle size={16} className={isCurrent ? "opacity-100" : "text-slate-400"} />
+                <span className={`text-[12px] ${isCurrent ? "font-black" : "font-bold"}`}>{lesson.title}</span>
+              </div>
+              {lesson.hasQuiz && (
+                <div
+                  onClick={onQuizClick}
+                  className={`relative flex items-center gap-4 p-4 cursor-pointer transition-all border-l-4 ${isCurrent
+                    ? "bg-[#EEF0FF] border-[#4F39F6] text-[#4F39F6]"
+                    : "border-transparent text-slate-600 hover:bg-slate-50"
+                    }`}
+                >
+                  <FileText size={16} className="group-hover:text-[#4F39F6]" />
+                  <span className="text-[12px] font-bold group-hover:text-slate-900">Module {module.id} Quiz</span>
+                </div>
+              )}
+            </span>
+          );
+        })}
+        {module.hasQuiz && (
           <div
-            key={l.id}
-            onClick={() => onLessonClick(l.id)}
-            className={`flex items-center gap-3 p-4 cursor-pointer border-l-4 transition-all ${currentLessonId === l.id ? "bg-[#EEF0FF] border-[#4F39F6] text-[#4F39F6]" : "border-transparent text-slate-600 hover:bg-slate-50"}`}
+            onClick={onQuizClick}
+            className="flex items-center gap-4 p-4 text-slate-400 border-t border-slate-50 hover:bg-slate-50 cursor-pointer group"
           >
-            <PlayCircle size={16} fill={currentLessonId === l.id ? "currentColor" : "none"} />
-            <span className="text-[12px] font-bold">{l.title}</span>
+            <FileText size={16} className="group-hover:text-[#4F39F6]" />
+            <span className="text-[12px] font-bold group-hover:text-slate-900">Module {module.id} Quiz</span>
           </div>
-        ))}
+        )}
       </div>
     )}
   </div>
 );
 
-const MaterialCard = ({ title, meta, type, url }: { title: string; meta: string; type: string; url?: string }) => (
+// Material Card Sub-component
+const MaterialCard = ({ title, meta, type, url }: any) => (
   <div
-    onClick={() => url && window.open(url, '_blank', 'noopener,noreferrer')}
-    className={`p-4 bg-white rounded-2xl border border-slate-100 flex items-center justify-between group transition-all ${url ? 'cursor-pointer hover:border-[#4F39F6]/30' : 'cursor-default'}`}
+    onClick={() => url && window.open(url, '_blank')}
+    className="p-4 bg-[#F5F6FA] rounded-2xl border border-transparent flex items-center justify-between group cursor-pointer hover:bg-white hover:border-slate-200 transition-all"
   >
     <div className="flex items-center gap-4 text-left font-bold">
       <div className={`p-2.5 rounded-xl ${type === 'pdf' ? 'bg-red-50 text-red-400' : 'bg-blue-50 text-blue-400'}`}>
@@ -210,11 +272,9 @@ const MaterialCard = ({ title, meta, type, url }: { title: string; meta: string;
       </div>
       <div>
         <p className="text-sm text-slate-800 leading-tight">{title}</p>
-        <p className="text-[10px] text-slate-400 uppercase">{meta}</p>
+        <p className="text-[10px] text-slate-400 uppercase tracking-tighter">{meta}</p>
       </div>
     </div>
-    {url && (
-      <ExternalLink size={15} className="shrink-0 text-slate-300 group-hover:text-[#4F39F6] transition-colors" />
-    )}
+    <Download size={18} className="text-slate-300 group-hover:text-slate-600" />
   </div>
 );

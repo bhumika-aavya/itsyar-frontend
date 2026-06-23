@@ -8,12 +8,14 @@ import {
 import { HackathonService } from '@/services/hackathon.service';
 import { HackathonDetail as HackathonDetailType } from '@/schemas/hackathon.schema';
 import Timeline from './HackathonTimeline';
+import HackathonRegistrationModal from './HackathonRegistrationModal';
 
 export default function HackathonDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [data, setData] = useState<HackathonDetailType | null>(null);
     const [activeTab, setActiveTab] = useState('Overview');
+    const [isRegModalOpen, setIsRegModalOpen] = useState(false);
 
     useEffect(() => {
         const load = async () => {
@@ -159,7 +161,9 @@ export default function HackathonDetail() {
                         </div>
 
                         <div className="space-y-4 pt-4 border-t border-slate-50">
-                            <button className="w-full py-4 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-xl shadow-indigo-100 hover:bg-[#3f2dd1] transition-all active:scale-95">
+                            <button
+                                onClick={() => setIsRegModalOpen(true)}
+                                className="w-full py-4 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-xl shadow-indigo-100 hover:bg-[#3f2dd1] transition-all active:scale-95">
                                 Register & Join
                             </button>
                             <p className="text-center text-[11px] font-bold text-slate-400 uppercase tracking-widest">
@@ -172,6 +176,13 @@ export default function HackathonDetail() {
                     </div>
                 </div>
             </div>
+            {data && (
+                <HackathonRegistrationModal
+                    isOpen={isRegModalOpen}
+                    onClose={() => setIsRegModalOpen(false)}
+                    hackathonData={data}
+                />
+            )}
         </div>
     );
 }

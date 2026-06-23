@@ -14,6 +14,7 @@ export const CourseSchema = z.object({
 
 export const MyCourseSchema = z.object({
   id: z.string(),
+  moduleId: z.string(),
   title: z.string(),
   level: z.string(),
   lessons: z.string(),
@@ -21,5 +22,14 @@ export const MyCourseSchema = z.object({
   category: z.enum(["code", "layout", "database"]),
 });
 
+export const CertificateSchema = z.object({
+  certificateId: z.string(),
+  courseTitle: z.string(),
+  studentName: z.string(),
+  issueDate: z.string(),
+  instructorName: z.string(),
+});
+
+export type CertificateData = z.infer<typeof CertificateSchema>;
 export type Course = z.infer<typeof CourseSchema>;
 export type MyCourse = z.infer<typeof MyCourseSchema>;

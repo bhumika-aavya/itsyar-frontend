@@ -10,6 +10,7 @@ import CourseDetail from "@/pages/courses/CourseDetail";
 import LessonView from "@/pages/courses/LessonView";
 import HackathonListing from "@/pages/hackathon/HackathonListing";
 import HackathonDetail from "@/pages/hackathon/HackathonDetail";
+import CertificatePage from "@/pages/courses/CertificatePage";
 
 export default function AppRoutes() {
   return (
@@ -30,7 +31,7 @@ export default function AppRoutes() {
 
         <Route path="/hackathons" element={<HackathonListing />} />
         <Route path="/hackathons/:id" element={<HackathonDetail />} />
-
+        <Route path="/courses/:courseId/certificate" element={<CertificatePage />} />
       </Route>
       {/* </Route> */}
 

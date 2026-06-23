@@ -26,6 +26,17 @@ export const HackathonDetailSchema = z.object({
     }))
 });
 
+export const HackathonRegistrationSchema = z.object({
+    fullName: z.string().min(2, "Full name is required"),
+    email: z.string().email("Invalid email address"),
+    role: z.string().min(1, "Role is required"),
+    agreeToRules: z.literal(true, {
+        errorMap: () => ({ message: "You must agree to the rules" }),
+    }),
+    consentToOrganizers: z.boolean().default(false),
+});
+
 export type HackathonDetail = z.infer<typeof HackathonDetailSchema>;
 export type Hackathon = z.infer<typeof HackathonSchema>;
 export type HackathonStatus = z.infer<typeof HackathonStatusSchema>;
+export type HackathonRegistrationValues = z.infer<typeof HackathonRegistrationSchema>;
