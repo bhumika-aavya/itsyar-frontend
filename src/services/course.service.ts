@@ -67,5 +67,8 @@ export const CourseService = {
             console.warn("API Error: Enrollment simulated via mock");
             return { success: true };
         }
+    },
+    updateProgress: async (courseId: string, lessonId: string, data: { playedSeconds: number; totalSeconds: number; isCompleted: boolean }) => {
+        return await api.post(`/courses/${courseId}/lessons/${lessonId}/progress`, data);
     }
 };

@@ -59,7 +59,7 @@ const CourseGridCard = ({ data }: { data: Course }) => {
             {data.badge}
           </span>
         )}
-        <img src={data.image} alt={data.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        <img src={`${import.meta.env.VITE_IMAGE_URL}${data?.image}`} alt={data.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
       </div>
       <div className="p-6 flex flex-col flex-1">
         <div className="flex gap-2 mb-4">

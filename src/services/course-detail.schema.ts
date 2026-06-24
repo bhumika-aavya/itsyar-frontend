@@ -27,7 +27,7 @@ export const CourseDetailSchema = z.object({
   duration: z.string(),
   thumbnail: z.string(),
   takeaways: z.array(z.string()),
-  includes: z.array(z.object({
+  include: z.array(z.object({
     icon: z.string(),
     text: z.string()
   })),

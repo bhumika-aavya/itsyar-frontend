@@ -126,7 +126,7 @@ export default function CourseDetailPage() {
 
                 <div className="lg:col-span-2">
                     <div className="rounded-[40px] overflow-hidden shadow-2xl shadow-slate-200 border-8 border-white">
-                        <img src={course?.thumbnail || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&q=80&w=800"} alt={course?.title} className="w-full aspect-video object-cover" />
+                        <img src={`${import.meta.env.VITE_IMAGE_URL}${course?.thumbnail}`} alt={course?.title} className="w-full aspect-video object-cover" />
                     </div>
                 </div>
             </section>
@@ -180,26 +180,13 @@ export default function CourseDetailPage() {
                         </h3>
                         {/* List Container - Spacing between items */}
                         <div className="flex flex-col gap-7">
-                            {[
-                                {
-                                    "text": "Certificate of completion",
-                                    "icon": ""
-                                },
-                                {
-                                    "text": "Hands on experience with Foundry",
-                                    "icon": ""
-                                },
-                                {
-                                    "text": "Lifetime access to all materials",
-                                    "icon": ""
-                                }
-                            ].map((item, idx) => (
+                            {course?.include?.map((item, idx) => (
                                 <div key={idx} className="flex items-start gap-4 group">
                                     <div className="mt-0.5 shrink-0">
                                         <Zap size={18} className="text-[#4F39F6] fill-[#4F39F6]/10" />
                                     </div>
                                     <span className="text-[14px] font-bold text-slate-600 leading-snug">
-                                        {item.text}
+                                        {item}
                                     </span>
                                 </div>
                             ))}

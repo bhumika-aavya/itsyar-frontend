@@ -21,6 +21,7 @@ export default function LessonView() {
   const [quizData, setQuizData] = useState<QuizData | null>(null);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isUpdatingVideo, setIsUpdatingVideo] = useState(false);
+  const [lastSavedTime, setLastSavedTime] = useState(0);
 
   useEffect(() => {
     const loadContent = async () => {
@@ -68,6 +69,36 @@ export default function LessonView() {
   const isLastModule = courseData?.curriculum?.length > 0 &&
     activeModule === courseData.curriculum[courseData.curriculum.length - 1].id;
 
+  const handleTimeUpdate = async (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const video = e.currentTarget;
+    const currentTime = video.currentTime;
+    const duration = video.duration;
+
+    // 1. Only sync with API every 10 seconds or when finished to save server resources
+    if (Math.abs(currentTime - lastSavedTime) > 10 || currentTime === duration) {
+      setLastSavedTime(currentTime);
+
+      const isFinished = (currentTime / duration) > 0.9; // 90% threshold
+
+      try {
+        await CourseService.updateProgress(courseId!, lessonId!, {
+          playedSeconds: currentTime,
+          totalSeconds: duration,
+          isCompleted: isFinished
+        });
+
+        // 2. If finished, we might want to refresh the courseData 
+        // to update the sidebar checkmarks and the progress bar
+        if (isFinished && !currentLesson.isCompleted) {
+          const updatedCourse = await CourseService.getCourseById(courseId!);
+          setCourseData(updatedCourse);
+        }
+      } catch (err) {
+        console.error("Failed to sync progress");
+      }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#F9FAFD] flex flex-col text-left font-sans">
       {/* 1. Header */}
@@ -103,6 +134,7 @@ export default function LessonView() {
                   controls
                   autoPlay={false}
                   onEnded={() => setIsQuizOpen(true)}
+                  onTimeUpdate={handleTimeUpdate}
                 >
                   <source src={`${import.meta.env.VITE_IMAGE_URL}${currentLesson?.videoUrl}`} type="video/mp4" />
                 </video>
@@ -259,7 +291,6 @@ const ModuleAccordionItem = ({ module, isActive, onHeaderClick, currentLessonId,
     )}
   </div>
 );
-
 // Material Card Sub-component
 const MaterialCard = ({ title, meta, type, url }: any) => (
   <div
