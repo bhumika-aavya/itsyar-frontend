@@ -46,7 +46,7 @@ export const CourseService = {
     },
     getCertificate: async (courseId: string): Promise<CertificateData> => {
         try {
-            const response = await api.get(`/courses/${courseId}/certificate`);
+            const response = await api.get(`/courses/${courseId}/certificate`, getAuthHeaders());
             return response.data.certificate;
         } catch (error) {
             console.warn("API Error: Falling back to mock certificate data");

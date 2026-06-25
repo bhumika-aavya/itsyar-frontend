@@ -45,7 +45,7 @@ export default function LessonView() {
         }
 
         const currentMod = courseRes.curriculum?.find((m: any) =>
-          m.lessons.some((l: any) => l.id === (lessonId ?? courseRes.curriculum?.[0]?.lessons?.[0]?.id))
+          m?.lessons?.some((l: any) => l.id === (lessonId ?? courseRes.curriculum?.[0]?.lessons?.[0]?.id))
         );
         if (currentMod) setActiveModule(currentMod.id);
       } catch (err) {
@@ -224,7 +224,10 @@ export default function LessonView() {
           isOpen={isQuizOpen}
           isFinalQuiz={isLastModule}
           onClose={() => setIsQuizOpen(false)}
-          data={quizData} />}
+          data={quizData}
+          courseId={courseId!}
+
+        />}
     </div>
   );
 }
@@ -250,7 +253,6 @@ const ModuleAccordionItem = ({ module, isActive, onHeaderClick, currentLessonId,
       <div className="bg-white">
         {module.lessons.map((lesson) => {
           const isCurrent = currentLessonId === lesson.id;
-          console.log("Rendering lesson:", lesson, module.hasQuiz);
           return (
             <span key={lesson.id}>
               <div

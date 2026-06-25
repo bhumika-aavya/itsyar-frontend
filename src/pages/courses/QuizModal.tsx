@@ -7,6 +7,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   data: QuizData;
+  isFinalQuiz: boolean
 }
 
 export default function QuizModal({ isOpen, onClose, data, isFinalQuiz, courseId }: Props) {
@@ -58,7 +59,6 @@ export default function QuizModal({ isOpen, onClose, data, isFinalQuiz, courseId
     const score = calculateScore();
     const percentage = Math.round((score / data.questions.length) * 100);
     const isPassed = percentage >= 70;
-
     return (
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div className="bg-white w-full max-w-lg rounded-[40px] p-12 text-center shadow-2xl animate-in zoom-in-95 duration-300">
@@ -92,6 +92,7 @@ export default function QuizModal({ isOpen, onClose, data, isFinalQuiz, courseId
       </div>
     );
   }
+  console.log("Quiz finished. Score:", courseId);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, ChevronLeft, Users, Loader2 } from 'lucide-react';
+import { X, ChevronLeft, Users, Loader2, ChevronDown } from 'lucide-react';
 import {
     HackathonRegistrationSchema,
     HackathonRegistrationValues
@@ -74,42 +74,73 @@ export default function HackathonRegistrationModal({ isOpen, onClose, hackathonD
                             <button type="button" className="text-xs font-bold text-slate-500 hover:text-[#4F39F6] underline ml-1">Change Team</button>
                         </div>
 
-                        {/* Form Inputs */}
+                        {/* Participant Details */}
                         <div className="space-y-6">
                             <h3 className="text-lg font-bold text-slate-800">Participant Details</h3>
                             <div className="grid gap-5">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700 ml-1">Full Name</label>
-                                    <input {...register("fullName")} className="h-14 w-full bg-white border border-slate-200 rounded-2xl px-5 font-medium outline-none focus:border-[#4F39F6]" placeholder="John Doe" />
-                                    <ErrorMsg message={errors.fullName?.message} />
+                                {/* Full Name */}
+                                <div className="flex flex-col">
+                                    <label className="text-[13px] font-bold text-slate-700 ml-1 mb-1.5">Full Name</label>
+                                    <input
+                                        {...register("fullName")}
+                                        className={`h-14 w-full bg-slate-50/50 border rounded-xl px-5 text-sm font-medium outline-none transition-all ${errors.fullName ? "border-red-400 focus:border-red-400" : "border-slate-100 focus:border-[#4F39F6]"
+                                            }`}
+                                        placeholder="John Doe"
+                                    />
+                                    {errors.fullName && (
+                                        <p className="text-[12px] font-bold text-red-500 ml-1 mt-1.5 text-left">
+                                            {errors.fullName.message}
+                                        </p>
+                                    )}
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700 ml-1">Email Address</label>
-                                    <input {...register("email")} className="h-14 w-full bg-white border border-slate-200 rounded-2xl px-5 font-medium outline-none focus:border-[#4F39F6]" placeholder="john.doe@example.com" />
-                                    <ErrorMsg message={errors.email?.message} />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700 ml-1">Role</label>
-                                    <select {...register("role")} className="h-14 w-full bg-white border border-slate-200 rounded-2xl px-5 font-medium outline-none">
-                                        <option value="Participant">Participant</option>
-                                        <option value="Mentor">Mentor</option>
-                                    </select>
+
+                                {/* Email Address */}
+                                <div className="flex flex-col">
+                                    <label className="text-[13px] font-bold text-slate-700 ml-1 mb-1.5">Email Address</label>
+                                    <input
+                                        {...register("email")}
+                                        className={`h-14 w-full bg-slate-50/50 border rounded-xl px-5 text-sm font-medium outline-none transition-all ${errors.email ? "border-red-400 focus:border-red-400" : "border-slate-100 focus:border-[#4F39F6]"
+                                            }`}
+                                        placeholder="john.doe@example.com"
+                                    />
+                                    {errors.email && (
+                                        <p className="text-[12px] font-bold text-red-500 ml-1 mt-1.5 text-left">
+                                            {errors.email.message}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
-                            {/* ... (email and role follows same styling) */}
                         </div>
-
                         {/* Agreements */}
-                        <div className="space-y-3 pt-4">
-                            <label className="flex items-center gap-3 cursor-pointer">
-                                <input type="checkbox" {...register("agreeToRules")} className="w-5 h-5 rounded border-slate-300 text-[#4F39F6] focus:ring-0" />
-                                <span className="text-sm font-bold text-slate-600">I agree to the hackathon rules and code of conduct</span>
-                            </label>
-                            <ErrorMsg message={errors.agreeToRules?.message} />
-                            <label className="flex items-center gap-3 cursor-pointer">
-                                <input type="checkbox" {...register("consentToOrganizers")} className="w-5 h-5 rounded border-slate-300 text-[#4F39F6] focus:ring-0" />
-                                <span className="text-sm font-bold text-slate-600">I consent to my team details being visible to organizers</span>
-                            </label>
+                        <div className="space-y-4 pt-4">
+                            <div className="flex flex-col gap-3">
+                                <label className="flex items-center gap-3 cursor-pointer group">
+                                    <input
+                                        type="checkbox"
+                                        {...register("agreeToRules")}
+                                        className="w-5 h-5 rounded border-slate-300 text-[#4F39F6] focus:ring-0 cursor-pointer"
+                                    />
+                                    <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">
+                                        I agree to the hackathon rules and code of conduct
+                                    </span>
+                                </label>
+                                {/* Error message specifically for the checkbox, left-aligned */}
+                                {errors.agreeToRules && (
+                                    <p className="text-[12px] font-bold text-red-500 ml-8 text-left -mt-1">
+                                        {errors.agreeToRules.message}
+                                    </p>
+                                )}
+
+                                <label className="flex items-center gap-3 cursor-pointer group">
+                                    <input
+                                        type="checkbox"
+                                        className="w-5 h-5 rounded border-slate-300 text-[#4F39F6] focus:ring-0 cursor-pointer"
+                                    />
+                                    <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">
+                                        I consent to my team details being visible to organizers
+                                    </span>
+                                </label>
+                            </div>
                         </div>
                     </div>
 
