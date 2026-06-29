@@ -1,14 +1,6 @@
 import api from "@/lib/axios";
 import { QuizData } from "@/schemas/lesson.schema";
-
-const getAuthHeaders = () => {
-    const token = localStorage.getItem("accessToken");
-    return {
-        headers: {
-            Authorization: token ? `Bearer ${token}` : "",
-        },
-    };
-};
+import { getAuthHeaders } from "./auth";
 
 export const LessonService = {
     getLessonDetails: async (courseId: string): Promise<any> => {

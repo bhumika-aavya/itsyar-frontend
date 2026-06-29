@@ -38,8 +38,8 @@ const Navbar = () => {
   return (
     <nav className="bg-white border-b border-slate-50 sticky top-0 z-50 w-full">
       <Container className="flex items-center justify-between py-5">
-        <div 
-          className="flex items-center gap-2 cursor-pointer" 
+        <div
+          className="flex items-center gap-2 cursor-pointer"
           onClick={() => scrollToSection('home')}
         >
           <div className="bg-[#4F39F6] p-1.5 rounded-lg">
@@ -66,13 +66,13 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <button 
-            className="text-[14px] font-bold text-slate-700 px-4 py-2 hover:text-[#4F39F6]" 
+          <button
+            className="text-[14px] font-bold text-slate-700 px-4 py-2 hover:text-[#4F39F6]"
             onClick={() => navigate('/login')}
           >
             Sign In
           </button>
-          <button 
+          <button
             className="text-[14px] font-bold bg-[#4F39F6] text-white px-6 py-2.5 rounded-xl hover:bg-[#3f2dd1] transition-all shadow-lg shadow-indigo-100"
             onClick={() => navigate('/register')}
           >
@@ -84,38 +84,38 @@ const Navbar = () => {
   );
 };
 
-const Hero = () =>{ 
-   const navigate = useNavigate();
+const Hero = () => {
+  const navigate = useNavigate();
 
   const handleNavigation = (role: string) => {
     navigate(`/login?role=${role}`);
   };
-  return(
-  <section id="home" className="py-16 lg:py-24 bg-white w-full overflow-hidden">
-    <Container className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-      <div className="text-left space-y-8">
-        <div className="inline-block px-3 py-1 rounded-md bg-indigo-50 text-[#4F39F6] text-[11px] font-bold uppercase tracking-widest">
-          Build, Learn, Win. Together.
-        </div>
+  return (
+    <section id="home" className="py-16 lg:py-24 bg-white w-full overflow-hidden">
+      <Container className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="text-left space-y-8">
+          <div className="inline-block px-3 py-1 rounded-md bg-indigo-50 text-[#4F39F6] text-[11px] font-bold uppercase tracking-widest">
+            Build, Learn, Win. Together.
+          </div>
 
-        <h1 className="text-5xl md:text-6xl lg:text-[80px] font-black text-slate-900 leading-[1] tracking-tight">
-          Learn. Build. <br />
-          <span className="text-[#4F39F6]">Compete.</span>
-        </h1>
+          <h1 className="text-5xl md:text-6xl lg:text-[80px] font-black text-slate-900 leading-[1] tracking-tight">
+            Learn. Build. <br />
+            <span className="text-[#4F39F6]">Compete.</span>
+          </h1>
 
-        <p className="text-lg md:text-xl text-slate-500 max-w-md leading-relaxed font-medium">
-          The #1 Platform for Developers to Train Skills & Win Hackathons.
-        </p>
+          <p className="text-lg md:text-xl text-slate-500 max-w-md leading-relaxed font-medium">
+            The #1 Platform for Developers to Train Skills & Win Hackathons.
+          </p>
 
-        <div className="flex flex-wrap items-center gap-4 pt-2">
-            <button 
+          <div className="flex flex-wrap items-center gap-4 pt-2">
+            <button
               onClick={() => handleNavigation('student')}
               className="flex items-center gap-2 bg-[#4F39F6] text-white px-8 py-4 rounded-2xl font-bold hover:scale-[1.02] transition-all shadow-xl shadow-indigo-200/50"
             >
               <Play size={18} fill="white" />
               Start Learning
             </button>
-            <button 
+            <button
               onClick={() => handleNavigation('participant')}
               className="flex items-center gap-2 border-2 border-slate-100 bg-slate-50/30 px-8 py-4 rounded-2xl font-bold hover:bg-slate-50 transition-all"
             >
@@ -124,26 +124,27 @@ const Hero = () =>{
             </button>
           </div>
 
-        <div className="grid grid-cols-2 gap-x-8 gap-y-4 pt-6">
-          {['Hands-on Learning', 'Real-world Projects', 'Rank & Win Prizes', 'Global Community'].map((item) => (
-            <div key={item} className="flex items-center gap-3 text-[13px] font-bold text-slate-400">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#4F39F6]" />
-              {item}
-            </div>
-          ))}
+          <div className="grid grid-cols-2 gap-x-8 gap-y-4 pt-6">
+            {['Hands-on Learning', 'Real-world Projects', 'Rank & Win Prizes', 'Global Community'].map((item) => (
+              <div key={item} className="flex items-center gap-3 text-[13px] font-bold text-slate-400">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#4F39F6]" />
+                {item}
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div className="relative flex justify-center lg:justify-end">
-        <img
-          src={HeroImage}
-          alt="Hero Illustration"
-          className="w-full max-w-xl h-auto drop-shadow-2xl"
-        />
-      </div>
-    </Container>
-  </section>
-)};
+        <div className="relative flex justify-center lg:justify-end">
+          <img
+            src={HeroImage}
+            alt="Hero Illustration"
+            className="w-full max-w-xl h-auto drop-shadow-2xl"
+          />
+        </div>
+      </Container>
+    </section>
+  )
+};
 
 const ImpactStats = ({ stats }: { stats: any }) => {
   const metrics = [
@@ -205,10 +206,10 @@ const ContentGrid = () => (
         </div>
       </div>
 
-      {/* Upcoming Hackathons */}
+      {/* UpComing Hackathons */}
       <div id="hackathons" className="space-y-6">
         <div className="flex items-center gap-2 text-[#4F39F6] font-extrabold uppercase text-[11px] tracking-widest ml-1">
-          <Zap size={16} strokeWidth={3} /> Upcoming Hackathons
+          <Zap size={16} strokeWidth={3} /> UpComing Hackathons
         </div>
         <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm space-y-4">
           <p className="text-[12px] text-slate-400 font-bold leading-relaxed pr-8">Compete. Build. Win exciting prizes.</p>

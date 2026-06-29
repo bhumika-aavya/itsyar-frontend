@@ -235,6 +235,7 @@ export default function LessonView() {
 // Sidebar Sub-component
 const ModuleAccordionItem = ({ module, isActive, onHeaderClick, currentLessonId, onLessonClick, onQuizClick }: any) => (
   <div className={`rounded-xl overflow-hidden border transition-all duration-300 ${isActive ? "border-[#4F39F6]" : "border-slate-100"}`}>
+    {console.log("Rendering ModuleAccordionItem for module:", module)}
     <button
       onClick={onHeaderClick}
       className={`w-full p-4 flex items-center justify-between transition-colors ${isActive ? "bg-[#4F39F6] text-white" : "bg-white text-slate-600 hover:bg-slate-50"

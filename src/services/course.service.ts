@@ -1,16 +1,7 @@
 import api from "@/lib/axios";
 import { CertificateData, Course, MyCourse } from "@/schemas/course.schema";
 import { CourseDetail } from "./course-detail.schema";
-
-// Helper to get headers with the token
-const getAuthHeaders = () => {
-    const token = localStorage.getItem("accessToken");
-    return {
-        headers: {
-            Authorization: token ? `Bearer ${token}` : "",
-        },
-    };
-};
+import { getAuthHeaders } from "./auth";
 
 export const CourseService = {
     getAllCourses: async (): Promise<Course[]> => {
@@ -26,7 +17,7 @@ export const CourseService = {
 
     getMyCourses: async (): Promise<MyCourse[]> => {
         try {
-            const response = await api.get("/courses/my", getAuthHeaders());
+            const response = await api.get("/courses/my-learnings", getAuthHeaders());
             return response.data.courses;
         } catch (error) {
             console.warn("API Error: Falling back to mock data for My Learning");

@@ -1,0 +1,391 @@
+import React, { useState, useEffect } from 'react';
+import { X, Users, CheckCircle2, Plus, Trash2, Loader2, ArrowLeft, Calendar } from 'lucide-react';
+import { HackathonService } from '@/services/hackathon.service';
+import { Team } from '@/schemas/hackathon.schema';
+
+type Step = 'team-select' | 'create-team' | 'team-created' | 'confirm' | 'success';
+
+interface HackathonRef {
+    id: string;
+    title: string;
+    startDate: string;
+    endDate: string;
+}
+
+interface Props {
+    isOpen: boolean;
+    onClose: () => void;
+    hackathon: HackathonRef;
+}
+
+const formatDate = (d: string) => {
+    const date = new Date(d);
+    if (isNaN(date.getTime())) return d;
+    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+};
+
+export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props) {
+    const [step, setStep] = useState<Step>('team-select');
+    const [userTeams, setUserTeams] = useState<Team[]>([]);
+    const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [joinedTeam, setJoinedTeam] = useState<Team | null>(null);
+
+    // create-team form
+    const [teamName, setTeamName] = useState('');
+    const [teamDesc, setTeamDesc] = useState('');
+    const [inviteInput, setInviteInput] = useState('');
+    const [inviteEmails, setInviteEmails] = useState<string[]>([]);
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+        if (isOpen) {
+            setStep('team-select');
+            setSelectedTeamId(null);
+            setJoinedTeam(null);
+            resetCreateForm();
+            loadUserTeams();
+        }
+    }, [isOpen, hackathon.id]);
+
+    const loadUserTeams = async () => {
+        setLoading(true);
+        const teams = await HackathonService.getUserTeams(hackathon.id);
+        setUserTeams(teams);
+        if (teams.length > 0) setSelectedTeamId(teams[0].id);
+        setLoading(false);
+    };
+
+    const resetCreateForm = () => {
+        setTeamName('');
+        setTeamDesc('');
+        setInviteInput('');
+        setInviteEmails([]);
+        setFormErrors({});
+    };
+
+    const handleAddInvite = () => {
+        const email = inviteInput.trim();
+        if (!email) return;
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            setFormErrors(p => ({ ...p, invite: 'Enter a valid email address' }));
+            return;
+        }
+        if (inviteEmails.includes(email)) {
+            setFormErrors(p => ({ ...p, invite: 'Email already added' }));
+            return;
+        }
+        if (inviteEmails.length >= 3) {
+            setFormErrors(p => ({ ...p, invite: 'Maximum 3 additional members' }));
+            return;
+        }
+        setInviteEmails(p => [...p, email]);
+        setInviteInput('');
+        setFormErrors(p => ({ ...p, invite: '' }));
+    };
+
+    const handleCreateTeam = async () => {
+        const errs: Record<string, string> = {};
+        if (!teamName.trim() || teamName.length < 2) errs.teamName = 'At least 2 characters required';
+        if (!teamDesc.trim() || teamDesc.length < 10) errs.teamDesc = 'At least 10 characters required';
+        if (Object.keys(errs).length) { setFormErrors(errs); return; }
+
+        setSubmitting(true);
+        const created = await HackathonService.createTeam({
+            name: teamName,
+            description: teamDesc,
+            hackathonId: hackathon.id,
+            inviteEmails,
+        });
+        setUserTeams(p => [created, ...p]);
+        setSelectedTeamId(created.id);
+        setJoinedTeam(created);
+        setSubmitting(false);
+        setStep('team-created');
+    };
+
+    const handleConfirmJoin = async () => {
+        setSubmitting(true);
+        await HackathonService.joinHackathon(hackathon.id);
+        const team = userTeams.find(t => t.id === selectedTeamId) ?? joinedTeam;
+        setJoinedTeam(team ?? null);
+        setSubmitting(false);
+        setStep('success');
+    };
+
+    const selectedTeam = userTeams.find(t => t.id === selectedTeamId) ?? joinedTeam;
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-[28px] shadow-2xl w-full max-w-md animate-in zoom-in-95 duration-200 overflow-hidden">
+
+                {/* ── Step: team-select ── */}
+                {step === 'team-select' && (
+                    <>
+                        <div className="flex items-center justify-between px-7 pt-7 pb-4">
+                            <div>
+                                <h2 className="text-xl font-black text-slate-900">Join {hackathon.title}</h2>
+                                <p className="text-sm font-medium text-slate-400 mt-0.5">Select how you want to participate</p>
+                            </div>
+                            <button onClick={onClose} className="p-2 text-slate-300 hover:text-slate-500 transition-colors rounded-xl">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="px-7 pb-2 space-y-3 max-h-72 overflow-y-auto">
+                            {loading ? (
+                                <div className="flex justify-center py-8"><Loader2 className="animate-spin text-[#4F39F6]" size={28} /></div>
+                            ) : userTeams.length === 0 ? (
+                                <p className="text-sm text-slate-400 font-medium text-center py-6">You have no teams yet. Create one below.</p>
+                            ) : (
+                                userTeams.map(team => (
+                                    <button
+                                        key={team.id}
+                                        onClick={() => setSelectedTeamId(team.id)}
+                                        className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all text-left ${selectedTeamId === team.id ? 'border-[#4F39F6] bg-indigo-50/50' : 'border-slate-100 hover:border-slate-200'}`}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F39F6] shrink-0">
+                                                <Users size={18} />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-black text-slate-900">
+                                                    {team.name}
+                                                    {team.leadId === 'current-user' && <span className="text-slate-400 font-bold"> (You)</span>}
+                                                </p>
+                                                <p className="text-xs font-bold text-slate-400">{team.members.length} Members</p>
+                                            </div>
+                                        </div>
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${selectedTeamId === team.id ? 'border-[#4F39F6] bg-[#4F39F6]' : 'border-slate-200'}`}>
+                                            {selectedTeamId === team.id && <div className="w-2 h-2 rounded-full bg-white" />}
+                                        </div>
+                                    </button>
+                                ))
+                            )}
+                        </div>
+
+                        <div className="px-7 pt-2 pb-4">
+                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Other option</p>
+                            <button
+                                onClick={() => { resetCreateForm(); setStep('create-team'); }}
+                                className="w-full flex items-center gap-3 p-4 rounded-2xl border-2 border-dashed border-slate-200 hover:border-[#4F39F6] hover:bg-indigo-50/30 transition-all text-left group"
+                            >
+                                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:text-[#4F39F6] transition-colors shrink-0">
+                                    <Plus size={20} />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-black text-slate-700 group-hover:text-[#4F39F6] transition-colors">Create New Team</p>
+                                    <p className="text-xs font-bold text-slate-400">Build a new team and invite members</p>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div className="flex gap-3 px-7 py-5 border-t border-slate-50">
+                            <button onClick={onClose} className="flex-1 py-3 border border-slate-200 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
+                            <button
+                                onClick={() => selectedTeamId && setStep('confirm')}
+                                disabled={!selectedTeamId}
+                                className="flex-1 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                            >
+                                Continue
+                            </button>
+                        </div>
+                    </>
+                )}
+
+                {/* ── Step: create-team ── */}
+                {step === 'create-team' && (
+                    <>
+                        <div className="flex items-center justify-between px-7 pt-7 pb-4">
+                            <button onClick={() => setStep('team-select')} className="flex items-center gap-1.5 text-[#4F39F6] font-bold text-sm">
+                                <ArrowLeft size={16} /> Back
+                            </button>
+                            <button onClick={onClose} className="p-2 text-slate-300 hover:text-slate-500 transition-colors rounded-xl">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="px-7 pb-2">
+                            <h2 className="text-xl font-black text-slate-900">Create New Team</h2>
+                            <p className="text-sm font-medium text-slate-400 mt-0.5">Assemble your squad for the hackathon</p>
+                        </div>
+
+                        <div className="px-7 pb-4 space-y-4 max-h-80 overflow-y-auto">
+                            <div>
+                                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">Team Name</label>
+                                <input
+                                    value={teamName}
+                                    onChange={e => setTeamName(e.target.value)}
+                                    placeholder="e.g. Neural Ninjas"
+                                    className={`w-full h-12 bg-slate-50 border rounded-xl px-4 text-sm font-medium outline-none transition-all ${formErrors.teamName ? 'border-red-400' : 'border-slate-100 focus:border-[#4F39F6]'}`}
+                                />
+                                {formErrors.teamName && <p className="text-xs font-bold text-red-500 mt-1">{formErrors.teamName}</p>}
+                            </div>
+
+                            <div>
+                                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">Team Description</label>
+                                <textarea
+                                    value={teamDesc}
+                                    onChange={e => setTeamDesc(e.target.value)}
+                                    rows={3}
+                                    placeholder="Briefly describe your team's focus or goals..."
+                                    className={`w-full bg-slate-50 border rounded-xl px-4 py-3 text-sm font-medium outline-none transition-all resize-none ${formErrors.teamDesc ? 'border-red-400' : 'border-slate-100 focus:border-[#4F39F6]'}`}
+                                />
+                                {formErrors.teamDesc && <p className="text-xs font-bold text-red-500 mt-1">{formErrors.teamDesc}</p>}
+                            </div>
+
+                            <div>
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <label className="text-xs font-black text-slate-700 uppercase tracking-wide">Add Members</label>
+                                    <span className="text-xs font-bold text-slate-400">{inviteEmails.length}/3 Members</span>
+                                </div>
+                                <div className="flex gap-2">
+                                    <input
+                                        value={inviteInput}
+                                        onChange={e => setInviteInput(e.target.value)}
+                                        onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddInvite())}
+                                        placeholder="Enter their email"
+                                        className={`flex-1 h-12 bg-slate-50 border rounded-xl px-4 text-sm font-medium outline-none transition-all ${formErrors.invite ? 'border-red-400' : 'border-slate-100 focus:border-[#4F39F6]'}`}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleAddInvite}
+                                        className="px-4 h-12 bg-[#4F39F6] text-white rounded-xl font-bold text-sm hover:bg-[#3f2dd1] transition-all shrink-0"
+                                    >
+                                        + Add
+                                    </button>
+                                </div>
+                                {formErrors.invite && <p className="text-xs font-bold text-red-500 mt-1">{formErrors.invite}</p>}
+
+                                {inviteEmails.length > 0 && (
+                                    <div className="mt-2 space-y-1.5">
+                                        {inviteEmails.map(email => (
+                                            <div key={email} className="flex items-center justify-between bg-indigo-50 px-3 py-2 rounded-xl">
+                                                <span className="text-xs font-bold text-[#4F39F6]">{email}</span>
+                                                <button onClick={() => setInviteEmails(p => p.filter(e => e !== email))} className="text-slate-400 hover:text-red-500 transition-colors">
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3 px-7 py-5 border-t border-slate-50">
+                            <button onClick={() => setStep('team-select')} className="flex-1 py-3 border border-slate-200 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
+                            <button
+                                onClick={handleCreateTeam}
+                                disabled={submitting}
+                                className="flex-1 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                            >
+                                {submitting ? <><Loader2 size={16} className="animate-spin" /> Creating...</> : 'Create Team'}
+                            </button>
+                        </div>
+                    </>
+                )}
+
+                {/* ── Step: team-created ── */}
+                {step === 'team-created' && (
+                    <div className="px-7 py-10 flex flex-col items-center text-center space-y-4">
+                        <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center">
+                            <CheckCircle2 size={36} className="text-emerald-500" />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-black text-slate-900">Team Created Successfully!</h2>
+                            <p className="text-sm font-medium text-slate-400 mt-1">
+                                Welcome aboard, <span className="font-bold text-slate-600">{joinedTeam?.name}</span>. Your collaboration hub is ready.
+                            </p>
+                        </div>
+                        <button
+                            onClick={() => setStep('confirm')}
+                            className="w-full py-3.5 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] transition-all mt-2"
+                        >
+                            Go to Hackathon
+                        </button>
+                    </div>
+                )}
+
+                {/* ── Step: confirm ── */}
+                {step === 'confirm' && (
+                    <>
+                        <div className="flex items-center justify-between px-7 pt-7 pb-4">
+                            <button onClick={() => setStep('team-select')} className="flex items-center gap-1.5 text-[#4F39F6] font-bold text-sm">
+                                <ArrowLeft size={16} /> Back
+                            </button>
+                            <button onClick={onClose} className="p-2 text-slate-300 hover:text-slate-500 transition-colors rounded-xl">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="px-7 pb-2">
+                            <h2 className="text-xl font-black text-slate-900">Confirm Join</h2>
+                            <p className="text-sm font-medium text-slate-400 mt-0.5">You are about to join</p>
+                        </div>
+
+                        <div className="px-7 pb-6 space-y-3">
+                            <div className="bg-slate-50 rounded-2xl p-4 flex items-center gap-3">
+                                <div className="w-10 h-10 bg-[#4F39F6] rounded-xl flex items-center justify-center shrink-0">
+                                    <Calendar size={18} className="text-white" />
+                                </div>
+                                <div>
+                                    <p className="text-sm font-black text-slate-900">{hackathon.title}</p>
+                                    <p className="text-xs font-bold text-slate-400">{formatDate(hackathon.startDate)} – {formatDate(hackathon.endDate)}</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-slate-50 rounded-2xl p-4">
+                                <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Team</p>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
+                                        <Users size={16} className="text-[#4F39F6]" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-black text-slate-900">{selectedTeam?.name}</p>
+                                        <p className="text-xs font-bold text-slate-400">{selectedTeam?.members.length} Members</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3 px-7 py-5 border-t border-slate-50">
+                            <button onClick={onClose} className="flex-1 py-3 border border-slate-200 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
+                            <button
+                                onClick={handleConfirmJoin}
+                                disabled={submitting}
+                                className="flex-1 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                            >
+                                {submitting ? <><Loader2 size={16} className="animate-spin" /> Joining...</> : 'Confirm Join'}
+                            </button>
+                        </div>
+                    </>
+                )}
+
+                {/* ── Step: success ── */}
+                {step === 'success' && (
+                    <div className="px-7 py-10 flex flex-col items-center text-center space-y-4">
+                        <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center">
+                            <CheckCircle2 size={36} className="text-emerald-500" />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-black text-slate-900">Successfully Joined!</h2>
+                            <p className="text-sm font-medium text-slate-400 mt-1">
+                                You have joined <span className="font-bold text-slate-600">{hackathon.title}</span>{' '}
+                                with <span className="font-bold text-slate-600">{joinedTeam?.name ?? selectedTeam?.name}</span>
+                            </p>
+                        </div>
+                        <button
+                            onClick={onClose}
+                            className="w-full py-3.5 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] transition-all mt-2"
+                        >
+                            Go to Dashboard
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
