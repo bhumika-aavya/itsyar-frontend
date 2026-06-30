@@ -50,9 +50,11 @@ export default function LoginForm() {
       const response = await api.post<LoginResponse>("/auth/login", data);
       console.log("Login response:", response); // Debugging log
       if (response.data.success) {
-        // Authenticate via context (handles localStorage and state)
         login(response.data.accessToken, response.data.user);
-        navigate("/dashboard");
+        const role = response.data.user.role;
+        if (role === 'mentor') navigate('/mentor');
+        else if (role === 'organizer') navigate('/organizer');
+        else navigate('/dashboard');
       }
     } catch (error: unknown) {
       console.error("Login error:", error);

@@ -100,6 +100,50 @@ export type HackathonRegistrationValues = z.infer<typeof HackathonRegistrationSc
 export type TeamMember = z.infer<typeof TeamMemberSchema>;
 export type Team = z.infer<typeof TeamSchema>;
 export type CreateTeamValues = z.infer<typeof CreateTeamSchema>;
+export const MentorSubmissionSchema = z.object({
+    submissionId: z.string(),
+    hackathonId: z.string(),
+    hackathonTitle: z.string(),
+    participantName: z.string(),
+    participantEmail: z.string(),
+    language: z.string(),
+    code: z.string(),
+    notes: z.string().optional(),
+    status: z.enum(['PENDING', 'ACCEPTED', 'REJECTED']),
+    submittedAt: z.string(),
+    reviewNotes: z.string().optional(),
+    reviewedAt: z.string().optional(),
+});
+
+export const MentorReviewSchema = z.object({
+    status: z.enum(['ACCEPTED', 'REJECTED']),
+    reviewNotes: z.string().min(10, 'Please provide at least 10 characters of feedback'),
+});
+
 export type HackathonProblem = z.infer<typeof HackathonProblemSchema>;
 export type SubmitSolutionValues = z.infer<typeof SubmitSolutionSchema>;
 export type SubmitSolutionResponse = z.infer<typeof SubmitSolutionResponseSchema>;
+export type MentorSubmission = z.infer<typeof MentorSubmissionSchema>;
+export type MentorReviewValues = z.infer<typeof MentorReviewSchema>;
+
+export const OrganizerCreateHackathonSchema = z.object({
+    title: z.string().min(3, 'Title must be at least 3 characters'),
+    description: z.string().min(20, 'Description must be at least 20 characters'),
+    startDate: z.string().min(1, 'Start date is required'),
+    endDate: z.string().min(1, 'End date is required'),
+    mode: z.string().min(1, 'Mode is required'),
+    teamSize: z.string().min(1, 'Team size is required'),
+    registrationDeadline: z.string().min(1, 'Registration deadline is required'),
+});
+
+export const OrganizerCreateProblemSchema = z.object({
+    title: z.string().min(3, 'Problem title required'),
+    difficulty: z.enum(['Easy', 'Medium', 'Hard']),
+    points: z.coerce.number().min(1, 'Points must be at least 1'),
+    description: z.string().min(20, 'Problem description required'),
+    constraintsText: z.string().optional(),
+    supportedLanguages: z.array(z.string()).min(1, 'Select at least one language'),
+});
+
+export type OrganizerCreateHackathonValues = z.infer<typeof OrganizerCreateHackathonSchema>;
+export type OrganizerCreateProblemValues = z.infer<typeof OrganizerCreateProblemSchema>;

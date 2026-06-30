@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     Code2, ChevronDown, Upload, Send, CheckCircle2, Loader2,
     FileCode, RotateCcw, Lock, Maximize2, Minimize2, AlertTriangle, X
@@ -9,6 +9,8 @@ import { HackathonProblem } from '@/schemas/hackathon.schema';
 interface Props {
     hackathonId: string;
     hackathonStatus: string;
+    initialFullscreen?: boolean;
+    onClose?: () => void;
 }
 
 const FILE_EXT_MAP: Record<string, string> = {
@@ -19,7 +21,7 @@ const FILE_EXT_MAP: Record<string, string> = {
 const difficultyStyle = (d: string) =>
     d === 'Hard' ? 'bg-red-50 text-red-500' : d === 'Medium' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600';
 
-export default function HackathonCodeSandbox({ hackathonId, hackathonStatus }: Props) {
+export default function HackathonCodeSandbox({ hackathonId, hackathonStatus, initialFullscreen = false, onClose }: Props) {
     const [problem, setProblem] = useState<HackathonProblem | null>(null);
     const [loading, setLoading] = useState(true);
     const [language, setLanguage] = useState('JavaScript');
@@ -49,6 +51,16 @@ export default function HackathonCodeSandbox({ hackathonId, hackathonStatus }: P
         load();
     }, [hackathonId]);
 
+    // Auto-enter fullscreen if launched via Start Hackathon button
+    useEffect(() => {
+        if (initialFullscreen && !loading) {
+            document.documentElement.requestFullscreen?.().catch(() => { });
+            setIsFullscreen(true);
+            setViolations(0);
+            setShowWarning(false);
+        }
+    }, [initialFullscreen, loading]);
+
     // Fullscreen restriction handlers — attached only while fullscreen is active
     useEffect(() => {
         if (!isFullscreen) return;
@@ -62,6 +74,21 @@ export default function HackathonCodeSandbox({ hackathonId, hackathonStatus }: P
         const handleKeyDown = (e: KeyboardEvent) => {
             const ctrl = e.ctrlKey || e.metaKey;
             const key = e.key.toLowerCase();
+
+            // Paste violation — log it
+            if (ctrl && !e.shiftKey && key === 'v') {
+                e.preventDefault();
+                e.stopPropagation();
+                triggerViolation('Paste detected! Pasting external code is not allowed.');
+                return;
+            }
+            // Silently block copy / cut
+            if (ctrl && !e.shiftKey && (key === 'c' || key === 'x')) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+
             const blocked =
                 (ctrl && ['t', 'n', 'w', 'r', 'p', 'u'].includes(key)) ||
                 e.key === 'F12' || e.key === 'F5' ||
@@ -88,11 +115,22 @@ export default function HackathonCodeSandbox({ hackathonId, hackathonStatus }: P
             if (!document.fullscreenElement) setIsFullscreen(false);
         };
 
+        // Clipboard-level copy/paste block (catches right-click and other paths)
+        const handleCopy = (e: ClipboardEvent) => e.preventDefault();
+        const handleCut = (e: ClipboardEvent) => e.preventDefault();
+        const handlePaste = (e: ClipboardEvent) => {
+            e.preventDefault();
+            triggerViolation('Paste detected! Pasting external code is not allowed.');
+        };
+
         document.addEventListener('keydown', handleKeyDown, true);
         document.addEventListener('contextmenu', handleContextMenu);
         document.addEventListener('visibilitychange', handleVisibilityChange);
         window.addEventListener('blur', handleBlur);
         document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('copy', handleCopy);
+        document.addEventListener('cut', handleCut);
+        document.addEventListener('paste', handlePaste);
 
         return () => {
             document.removeEventListener('keydown', handleKeyDown, true);
@@ -100,28 +138,46 @@ export default function HackathonCodeSandbox({ hackathonId, hackathonStatus }: P
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             window.removeEventListener('blur', handleBlur);
             document.removeEventListener('fullscreenchange', handleFullscreenChange);
+            document.removeEventListener('copy', handleCopy);
+            document.removeEventListener('cut', handleCut);
+            document.removeEventListener('paste', handlePaste);
         };
     }, [isFullscreen]);
 
     const enterFullscreen = () => {
-        document.documentElement.requestFullscreen?.().catch(() => {});
+        document.documentElement.requestFullscreen?.().catch(() => { });
         setIsFullscreen(true);
         setViolations(0);
         setShowWarning(false);
     };
 
     const exitFullscreen = () => {
-        if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+        if (document.fullscreenElement) document.exitFullscreen?.().catch(() => { });
         setIsFullscreen(false);
+        onClose?.();
     };
 
-    const handleLangChange = (lang: string) => {
+    const handleLangChange = useCallback((lang: string) => {
         setLanguage(lang);
         setCode(problem?.starterCode[lang] ?? `// ${lang} starter code\n// Write your solution here\n`);
         setLangOpen(false);
-    };
+    }, [problem]);
 
-    const handleReset = () => setCode(problem?.starterCode[language] ?? '');
+    const handleReset = useCallback(() => {
+        setCode(problem?.starterCode[language] ?? '');
+    }, [problem, language]);
+
+    const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = evt => {
+            const text = evt.target?.result;
+            if (typeof text === 'string') setCode(text);
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+    }, []);
 
     const handleSubmit = async () => {
         if (!isActive) return;
@@ -136,21 +192,21 @@ export default function HackathonCodeSandbox({ hackathonId, hackathonStatus }: P
     const fileExt = (lang: string) => FILE_EXT_MAP[lang.toLowerCase()] ?? lang.toLowerCase();
 
     // ── Locked ──
-    if (!isActive) return (
-        <div className="flex flex-col items-center justify-center py-20 space-y-4 bg-white border border-slate-100 rounded-3xl animate-in slide-in-from-bottom-2 duration-300">
-            <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center">
-                <Lock size={28} className="text-slate-300" />
-            </div>
-            <div className="text-center">
-                <h3 className="text-lg font-black text-slate-700">Code Sandbox Locked</h3>
-                <p className="text-sm font-medium text-slate-400 mt-1">
-                    {hackathonStatus === 'UpComing' || hackathonStatus === 'Open'
-                        ? 'The sandbox opens once the hackathon starts.'
-                        : 'Submissions are closed — this hackathon has ended.'}
-                </p>
-            </div>
-        </div>
-    );
+    // if (!isActive) return (
+    //     <div className="flex flex-col items-center justify-center py-20 space-y-4 bg-white border border-slate-100 rounded-3xl animate-in slide-in-from-bottom-2 duration-300">
+    //         <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center">
+    //             <Lock size={28} className="text-slate-300" />
+    //         </div>
+    //         <div className="text-center">
+    //             <h3 className="text-lg font-black text-slate-700">Code Sandbox Locked</h3>
+    //             <p className="text-sm font-medium text-slate-400 mt-1">
+    //                 {hackathonStatus === 'UpComing' || hackathonStatus === 'Open'
+    //                     ? 'The sandbox opens once the hackathon starts.'
+    //                     : 'Submissions are closed — this hackathon has ended.'}
+    //             </p>
+    //         </div>
+    //     </div>
+    // );
 
     // ── Loading ──
     if (loading) return (
@@ -167,7 +223,7 @@ export default function HackathonCodeSandbox({ hackathonId, hackathonStatus }: P
             </div>
             <div className="text-center">
                 <h3 className="text-xl font-black text-slate-800">Solution Submitted!</h3>
-                <p className="text-sm font-medium text-slate-400 mt-1">Your code has been recorded. Results will be announced after judging.</p>
+                <p className="text-sm font-medium text-slate-400 mt-1">Your code has been sent to a mentor for review. Results will be shared after evaluation.</p>
             </div>
             <button onClick={() => setSubmitted(false)} className="px-6 py-2.5 border border-slate-200 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition-all">
                 Edit Submission
@@ -175,8 +231,8 @@ export default function HackathonCodeSandbox({ hackathonId, hackathonStatus }: P
         </div>
     );
 
-    // ── Shared sub-renders ──
-    const LangDropdown = () => (
+    // ── Shared sub-renders (called as functions to avoid React unmount/remount on re-render) ──
+    const renderLangDropdown = () => (
         <div className="relative">
             <button
                 onClick={() => setLangOpen(p => !p)}
@@ -202,7 +258,7 @@ export default function HackathonCodeSandbox({ hackathonId, hackathonStatus }: P
         </div>
     );
 
-    const EditorArea = ({ minRows = 20 }: { minRows?: number }) => (
+    const renderEditorArea = (minRows = 20) => (
         <div className="bg-[#1E1E2E] rounded-[24px] overflow-hidden shadow-2xl">
             <div className="flex items-center gap-2 px-5 py-3 border-b border-white/5">
                 <div className="w-3 h-3 rounded-full bg-red-500/70" />
@@ -224,7 +280,7 @@ export default function HackathonCodeSandbox({ hackathonId, hackathonStatus }: P
         </div>
     );
 
-    const NotesArea = () => (
+    const renderNotesArea = () => (
         <div>
             <label className="text-xs font-black text-slate-600 uppercase tracking-wide block mb-1.5">
                 Submission Notes <span className="font-bold text-slate-400 normal-case tracking-normal">(optional)</span>
@@ -233,32 +289,32 @@ export default function HackathonCodeSandbox({ hackathonId, hackathonStatus }: P
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
                 rows={3}
-                placeholder="Explain your approach, assumptions, or anything the judges should know..."
+                placeholder="Explain your approach, assumptions, or anything the mentor should know..."
                 className="w-full bg-white border border-slate-100 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 outline-none focus:border-[#4F39F6] transition-all resize-none"
                 style={{ userSelect: 'text' }}
             />
         </div>
     );
 
-    const ActionBar = () => (
+    const renderActionBar = () => (
         <div className="flex items-center justify-between gap-4 pt-2">
             <label className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition-all cursor-pointer">
                 <Upload size={15} className="text-slate-400" /> Upload File
-                <input type="file" accept=".js,.ts,.py,.java,.cpp,.go,.rs,.rb,.txt,.zip" className="hidden" />
+                <input type="file" accept=".js,.ts,.py,.java,.cpp,.go,.rs,.rb,.txt" className="hidden" onChange={handleFileUpload} />
             </label>
             <button
                 onClick={handleSubmit}
                 disabled={submitting || !code.trim()}
                 className="flex items-center gap-2 px-8 py-2.5 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95"
             >
-                {submitting ? <><Loader2 size={15} className="animate-spin" /> Submitting...</> : <><Send size={15} /> Submit Solution</>}
+                {submitting ? <><Loader2 size={15} className="animate-spin" /> Submitting...</> : <><Send size={15} /> Submit to Mentor</>}
             </button>
         </div>
     );
 
-    // ── Fullscreen overlay (browser fullscreen + fixed overlay + restrictions) ──
+    // ── Fullscreen overlay ──
     if (isFullscreen) return (
-        <div className="fixed inset-0 z-[500] bg-[#F8F9FC] flex flex-col" style={{ userSelect: 'none' }}>
+        <div className="fixed inset-0 z-[500] bg-[#F8F9FC] flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-3 bg-white border-b border-slate-100 shadow-sm shrink-0">
                 <div className="flex items-center gap-3">
@@ -325,7 +381,7 @@ export default function HackathonCodeSandbox({ hackathonId, hackathonStatus }: P
                                     {problem.constraints.map((c, i) => (
                                         <li key={i} className="flex items-start gap-3 text-sm font-medium text-slate-600">
                                             <span className="w-5 h-5 rounded-full bg-indigo-50 text-[#4F39F6] flex items-center justify-center text-xs font-black shrink-0 mt-0.5">{i + 1}</span>
-                                            {c}
+                                            <span style={{ userSelect: 'text' }}>{c}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -336,9 +392,9 @@ export default function HackathonCodeSandbox({ hackathonId, hackathonStatus }: P
                                     {problem.examples.map((ex, i) => (
                                         <div key={i} className="bg-slate-50 rounded-2xl p-4 space-y-1">
                                             <p className="text-xs font-black text-slate-400 uppercase tracking-wide">Input</p>
-                                            <p className="text-sm font-bold text-slate-700">{ex.label}</p>
+                                            <p className="text-sm font-bold text-slate-700" style={{ userSelect: 'text' }}>{ex.label}</p>
                                             <p className="text-xs font-black text-slate-400 uppercase tracking-wide mt-2">Expected Output</p>
-                                            <p className="text-sm font-bold text-emerald-600">{ex.result}</p>
+                                            <p className="text-sm font-bold text-emerald-600" style={{ userSelect: 'text' }}>{ex.result}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -348,10 +404,10 @@ export default function HackathonCodeSandbox({ hackathonId, hackathonStatus }: P
                 </div>
 
                 {/* Editor panel */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-4" style={{ userSelect: 'none' }}>
+                <div className="flex-1 overflow-y-auto p-6 space-y-4">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                         <div className="flex items-center gap-3">
-                            <LangDropdown />
+                            {renderLangDropdown()}
                             <button onClick={handleReset} className="flex items-center gap-1.5 h-10 px-3 bg-white border border-slate-200 rounded-xl font-bold text-xs text-slate-500 hover:bg-slate-50 transition-all">
                                 <RotateCcw size={13} /> Reset
                             </button>
@@ -369,9 +425,9 @@ export default function HackathonCodeSandbox({ hackathonId, hackathonStatus }: P
                             </button>
                         </div>
                     </div>
-                    <EditorArea minRows={22} />
-                    <NotesArea />
-                    <ActionBar />
+                    {renderEditorArea(22)}
+                    {renderNotesArea()}
+                    {renderActionBar()}
                 </div>
             </div>
         </div>
@@ -457,7 +513,7 @@ export default function HackathonCodeSandbox({ hackathonId, hackathonStatus }: P
                 <div className="space-y-4">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                         <div className="flex items-center gap-3">
-                            <LangDropdown />
+                            {renderLangDropdown()}
                             <button onClick={handleReset} className="flex items-center gap-1.5 h-10 px-3 bg-white border border-slate-200 rounded-xl font-bold text-xs text-slate-500 hover:bg-slate-50 transition-all">
                                 <RotateCcw size={13} /> Reset
                             </button>
@@ -475,9 +531,9 @@ export default function HackathonCodeSandbox({ hackathonId, hackathonStatus }: P
                             </button>
                         </div>
                     </div>
-                    <EditorArea />
-                    <NotesArea />
-                    <ActionBar />
+                    {renderEditorArea()}
+                    {renderNotesArea()}
+                    {renderActionBar()}
                 </div>
             )}
         </div>

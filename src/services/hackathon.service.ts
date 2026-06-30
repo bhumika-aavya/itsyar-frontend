@@ -204,7 +204,7 @@ export const HackathonService = {
             return response.data.hackathon;
         } catch {
             console.warn("Using Mock Detail for ID:", id);
-            return null;
+            return MOCK_DETAIL;
         }
     },
 
