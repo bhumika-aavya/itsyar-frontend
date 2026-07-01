@@ -25,8 +25,12 @@ export const HackathonDetailSchema = z.object({
     participantCount: z.string(),
     timeline: z.array(z.object({
         label: z.string(),
-        date: z.string()
-    }))
+        date: z.string(),
+        type: z.enum(["event", "phase"]).optional(),
+        description: z.string().optional(),
+    })),
+    ideationStartDate: z.string().optional(),
+    ideationEndDate: z.string().optional(),
 });
 
 export const HackathonRegistrationSchema = z.object({

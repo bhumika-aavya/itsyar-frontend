@@ -4,8 +4,6 @@ import { ChevronLeft, Download, Zap, Loader2, ExternalLink } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext';
 import { CourseService } from '@/services/course.service';
 import { CertificateData } from '@/schemas/course.schema';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 
 export default function CertificatePage() {
     const { courseId } = useParams();
@@ -33,6 +31,11 @@ export default function CertificatePage() {
 
         setIsDownloading(true);
         try {
+            const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+                import('html2canvas'),
+                import('jspdf'),
+            ]);
+
             const element = certificateRef.current;
 
             // Use html2canvas to capture the element

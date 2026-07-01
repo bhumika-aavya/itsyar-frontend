@@ -14,6 +14,7 @@ export default function LessonView() {
   const { courseId, lessonId } = useParams();
 
   const [activeModule, setActiveModule] = useState<number | null>(null);
+  const [activeQuizId, setActiveQuizId] = useState<string | null>(null);
   const [isQuizOpen, setIsQuizOpen] = useState(false);
   const [courseData, setCourseData] = useState<any>(null);
   const [quizData, setQuizData] = useState<QuizData | null>(null);
@@ -37,15 +38,15 @@ export default function LessonView() {
         setCourseData(courseRes);
 
         if (!lessonId) {
-          const firstLesson = courseRes.curriculum?.[0]?.lessons?.[0];
+          const firstLesson = courseRes?.curriculum?.[0]?.lessons?.[0];
           if (firstLesson) {
             navigate(`/courses/${courseId}/lessons/${firstLesson.id}`, { replace: true });
             return;
           }
         }
 
-        const currentMod = courseRes.curriculum?.find((m: any) =>
-          m?.lessons?.some((l: any) => l?.id === (lessonId ?? courseRes.curriculum?.[0]?.lessons?.[0]?.id))
+        const currentMod = courseRes?.curriculum?.find((m: any) =>
+          m?.lessons?.some((l: any) => l?.id === (lessonId ?? courseRes?.curriculum?.[0]?.lessons?.[0]?.id))
         );
         if (currentMod) setActiveModule(currentMod.id);
       } catch (err) {
@@ -81,6 +82,7 @@ export default function LessonView() {
 
   // Fetch quiz for a specific module/lesson, then open the modal
   const fetchAndOpenQuiz = async (quizId: string, moduleId: any) => {
+    setActiveQuizId(quizId); // highlight in sidebar immediately
     try {
       const quiz = await LessonService.getModuleQuiz(courseId!, quizId);
       if (quiz) {
@@ -90,6 +92,26 @@ export default function LessonView() {
       }
     } catch (err) {
       console.error("Failed to fetch quiz", err);
+      setActiveQuizId(null);
+    }
+  };
+
+  // Called when a non-final quiz is completed — advance to the next module
+  const handleQuizComplete = () => {
+    const modules: any[] = courseData?.curriculum ?? [];
+    const currentModIdx = modules.findIndex((m: any) => m.id === quizModuleId);
+    const nextMod = modules[currentModIdx + 1];
+
+    setIsQuizOpen(false);
+    setVideoEnded(false);
+    setActiveQuizId(null);
+
+    if (nextMod) {
+      setActiveModule(nextMod.id);
+      const firstLesson = nextMod.lessons?.[0];
+      if (firstLesson) {
+        navigate(`/courses/${courseId}/lessons/${firstLesson.id}`);
+      }
     }
   };
 
@@ -156,7 +178,7 @@ export default function LessonView() {
           {/* Left Column */}
           <div className="lg:col-span-8 space-y-10">
             {/* Video Container */}
-            <div className="relative pt-[56.25%] w-full bg-black rounded-[40px] overflow-hidden shadow-2xl border-8 border-white">
+            <div className="relative pt-[56.25%] w-full bg-black rounded-[40px] overflow-hidden shadow-2xl border-3 border-white">
               {isUpdatingVideo ? (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
                   <Loader2 className="animate-spin text-white mb-2" size={36} />
@@ -187,8 +209,8 @@ export default function LessonView() {
                             {lessonHasQuiz
                               ? "Test your knowledge before moving on"
                               : nextLesson
-                              ? "Loading next lesson…"
-                              : "You've finished this course!"}
+                                ? "Loading next lesson…"
+                                : "You've finished this course!"}
                           </p>
                         </div>
                         {lessonHasQuiz ? (
@@ -252,11 +274,11 @@ export default function LessonView() {
                 <div className="w-full h-1.5 bg-slate-100 rounded-full mb-2 overflow-hidden">
                   <div
                     className="h-full bg-[#4F39F6] transition-all duration-1000"
-                    style={{ width: `${courseData?.course_completion_percentage || 0}%` }}
+                    style={{ width: `${courseData?.courseCompletionPercentage || 0}%` }}
                   />
                 </div>
                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                  {courseData?.course_completion_percentage || 0}% Complete
+                  {courseData?.courseCompletionPercentage || 0}% Complete
                 </p>
               </div>
 
@@ -268,6 +290,7 @@ export default function LessonView() {
                     isActive={activeModule === mod.id}
                     onHeaderClick={() => setActiveModule(activeModule === mod.id ? null : mod.id)}
                     currentLessonId={currentLesson?.id}
+                    activeQuizId={activeQuizId}
                     onLessonClick={(id: string) => navigate(`/courses/${courseId}/lessons/${id}`)}
                     onQuizClick={(quizId: string, moduleId: any) => fetchAndOpenQuiz(quizId, moduleId)}
                   />
@@ -285,7 +308,9 @@ export default function LessonView() {
           onClose={() => {
             setIsQuizOpen(false);
             setVideoEnded(false);
+            setActiveQuizId(null);
           }}
+          onQuizComplete={handleQuizComplete}
           data={quizData}
           courseId={courseId!}
         />
@@ -295,7 +320,7 @@ export default function LessonView() {
 }
 
 // Sidebar Sub-component
-const ModuleAccordionItem = ({ module, isActive, onHeaderClick, currentLessonId, onLessonClick, onQuizClick }: any) => (
+const ModuleAccordionItem = ({ module, isActive, onHeaderClick, currentLessonId, activeQuizId, onLessonClick, onQuizClick }: any) => (
   <div className={`rounded-xl overflow-hidden border transition-all duration-300 ${isActive ? "border-[#4F39F6]" : "border-slate-100"}`}>
     <button
       onClick={onHeaderClick}
@@ -314,15 +339,15 @@ const ModuleAccordionItem = ({ module, isActive, onHeaderClick, currentLessonId,
       <div className="bg-white">
         {(module.lessons ?? []).map((lesson: any) => {
           const isCurrent = currentLessonId === lesson.id;
+          const isQuizActive = activeQuizId === lesson.id;
           return (
             <span key={lesson.id}>
               <div
                 onClick={() => onLessonClick(lesson.id)}
-                className={`relative flex items-center gap-4 p-4 cursor-pointer transition-all border-l-4 ${
-                  isCurrent
-                    ? "bg-[#EEF0FF] border-[#4F39F6] text-[#4F39F6]"
-                    : "border-transparent text-slate-600 hover:bg-slate-50"
-                }`}
+                className={`relative flex items-center gap-4 p-4 cursor-pointer transition-all border-l-4 ${isCurrent
+                  ? "bg-[#EEF0FF] border-[#4F39F6] text-[#4F39F6]"
+                  : "border-transparent text-slate-600 hover:bg-slate-50"
+                  }`}
               >
                 <PlayCircle size={16} className={isCurrent ? "opacity-100" : "text-slate-400"} />
                 <span className={`text-[12px] ${isCurrent ? "font-black" : "font-bold"}`}>{lesson.title}</span>
@@ -330,10 +355,15 @@ const ModuleAccordionItem = ({ module, isActive, onHeaderClick, currentLessonId,
               {lesson.hasQuiz && (
                 <div
                   onClick={() => onQuizClick(lesson.id, module.id)}
-                  className="relative flex items-center gap-4 p-4 cursor-pointer transition-all border-l-4 border-transparent text-slate-500 hover:bg-slate-50 group"
+                  className={`relative flex items-center gap-4 p-4 cursor-pointer transition-all border-l-4 group ${isQuizActive
+                    ? "bg-[#EEF0FF] border-[#4F39F6] text-[#4F39F6]"
+                    : "border-transparent text-slate-500 hover:bg-slate-50"
+                    }`}
                 >
-                  <FileText size={16} className="group-hover:text-[#4F39F6]" />
-                  <span className="text-[12px] font-bold group-hover:text-slate-900">Module {module.id} Quiz</span>
+                  <FileText size={16} className={isQuizActive ? "text-[#4F39F6]" : "group-hover:text-[#4F39F6]"} />
+                  <span className={`text-[12px] font-bold ${isQuizActive ? "font-black text-[#4F39F6]" : "group-hover:text-slate-900"}`}>
+                    Module {module.id} Quiz
+                  </span>
                 </div>
               )}
             </span>
@@ -342,10 +372,15 @@ const ModuleAccordionItem = ({ module, isActive, onHeaderClick, currentLessonId,
         {module.hasQuiz && (
           <div
             onClick={() => onQuizClick(module.id, module.id)}
-            className="flex items-center gap-4 p-4 text-slate-400 border-t border-slate-50 hover:bg-slate-50 cursor-pointer group"
+            className={`flex items-center gap-4 p-4 border-t border-slate-50 cursor-pointer group transition-all border-l-4 ${activeQuizId === String(module.id)
+              ? "bg-[#EEF0FF] border-[#4F39F6] text-[#4F39F6]"
+              : "border-transparent text-slate-400 hover:bg-slate-50"
+              }`}
           >
-            <FileText size={16} className="group-hover:text-[#4F39F6]" />
-            <span className="text-[12px] font-bold group-hover:text-slate-900">Module {module.id} Quiz</span>
+            <FileText size={16} className={activeQuizId === String(module.id) ? "text-[#4F39F6]" : "group-hover:text-[#4F39F6]"} />
+            <span className={`text-[12px] font-bold ${activeQuizId === String(module.id) ? "font-black text-[#4F39F6]" : "group-hover:text-slate-900"}`}>
+              Module {module.id} Quiz
+            </span>
           </div>
         )}
       </div>

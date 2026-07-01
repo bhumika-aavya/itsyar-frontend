@@ -18,7 +18,7 @@ export const MyCourseSchema = z.object({
   title: z.string(),
   level: z.string(),
   lessons: z.string(),
-  progress: z.number().min(0).max(100),
+  courseCompletionPercentage: z.number().min(0).max(100),
   category: z.enum(["code", "layout", "database"]),
 });
 

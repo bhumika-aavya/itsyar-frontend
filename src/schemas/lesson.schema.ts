@@ -15,7 +15,7 @@ export const LessonSchema = z.object({
     videoUrl: z.string().url(),
     summary: z.string(),
     materials: z.array(MaterialSchema),
-    course_completion_percentage: z.number().min(0).max(100),
+    courseCompletionPercentage: z.number().min(0).max(100),
 });
 
 export const QuizQuestionSchema = z.object({

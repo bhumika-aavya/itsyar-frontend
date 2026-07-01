@@ -177,7 +177,9 @@ const ImpactStats = ({ stats }: { stats: any }) => {
   );
 };
 
-const ContentGrid = () => (
+const TRACK_ICONS: Record<string, any> = { cloud: Cloud, cpu: Cpu, code: Code, globe: Globe };
+
+const ContentGrid = ({ courses, hackathons, categories }: { courses: any[]; hackathons: any[]; categories: string[] }) => (
   <section className="py-24 bg-[#F9FAFC]">
     <Container className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
 
@@ -189,24 +191,24 @@ const ContentGrid = () => (
         <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm space-y-4">
           <p className="text-[12px] text-slate-400 font-bold leading-relaxed pr-8">Expert-curated learning paths to master in-demand skills.</p>
           <div className="space-y-3">
-            {[
-              { name: 'Cloud & DevOps', icon: Cloud, pct: '80%', color: 'text-blue-500', bg: 'bg-blue-50' },
-              { name: 'AI / ML Track', icon: Cpu, pct: '40%', color: 'text-orange-500', bg: 'bg-orange-50' }
-            ].map(track => (
-              <div key={track.name} className="p-4 bg-slate-50/50 rounded-2xl border border-slate-50 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`${track.bg} ${track.color} p-2 rounded-lg`}><track.icon size={18} /></div>
-                  <span className="text-sm font-bold text-slate-800">{track.name}</span>
+            {courses.map((track: any) => {
+              const Icon = TRACK_ICONS[track.icon ?? "cpu"] ?? Cpu;
+              return (
+                <div key={track.id ?? track.name} className="p-4 bg-slate-50/50 rounded-2xl border border-slate-50 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`${track.bgClass ?? "bg-slate-100"} ${track.colorClass ?? "text-slate-600"} p-2 rounded-lg`}><Icon size={18} /></div>
+                    <span className="text-sm font-bold text-slate-800">{track.name ?? track.title}</span>
+                  </div>
+                  <span className="text-[10px] font-black text-slate-300">{track.progress ?? ""}</span>
                 </div>
-                <span className="text-[10px] font-black text-slate-300">{track.pct}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <button className="w-full text-center py-2 text-[#4F39F6] text-sm font-bold hover:underline">Explore all courses →</button>
         </div>
       </div>
 
-      {/* UpComing Hackathons */}
+      {/* Upcoming Hackathons */}
       <div id="hackathons" className="space-y-6">
         <div className="flex items-center gap-2 text-[#4F39F6] font-extrabold uppercase text-[11px] tracking-widest ml-1">
           <Zap size={16} strokeWidth={3} /> UpComing Hackathons
@@ -214,18 +216,20 @@ const ContentGrid = () => (
         <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm space-y-4">
           <p className="text-[12px] text-slate-400 font-bold leading-relaxed pr-8">Compete. Build. Win exciting prizes.</p>
           <div className="space-y-3">
-            {[
-              { title: 'AI Challenge 2024', icon: Zap, bg: 'bg-red-50', color: 'text-red-500' },
-              { title: 'Web3 Buildathon', icon: Globe, bg: 'bg-indigo-50', color: 'text-indigo-500' }
-            ].map(h => (
-              <div key={h.title} className="p-4 bg-slate-50/50 rounded-2xl border border-slate-50 flex flex-col gap-2">
-                <div className="flex items-center gap-3">
-                  <div className={`${h.bg} ${h.color} p-2 rounded-lg`}><h.icon size={18} fill="currentColor" /></div>
-                  <span className="text-sm font-bold text-slate-800">{h.title}</span>
+            {hackathons.map((h: any) => {
+              const Icon = TRACK_ICONS[h.type ?? "zap"] ?? Zap;
+              return (
+                <div key={h.id} className="p-4 bg-slate-50/50 rounded-2xl border border-slate-50 flex flex-col gap-2">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-indigo-50 text-indigo-500 p-2 rounded-lg"><Icon size={18} /></div>
+                    <span className="text-sm font-bold text-slate-800">{h.title}</span>
+                  </div>
+                  <div className="text-[9px] font-bold text-slate-400 uppercase ml-11 tracking-tighter">
+                    {h.date}  |  {h.registrations} registered
+                  </div>
                 </div>
-                <div className="text-[9px] font-bold text-slate-400 uppercase ml-11 tracking-tighter">12 June - Jul 15  |  1.2K+ registered</div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <button className="w-full text-center py-2 text-[#4F39F6] text-sm font-bold hover:underline">View all hackathons →</button>
         </div>
@@ -238,7 +242,7 @@ const ContentGrid = () => (
         </div>
         <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm space-y-2 h-full">
           <p className="text-[12px] text-slate-400 font-bold leading-relaxed pr-8 mb-4">Browse challenges by domain.</p>
-          {['Cloud & DevOps', 'AI / Machine Learning', 'Web3', 'Data Science'].map((cat, i) => (
+          {categories.map((cat, i) => (
             <div key={i} className="flex items-center justify-between p-3.5 hover:bg-slate-50 rounded-xl cursor-pointer group transition-colors">
               <span className="text-sm font-bold text-slate-700">{cat}</span>
               <ChevronRight size={14} className="text-slate-300 group-hover:text-[#4F39F6] group-hover:translate-x-1 transition-all" />
@@ -251,7 +255,7 @@ const ContentGrid = () => (
   </section>
 );
 
-const SocialProof = ({ leaderboard }: { leaderboard: any[] }) => (
+const SocialProof = ({ leaderboard, reviews }: { leaderboard: any[]; reviews: any[] }) => (
   <section id="leaderboard" className="py-24 bg-white">
     <Container className="grid lg:grid-cols-2 gap-20">
       <div className="space-y-10">
@@ -288,18 +292,7 @@ const SocialProof = ({ leaderboard }: { leaderboard: any[] }) => (
         </div>
 
         <div className="space-y-8">
-          {[
-            {
-              name: 'Sarah K.',
-              role: 'Software Engineer',
-              text: '"Won my first hackathon after just 2 weeks of learning. The format of platform is amazing!"'
-            },
-            {
-              name: 'James T.',
-              role: 'Full Stack Developer',
-              text: '"Best platform for sharpening skills before interviews and real-world projects."'
-            }
-          ].map((t, i) => (
+          {reviews.map((t, i) => (
             <div key={i} className="bg-white p-8 md:p-10 rounded-[40px] border border-slate-100 shadow-sm relative group hover:shadow-md transition-shadow">
               <div className="flex gap-1 mb-5">
                 {[...Array(5)].map((_, j) => <Star key={j} size={14} className="fill-yellow-400 text-yellow-400" />)}
@@ -367,26 +360,38 @@ const Footer = () => (
 export default function LandingPage() {
   const [metrics, setMetrics] = useState<any>(null);
   const [content, setContent] = useState<any>(null);
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
 
   useEffect(() => {
     const loadData = async () => {
-      const statsData = await LandingService.getImpactMetrics();
-      const contentData = await LandingService.getLandingContent();
-      setMetrics(statsData);
+      const [metricsData, contentData, leaderboardData, reviewsData] = await Promise.all([
+        LandingService.getImpactMetrics(),
+        LandingService.getLandingContent(),
+        LandingService.getLeaderboard(),
+        LandingService.getReviews(),
+      ]);
+      setMetrics(metricsData);
       setContent(contentData);
+      setLeaderboard(leaderboardData);
+      setReviews(reviewsData);
     };
     loadData();
   }, []);
 
-  if (!metrics || !content) return null; // Or a loading spinner
+  if (!metrics || !content) return null;
 
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-indigo-100">
       <Navbar />
       <Hero />
       <ImpactStats stats={metrics} />
-      <ContentGrid hackathons={content.hackathons} />
-      <SocialProof leaderboard={content.leaderboard} />
+      <ContentGrid
+        courses={content.courses ?? []}
+        hackathons={content.hackathons ?? []}
+        categories={content.categories ?? []}
+      />
+      <SocialProof leaderboard={leaderboard} reviews={reviews} />
       <Footer />
     </div>
   );

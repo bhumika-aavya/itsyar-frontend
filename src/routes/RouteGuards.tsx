@@ -3,6 +3,20 @@ import { useAuth } from '@/context/AuthContext';
 import { Loader2 } from 'lucide-react';
 import React from 'react';
 
+export const AdminRoute = () => {
+  const { user, isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) return <LoadingScreen />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+
+  const role = user?.role;
+  if (role !== 'admin' && role !== 'superadmin') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <Outlet />;
+};
+
 export const ProtectedRoute = () => {
   const { isAuthenticated, isLoading } = useAuth();
 

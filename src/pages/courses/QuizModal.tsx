@@ -6,12 +6,13 @@ import { useNavigate } from 'react-router-dom';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  onQuizComplete?: () => void;
   data: QuizData;
   isFinalQuiz: boolean;
   courseId: string;
 }
 
-export default function QuizModal({ isOpen, onClose, data, isFinalQuiz, courseId }: Props) {
+export default function QuizModal({ isOpen, onClose, onQuizComplete, data, isFinalQuiz, courseId }: Props) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [timeLeft, setTimeLeft] = useState(data.timeLimit * 60);
@@ -28,7 +29,13 @@ export default function QuizModal({ isOpen, onClose, data, isFinalQuiz, courseId
     }
   }, [isOpen]);
 
-  // Timer
+  // Timer — auto-submit when time runs out
+  useEffect(() => {
+    if (timeLeft <= 0 && !isFinished && isOpen) {
+      setIsFinished(true);
+    }
+  }, [timeLeft, isFinished, isOpen]);
+
   useEffect(() => {
     if (timeLeft <= 0 || isFinished || !isOpen) return;
     const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
@@ -90,10 +97,13 @@ export default function QuizModal({ isOpen, onClose, data, isFinalQuiz, courseId
               </button>
             )}
             <button
-              onClick={onClose}
+              onClick={() => {
+                if (!isFinalQuiz) onQuizComplete?.();
+                onClose();
+              }}
               className="w-full py-4 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-xl hover:bg-[#3f2dd1] transition-all"
             >
-              {isFinalQuiz ? 'Close' : 'Back to Lesson'}
+              {isFinalQuiz ? 'Close' : 'Continue to Next Module'}
             </button>
           </div>
         </div>

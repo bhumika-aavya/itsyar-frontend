@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
     ChevronLeft, Calendar, Users, Globe,
     BarChart2, Loader2, Trophy,
-    ChevronDown, Play
+    ChevronDown, Play, Lightbulb
 } from 'lucide-react';
 import { HackathonService } from '@/services/hackathon.service';
 import { HackathonDetail as HackathonDetailType } from '@/schemas/hackathon.schema';
@@ -51,6 +51,7 @@ export default function HackathonDetail() {
     );
 
     const isHackathonLive = isDateBetween(data.startDate, data.endDate);
+    const isIdeationLive = !!(data as any).ideationStartDate && isDateBetween((data as any).ideationStartDate, (data as any).ideationEndDate);
     const openSandbox = () => navigate(`/hackathons/${id}/sandbox`, { state: { hackathonStatus: data.status } });
 
     const hackathonRef = {
@@ -121,6 +122,20 @@ export default function HackathonDetail() {
                                         <StatBox label="Mode" value={data?.mode} isBlue />
                                         <StatBox label="Participants" value={data?.participantCount} noBorder />
                                     </div>
+
+                                    {/* Ideation Phase CTA */}
+                                    {isIdeationLive && (
+                                        <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-100 rounded-3xl p-8 flex items-center justify-between gap-6">
+                                            <div>
+                                                <p className="text-xs font-black uppercase tracking-widest text-amber-600 mb-1">Ideation Phase Active</p>
+                                                <h3 className="text-xl font-black text-slate-900">Now is the time to brainstorm</h3>
+                                                <p className="text-sm font-medium text-slate-500 mt-1">Plan your approach and prepare your team before the hackathon begins.</p>
+                                            </div>
+                                            <div className="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center shrink-0">
+                                                <Lightbulb size={28} className="text-amber-600" />
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {/* Start Hackathon CTA inside Overview when live */}
                                     {isHackathonLive && (

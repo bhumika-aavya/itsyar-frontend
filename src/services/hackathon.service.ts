@@ -40,12 +40,15 @@ const MOCK_DETAIL: HackathonDetail & { rules: string[]; prices: any[]; faqs: any
         { q: "Can I participate alone?", a: "Yes, you can join as a solo participant or in a team of up to 4." },
         { q: "What tech stack should I use?", a: "You are free to use any stack as long as it solves the problem statement." }
     ],
+    ideationStartDate: "2026-05-05",
+    ideationEndDate: "2026-05-15",
     timeline: [
-        { label: "Registration Starts", date: "01 May 2026" },
-        { label: "Registration Ends", date: "20 May 2026" },
-        { label: "Hackathon Starts", date: "21 May 2026" },
-        { label: "Hackathon Ends", date: "30 May 2026" },
-        { label: "Winner Announcement", date: "02 June 2026" },
+        { label: "Registration Starts", date: "01 May 2026", type: "event" as const },
+        { label: "Registration Ends", date: "20 May 2026", type: "event" as const },
+        { label: "Ideation Phase", date: "05 May – 15 May 2026", type: "phase" as const, description: "Brainstorm ideas, form strategies, and prepare your approach before the hack begins." },
+        { label: "Hackathon Starts", date: "21 May 2026", type: "event" as const },
+        { label: "Hackathon Ends", date: "30 May 2026", type: "event" as const },
+        { label: "Winner Announcement", date: "02 June 2026", type: "event" as const },
     ]
 };
 
@@ -211,6 +214,14 @@ export const HackathonService = {
     joinHackathon: async (id: string) => {
         try {
             return (await api.post(`/hackathons/${id}/join`, {}, getAuthHeaders())).data;
+        } catch {
+            return { success: true };
+        }
+    },
+
+    registerHackathon: async (id: string, data?: { fullName: string; email: string; role: string; skills: string[]; experience: string }) => {
+        try {
+            return (await api.post(`/hackathons/${id}/register`, data ?? {}, getAuthHeaders())).data;
         } catch {
             return { success: true };
         }

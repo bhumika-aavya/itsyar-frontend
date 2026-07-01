@@ -1,9 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { X, Users, CheckCircle2, Plus, Trash2, Loader2, ArrowLeft, Calendar } from 'lucide-react';
+import { X, Users, CheckCircle2, Plus, Trash2, Loader2, ArrowLeft, Calendar, User, Briefcase, Zap } from 'lucide-react';
 import { HackathonService } from '@/services/hackathon.service';
 import { Team } from '@/schemas/hackathon.schema';
 
-type Step = 'team-select' | 'create-team' | 'team-created' | 'confirm' | 'success';
+type Step = 'mode-select' | 'team-select' | 'create-team' | 'team-created' | 'confirm' | 'individual-form' | 'success';
+
+const ROLE_OPTIONS = [
+    'Frontend Developer',
+    'Backend Developer',
+    'Full Stack Developer',
+    'ML / AI Engineer',
+    'Designer',
+    'DevOps / Cloud',
+    'Data Scientist',
+    'Other',
+];
+
+const EXPERIENCE_OPTIONS = ['Beginner', 'Intermediate', 'Advanced'];
+
+interface IndividualFormValues {
+    fullName: string;
+    email: string;
+    role: string;
+    skillInput: string;
+    skills: string[];
+    experience: string;
+}
 
 interface HackathonRef {
     id: string;
@@ -39,13 +61,20 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
     const [inviteEmails, setInviteEmails] = useState<string[]>([]);
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+    // individual registration form
+    const [indForm, setIndForm] = useState<IndividualFormValues>({
+        fullName: '', email: '', role: '', skillInput: '', skills: [], experience: '',
+    });
+    const [indErrors, setIndErrors] = useState<Record<string, string>>({});
+
     useEffect(() => {
         if (isOpen) {
-            setStep('team-select');
+            setStep('mode-select');
             setSelectedTeamId(null);
             setJoinedTeam(null);
             resetCreateForm();
-            loadUserTeams();
+            setIndForm({ fullName: '', email: '', role: '', skillInput: '', skills: [], experience: '' });
+            setIndErrors({});
         }
     }, [isOpen, hackathon.id]);
 
@@ -114,6 +143,41 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
         setStep('success');
     };
 
+    const handleAddSkill = () => {
+        const skill = indForm.skillInput.trim();
+        if (!skill) return;
+        if (indForm.skills.includes(skill)) {
+            setIndErrors(p => ({ ...p, skillInput: 'Already added' }));
+            return;
+        }
+        if (indForm.skills.length >= 6) {
+            setIndErrors(p => ({ ...p, skillInput: 'Maximum 6 skills' }));
+            return;
+        }
+        setIndForm(p => ({ ...p, skills: [...p.skills, skill], skillInput: '' }));
+        setIndErrors(p => ({ ...p, skillInput: '' }));
+    };
+
+    const handleIndividualRegister = async () => {
+        const errs: Record<string, string> = {};
+        if (!indForm.fullName.trim()) errs.fullName = 'Full name is required';
+        if (!indForm.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(indForm.email)) errs.email = 'Valid email is required';
+        if (!indForm.role) errs.role = 'Please select your role';
+        if (!indForm.experience) errs.experience = 'Please select experience level';
+        if (Object.keys(errs).length) { setIndErrors(errs); return; }
+
+        setSubmitting(true);
+        await HackathonService.registerHackathon(hackathon.id, {
+            fullName: indForm.fullName,
+            email: indForm.email,
+            role: indForm.role,
+            skills: indForm.skills,
+            experience: indForm.experience,
+        });
+        setSubmitting(false);
+        setStep('success');
+    };
+
     const selectedTeam = userTeams.find(t => t.id === selectedTeamId) ?? joinedTeam;
 
     if (!isOpen) return null;
@@ -122,13 +186,212 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
             <div className="bg-white rounded-[28px] shadow-2xl w-full max-w-md animate-in zoom-in-95 duration-200 overflow-hidden">
 
-                {/* ── Step: team-select ── */}
-                {step === 'team-select' && (
+                {/* ── Step: mode-select ── */}
+                {step === 'mode-select' && (
                     <>
                         <div className="flex items-center justify-between px-7 pt-7 pb-4">
                             <div>
                                 <h2 className="text-xl font-black text-slate-900">Join {hackathon.title}</h2>
-                                <p className="text-sm font-medium text-slate-400 mt-0.5">Select how you want to participate</p>
+                                <p className="text-sm font-medium text-slate-400 mt-0.5">How would you like to participate?</p>
+                            </div>
+                            <button onClick={onClose} className="p-2 text-slate-300 hover:text-slate-500 transition-colors rounded-xl">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="px-7 pb-4 space-y-3">
+                            <button
+                                onClick={() => setStep('individual-form')}
+                                className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-slate-100 hover:border-[#4F39F6] hover:bg-indigo-50/30 transition-all text-left group"
+                            >
+                                <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F39F6] shrink-0 group-hover:bg-[#4F39F6] group-hover:text-white transition-colors">
+                                    <User size={22} />
+                                </div>
+                                <div>
+                                    <p className="text-base font-black text-slate-800 group-hover:text-[#4F39F6] transition-colors">Join as Individual</p>
+                                    <p className="text-xs font-bold text-slate-400 mt-0.5">Compete solo — no team required</p>
+                                </div>
+                            </button>
+
+                            <button
+                                onClick={() => { loadUserTeams(); setStep('team-select'); }}
+                                className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-slate-100 hover:border-[#4F39F6] hover:bg-indigo-50/30 transition-all text-left group"
+                            >
+                                <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F39F6] shrink-0 group-hover:bg-[#4F39F6] group-hover:text-white transition-colors">
+                                    <Users size={22} />
+                                </div>
+                                <div>
+                                    <p className="text-base font-black text-slate-800 group-hover:text-[#4F39F6] transition-colors">Join with a Team</p>
+                                    <p className="text-xs font-bold text-slate-400 mt-0.5">Create a team or join an existing one</p>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div className="px-7 py-4 border-t border-slate-50">
+                            <button onClick={onClose} className="w-full py-3 border border-slate-200 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
+                        </div>
+                    </>
+                )}
+
+                {/* ── Step: individual-form ── */}
+                {step === 'individual-form' && (
+                    <>
+                        <div className="flex items-center justify-between px-7 pt-7 pb-4">
+                            <div className="flex items-center gap-3">
+                                <button onClick={() => setStep('mode-select')} className="flex items-center gap-1.5 text-[#4F39F6] font-bold text-sm">
+                                    <ArrowLeft size={16} />
+                                </button>
+                                <div>
+                                    <h2 className="text-xl font-black text-slate-900">Individual Registration</h2>
+                                    <p className="text-sm font-medium text-slate-400 mt-0.5">Fill in your details to register solo</p>
+                                </div>
+                            </div>
+                            <button onClick={onClose} className="p-2 text-slate-300 hover:text-slate-500 transition-colors rounded-xl">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {/* Hackathon badge */}
+                        <div className="px-7 pb-2">
+                            <div className="bg-indigo-50/60 border border-indigo-100 rounded-2xl px-4 py-3 flex items-center gap-3">
+                                <div className="w-8 h-8 bg-[#4F39F6] rounded-xl flex items-center justify-center shrink-0">
+                                    <Calendar size={15} className="text-white" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-black text-[#4F39F6]">{hackathon.title}</p>
+                                    <p className="text-[11px] font-bold text-slate-400">{formatDate(hackathon.startDate)} – {formatDate(hackathon.endDate)}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="px-7 pb-4 space-y-4 max-h-[360px] overflow-y-auto pt-3">
+                            {/* Full Name */}
+                            <div>
+                                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">Full Name <span className="text-red-400">*</span></label>
+                                <div className="relative">
+                                    <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300" />
+                                    <input
+                                        value={indForm.fullName}
+                                        onChange={e => setIndForm(p => ({ ...p, fullName: e.target.value }))}
+                                        placeholder="John Doe"
+                                        className={`w-full h-11 bg-slate-50 border rounded-xl pl-9 pr-4 text-sm font-medium outline-none transition-all ${indErrors.fullName ? 'border-red-400' : 'border-slate-100 focus:border-[#4F39F6]'}`}
+                                    />
+                                </div>
+                                {indErrors.fullName && <p className="text-xs font-bold text-red-500 mt-1">{indErrors.fullName}</p>}
+                            </div>
+
+                            {/* Email */}
+                            <div>
+                                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">Email <span className="text-red-400">*</span></label>
+                                <input
+                                    type="email"
+                                    value={indForm.email}
+                                    onChange={e => setIndForm(p => ({ ...p, email: e.target.value }))}
+                                    placeholder="john@example.com"
+                                    className={`w-full h-11 bg-slate-50 border rounded-xl px-4 text-sm font-medium outline-none transition-all ${indErrors.email ? 'border-red-400' : 'border-slate-100 focus:border-[#4F39F6]'}`}
+                                />
+                                {indErrors.email && <p className="text-xs font-bold text-red-500 mt-1">{indErrors.email}</p>}
+                            </div>
+
+                            {/* Role */}
+                            <div>
+                                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">Your Role <span className="text-red-400">*</span></label>
+                                <div className="relative">
+                                    <Briefcase size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
+                                    <select
+                                        value={indForm.role}
+                                        onChange={e => setIndForm(p => ({ ...p, role: e.target.value }))}
+                                        className={`w-full h-11 bg-slate-50 border rounded-xl pl-9 pr-4 text-sm font-medium outline-none transition-all appearance-none ${indErrors.role ? 'border-red-400' : 'border-slate-100 focus:border-[#4F39F6]'} ${indForm.role ? 'text-slate-900' : 'text-slate-400'}`}
+                                    >
+                                        <option value="" disabled>Select your role</option>
+                                        {ROLE_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
+                                    </select>
+                                </div>
+                                {indErrors.role && <p className="text-xs font-bold text-red-500 mt-1">{indErrors.role}</p>}
+                            </div>
+
+                            {/* Experience */}
+                            <div>
+                                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">Experience Level <span className="text-red-400">*</span></label>
+                                <div className="flex gap-2">
+                                    {EXPERIENCE_OPTIONS.map(lvl => (
+                                        <button
+                                            key={lvl}
+                                            type="button"
+                                            onClick={() => setIndForm(p => ({ ...p, experience: lvl }))}
+                                            className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-black transition-all ${indForm.experience === lvl ? 'border-[#4F39F6] bg-indigo-50 text-[#4F39F6]' : 'border-slate-100 text-slate-500 hover:border-slate-200'}`}
+                                        >
+                                            {lvl}
+                                        </button>
+                                    ))}
+                                </div>
+                                {indErrors.experience && <p className="text-xs font-bold text-red-500 mt-1">{indErrors.experience}</p>}
+                            </div>
+
+                            {/* Skills */}
+                            <div>
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <label className="text-xs font-black text-slate-700 uppercase tracking-wide">Skills <span className="text-slate-400 font-bold normal-case">(optional)</span></label>
+                                    <span className="text-xs font-bold text-slate-400">{indForm.skills.length}/6</span>
+                                </div>
+                                <div className="flex gap-2">
+                                    <div className="relative flex-1">
+                                        <Zap size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
+                                        <input
+                                            value={indForm.skillInput}
+                                            onChange={e => setIndForm(p => ({ ...p, skillInput: e.target.value }))}
+                                            onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
+                                            placeholder="e.g. React, Python…"
+                                            className={`w-full h-11 bg-slate-50 border rounded-xl pl-9 pr-3 text-sm font-medium outline-none transition-all ${indErrors.skillInput ? 'border-red-400' : 'border-slate-100 focus:border-[#4F39F6]'}`}
+                                        />
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={handleAddSkill}
+                                        className="px-4 h-11 bg-[#4F39F6] text-white rounded-xl font-bold text-sm hover:bg-[#3f2dd1] transition-all shrink-0"
+                                    >
+                                        + Add
+                                    </button>
+                                </div>
+                                {indErrors.skillInput && <p className="text-xs font-bold text-red-500 mt-1">{indErrors.skillInput}</p>}
+                                {indForm.skills.length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5 mt-2">
+                                        {indForm.skills.map(s => (
+                                            <span key={s} className="inline-flex items-center gap-1.5 bg-indigo-50 text-[#4F39F6] text-xs font-bold px-3 py-1.5 rounded-full">
+                                                {s}
+                                                <button type="button" onClick={() => setIndForm(p => ({ ...p, skills: p.skills.filter(x => x !== s) }))} className="hover:text-red-500 transition-colors leading-none">×</button>
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3 px-7 py-5 border-t border-slate-50">
+                            <button onClick={() => setStep('mode-select')} className="flex-1 py-3 border border-slate-200 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition-all">Back</button>
+                            <button
+                                onClick={handleIndividualRegister}
+                                disabled={submitting}
+                                className="flex-1 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                            >
+                                {submitting ? <><Loader2 size={16} className="animate-spin" /> Registering...</> : 'Register Now'}
+                            </button>
+                        </div>
+                    </>
+                )}
+
+                {/* ── Step: team-select ── */}
+                {step === 'team-select' && (
+                    <>
+                        <div className="flex items-center justify-between px-7 pt-7 pb-4">
+                            <div className="flex items-center gap-3">
+                                <button onClick={() => setStep('mode-select')} className="flex items-center gap-1.5 text-[#4F39F6] font-bold text-sm">
+                                    <ArrowLeft size={16} />
+                                </button>
+                                <div>
+                                    <h2 className="text-xl font-black text-slate-900">Select Your Team</h2>
+                                    <p className="text-sm font-medium text-slate-400 mt-0.5">Pick a team or create a new one</p>
+                                </div>
                             </div>
                             <button onClick={onClose} className="p-2 text-slate-300 hover:text-slate-500 transition-colors rounded-xl">
                                 <X size={20} />
@@ -371,17 +634,21 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                             <CheckCircle2 size={36} className="text-emerald-500" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-black text-slate-900">Successfully Joined!</h2>
+                            <h2 className="text-2xl font-black text-slate-900">
+                                {joinedTeam ? 'Successfully Joined!' : 'Registration Successful!'}
+                            </h2>
                             <p className="text-sm font-medium text-slate-400 mt-1">
-                                You have joined <span className="font-bold text-slate-600">{hackathon.title}</span>{' '}
-                                with <span className="font-bold text-slate-600">{joinedTeam?.name ?? selectedTeam?.name}</span>
+                                {joinedTeam
+                                    ? <>You've joined <span className="font-bold text-slate-600">{hackathon.title}</span> with <span className="font-bold text-slate-600">{joinedTeam.name}</span></>
+                                    : <>You're registered for <span className="font-bold text-slate-600">{hackathon.title}</span> as a solo participant. Good luck!</>
+                                }
                             </p>
                         </div>
                         <button
                             onClick={onClose}
                             className="w-full py-3.5 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] transition-all mt-2"
                         >
-                            Go to Dashboard
+                            {joinedTeam ? 'Go to Dashboard' : 'View Hackathon'}
                         </button>
                     </div>
                 )}

@@ -29,13 +29,13 @@ const ContinueCard = ({ data }: { data: MyCourse }) => {
       </div>
       <h4 className="font-bold text-slate-900 mb-4 leading-tight">{data.title}</h4>
       <div className="flex items-center justify-between mb-4">
-        <div className="text-[11px] font-bold text-slate-400">{data.progress}% Complete</div>
+        <div className="text-[11px] font-bold text-slate-400">{data.courseCompletionPercentage}% Complete</div>
         <div className="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-1 rounded-md uppercase">{data.level}</div>
       </div>
       <div className="w-full h-1.5 bg-slate-100 rounded-full mb-6 overflow-hidden">
         <div
           className="h-full bg-[#4F39F6] rounded-full transition-all duration-1000"
-          style={{ width: `${data.progress}%` }}
+          style={{ width: `${data.courseCompletionPercentage}%` }}
         />
       </div>
       <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
