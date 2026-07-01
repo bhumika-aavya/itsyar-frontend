@@ -117,7 +117,7 @@ export default function HackathonDetail() {
                                     </section>
                                     <div className="grid grid-cols-1 md:grid-cols-4 border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
                                         <StatBox label="Team Size" value={data?.teamSize} />
-                                        <StatBox label="Registration Ends" value={data?.registrationDeadline} />
+                                        <StatBox label="Registration Ends" value={data?.registrationsDeadline} />
                                         <StatBox label="Mode" value={data?.mode} isBlue />
                                         <StatBox label="Participants" value={data?.participantCount} noBorder />
                                     </div>
@@ -159,7 +159,7 @@ export default function HackathonDetail() {
 
                             {activeTab === 'Prices' && (
                                 <div className="grid md:grid-cols-3 gap-6 animate-in slide-in-from-bottom-2 duration-300">
-                                    {(data as any)?.prices?.map((price: any, i: number) => (
+                                    {(data as any)?.prizes?.map((price: any, i: number) => (
                                         <div key={i} className="p-8 bg-white border border-slate-100 rounded-[32px] shadow-lg text-center relative overflow-hidden group">
                                             <div className="absolute top-0 left-0 w-full h-2 bg-[#4F39F6]" />
                                             <Trophy size={48} className={`mx-auto mb-6 ${i === 0 ? 'text-yellow-400' : 'text-slate-300'}`} />

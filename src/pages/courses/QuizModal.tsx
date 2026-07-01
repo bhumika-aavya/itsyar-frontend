@@ -7,7 +7,8 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   data: QuizData;
-  isFinalQuiz: boolean
+  isFinalQuiz: boolean;
+  courseId: string;
 }
 
 export default function QuizModal({ isOpen, onClose, data, isFinalQuiz, courseId }: Props) {
@@ -17,7 +18,17 @@ export default function QuizModal({ isOpen, onClose, data, isFinalQuiz, courseId
   const [isFinished, setIsFinished] = useState(false);
   const navigate = useNavigate();
 
-  // Timer Logic
+  // Reset all quiz state whenever the modal opens (prevents stale "finished" state from a previous quiz)
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentIdx(0);
+      setSelectedAnswers({});
+      setTimeLeft(data.timeLimit * 60);
+      setIsFinished(false);
+    }
+  }, [isOpen]);
+
+  // Timer
   useEffect(() => {
     if (timeLeft <= 0 || isFinished || !isOpen) return;
     const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
@@ -28,11 +39,12 @@ export default function QuizModal({ isOpen, onClose, data, isFinalQuiz, courseId
 
   const currentQuestion = data.questions[currentIdx];
 
-  // Helper to convert "a", "b", "c" from API to 0, 1, 2
-  const getCorrectIndex = (answer: string) => answer.toLowerCase().charCodeAt(0) - 97;
+  const getCorrectIndex = (answer: any) => {
+    if (typeof answer === 'number') return answer;
+    return String(answer).toLowerCase().charCodeAt(0) - 97;
+  };
 
   const handleSelect = (optionIdx: number) => {
-    // If answer already selected for this question, don't allow change (to show feedback)
     if (selectedAnswers[currentIdx] !== undefined) return;
     setSelectedAnswers({ ...selectedAnswers, [currentIdx]: optionIdx });
   };
@@ -46,19 +58,16 @@ export default function QuizModal({ isOpen, onClose, data, isFinalQuiz, courseId
   const calculateScore = () => {
     let score = 0;
     data.questions.forEach((q, idx) => {
-      if (selectedAnswers[idx] === getCorrectIndex(q.correctAnswer)) {
-        score++;
-      }
+      if (selectedAnswers[idx] === getCorrectIndex(q.correctAnswer)) score++;
     });
     return score;
   };
 
-  // If Quiz is finished, show result view
   if (isFinished) {
-
     const score = calculateScore();
     const percentage = Math.round((score / data.questions.length) * 100);
     const isPassed = percentage >= 70;
+
     return (
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div className="bg-white w-full max-w-lg rounded-[40px] p-12 text-center shadow-2xl animate-in zoom-in-95 duration-300">
@@ -66,33 +75,31 @@ export default function QuizModal({ isOpen, onClose, data, isFinalQuiz, courseId
             <Trophy className="text-[#4F39F6]" size={48} />
           </div>
           <h2 className="text-3xl font-black text-slate-900 mb-2">Quiz Completed!</h2>
-          <p className="text-slate-500 font-medium mb-8">Great job! You've finished the module assessment.</p>
+          <p className="text-slate-500 font-medium mb-2">Great job! You've finished the module assessment.</p>
+          <p className={`text-2xl font-black mb-8 ${isPassed ? 'text-emerald-500' : 'text-red-500'}`}>
+            {percentage}%
+          </p>
 
-          <div className="space-y-4 mt-8">
-            {/* 3. CONDITIONAL BUTTON: Only show Certificate if it's the last quiz and they passed */}
-            {isFinalQuiz ? (
+          <div className="space-y-3 mt-4">
+            {isFinalQuiz && (
               <button
                 onClick={() => navigate(`/courses/${courseId}/certificate`)}
                 className="w-full py-4 bg-[#10B981] text-white rounded-2xl font-black text-sm shadow-xl shadow-emerald-100 flex items-center justify-center gap-2 hover:bg-emerald-600 transition-all"
               >
-                <Award size={20} /> View & Download Certificate
-              </button>
-            ) : (
-              <button
-                onClick={onClose}
-                className="w-full py-4 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-xl hover:bg-[#3f2dd1] transition-all"
-              >
-                Back to Lesson
+                <Award size={20} /> View &amp; Download Certificate
               </button>
             )}
+            <button
+              onClick={onClose}
+              className="w-full py-4 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-xl hover:bg-[#3f2dd1] transition-all"
+            >
+              {isFinalQuiz ? 'Close' : 'Back to Lesson'}
+            </button>
           </div>
-
-
         </div>
       </div>
     );
   }
-  console.log("Quiz finished. Score:", courseId);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
@@ -122,7 +129,6 @@ export default function QuizModal({ isOpen, onClose, data, isFinalQuiz, courseId
                 const correctIdx = getCorrectIndex(currentQuestion.correctAnswer);
                 const isRevealed = selectedAnswers[currentIdx] !== undefined;
 
-                // Styling logic for feedback
                 let containerStyle = "border-slate-100 hover:border-slate-200";
                 let icon = <div className="w-6 h-6 rounded-full border-2 border-slate-200" />;
 

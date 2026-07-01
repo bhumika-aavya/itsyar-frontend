@@ -9,35 +9,48 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { CourseService } from '@/services/course.service';
 import { CourseDetail, CourseModule } from '@/services/course-detail.schema';
 
-// --- Sub-component: Curriculum Accordion (Remains same) ---
-const ModuleAccordion = ({ module, isOpen, onToggle }: { module: CourseModule, isOpen: boolean, onToggle: () => void }) => (
-    <div className="border border-slate-100 rounded-2xl overflow-hidden mb-4 bg-white shadow-sm">
-        <button onClick={onToggle} className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-50/50 transition-colors">
-            <div className="flex items-center gap-4">
-                <span className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[11px] font-black text-slate-400">
-                    {module.order < 10 ? `0${module.order}` : module.order}
-                </span>
-                <h4 className="font-bold text-slate-800">{module.title}</h4>
-            </div>
-            {isOpen ? <ChevronUp className="text-slate-400" size={20} /> : <ChevronDown className="text-slate-400" size={20} />}
-        </button>
-        {isOpen && (
-            <div className="px-5 pb-5 space-y-4 border-t border-slate-50 pt-5">
-                {module.items.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between group cursor-pointer">
-                        <div className="flex items-center gap-3">
-                            {item.type === 'video' && <PlayCircle size={18} className="text-slate-300 group-hover:text-[#4F39F6]" />}
-                            {item.type === 'reading' && <FileText size={18} className="text-slate-300 group-hover:text-[#4F39F6]" />}
-                            {item.type === 'assessment' && <HelpCircle size={18} className="text-slate-300 group-hover:text-[#4F39F6]" />}
-                            <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900">{item.title}</span>
-                        </div>
-                        <span className="text-[11px] font-bold text-slate-400">{item.duration || `${item.questions} Qs`}</span>
+// --- Sub-component: Curriculum Accordion ---
+const ModuleAccordion = ({ module, index, isOpen, onToggle }: { module: CourseModule, index: number, isOpen: boolean, onToggle: () => void }) => {
+    const displayNum = module.order ?? index + 1;
+    const items = module.items ?? [];
+    console.log("Module items:", module); // Debugging log
+    return (
+        <div className="border border-slate-100 rounded-2xl overflow-hidden mb-4 bg-white shadow-sm">
+            <button onClick={onToggle} className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-50/50 transition-colors">
+                <div className="flex items-center gap-4">
+                    <span className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[11px] font-black text-slate-400">
+                        {displayNum < 10 ? `0${displayNum}` : displayNum}
+                    </span>
+                    <div>
+                        <h4 className="font-bold text-slate-800">{module.title}</h4>
+                        {module.duration && (
+                            <span className="text-[11px] font-medium text-slate-400">{module.duration}</span>
+                        )}
                     </div>
-                ))}
-            </div>
-        )}
-    </div>
-);
+                </div>
+                {isOpen ? <ChevronUp className="text-slate-400" size={20} /> : <ChevronDown className="text-slate-400" size={20} />}
+            </button>
+            {isOpen && (
+                <div className="px-5 pb-5 border-t border-slate-50 pt-5 space-y-4">
+                    {module.summary && (
+                        <p className="text-[13px] text-slate-500 font-medium leading-relaxed">{module.summary}</p>
+                    )}
+                    {items.length > 0 && items.map((item) => (
+                        <div key={item.id} className="flex items-center justify-between group cursor-pointer">
+                            <div className="flex items-center gap-3">
+                                {item.type === 'video' && <PlayCircle size={18} className="text-slate-300 group-hover:text-[#4F39F6]" />}
+                                {item.type === 'reading' && <FileText size={18} className="text-slate-300 group-hover:text-[#4F39F6]" />}
+                                {item.type === 'assessment' && <HelpCircle size={18} className="text-slate-300 group-hover:text-[#4F39F6]" />}
+                                <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900">{item.title}</span>
+                            </div>
+                            <span className="text-[11px] font-bold text-slate-400">{item.duration || `${item.questions} Qs`}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
 
 export default function CourseDetailPage() {
     const { courseId } = useParams();
@@ -77,7 +90,7 @@ export default function CourseDetailPage() {
         try {
             await CourseService.enrollInCourse(courseId);
             // After enrollment, send to the first lesson
-            navigate(`/courses/${courseId}/lessons/intro`);
+            navigate(`/courses/${courseId}/lessons/${course?.moduleId}`);
         } catch (error) {
             console.error("Enrollment failed", error);
         } finally {
@@ -135,7 +148,7 @@ export default function CourseDetailPage() {
                     <section className="space-y-6">
                         <h2 className="text-2xl font-bold text-slate-900">About this course</h2>
                         <p className="text-[15px] text-slate-500 leading-relaxed font-medium">{course?.longDescription}</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 pt-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 pt-6">
                             {course?.takeaways && JSON.parse(course?.takeaways)?.map((item, i) => (
                                 <div key={i} className="flex items-start gap-3">
                                     <CheckCircle2 size={18} className="text-[#4F39F6] shrink-0 mt-0.5" />
@@ -151,20 +164,11 @@ export default function CourseDetailPage() {
                             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{course?.modulesCount} Modules</span>
                         </div>
                         <div>
-                            {[{
-                                id: "m1",
-                                order: 1,
-                                title: "Introduction to Palantir Foundry",
-                                items: [
-                                    { id: "l1", title: "The History & Use Cases of Python", type: "video", duration: "12:45" },
-                                    { id: "l2", title: "Setting up your Development Environment", type: "video", duration: "15:20" },
-                                    { id: "l3", title: "Module 1 Assessment", type: "assessment", questions: 10 },
-                                ]
-                            },
-                            ].map((module) => (
+                            {(course?.curriculum ?? []).map((module, idx) => (
                                 <ModuleAccordion
                                     key={module.id}
                                     module={module}
+                                    index={idx}
                                     isOpen={openModule === module.id}
                                     onToggle={() => setOpenModule(openModule === module.id ? null : module.id)}
                                 />
@@ -175,6 +179,20 @@ export default function CourseDetailPage() {
 
                 <div className="lg:col-span-1 text-left">
                     <div className="bg-[#F9FAFF] border border-indigo-50 p-8 rounded-[40px] sticky top-28 shadow-sm flex flex-col gap-8">
+                        {course?.isEnrolled && course?.courseCompletionPercentage !== undefined && (
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em]">Your Progress</span>
+                                    <span className="text-[13px] font-black text-[#4F39F6]">{course.courseCompletionPercentage}%</span>
+                                </div>
+                                <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full rounded-full bg-[#4F39F6] transition-all"
+                                        style={{ width: `${course.courseCompletionPercentage}%` }}
+                                    />
+                                </div>
+                            </div>
+                        )}
                         <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.25em] leading-none">
                             Course Includes
                         </h3>

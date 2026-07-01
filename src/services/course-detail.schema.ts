@@ -9,10 +9,14 @@ const CurriculumItemSchema = z.object({
 });
 
 const ModuleSchema = z.object({
-  id: z.string(),
-  order: z.number(),
+  id: z.union([z.string(), z.number()]).transform((v) => String(v)),
+  moduleId: z.string().optional(),
+  courseId: z.string().optional(),
+  order: z.number().optional(),
   title: z.string(),
-  items: z.array(CurriculumItemSchema),
+  duration: z.string().optional(),
+  summary: z.string().optional(),
+  items: z.array(CurriculumItemSchema).nullable().optional(),
 });
 
 export const CourseDetailSchema = z.object({
@@ -33,6 +37,7 @@ export const CourseDetailSchema = z.object({
   })),
   curriculum: z.array(ModuleSchema),
   isEnrolled: z.boolean().default(false),
+  courseCompletionPercentage: z.number().min(0).max(100).optional(),
 });
 
 export type CourseDetail = z.infer<typeof CourseDetailSchema>;

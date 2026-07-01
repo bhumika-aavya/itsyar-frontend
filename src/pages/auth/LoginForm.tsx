@@ -60,9 +60,6 @@ export default function LoginForm() {
       console.error("Login error:", error);
 
       if (axios.isAxiosError(error)) {
-        console.log("Status:", error.response?.status);
-        console.log("Response:", error.response?.data);
-        console.log("Full Error:", error);
         const message =
           error.response?.data?.error?.data?.message ??
           "Something went wrong. Please try again.";

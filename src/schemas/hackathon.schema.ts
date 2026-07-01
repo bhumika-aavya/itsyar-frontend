@@ -20,7 +20,7 @@ export const HackathonDetailSchema = z.object({
     status: z.string(),
     description: z.string(),
     teamSize: z.string(),
-    registrationDeadline: z.string(),
+    registrationsDeadline: z.string(),
     mode: z.string(),
     participantCount: z.string(),
     timeline: z.array(z.object({

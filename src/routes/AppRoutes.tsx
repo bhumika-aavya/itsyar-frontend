@@ -11,11 +11,15 @@ import LessonView from "@/pages/courses/LessonView";
 import HackathonListing from "@/pages/hackathon/HackathonListing";
 import HackathonDetail from "@/pages/hackathon/HackathonDetail";
 import CertificatePage from "@/pages/courses/CertificatePage";
+import ResultsPage from "@/pages/courses/ResultsPage";
 import MentorDashboard from "@/pages/mentor/MentorDashboard";
 import SubmissionReview from "@/pages/mentor/SubmissionReview";
 import HackathonSandboxPage from "@/pages/hackathon/HackathonSandboxPage";
 import OrganizerDashboard from "@/pages/organizer/OrganizerDashboard";
 import CreateHackathon from "@/pages/organizer/CreateHackathon";
+import DashboardPage from "@/pages/dashboard/DashboardPage";
+import LeaderboardPage from "@/pages/leaderboard/LeaderboardPage";
+import ProfilePage from "@/pages/profile/ProfilePage";
 
 export default function AppRoutes() {
   return (
@@ -32,7 +36,7 @@ export default function AppRoutes() {
 
       {/* <Route element={<ProtectedRoute />}> */}
       <Route element={<MainLayout />}>
-        <Route path="/dashboard" element={<h2>Coming Soon...</h2>} />
+        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/courses" element={<CourseCatalog />} />
         <Route path="/courses/:courseId" element={<CourseDetail />} />
         <Route path="/courses/:courseId/lessons/:lessonId" element={<LessonView />} />
@@ -40,6 +44,9 @@ export default function AppRoutes() {
         <Route path="/hackathons" element={<HackathonListing />} />
         <Route path="/hackathons/:id" element={<HackathonDetail />} />
         <Route path="/courses/:courseId/certificate" element={<CertificatePage />} />
+        <Route path="/results" element={<ResultsPage />} />
+        <Route path="/leaderboard" element={<LeaderboardPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
 
         {/* Mentor routes */}
         <Route path="/mentor" element={<MentorDashboard />} />

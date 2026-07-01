@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  LayoutDashboard, BookOpen, Zap, Trophy, ClipboardList, 
-  User, Search, ChevronDown, LogOut, Settings 
+import {
+  LayoutDashboard, BookOpen, Zap, Trophy, ClipboardList,
+  User, Search, ChevronDown, LogOut, Settings, GraduationCap, Building2
 } from 'lucide-react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -9,11 +9,10 @@ import { useAuth } from '@/context/AuthContext';
 const SidebarItem = ({ icon: Icon, label, active, onClick }: any) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm ${
-      active 
-      ? "bg-[#4F39F6] text-white shadow-lg shadow-indigo-100" 
+    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm ${active
+      ? "bg-[#4F39F6] text-white shadow-lg shadow-indigo-100"
       : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-    }`}
+      }`}
   >
     <Icon size={18} strokeWidth={active ? 2.5 : 2} />
     {label}
@@ -24,7 +23,7 @@ export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth(); // Accessing dynamic auth state
-  
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -39,14 +38,20 @@ export default function MainLayout() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const menuItems = [
+  const allMenuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
     { icon: BookOpen, label: 'Courses', path: '/courses' },
     { icon: Zap, label: 'Hackathons', path: '/hackathons' },
     { icon: Trophy, label: 'Leaderboard', path: '/leaderboard' },
-    { icon: ClipboardList, label: 'Result', path: '/result' },
+    { icon: ClipboardList, label: 'Result', path: '/results' },
     { icon: User, label: 'Profile', path: '/profile' },
+    { icon: GraduationCap, label: 'Mentor', path: '/mentor', roles: ['Mentor'] },
+    { icon: Building2, label: 'Organizer', path: '/organizer', roles: ['Organizer'] },
   ];
+
+  const menuItems = allMenuItems.filter(item =>
+    !item.roles || (user?.role && item.roles.includes(user.role))
+  );
 
   return (
     <div className="flex min-h-screen bg-[#F9FAFD]">
@@ -61,10 +66,10 @@ export default function MainLayout() {
 
         <nav className="flex-1 space-y-2">
           {menuItems.map((item) => (
-            <SidebarItem 
-              key={item.label} 
-              {...item} 
-              active={location.pathname === item.path}
+            <SidebarItem
+              key={item.label}
+              {...item}
+              active={location.pathname === item.path || location.pathname.startsWith(item.path + '/')}
               onClick={() => navigate(item.path)}
             />
           ))}
@@ -76,8 +81,8 @@ export default function MainLayout() {
         <header className="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-10 sticky top-0 z-40">
           <div className="relative w-96 text-left">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="Search courses..."
               className="w-full h-11 bg-[#F5F6FA] border-none rounded-xl pl-12 pr-4 text-sm focus:ring-2 focus:ring-[#4F39F6]/20 transition-all"
             />
@@ -85,7 +90,7 @@ export default function MainLayout() {
 
           {/* Dynamic User Section with Dropdown */}
           <div className="relative" ref={dropdownRef}>
-            <div 
+            <div
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center gap-3 cursor-pointer group p-1.5 pr-3 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100"
             >
@@ -103,9 +108,9 @@ export default function MainLayout() {
                   {user?.role || "Member"}
                 </div>
               </div>
-              <ChevronDown 
-                size={16} 
-                className={`text-slate-400 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} 
+              <ChevronDown
+                size={16}
+                className={`text-slate-400 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`}
               />
             </div>
 
@@ -113,18 +118,18 @@ export default function MainLayout() {
             {isDropdownOpen && (
               <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-200">
                 <div className="px-4 py-3 border-b border-slate-50 mb-1">
-                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Account</p>
-                   <p className="text-sm font-bold text-slate-700 truncate">{user?.email}</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Account</p>
+                  <p className="text-sm font-bold text-slate-700 truncate">{user?.email}</p>
                 </div>
-                
-                <button 
+
+                <button
                   onClick={() => { navigate('/profile'); setIsDropdownOpen(false); }}
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#4F39F6] transition-colors"
                 >
                   <User size={16} /> My Profile
                 </button>
-                
-                <button 
+
+                <button
                   onClick={() => setIsDropdownOpen(false)}
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#4F39F6] transition-colors"
                 >
@@ -133,7 +138,7 @@ export default function MainLayout() {
 
                 <div className="h-px bg-slate-50 my-1 mx-2" />
 
-                <button 
+                <button
                   onClick={() => { logout(); setIsDropdownOpen(false); }}
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 transition-colors"
                 >

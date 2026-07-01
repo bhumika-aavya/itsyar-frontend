@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import api from "@/lib/axios";
 import axios from "axios";
 import Logo from "./Logo";
+import { useAuth } from "@/context/AuthContext";
 
 interface RegisterResponse {
   success: boolean;
@@ -22,6 +23,7 @@ export default function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [serverError, setServerError] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const {
     register,
@@ -41,11 +43,24 @@ export default function RegisterForm() {
       const response = await api.post<RegisterResponse>("/auth/signup", data);
 
       if (response.data.success) {
-        navigate("/login");
+        const loginResponse = await api.post("/auth/login", {
+          email: data.email,
+          password: data.password,
+          role: data.userType,
+        });
+        const { accessToken, user } = loginResponse.data;
+        login(accessToken, user);
+        navigate("/dashboard", { replace: true });
       }
     } catch (error: unknown) {
+      console.error("Login error:", error);
+
       if (axios.isAxiosError(error)) {
-        setServerError(error.response?.data?.message || "Registration failed. Please try again.");
+        const message =
+          error.response?.data?.error?.data?.message ??
+          "Something went wrong. Please try again.";
+
+        setServerError(message);
       } else {
         setServerError("An unexpected error occurred.");
       }
