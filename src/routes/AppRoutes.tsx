@@ -6,28 +6,27 @@ import { ProtectedRoute, PublicRoute, AdminRoute } from "./RouteGuards";
 
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
 
-const LandingPage         = lazy(() => import("@/pages/home/LandingPage"));
-const LoginPage           = lazy(() => import("@/pages/auth/Login"));
-const RegisterPage        = lazy(() => import("@/pages/auth/Register"));
-const ForgotPasswordPage  = lazy(() => import("@/pages/auth/ForgotPassword"));
-const ResetPasswordPage   = lazy(() => import("@/pages/auth/ResetPassword"));
-const AuthCallbackPage    = lazy(() => import("@/pages/auth/AuthCallback"));
-const ChangePasswordPage  = lazy(() => import("@/pages/auth/ChangePassword"));
-const DashboardPage       = lazy(() => import("@/pages/dashboard/DashboardPage"));
-const CourseCatalog       = lazy(() => import("@/pages/courses/CourseCatalog"));
-const CourseDetail        = lazy(() => import("@/pages/courses/CourseDetail"));
-const LessonView          = lazy(() => import("@/pages/courses/LessonView"));
-const CertificatePage     = lazy(() => import("@/pages/courses/CertificatePage"));
-const ResultsPage         = lazy(() => import("@/pages/courses/ResultsPage"));
-const HackathonListing    = lazy(() => import("@/pages/hackathon/HackathonListing"));
-const HackathonDetail     = lazy(() => import("@/pages/hackathon/HackathonDetail"));
+const LandingPage = lazy(() => import("@/pages/home/LandingPage"));
+const LoginPage = lazy(() => import("@/pages/auth/Login"));
+const RegisterPage = lazy(() => import("@/pages/auth/Register"));
+const ForgotPasswordPage = lazy(() => import("@/pages/auth/ForgotPassword"));
+const ResetPasswordPage = lazy(() => import("@/pages/auth/ResetPassword"));
+const ChangePasswordPage = lazy(() => import("@/pages/auth/ChangePassword"));
+const DashboardPage = lazy(() => import("@/pages/dashboard/DashboardPage"));
+const CourseCatalog = lazy(() => import("@/pages/courses/CourseCatalog"));
+const CourseDetail = lazy(() => import("@/pages/courses/CourseDetail"));
+const LessonView = lazy(() => import("@/pages/courses/LessonView"));
+const CertificatePage = lazy(() => import("@/pages/courses/CertificatePage"));
+const ResultsPage = lazy(() => import("@/pages/courses/ResultsPage"));
+const HackathonListing = lazy(() => import("@/pages/hackathon/HackathonListing"));
+const HackathonDetail = lazy(() => import("@/pages/hackathon/HackathonDetail"));
 const HackathonSandboxPage = lazy(() => import("@/pages/hackathon/HackathonSandboxPage"));
-const LeaderboardPage     = lazy(() => import("@/pages/leaderboard/LeaderboardPage"));
-const ProfilePage         = lazy(() => import("@/pages/profile/ProfilePage"));
-const MentorDashboard     = lazy(() => import("@/pages/mentor/MentorDashboard"));
-const SubmissionReview    = lazy(() => import("@/pages/mentor/SubmissionReview"));
-const OrganizerDashboard  = lazy(() => import("@/pages/organizer/OrganizerDashboard"));
-const CreateHackathon     = lazy(() => import("@/pages/organizer/CreateHackathon"));
+const LeaderboardPage = lazy(() => import("@/pages/leaderboard/LeaderboardPage"));
+const ProfilePage = lazy(() => import("@/pages/profile/ProfilePage"));
+const MentorDashboard = lazy(() => import("@/pages/mentor/MentorDashboard"));
+const SubmissionReview = lazy(() => import("@/pages/mentor/SubmissionReview"));
+const OrganizerDashboard = lazy(() => import("@/pages/organizer/OrganizerDashboard"));
+const CreateHackathon = lazy(() => import("@/pages/organizer/CreateHackathon"));
 
 function PageLoader() {
   return (
@@ -45,9 +44,6 @@ export default function AppRoutes() {
 
         {/* Fullscreen sandbox — no navbar/layout */}
         <Route path="/hackathons/:id/sandbox" element={<HackathonSandboxPage />} />
-
-        {/* OAuth callback — no layout, no auth guard */}
-        <Route path="/auth/callback" element={<AuthCallbackPage />} />
 
         <Route element={<PublicRoute />}>
           <Route path="/login" element={<LoginPage />} />

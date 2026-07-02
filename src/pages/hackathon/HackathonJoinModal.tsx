@@ -81,8 +81,8 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
     const loadUserTeams = async () => {
         setLoading(true);
         const teams = await HackathonService.getUserTeams(hackathon.id);
-        setUserTeams(teams);
-        if (teams.length > 0) setSelectedTeamId(teams[0].id);
+        setUserTeams(teams || []);
+        if (teams?.length > 0) setSelectedTeamId(teams[0].id);
         setLoading(false);
     };
 
@@ -178,7 +178,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
         setStep('success');
     };
 
-    const selectedTeam = userTeams.find(t => t.id === selectedTeamId) ?? joinedTeam;
+    const selectedTeam = userTeams?.find(t => t.id === selectedTeamId) ?? joinedTeam;
 
     if (!isOpen) return null;
 
