@@ -21,7 +21,7 @@ const MOCK_DETAIL: HackathonDetail & { rules: string[]; prices: any[]; faqs: any
     status: "Open",
     description: "CodeSprint 2026 is an elite coding competition designed for developers to showcase their creative problem-solving skills and technical expertise. Join a global community of innovators to build functional prototypes in under 48 hours.",
     teamSize: "1-4 Members",
-    registrationDeadline: "20 May 2026",
+    registrationsDeadline: "20 May 2026",
     mode: "Online",
     participantCount: "1250+",
     rules: [
@@ -219,10 +219,12 @@ export const HackathonService = {
         }
     },
 
-    registerHackathon: async (id: string, data?: { fullName: string; email: string; role: string; skills: string[]; experience: string }) => {
+    registerHackathon: async (id: string, data?: { fullName: string; email: string; role: string; agreeToRules: boolean }) => {
         try {
             return (await api.post(`/hackathons/${id}/register`, data ?? {}, getAuthHeaders())).data;
-        } catch {
+        } catch (err: any) {
+            const msg = err?.response?.data?.message;
+            if (msg) throw new Error(msg);
             return { success: true };
         }
     },
@@ -231,7 +233,8 @@ export const HackathonService = {
         try {
             const response = await api.get(`/hackathons/${hackathonId}/teams`, getAuthHeaders());
             return response.data.teams;
-        } catch {
+        } catch (err) {
+            console.warn("getTeams: falling back to mock data", err);
             return teamsStore.filter(t => t.hackathonId === hackathonId);
         }
     },
@@ -240,7 +243,8 @@ export const HackathonService = {
         try {
             const response = await api.get(`/hackathons/${hackathonId}/my-teams`, getAuthHeaders());
             return response.data.teams;
-        } catch {
+        } catch (err) {
+            console.warn("getUserTeams: falling back to mock data", err);
             return USER_TEAMS.filter(t => t.hackathonId === hackathonId);
         }
     },
@@ -249,7 +253,10 @@ export const HackathonService = {
         try {
             const response = await api.post(`/hackathons/${data.hackathonId}/teams`, data, getAuthHeaders());
             return response.data.team;
-        } catch {
+        } catch (err: any) {
+            const msg = err?.response?.data?.message;
+            if (msg) throw new Error(msg);
+            // dev fallback — no backend available
             const newTeam: Team = {
                 id: `t${Date.now()}`,
                 name: data.name,
@@ -275,8 +282,9 @@ export const HackathonService = {
     joinTeamById: async (teamId: string): Promise<void> => {
         try {
             await api.post(`/teams/${teamId}/join`, {}, getAuthHeaders());
-        } catch {
-            // mock: no-op
+        } catch (err: any) {
+            const msg = err?.response?.data?.message;
+            if (msg) throw new Error(msg);
         }
     },
 

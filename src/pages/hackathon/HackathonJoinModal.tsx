@@ -1,30 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { X, Users, CheckCircle2, Plus, Trash2, Loader2, ArrowLeft, Calendar, User, Briefcase, Zap } from 'lucide-react';
+import { X, Users, CheckCircle2, Plus, Trash2, Loader2, ArrowLeft, Calendar, User, Check, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { HackathonService } from '@/services/hackathon.service';
 import { Team } from '@/schemas/hackathon.schema';
 
 type Step = 'mode-select' | 'team-select' | 'create-team' | 'team-created' | 'confirm' | 'individual-form' | 'success';
 
-const ROLE_OPTIONS = [
-    'Frontend Developer',
-    'Backend Developer',
-    'Full Stack Developer',
-    'ML / AI Engineer',
-    'Designer',
-    'DevOps / Cloud',
-    'Data Scientist',
-    'Other',
-];
-
-const EXPERIENCE_OPTIONS = ['Beginner', 'Intermediate', 'Advanced'];
-
 interface IndividualFormValues {
     fullName: string;
     email: string;
-    role: string;
-    skillInput: string;
-    skills: string[];
-    experience: string;
+    agreeToRules: boolean;
 }
 
 interface HackathonRef {
@@ -47,6 +32,7 @@ const formatDate = (d: string) => {
 };
 
 export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props) {
+    const navigate = useNavigate();
     const [step, setStep] = useState<Step>('team-select');
     const [userTeams, setUserTeams] = useState<Team[]>([]);
     const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
@@ -63,9 +49,12 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
 
     // individual registration form
     const [indForm, setIndForm] = useState<IndividualFormValues>({
-        fullName: '', email: '', role: '', skillInput: '', skills: [], experience: '',
+        fullName: '', email: '', agreeToRules: false,
     });
     const [indErrors, setIndErrors] = useState<Record<string, string>>({});
+
+    // team API error
+    const [teamApiError, setTeamApiError] = useState('');
 
     useEffect(() => {
         if (isOpen) {
@@ -73,8 +62,9 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
             setSelectedTeamId(null);
             setJoinedTeam(null);
             resetCreateForm();
-            setIndForm({ fullName: '', email: '', role: '', skillInput: '', skills: [], experience: '' });
+            setIndForm({ fullName: '', email: '', agreeToRules: false });
             setIndErrors({});
+            setTeamApiError('');
         }
     }, [isOpen, hackathon.id]);
 
@@ -121,61 +111,74 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
         if (Object.keys(errs).length) { setFormErrors(errs); return; }
 
         setSubmitting(true);
-        const created = await HackathonService.createTeam({
-            name: teamName,
-            description: teamDesc,
-            hackathonId: hackathon.id,
-            inviteEmails,
-        });
-        setUserTeams(p => [created, ...p]);
-        setSelectedTeamId(created.id);
-        setJoinedTeam(created);
-        setSubmitting(false);
-        setStep('team-created');
+        setTeamApiError('');
+        try {
+            const created = await HackathonService.createTeam({
+                name: teamName,
+                description: teamDesc,
+                hackathonId: hackathon.id,
+                inviteEmails,
+            });
+            setUserTeams(p => [created, ...p]);
+            setSelectedTeamId(created.id);
+            setJoinedTeam(created);
+            setStep('team-created');
+        } catch (err: any) {
+            setTeamApiError(err?.message || 'Failed to create team. Please try again.');
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const handleConfirmJoin = async () => {
         setSubmitting(true);
-        await HackathonService.joinHackathon(hackathon.id);
-        const team = userTeams.find(t => t.id === selectedTeamId) ?? joinedTeam;
-        setJoinedTeam(team ?? null);
-        setSubmitting(false);
-        setStep('success');
-    };
-
-    const handleAddSkill = () => {
-        const skill = indForm.skillInput.trim();
-        if (!skill) return;
-        if (indForm.skills.includes(skill)) {
-            setIndErrors(p => ({ ...p, skillInput: 'Already added' }));
-            return;
+        setTeamApiError('');
+        try {
+            await HackathonService.joinHackathon(hackathon.id);
+            const team = userTeams.find(t => t.id === selectedTeamId) ?? joinedTeam;
+            navigate(`/hackathons/${hackathon.id}/registration-success`, {
+                state: {
+                    hackathonTitle: hackathon.title,
+                    formattedDate: formatDate(hackathon.startDate),
+                    teamName: team?.name ?? null,
+                    mode: 'Online',
+                },
+            });
+        } catch (err: any) {
+            setTeamApiError(err?.message || 'Failed to join hackathon. Please try again.');
+        } finally {
+            setSubmitting(false);
         }
-        if (indForm.skills.length >= 6) {
-            setIndErrors(p => ({ ...p, skillInput: 'Maximum 6 skills' }));
-            return;
-        }
-        setIndForm(p => ({ ...p, skills: [...p.skills, skill], skillInput: '' }));
-        setIndErrors(p => ({ ...p, skillInput: '' }));
     };
 
     const handleIndividualRegister = async () => {
         const errs: Record<string, string> = {};
         if (!indForm.fullName.trim()) errs.fullName = 'Full name is required';
         if (!indForm.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(indForm.email)) errs.email = 'Valid email is required';
-        if (!indForm.role) errs.role = 'Please select your role';
-        if (!indForm.experience) errs.experience = 'Please select experience level';
+        if (!indForm.agreeToRules) errs.agreeToRules = 'You must agree to the rules and terms of service';
         if (Object.keys(errs).length) { setIndErrors(errs); return; }
 
         setSubmitting(true);
-        await HackathonService.registerHackathon(hackathon.id, {
-            fullName: indForm.fullName,
-            email: indForm.email,
-            role: indForm.role,
-            skills: indForm.skills,
-            experience: indForm.experience,
-        });
-        setSubmitting(false);
-        setStep('success');
+        try {
+            await HackathonService.registerHackathon(hackathon.id, {
+                fullName: indForm.fullName,
+                email: indForm.email,
+                role: 'Participant',
+                agreeToRules: true,
+            });
+            navigate(`/hackathons/${hackathon.id}/registration-success`, {
+                state: {
+                    hackathonTitle: hackathon.title,
+                    formattedDate: formatDate(hackathon.startDate),
+                    teamName: null,
+                    mode: 'Online',
+                },
+            });
+        } catch {
+            setIndErrors(p => ({ ...p, submit: 'Registration failed. Please try again.' }));
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const selectedTeam = userTeams?.find(t => t.id === selectedTeamId) ?? joinedTeam;
@@ -238,7 +241,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                     <>
                         <div className="flex items-center justify-between px-7 pt-7 pb-4">
                             <div className="flex items-center gap-3">
-                                <button onClick={() => setStep('mode-select')} className="flex items-center gap-1.5 text-[#4F39F6] font-bold text-sm">
+                                <button onClick={() => setStep('mode-select')} className="p-1.5 text-[#4F39F6] hover:bg-indigo-50 rounded-lg transition-colors">
                                     <ArrowLeft size={16} />
                                 </button>
                                 <div>
@@ -252,29 +255,31 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                         </div>
 
                         {/* Hackathon badge */}
-                        <div className="px-7 pb-2">
+                        <div className="px-7 pb-3">
                             <div className="bg-indigo-50/60 border border-indigo-100 rounded-2xl px-4 py-3 flex items-center gap-3">
                                 <div className="w-8 h-8 bg-[#4F39F6] rounded-xl flex items-center justify-center shrink-0">
                                     <Calendar size={15} className="text-white" />
                                 </div>
-                                <div>
-                                    <p className="text-xs font-black text-[#4F39F6]">{hackathon.title}</p>
+                                <div className="min-w-0">
+                                    <p className="text-xs font-black text-[#4F39F6] truncate">{hackathon.title}</p>
                                     <p className="text-[11px] font-bold text-slate-400">{formatDate(hackathon.startDate)} – {formatDate(hackathon.endDate)}</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="px-7 pb-4 space-y-4 max-h-[360px] overflow-y-auto pt-3">
+                        <div className="px-7 pb-2 space-y-4 max-h-[340px] overflow-y-auto">
                             {/* Full Name */}
                             <div>
-                                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">Full Name <span className="text-red-400">*</span></label>
+                                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">
+                                    Full Name <span className="text-red-400">*</span>
+                                </label>
                                 <div className="relative">
-                                    <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300" />
+                                    <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
                                     <input
                                         value={indForm.fullName}
-                                        onChange={e => setIndForm(p => ({ ...p, fullName: e.target.value }))}
+                                        onChange={e => { setIndForm(p => ({ ...p, fullName: e.target.value })); setIndErrors(p => ({ ...p, fullName: '' })); }}
                                         placeholder="John Doe"
-                                        className={`w-full h-11 bg-slate-50 border rounded-xl pl-9 pr-4 text-sm font-medium outline-none transition-all ${indErrors.fullName ? 'border-red-400' : 'border-slate-100 focus:border-[#4F39F6]'}`}
+                                        className={`w-full h-11 bg-slate-50 border rounded-xl pl-9 pr-4 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none transition-all ${indErrors.fullName ? 'border-red-400 bg-red-50/30' : 'border-slate-100 focus:border-[#4F39F6]'}`}
                                     />
                                 </div>
                                 {indErrors.fullName && <p className="text-xs font-bold text-red-500 mt-1">{indErrors.fullName}</p>}
@@ -282,89 +287,53 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
 
                             {/* Email */}
                             <div>
-                                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">Email <span className="text-red-400">*</span></label>
+                                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">
+                                    Email <span className="text-red-400">*</span>
+                                </label>
                                 <input
                                     type="email"
                                     value={indForm.email}
-                                    onChange={e => setIndForm(p => ({ ...p, email: e.target.value }))}
-                                    placeholder="john@example.com"
-                                    className={`w-full h-11 bg-slate-50 border rounded-xl px-4 text-sm font-medium outline-none transition-all ${indErrors.email ? 'border-red-400' : 'border-slate-100 focus:border-[#4F39F6]'}`}
+                                    onChange={e => { setIndForm(p => ({ ...p, email: e.target.value })); setIndErrors(p => ({ ...p, email: '' })); }}
+                                    placeholder="john.doe@example.com"
+                                    className={`w-full h-11 bg-slate-50 border rounded-xl px-4 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none transition-all ${indErrors.email ? 'border-red-400 bg-red-50/30' : 'border-slate-100 focus:border-[#4F39F6]'}`}
                                 />
                                 {indErrors.email && <p className="text-xs font-bold text-red-500 mt-1">{indErrors.email}</p>}
                             </div>
 
-                            {/* Role */}
+                            {/* Terms & Conditions */}
                             <div>
-                                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">Your Role <span className="text-red-400">*</span></label>
-                                <div className="relative">
-                                    <Briefcase size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
-                                    <select
-                                        value={indForm.role}
-                                        onChange={e => setIndForm(p => ({ ...p, role: e.target.value }))}
-                                        className={`w-full h-11 bg-slate-50 border rounded-xl pl-9 pr-4 text-sm font-medium outline-none transition-all appearance-none ${indErrors.role ? 'border-red-400' : 'border-slate-100 focus:border-[#4F39F6]'} ${indForm.role ? 'text-slate-900' : 'text-slate-400'}`}
-                                    >
-                                        <option value="" disabled>Select your role</option>
-                                        {ROLE_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
-                                    </select>
-                                </div>
-                                {indErrors.role && <p className="text-xs font-bold text-red-500 mt-1">{indErrors.role}</p>}
-                            </div>
-
-                            {/* Experience */}
-                            <div>
-                                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">Experience Level <span className="text-red-400">*</span></label>
-                                <div className="flex gap-2">
-                                    {EXPERIENCE_OPTIONS.map(lvl => (
-                                        <button
-                                            key={lvl}
-                                            type="button"
-                                            onClick={() => setIndForm(p => ({ ...p, experience: lvl }))}
-                                            className={`flex-1 py-2.5 rounded-xl border-2 text-xs font-black transition-all ${indForm.experience === lvl ? 'border-[#4F39F6] bg-indigo-50 text-[#4F39F6]' : 'border-slate-100 text-slate-500 hover:border-slate-200'}`}
-                                        >
-                                            {lvl}
-                                        </button>
-                                    ))}
-                                </div>
-                                {indErrors.experience && <p className="text-xs font-bold text-red-500 mt-1">{indErrors.experience}</p>}
-                            </div>
-
-                            {/* Skills */}
-                            <div>
-                                <div className="flex items-center justify-between mb-1.5">
-                                    <label className="text-xs font-black text-slate-700 uppercase tracking-wide">Skills <span className="text-slate-400 font-bold normal-case">(optional)</span></label>
-                                    <span className="text-xs font-bold text-slate-400">{indForm.skills.length}/6</span>
-                                </div>
-                                <div className="flex gap-2">
-                                    <div className="relative flex-1">
-                                        <Zap size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
-                                        <input
-                                            value={indForm.skillInput}
-                                            onChange={e => setIndForm(p => ({ ...p, skillInput: e.target.value }))}
-                                            onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
-                                            placeholder="e.g. React, Python…"
-                                            className={`w-full h-11 bg-slate-50 border rounded-xl pl-9 pr-3 text-sm font-medium outline-none transition-all ${indErrors.skillInput ? 'border-red-400' : 'border-slate-100 focus:border-[#4F39F6]'}`}
-                                        />
+                                <label
+                                    className={`flex items-start gap-3 cursor-pointer p-4 rounded-2xl border-2 transition-all ${indErrors.agreeToRules ? 'border-red-200 bg-red-50/30' : indForm.agreeToRules ? 'border-[#4F39F6]/30 bg-indigo-50/40' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'}`}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only"
+                                        checked={indForm.agreeToRules}
+                                        onChange={e => { setIndForm(p => ({ ...p, agreeToRules: e.target.checked })); setIndErrors(p => ({ ...p, agreeToRules: '' })); }}
+                                    />
+                                    <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 mt-0.5 border-2 transition-all ${indForm.agreeToRules ? 'bg-[#4F39F6] border-[#4F39F6]' : 'border-slate-300 bg-white'}`}>
+                                        {indForm.agreeToRules && <Check size={11} className="text-white" strokeWidth={3} />}
                                     </div>
-                                    <button
-                                        type="button"
-                                        onClick={handleAddSkill}
-                                        className="px-4 h-11 bg-[#4F39F6] text-white rounded-xl font-bold text-sm hover:bg-[#3f2dd1] transition-all shrink-0"
-                                    >
-                                        + Add
-                                    </button>
-                                </div>
-                                {indErrors.skillInput && <p className="text-xs font-bold text-red-500 mt-1">{indErrors.skillInput}</p>}
-                                {indForm.skills.length > 0 && (
-                                    <div className="flex flex-wrap gap-1.5 mt-2">
-                                        {indForm.skills.map(s => (
-                                            <span key={s} className="inline-flex items-center gap-1.5 bg-indigo-50 text-[#4F39F6] text-xs font-bold px-3 py-1.5 rounded-full">
-                                                {s}
-                                                <button type="button" onClick={() => setIndForm(p => ({ ...p, skills: p.skills.filter(x => x !== s) }))} className="hover:text-red-500 transition-colors leading-none">×</button>
-                                            </span>
-                                        ))}
-                                    </div>
+                                    <span className="text-xs font-bold text-slate-600 leading-relaxed select-none">
+                                        I have read and agree to the{' '}
+                                        <span className="text-[#4F39F6] hover:underline underline-offset-2 cursor-pointer">Hackathon Rules</span>
+                                        {' '}and{' '}
+                                        <span className="text-[#4F39F6] hover:underline underline-offset-2 cursor-pointer">Terms of Service</span>
+                                    </span>
+                                </label>
+                                {indErrors.agreeToRules && (
+                                    <p className="flex items-center gap-1.5 text-xs font-bold text-red-500 mt-1.5">
+                                        <AlertCircle size={12} /> {indErrors.agreeToRules}
+                                    </p>
                                 )}
                             </div>
+
+                            {indErrors.submit && (
+                                <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl p-3">
+                                    <AlertCircle size={14} className="text-red-500 shrink-0" />
+                                    <p className="text-xs font-bold text-red-600">{indErrors.submit}</p>
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex gap-3 px-7 py-5 border-t border-slate-50">
@@ -538,6 +507,12 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                             </div>
                         </div>
 
+                        {teamApiError && (
+                            <div className="mx-7 mb-2 flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl p-3">
+                                <AlertCircle size={14} className="text-red-500 shrink-0" />
+                                <p className="text-xs font-bold text-red-600">{teamApiError}</p>
+                            </div>
+                        )}
                         <div className="flex gap-3 px-7 py-5 border-t border-slate-50">
                             <button onClick={() => setStep('team-select')} className="flex-1 py-3 border border-slate-200 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
                             <button
@@ -614,6 +589,12 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                             </div>
                         </div>
 
+                        {teamApiError && (
+                            <div className="mx-7 mb-2 flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl p-3">
+                                <AlertCircle size={14} className="text-red-500 shrink-0" />
+                                <p className="text-xs font-bold text-red-600">{teamApiError}</p>
+                            </div>
+                        )}
                         <div className="flex gap-3 px-7 py-5 border-t border-slate-50">
                             <button onClick={onClose} className="flex-1 py-3 border border-slate-200 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition-all">Cancel</button>
                             <button

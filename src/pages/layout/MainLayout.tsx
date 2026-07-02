@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   LayoutDashboard, BookOpen, Zap, Trophy, ClipboardList,
-  User, Search, ChevronDown, LogOut, Settings, GraduationCap, Building2
+  User, Search, ChevronDown, LogOut, Settings, GraduationCap, Building2, Users
 } from 'lucide-react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -42,6 +42,7 @@ export default function MainLayout() {
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
     { icon: BookOpen, label: 'Courses', path: '/courses' },
     { icon: Zap, label: 'Hackathons', path: '/hackathons' },
+    { icon: Users, label: 'Team', path: '/teams' },
     { icon: Trophy, label: 'Leaderboard', path: '/leaderboard' },
     { icon: ClipboardList, label: 'Result', path: '/results' },
     { icon: User, label: 'Profile', path: '/profile' },

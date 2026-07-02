@@ -277,14 +277,14 @@ export default function HackathonDetail() {
 }
 
 const SidebarItem = ({ icon: Icon, label, value }: any) => (
-    <div className="flex items-center justify-between group">
-        <div className="flex items-center gap-3">
-            <div className="p-2 bg-slate-50 rounded-lg text-slate-400 group-hover:text-[#4F39F6] transition-colors">
-                <Icon size={18} />
-            </div>
-            <span className="text-sm font-bold text-slate-400">{label}</span>
+    <div className="flex items-start gap-3 group">
+        <div className="p-2 bg-slate-50 rounded-lg text-slate-400 shrink-0 group-hover:text-[#4F39F6] transition-colors">
+            <Icon size={18} />
         </div>
-        <span className="text-sm font-black text-slate-900">{value}</span>
+        <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">{label}</p>
+            <p className="text-sm font-black text-slate-900 leading-snug mt-0.5">{value}</p>
+        </div>
     </div>
 );
 
