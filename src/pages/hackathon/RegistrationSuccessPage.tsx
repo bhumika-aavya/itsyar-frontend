@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import { CheckCircle2, Calendar, Users, Globe, MessageSquare, FileText, UserPlus, Trophy } from 'lucide-react';
+import {
+  CheckCircle2, Calendar, Users, Globe, MessageSquare,
+  FileText, UserPlus, Trophy, Clock, CalendarPlus,
+} from 'lucide-react';
 
 interface SuccessState {
   hackathonTitle: string;
   formattedDate: string;
+  startDate?: string;
+  endDate?: string;
   teamName: string | null;
   mode: string;
 }
@@ -14,14 +19,49 @@ export default function RegistrationSuccessPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const state = (location.state as SuccessState | null) ?? {
-    hackathonTitle: 'CodeSprint 2024',
-    formattedDate: '21 May 2024',
-    teamName: 'Neural Ninjas V2',
+    hackathonTitle: 'Hackathon',
+    formattedDate: '—',
+    teamName: null,
     mode: 'Online',
   };
   const { id } = params;
-  const { hackathonTitle, formattedDate, teamName, mode } = state;
-  console.log('Hackathon ID:', id); // Log the hackathon ID to the console
+  const { hackathonTitle, formattedDate, startDate, endDate, teamName, mode } = state;
+
+  const [countdown, setCountdown] = useState<string>('');
+
+  useEffect(() => {
+    if (!startDate) return;
+    const start = new Date(startDate);
+    if (start <= new Date()) { setCountdown('Live now!'); return; }
+
+    const tick = () => {
+      const diff = start.getTime() - Date.now();
+      if (diff <= 0) { setCountdown('Live now!'); return; }
+      const d = Math.floor(diff / 86_400_000);
+      const h = Math.floor((diff % 86_400_000) / 3_600_000);
+      const m = Math.floor((diff % 3_600_000) / 60_000);
+      const s = Math.floor((diff % 60_000) / 1_000);
+      setCountdown(
+        `${d}d ${String(h).padStart(2, '0')}h ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`
+      );
+    };
+    tick();
+    const interval = setInterval(tick, 1_000);
+    return () => clearInterval(interval);
+  }, [startDate]);
+
+  const addToCalendar = () => {
+    if (!startDate || !endDate) return;
+    const fmt = (d: string) =>
+      new Date(d).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    const url =
+      `https://calendar.google.com/calendar/render?action=TEMPLATE` +
+      `&text=${encodeURIComponent(hackathonTitle)}` +
+      `&dates=${fmt(startDate)}/${fmt(endDate)}` +
+      `&details=${encodeURIComponent('Registered for ' + hackathonTitle)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <div className="max-w-2xl mx-auto pb-28">
       {/* Success icon */}
@@ -47,12 +87,23 @@ export default function RegistrationSuccessPage() {
       </div>
 
       {/* Info row */}
-      <div className="grid grid-cols-4 border border-slate-100 rounded-2xl overflow-hidden shadow-sm mb-8 bg-white">
+      <div className="grid grid-cols-4 border border-slate-100 rounded-2xl overflow-hidden shadow-sm mb-6 bg-white">
         <InfoBox label="HACKATHON" icon={<Trophy size={14} className="text-indigo-500" />} value={hackathonTitle} />
         <InfoBox label="DATE" icon={<Calendar size={14} className="text-indigo-500" />} value={formattedDate} divider />
         <InfoBox label="TEAM" icon={<Users size={14} className="text-indigo-500" />} value={teamName || 'Solo'} divider />
         <InfoBox label="MODE" icon={<Globe size={14} className="text-indigo-500" />} value={mode} divider />
       </div>
+
+      {/* Countdown */}
+      {countdown && (
+        <div className="flex items-center justify-between bg-indigo-50 border border-indigo-100 rounded-2xl px-6 py-4 mb-6">
+          <div className="flex items-center gap-2 text-sm font-bold text-[#4F39F6]">
+            <Clock size={16} />
+            {countdown === 'Live now!' ? 'Hackathon is live!' : 'Hackathon starts in'}
+          </div>
+          <span className="text-sm font-black text-[#4F39F6] tabular-nums">{countdown}</span>
+        </div>
+      )}
 
       {/* What's Next? */}
       <h2 className="text-xl font-black text-slate-800 mb-4">What's Next?</h2>
@@ -66,13 +117,13 @@ export default function RegistrationSuccessPage() {
         <NextCard
           icon={<FileText size={22} className="text-[#4F39F6]" />}
           title="Review Problem Statement"
-          desc="The problem statement will be released on 20 May 2024"
+          desc={`Problem statement goes live on ${formattedDate}`}
           action="Set Reminder"
         />
         <NextCard
           icon={<UserPlus size={22} className="text-[#4F39F6]" />}
           title="Invite Team Members"
-          desc="Make sure all 4 members have joined the hackathon"
+          desc="Make sure all members have joined the hackathon"
           action="Invite Now"
           onAction={() => navigate('/teams')}
         />
@@ -86,6 +137,16 @@ export default function RegistrationSuccessPage() {
         >
           View Hackathon
         </button>
+
+        {startDate && endDate && (
+          <button
+            onClick={addToCalendar}
+            className="w-full py-4 bg-white border-2 border-slate-100 text-slate-700 rounded-2xl font-black text-sm hover:border-[#4F39F6]/30 hover:bg-indigo-50/30 transition-all flex items-center justify-center gap-2"
+          >
+            <CalendarPlus size={16} className="text-[#4F39F6]" /> Add to Google Calendar
+          </button>
+        )}
+
         <button
           onClick={() => navigate('/hackathons')}
           className="text-sm font-bold text-[#4F39F6] hover:underline underline-offset-2"

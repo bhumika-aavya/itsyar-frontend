@@ -72,6 +72,14 @@ export const HackathonProblemExampleSchema = z.object({
     result: z.string(),
 });
 
+export const HackathonTestCaseSchema = z.object({
+    id: z.string(),
+    label: z.string(),
+    stdin: z.string(),
+    expectedOutput: z.string(),
+    isHidden: z.boolean().optional(),
+});
+
 export const HackathonProblemSchema = z.object({
     id: z.string(),
     hackathonId: z.string(),
@@ -83,6 +91,7 @@ export const HackathonProblemSchema = z.object({
     examples: z.array(HackathonProblemExampleSchema),
     starterCode: z.record(z.string(), z.string()),
     supportedLanguages: z.array(z.string()),
+    testCases: z.array(HackathonTestCaseSchema).optional(),
 });
 
 export const SubmitSolutionSchema = z.object({
@@ -125,6 +134,7 @@ export const MentorReviewSchema = z.object({
 });
 
 export type HackathonProblem = z.infer<typeof HackathonProblemSchema>;
+export type HackathonTestCase = z.infer<typeof HackathonTestCaseSchema>;
 export type SubmitSolutionValues = z.infer<typeof SubmitSolutionSchema>;
 export type SubmitSolutionResponse = z.infer<typeof SubmitSolutionResponseSchema>;
 export type MentorSubmission = z.infer<typeof MentorSubmissionSchema>;

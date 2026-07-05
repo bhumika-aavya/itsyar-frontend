@@ -140,6 +140,8 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                 state: {
                     hackathonTitle: hackathon.title,
                     formattedDate: formatDate(hackathon.startDate),
+                    startDate: hackathon.startDate,
+                    endDate: hackathon.endDate,
                     teamName: team?.name ?? null,
                     mode: 'Online',
                 },
@@ -170,6 +172,8 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                 state: {
                     hackathonTitle: hackathon.title,
                     formattedDate: formatDate(hackathon.startDate),
+                    startDate: hackathon.startDate,
+                    endDate: hackathon.endDate,
                     teamName: null,
                     mode: 'Online',
                 },

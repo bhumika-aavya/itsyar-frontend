@@ -20,6 +20,66 @@ export interface HackathonOption {
   title: string;
 }
 
+export interface MyTeamMember {
+  id: string;
+  name: string | null;
+  username: string | null;
+  email: string;
+  status: 'APPROVED' | 'PENDING' | 'INVITED';
+  isSelf: boolean;
+}
+
+export interface MyTeamData {
+  id: string;
+  name: string;
+  hackathonName: string;
+  hackathonId: string;
+  maxMembers: number;
+  members: MyTeamMember[];
+  isOpenRequest: boolean;
+}
+
+export interface OutgoingRequest {
+  id: string;
+  type: 'INVITE' | 'OPEN_REQUEST';
+  targetName: string;
+  hackathonEvent: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+}
+
+const MOCK_MY_TEAMS: MyTeamData[] = [
+  {
+    id: "t1",
+    name: "Team NeuralNinjas",
+    hackathonName: "CodeSprint 2026",
+    hackathonId: "h7",
+    maxMembers: 4,
+    members: [
+      { id: "m1", name: "John Doe", username: null, email: "john@example.com", status: "APPROVED", isSelf: true },
+      { id: "m2", name: null, username: "@s_jenkins_ml", email: "s_jenkins_ml@example.com", status: "PENDING", isSelf: false },
+    ],
+    isOpenRequest: false,
+  },
+  {
+    id: "t2",
+    name: "Data Wranglers",
+    hackathonName: "Data Challenge 2026",
+    hackathonId: "h9",
+    maxMembers: 3,
+    members: [
+      { id: "m3", name: "John Doe", username: null, email: "john@example.com", status: "APPROVED", isSelf: true },
+      { id: "m4", name: "Priya Sharma", username: "@priya_s", email: "priya@example.com", status: "APPROVED", isSelf: false },
+    ],
+    isOpenRequest: true,
+  },
+];
+
+const MOCK_OUTGOING_REQUESTS: OutgoingRequest[] = [
+  { id: "r1", type: "INVITE", targetName: "@s_jenkins_ml", hackathonEvent: "Code Sprint 2026", status: "APPROVED" },
+  { id: "r2", type: "OPEN_REQUEST", targetName: "@a_rivera_codes", hackathonEvent: "Code Sprint 2026", status: "REJECTED" },
+  { id: "r3", type: "OPEN_REQUEST", targetName: "@s_chen_ux", hackathonEvent: "Code Sprint 2026", status: "APPROVED" },
+];
+
 export const HACKATHON_COLOR_MAP: Record<string, string> = {
   "CodeSprint 2026": "#4F39F6",
   "Data Challenge 2026": "#0d9488",
@@ -133,6 +193,72 @@ export const TeamService = {
       return hackathons.map((h) => ({ id: h.id, title: h.title }));
     } catch {
       return MOCK_HACKATHON_OPTIONS;
+    }
+  },
+
+  getMyTeams: async (): Promise<MyTeamData[]> => {
+    try {
+      const response = await api.get('/teams/my-teams', getAuthHeaders());
+      return response.data.teams ?? [];
+    } catch {
+      return MOCK_MY_TEAMS;
+    }
+  },
+
+  updateTeamName: async (teamId: string, name: string): Promise<void> => {
+    try {
+      await api.put(`/teams/${teamId}/name`, { name }, getAuthHeaders());
+    } catch {
+      // mock success
+    }
+  },
+
+  inviteMember: async (teamId: string, email: string): Promise<MyTeamMember> => {
+    try {
+      const response = await api.post(`/teams/${teamId}/invite`, { email }, getAuthHeaders());
+      return response.data.member;
+    } catch {
+      return {
+        id: `m${Date.now()}`,
+        name: null,
+        username: `@${email.split('@')[0]}`,
+        email,
+        status: 'PENDING',
+        isSelf: false,
+      };
+    }
+  },
+
+  resendInvite: async (teamId: string, memberId: string): Promise<void> => {
+    try {
+      await api.post(`/teams/${teamId}/members/${memberId}/resend`, {}, getAuthHeaders());
+    } catch {
+      // mock success
+    }
+  },
+
+  toggleOpenRequest: async (teamId: string, open: boolean): Promise<void> => {
+    try {
+      await api.put(`/teams/${teamId}/open-request`, { open }, getAuthHeaders());
+    } catch {
+      // mock success
+    }
+  },
+
+  getMyRequests: async (): Promise<OutgoingRequest[]> => {
+    try {
+      const response = await api.get('/teams/my-requests', getAuthHeaders());
+      return response.data.requests;
+    } catch {
+      return MOCK_OUTGOING_REQUESTS;
+    }
+  },
+
+  withdrawRequest: async (requestId: string): Promise<void> => {
+    try {
+      await api.delete(`/teams/requests/${requestId}`, getAuthHeaders());
+    } catch {
+      // mock success
     }
   },
 

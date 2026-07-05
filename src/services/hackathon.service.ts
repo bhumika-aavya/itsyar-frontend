@@ -13,7 +13,7 @@ const MOCK_HACKATHONS: Hackathon[] = [
     { id: "h8", title: "CloudNative Summit", startDate: "2026-09-01", endDate: "2026-09-03", status: "UpComing", iconType: "cloud", iconBg: "bg-sky-50 text-sky-500" },
 ];
 
-const MOCK_DETAIL: HackathonDetail & { rules: string[]; prices: any[]; faqs: any[] } = {
+const MOCK_DETAIL: HackathonDetail & { rules: string[]; prices: any[]; faqs: any[]; criteria: any[] } = {
     id: "h7",
     title: "Code Sprint 2026",
     startDate: "2026-05-21",
@@ -39,6 +39,13 @@ const MOCK_DETAIL: HackathonDetail & { rules: string[]; prices: any[]; faqs: any
         { q: "Is there a registration fee?", a: "No, participation in Code Sprint 2026 is completely free." },
         { q: "Can I participate alone?", a: "Yes, you can join as a solo participant or in a team of up to 4." },
         { q: "What tech stack should I use?", a: "You are free to use any stack as long as it solves the problem statement." }
+    ],
+    criteria: [
+        { category: 'Innovation', weight: 30, description: 'Originality and creativity of the solution' },
+        { category: 'Technical Execution', weight: 25, description: 'Code quality, architecture, and scalability' },
+        { category: 'Impact', weight: 20, description: 'Real-world usefulness and potential for scale' },
+        { category: 'Presentation', weight: 15, description: 'Demo clarity, slide deck, and documentation quality' },
+        { category: 'Completeness', weight: 10, description: 'How fully the solution addresses the problem statement' },
     ],
     ideationStartDate: "2026-05-05",
     ideationEndDate: "2026-05-15",
@@ -98,96 +105,215 @@ const USER_TEAMS = MOCK_TEAMS.filter(t => t.leadId === "current-user");
 let teamsStore = [...MOCK_TEAMS];
 
 const MOCK_PROBLEM: HackathonProblem = {
-    id: "p1",
-    hackathonId: "h7",
-    title: "Real-Time Collaboration Tool",
+    id: "P01",
+    hackathonId: "5",
+    title: "Product Revenue Calculator",
     difficulty: "Medium",
     points: 100,
-    description: `Build a real-time collaboration feature for a document editing application. Your solution should handle:
+    description: `A retail company processes thousands of customer orders every day. Each order contains the product name, quantity purchased, and unit price. Management wants to analyze product performance by determining how much revenue each product has generated.
 
-1. Multiple users editing the same document simultaneously
-2. Conflict resolution when two users edit the same section
-3. User presence indicators (who is currently viewing/editing)
-4. Undo/redo functionality that works across sessions
+Your task: given N orders, calculate the total revenue for each unique product. Revenue per order = quantity × unit price.
 
-Focus on the architecture and core algorithm. You may use pseudocode for complex sections, but working code is preferred.`,
+Output each product and its total revenue in alphabetical order.
+
+Input format:
+  First line: N (number of orders)
+  Next N lines: <ProductName> <Quantity> <UnitPrice>
+
+Output format:
+  One line per product: <ProductName>: <TotalRevenue>  (alphabetical order)`,
     constraints: [
-        "Solution must handle at least 10 concurrent users",
-        "Maximum latency of 100ms for conflict resolution",
-        "Memory usage should scale linearly with number of users",
-        "No external real-time databases (Firebase, Supabase) — build from primitives",
+        "1 ≤ N ≤ 100,000",
+        "1 ≤ Quantity ≤ 1,000",
+        "1 ≤ Unit Price ≤ 100,000",
+        "Product names contain only English letters (case-sensitive)",
+        "Output products in ascending alphabetical order",
     ],
     examples: [
-        { label: "User A types \"Hello\"", result: "All other users see \"Hello\" within 100ms" },
-        { label: "Users A and B both edit line 5", result: "One edit wins; other user sees merged result" },
+        { label: "A product appears in multiple orders.", result: "Revenues from all orders are aggregated; output lists total per unique product in alphabetical order." },
+        { label: "All orders are for the same product.", result: "A single line appears in the output with the summed revenue." },
     ],
     supportedLanguages: ["JavaScript", "TypeScript", "Python", "Java", "C++", "Go", "Rust", "Ruby"],
     starterCode: {
-        JavaScript: `// Real-Time Collaboration Tool
-// Your solution starts here
+        JavaScript: `const readline = require('readline');
+const rl = readline.createInterface({ input: process.stdin });
+const lines = [];
+rl.on('line', (line) => lines.push(line.trim()));
+rl.on('close', () => {
+    const n = parseInt(lines[0]);
+    const revenue = {};
+    for (let i = 1; i <= n; i++) {
+        const [product, qty, price] = lines[i].split(' ');
+        revenue[product] = (revenue[product] || 0) + parseInt(qty) * parseInt(price);
+    }
+    for (const [product, amount] of Object.entries(revenue).sort(([a], [b]) => a.localeCompare(b))) {
+        console.log(\`\${product}: \${amount}\`);
+    }
+});`,
+        TypeScript: `const readline = require('readline');
+const rl = readline.createInterface({ input: process.stdin });
+const lines: string[] = [];
+rl.on('line', (line: string) => lines.push(line.trim()));
+rl.on('close', () => {
+    const n = parseInt(lines[0]);
+    const revenue: Record<string, number> = {};
+    for (let i = 1; i <= n; i++) {
+        const [product, qty, price] = lines[i].split(' ');
+        revenue[product] = (revenue[product] || 0) + parseInt(qty) * parseInt(price);
+    }
+    for (const [product, amount] of Object.entries(revenue).sort(([a], [b]) => a.localeCompare(b))) {
+        console.log(\`\${product}: \${amount}\`);
+    }
+});`,
+        Python: `import sys
+from collections import defaultdict
 
-class CollaborationEngine {
-  constructor() {
-    this.document = '';
-    this.users = new Map();
-    this.operations = [];
-  }
+data = sys.stdin.read().split()
+idx = 0
+n = int(data[idx]); idx += 1
+revenue = defaultdict(int)
+for _ in range(n):
+    product = data[idx]; idx += 1
+    qty = int(data[idx]); idx += 1
+    price = int(data[idx]); idx += 1
+    revenue[product] += qty * price
+for product in sorted(revenue):
+    print(f"{product}: {revenue[product]}")`,
+        Java: `import java.util.*;
 
-  // TODO: Implement operational transformation
-  applyOperation(userId, operation) {
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = Integer.parseInt(sc.nextLine().trim());
+        Map<String, Long> revenue = new TreeMap<>();
+        for (int i = 0; i < n; i++) {
+            String[] parts = sc.nextLine().trim().split(" ");
+            String product = parts[0];
+            long qty = Long.parseLong(parts[1]);
+            long price = Long.parseLong(parts[2]);
+            revenue.merge(product, qty * price, Long::sum);
+        }
+        for (Map.Entry<String, Long> e : revenue.entrySet()) {
+            System.out.println(e.getKey() + ": " + e.getValue());
+        }
+    }
+}`,
+        'C++': `#include <iostream>
+#include <map>
+#include <string>
+using namespace std;
 
-  }
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    int n;
+    cin >> n;
+    map<string, long long> revenue;
+    for (int i = 0; i < n; i++) {
+        string product;
+        long long qty, price;
+        cin >> product >> qty >> price;
+        revenue[product] += qty * price;
+    }
+    for (auto& [product, amount] : revenue) {
+        cout << product << ": " << amount << "\\n";
+    }
+    return 0;
+}`,
+        Go: `package main
 
-  // TODO: Resolve conflicts between concurrent edits
-  resolveConflict(op1, op2) {
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"sort"
+)
 
-  }
-}
+func main() {
+	reader := bufio.NewReader(os.Stdin)
+	var n int
+	fmt.Fscan(reader, &n)
+	revenue := make(map[string]int64)
+	for i := 0; i < n; i++ {
+		var product string
+		var qty, price int64
+		fmt.Fscan(reader, &product, &qty, &price)
+		revenue[product] += qty * price
+	}
+	keys := make([]string, 0, len(revenue))
+	for k := range revenue {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		fmt.Printf("%s: %d\\n", k, revenue[k])
+	}
+}`,
+        Rust: `use std::collections::BTreeMap;
+use std::io::{self, BufRead};
 
-module.exports = CollaborationEngine;`,
-        TypeScript: `// Real-Time Collaboration Tool
-
-interface Operation {
-  userId: string;
-  type: 'insert' | 'delete';
-  position: number;
-  content?: string;
-  timestamp: number;
-}
-
-class CollaborationEngine {
-  private document: string = '';
-  private users: Map<string, any> = new Map();
-
-  // TODO: Implement operational transformation
-  applyOperation(op: Operation): void {
-
-  }
-
-  // TODO: Resolve conflicts between concurrent edits
-  resolveConflict(op1: Operation, op2: Operation): Operation {
-    throw new Error('Not implemented');
-  }
-}
-
-export default CollaborationEngine;`,
-        Python: `# Real-Time Collaboration Tool
-
-class CollaborationEngine:
-    def __init__(self):
-        self.document = ""
-        self.users = {}
-        self.operations = []
-
-    # TODO: Implement operational transformation
-    def apply_operation(self, user_id: str, operation: dict) -> None:
-        pass
-
-    # TODO: Resolve conflicts between concurrent edits
-    def resolve_conflict(self, op1: dict, op2: dict) -> dict:
-        pass
-`,
+fn main() {
+    let stdin = io::stdin();
+    let mut lines = stdin.lock().lines();
+    let n: usize = lines.next().unwrap().unwrap().trim().parse().unwrap();
+    let mut revenue: BTreeMap<String, i64> = BTreeMap::new();
+    for _ in 0..n {
+        let line = lines.next().unwrap().unwrap();
+        let parts: Vec<&str> = line.trim().split(' ').collect();
+        let product = parts[0].to_string();
+        let qty: i64 = parts[1].parse().unwrap();
+        let price: i64 = parts[2].parse().unwrap();
+        *revenue.entry(product).or_insert(0) += qty * price;
+    }
+    for (product, amount) in &revenue {
+        println!("{}: {}", product, amount);
+    }
+}`,
+        Ruby: `n = gets.to_i
+revenue = Hash.new(0)
+n.times do
+    parts = gets.split
+    product, qty, price = parts[0], parts[1].to_i, parts[2].to_i
+    revenue[product] += qty * price
+end
+revenue.sort.each do |product, amount|
+    puts "#{product}: #{amount}"
+end`,
     },
+    testCases: [
+        {
+            id: 'tc1',
+            label: 'Multiple orders per product',
+            stdin: '5\nLaptop 2 50000\nMobile 3 20000\nLaptop 1 50000\nKeyboard 5 1000\nMobile 2 20000',
+            expectedOutput: 'Keyboard: 5000\nLaptop: 150000\nMobile: 100000',
+        },
+        {
+            id: 'tc2',
+            label: 'Two products, multiple orders',
+            stdin: '3\nApple 10 500\nBanana 5 200\nApple 5 500',
+            expectedOutput: 'Apple: 7500\nBanana: 1000',
+        },
+        {
+            id: 'tc3',
+            label: 'Single order',
+            stdin: '1\nWidget 100 250',
+            expectedOutput: 'Widget: 25000',
+        },
+        {
+            id: 'tc4',
+            label: 'Equal revenues (hidden)',
+            stdin: '6\nProductA 100 10\nProductB 50 20\nProductC 25 40\nProductA 200 10\nProductB 100 20\nProductC 50 40',
+            expectedOutput: 'ProductA: 3000\nProductB: 3000\nProductC: 3000',
+            isHidden: true,
+        },
+        {
+            id: 'tc5',
+            label: 'Large values (hidden)',
+            stdin: '4\nGold 1000 100000\nSilver 500 50000\nPlatinum 250 80000\nGold 500 100000',
+            expectedOutput: 'Gold: 150000000\nPlatinum: 20000000\nSilver: 25000000',
+            isHidden: true,
+        },
+    ],
 };
 
 export const HackathonService = {
@@ -288,13 +414,83 @@ export const HackathonService = {
         }
     },
 
-    getProblem: async (hackathonId: string): Promise<HackathonProblem> => {
+    getProblem: async (hackathonId: string): Promise<HackathonProblem[]> => {
         try {
             const response = await api.get(`/hackathons/${hackathonId}/problem`, getAuthHeaders());
-            return response.data.problem;
+            const raw = response.data;
+            if (Array.isArray(raw)) return raw;
+            if (Array.isArray(raw.problems)) return raw.problems;
+            if (raw.problem) return [raw.problem];
+            return [raw];
         } catch {
             console.warn("API Error: Falling back to mock problem data for hackathon:", hackathonId);
-            return MOCK_PROBLEM;
+            return [MOCK_PROBLEM];
+        }
+    },
+
+    runCode: async (language: string, code: string, stdin: string): Promise<{
+        stdout: string | null;
+        stderr: string | null;
+        compileError: string | null;
+        exitCode: number;
+        timedOut: boolean;
+        durationMs: number;
+    }> => {
+        const PISTON: Record<string, { language: string; version: string; filename: string }> = {
+            'JavaScript': { language: 'javascript', version: '18.15.0', filename: 'solution.js' },
+            'TypeScript': { language: 'typescript', version: '5.0.3', filename: 'solution.ts' },
+            'Python':     { language: 'python',     version: '3.10.0', filename: 'solution.py' },
+            'Java':       { language: 'java',        version: '15.0.2', filename: 'Main.java' },
+            'C++':        { language: 'c++',         version: '10.2.0', filename: 'solution.cpp' },
+            'Go':         { language: 'go',          version: '1.16.2', filename: 'main.go' },
+            'Rust':       { language: 'rust',        version: '1.50.0', filename: 'main.rs' },
+            'Ruby':       { language: 'ruby',        version: '3.0.1',  filename: 'solution.rb' },
+        };
+        const runtime = PISTON[language] ?? PISTON['JavaScript'];
+        const t0 = performance.now();
+        try {
+            const res = await fetch('https://emkc.org/api/v2/piston/execute', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    language: runtime.language,
+                    version: runtime.version,
+                    files: [{ name: runtime.filename, content: code }],
+                    stdin,
+                    run_timeout: 10000,
+                    compile_timeout: 30000,
+                }),
+            });
+            if (!res.ok) throw new Error(`Piston responded ${res.status}`);
+            const data = await res.json();
+            const durationMs = Math.round(performance.now() - t0);
+            const compileError = data.compile?.code !== 0 ? (data.compile?.stderr || data.compile?.output || null) : null;
+            return {
+                stdout: data.run?.stdout ?? null,
+                stderr: data.run?.stderr ?? null,
+                compileError,
+                exitCode: data.run?.code ?? (compileError ? 1 : 0),
+                timedOut: data.run?.signal === 'SIGKILL',
+                durationMs,
+            };
+        } catch (err) {
+            return {
+                stdout: null,
+                stderr: String(err),
+                compileError: null,
+                exitCode: -1,
+                timedOut: false,
+                durationMs: Math.round(performance.now() - t0),
+            };
+        }
+    },
+
+    checkRegistration: async (hackathonId: string): Promise<boolean> => {
+        try {
+            const response = await api.get(`/hackathons/${hackathonId}/registration-status`, getAuthHeaders());
+            return response.data.registered ?? false;
+        } catch {
+            return true; // graceful fallback — don't block sandbox when backend is unavailable
         }
     },
 

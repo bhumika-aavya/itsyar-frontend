@@ -3,14 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
     ChevronLeft, Calendar, Users, Globe,
     BarChart2, Loader2, Trophy,
-    ChevronDown, Play, Lightbulb
+    ChevronDown, Play, Lightbulb, CheckCircle2, AlertTriangle, Clock
 } from 'lucide-react';
 import { HackathonService } from '@/services/hackathon.service';
 import { HackathonDetail as HackathonDetailType } from '@/schemas/hackathon.schema';
 import Timeline from './HackathonTimeline';
 import HackathonJoinModal from './HackathonJoinModal';
 import HackathonTeamsPanel from './HackathonTeamsPanel';
-type Tab = 'Overview' | 'Rules' | 'Timeline' | 'Prices' | 'FAQs' | 'Teams';
+type Tab = 'Overview' | 'Rules' | 'Timeline' | 'Judging' | 'Prices' | 'FAQs' | 'Teams';
 
 const canJoin = (status: string) => status === 'Open' || status === 'Running';
 
@@ -33,16 +33,49 @@ export default function HackathonDetail() {
     const [data, setData] = useState<HackathonDetailType | null>(null);
     const [activeTab, setActiveTab] = useState<Tab>('Overview');
     const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+    const [isRegistered, setIsRegistered] = useState(false);
+    const [sidebarCountdown, setSidebarCountdown] = useState<string | null>(null);
 
     useEffect(() => {
         const load = async () => {
             if (id) {
-                const res = await HackathonService.getHackathonById(id);
+                const [res, registered] = await Promise.all([
+                    HackathonService.getHackathonById(id),
+                    HackathonService.checkRegistration(id),
+                ]);
                 setData(res);
+                setIsRegistered(registered);
             }
         };
         load();
     }, [id]);
+
+    // Sidebar countdown — to start if upcoming, to end if live
+    useEffect(() => {
+        if (!data) return;
+        const now = new Date();
+        const start = new Date(data.startDate);
+        const end = new Date(data.endDate);
+        const live = now >= start && now <= end;
+        const target = live ? end : start;
+        if (!live && target <= now) return;
+
+        const tick = () => {
+            const diff = target.getTime() - Date.now();
+            if (diff <= 0) { setSidebarCountdown(null); return; }
+            const d = Math.floor(diff / 86_400_000);
+            const h = Math.floor((diff % 86_400_000) / 3_600_000);
+            const m = Math.floor((diff % 3_600_000) / 60_000);
+            setSidebarCountdown(
+                d > 0
+                    ? `${d}d ${String(h).padStart(2, '0')}h ${String(m).padStart(2, '0')}m`
+                    : `${String(h).padStart(2, '0')}h ${String(m).padStart(2, '0')}m`
+            );
+        };
+        tick();
+        const interval = setInterval(tick, 60_000);
+        return () => clearInterval(interval);
+    }, [data]);
 
     if (!data) return (
         <div className="h-screen flex items-center justify-center">
@@ -52,7 +85,20 @@ export default function HackathonDetail() {
 
     const isHackathonLive = isDateBetween(data.startDate, data.endDate);
     const isIdeationLive = !!(data as any).ideationStartDate && isDateBetween((data as any).ideationStartDate, (data as any).ideationEndDate);
-    const openSandbox = () => navigate(`/hackathons/${id}/sandbox`, { state: { hackathonStatus: data.status } });
+    const openSandbox = () => {
+        if (!isRegistered) { setIsJoinModalOpen(true); return; }
+        navigate(`/hackathons/${id}/sandbox`, {
+            state: { hackathonStatus: data.status, hackathonEndDate: data.endDate },
+        });
+    };
+
+    const handleModalClose = async () => {
+        setIsJoinModalOpen(false);
+        if (id) {
+            const registered = await HackathonService.checkRegistration(id);
+            setIsRegistered(registered);
+        }
+    };
 
     const hackathonRef = {
         id: id!,
@@ -62,7 +108,7 @@ export default function HackathonDetail() {
         status: data.status,
     };
 
-    const tabs: Tab[] = ['Overview', 'Rules', 'Timeline', 'Prices', 'FAQs', 'Teams'];
+    const tabs: Tab[] = ['Overview', 'Rules', 'Timeline', 'Judging', 'Prices', 'FAQs', 'Teams'];
 
     return (
         <>
@@ -142,14 +188,21 @@ export default function HackathonDetail() {
                                         <div className="bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-100 rounded-3xl p-8 flex items-center justify-between gap-6">
                                             <div>
                                                 <p className="text-xs font-black uppercase tracking-widest text-[#4F39F6] mb-1">Hackathon is Live Now</p>
-                                                <h3 className="text-xl font-black text-slate-900">Ready to compete?</h3>
-                                                <p className="text-sm font-medium text-slate-500 mt-1">Open the secure sandbox and start coding your solution.</p>
+                                                <h3 className="text-xl font-black text-slate-900">
+                                                    {isRegistered ? 'Ready to compete?' : 'Registration required'}
+                                                </h3>
+                                                <p className="text-sm font-medium text-slate-500 mt-1">
+                                                    {isRegistered
+                                                        ? 'Open the secure sandbox and start coding your solution.'
+                                                        : 'You must register before accessing the code sandbox.'}
+                                                </p>
                                             </div>
                                             <button
                                                 onClick={openSandbox}
                                                 className="flex items-center gap-2 px-7 py-3.5 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-xl shadow-indigo-200 hover:bg-[#3f2dd1] transition-all active:scale-95 shrink-0"
                                             >
-                                                <Play size={16} fill="white" /> Start Hackathon
+                                                <Play size={16} fill="white" />
+                                                {isRegistered ? 'Start Hackathon' : 'Register Now'}
                                             </button>
                                         </div>
                                     )}
@@ -171,6 +224,29 @@ export default function HackathonDetail() {
                             )}
 
                             {activeTab === 'Timeline' && <Timeline timeline={data?.timeline} />}
+
+                            {activeTab === 'Judging' && (
+                                <div className="space-y-4 animate-in slide-in-from-bottom-2 duration-300">
+                                    <h2 className="text-2xl font-black text-slate-800 mb-2">Judging Criteria</h2>
+                                    <p className="text-sm font-medium text-slate-400 mb-6">Projects are evaluated across the following dimensions. Each criterion carries a specific weight toward the final score.</p>
+                                    {(data as any)?.criteria?.map((c: any, i: number) => (
+                                        <div key={i} className="flex items-start gap-5 p-5 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                                            <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex flex-col items-center justify-center shrink-0">
+                                                <span className="text-lg font-black text-[#4F39F6]">{c.weight}%</span>
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-base font-black text-slate-900">{c.category}</p>
+                                                <p className="text-sm font-medium text-slate-500 mt-0.5">{c.description}</p>
+                                            </div>
+                                            <div className="w-32 shrink-0 pt-1">
+                                                <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-[#4F39F6] rounded-full" style={{ width: `${c.weight}%` }} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
 
                             {activeTab === 'Prices' && (
                                 <div className="grid md:grid-cols-3 gap-6 animate-in slide-in-from-bottom-2 duration-300">
@@ -213,18 +289,49 @@ export default function HackathonDetail() {
                                 <SidebarItem icon={Calendar} label="Date" value={`${formatDate(data.startDate)} – ${formatDate(data.endDate)}`} />
                                 <SidebarItem icon={Users} label="Registered Teams" value={data.participantCount} />
                                 <SidebarItem icon={Globe} label="Mode" value={data.mode} />
-                                <SidebarItem icon={BarChart2} label="Difficulty" value="Intermediate" />
+                                <SidebarItem icon={BarChart2} label="Difficulty" value={(data as any)?.difficulty ?? 'Intermediate'} />
                             </div>
 
                             <div className="space-y-4 pt-4 border-t border-slate-50">
+                                {/* Registration status badge */}
+                                <div className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold ${isRegistered ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+                                    }`}>
+                                    {isRegistered
+                                        ? <CheckCircle2 size={13} />
+                                        : <AlertTriangle size={13} />}
+                                    {isRegistered ? 'You are registered' : 'Not yet registered'}
+                                </div>
+
+                                {/* Countdown to start or end */}
+                                {sidebarCountdown && (
+                                    <div className="flex items-center justify-between px-3 py-2.5 bg-indigo-50 rounded-xl">
+                                        <div className="flex items-center gap-1.5 text-xs font-bold text-[#4F39F6]">
+                                            <Clock size={13} />
+                                            {isHackathonLive ? 'Time remaining' : 'Starts in'}
+                                        </div>
+                                        <span className="text-xs font-black text-[#4F39F6] tabular-nums">{sidebarCountdown}</span>
+                                    </div>
+                                )}
+
                                 {/* Start Hackathon — shown when today is within the event window */}
                                 {isHackathonLive && (
-                                    <button
-                                        onClick={openSandbox}
-                                        className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-sm shadow-xl shadow-emerald-100 hover:bg-emerald-600 transition-all active:scale-95 flex items-center justify-center gap-2"
-                                    >
-                                        <Play size={15} fill="white" /> Start Hackathon
-                                    </button>
+                                    <>
+                                        {!isRegistered && (
+                                            <p className="text-center text-[11px] font-bold text-amber-600 bg-amber-50 px-3 py-2 rounded-xl">
+                                                Register first to enter the sandbox
+                                            </p>
+                                        )}
+                                        <button
+                                            onClick={openSandbox}
+                                            className={`w-full py-4 text-white rounded-2xl font-black text-sm shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 ${isRegistered
+                                                    ? 'bg-emerald-500 shadow-emerald-100 hover:bg-emerald-600'
+                                                    : 'bg-[#4F39F6] shadow-indigo-100 hover:bg-[#3f2dd1]'
+                                                }`}
+                                        >
+                                            <Play size={15} fill="white" />
+                                            {isRegistered ? 'Start Hackathon' : 'Register to Start'}
+                                        </button>
+                                    </>
                                 )}
 
                                 {canJoin(data.status) ? (
@@ -244,9 +351,6 @@ export default function HackathonDetail() {
                                         {data.status === 'COMPLETED' ? 'Hackathon Ended' : 'Registration Not Open'}
                                     </div>
                                 )}
-                                <button className="w-full py-4 bg-white border-2 border-slate-100 text-slate-700 rounded-2xl font-black text-sm hover:bg-slate-50 transition-all">
-                                    Learn More
-                                </button>
                             </div>
                         </div>
 
@@ -268,7 +372,7 @@ export default function HackathonDetail() {
 
                 <HackathonJoinModal
                     isOpen={isJoinModalOpen}
-                    onClose={() => setIsJoinModalOpen(false)}
+                    onClose={handleModalClose}
                     hackathon={hackathonRef}
                 />
             </div>

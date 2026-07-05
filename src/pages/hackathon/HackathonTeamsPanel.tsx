@@ -79,11 +79,11 @@ export default function HackathonTeamsPanel({ hackathon }: Props) {
                 </div>
             ) : (
                 <div className="grid md:grid-cols-2 gap-4">
-                    {teams.map(team => {
+                    {teams?.map(team => {
                         const isLead = team.leadId === 'current-user';
                         const isMember = joinedTeamIds.has(team.id);
                         const isJoining = joiningTeamId === team.id;
-                        const isFull = team.members.length >= 4;
+                        const isFull = team?.members?.length >= 4;
 
                         return (
                             <div key={team.id} className="bg-white border border-slate-100 rounded-[24px] p-6 shadow-sm hover:shadow-md transition-all space-y-4">
@@ -94,14 +94,14 @@ export default function HackathonTeamsPanel({ hackathon }: Props) {
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2">
-                                                <h3 className="text-base font-black text-slate-900">{team.name}</h3>
+                                                <h3 className="text-base font-black text-slate-900">{team?.name}</h3>
                                                 {isLead && (
                                                     <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-black uppercase tracking-wide">
                                                         <Crown size={10} /> Lead
                                                     </span>
                                                 )}
                                             </div>
-                                            <p className="text-xs font-bold text-slate-400">{team.members.length}/4 Members</p>
+                                            <p className="text-xs font-bold text-slate-400">{team?.members?.length || 0}/4 Members</p>
                                         </div>
                                     </div>
 
@@ -123,32 +123,32 @@ export default function HackathonTeamsPanel({ hackathon }: Props) {
                                     ) : null}
                                 </div>
 
-                                <p className="text-sm font-medium text-slate-500 leading-relaxed line-clamp-2">{team.description}</p>
+                                <p className="text-sm font-medium text-slate-500 leading-relaxed line-clamp-2">{team?.description}</p>
 
                                 <div className="space-y-1.5">
-                                    {team.members.slice(0, 3).map((member, idx) => (
+                                    {team?.members?.slice(0, 3)?.map((member, idx) => (
                                         <div key={member.id} className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
                                                 <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black ${AVATAR_COLORS[idx % AVATAR_COLORS.length]}`}>
-                                                    {member.name.charAt(0).toUpperCase()}
+                                                    {member?.name?.charAt(0)?.toUpperCase()}
                                                 </div>
-                                                <span className="text-xs font-bold text-slate-700">{member.name}</span>
-                                                {member.role === 'LEAD' && <Crown size={11} className="text-amber-400" />}
+                                                <span className="text-xs font-bold text-slate-700">{member?.name}</span>
+                                                {member?.role === 'LEAD' && <Crown size={11} className="text-amber-400" />}
                                             </div>
                                             <div className="flex items-center gap-1.5">
-                                                {member.status === 'INVITED' && (
+                                                {member?.status === 'INVITED' && (
                                                     <span className="flex items-center gap-1 text-[10px] font-bold text-orange-500">
                                                         <Mail size={10} /> Invited
                                                     </span>
                                                 )}
-                                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${member.role === 'LEAD' ? 'bg-amber-50 text-amber-600' : 'bg-slate-50 text-slate-500'}`}>
-                                                    {member.role}
+                                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${member?.role === 'LEAD' ? 'bg-amber-50 text-amber-600' : 'bg-slate-50 text-slate-500'}`}>
+                                                    {member?.role}
                                                 </span>
                                             </div>
                                         </div>
                                     ))}
-                                    {team.members.length > 3 && (
-                                        <p className="text-xs font-bold text-slate-400 pl-9">+{team.members.length - 3} more</p>
+                                    {team?.members?.length > 3 && (
+                                        <p className="text-xs font-bold text-slate-400 pl-9">+{team?.members?.length - 3} more</p>
                                     )}
                                 </div>
                             </div>
