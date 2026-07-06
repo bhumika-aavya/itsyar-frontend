@@ -422,11 +422,13 @@ export const HackathonService = {
             if (Array.isArray(raw.problems)) return raw.problems;
             if (raw.problem) return [raw.problem];
             return [raw];
-        } catch {
-            console.warn("API Error: Falling back to mock problem data for hackathon:", hackathonId);
-            return [MOCK_PROBLEM];
+        } catch (err: any) {
+            const msg = err?.response?.data?.message ?? err?.message ?? 'Failed to load problem';
+            throw new Error(msg);
         }
     },
+
+    getMockProblem: (): HackathonProblem => MOCK_PROBLEM,
 
     runCode: async (language: string, code: string, stdin: string): Promise<{
         stdout: string | null;

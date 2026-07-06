@@ -44,6 +44,15 @@ interface CaseResult {
 const normalizeOut = (s: string) =>
     s.trim().split('\n').map(l => l.trim()).filter(Boolean).join('\n');
 
+const formatTimeLeft = (tl: { h: number; m: number; s: number }) => {
+    const days = Math.floor(tl.h / 24);
+    const hours = tl.h % 24;
+    const hh = String(hours).padStart(2, '0');
+    const mm = String(tl.m).padStart(2, '0');
+    const ss = String(tl.s).padStart(2, '0');
+    return days > 0 ? `${days}d ${hh}:${mm}:${ss}` : `${hh}:${mm}:${ss}`;
+};
+
 const STATUS_CFG: Record<CaseStatus, { label: string; pill: string; dot: string; bar: string }> = {
     idle: { label: 'Not Run', pill: 'bg-slate-50 border-slate-200 text-slate-500', dot: 'bg-slate-300', bar: 'bg-slate-100 text-slate-500 border-slate-200' },
     running: { label: 'Running…', pill: 'bg-blue-50 border-blue-200 text-blue-600', dot: 'bg-blue-500 animate-pulse', bar: 'bg-blue-50 text-blue-600 border-blue-200' },
@@ -54,11 +63,13 @@ const STATUS_CFG: Record<CaseStatus, { label: string; pill: string; dot: string;
 };
 
 export default function HackathonCodeSandbox({
-    hackathonId, hackathonStatus, hackathonEndDate, initialFullscreen = false, onClose,
+    hackathonId, hackathonStatus: _hackathonStatus, hackathonEndDate, initialFullscreen = false, onClose,
 }: Props) {
     // ── Core state ──
     const [problem, setProblem] = useState<HackathonProblem | null>(null);
     const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState(false);
+    const [retryKey, setRetryKey] = useState(0);
     const [language, setLanguage] = useState('JavaScript');
     const [code, setCode] = useState('');
     const [notes, setNotes] = useState('');
@@ -87,21 +98,27 @@ export default function HackathonCodeSandbox({
     } | null>(null);
     const [isRunningCustom, setIsRunningCustom] = useState(false);
 
-    const isActive = hackathonStatus === 'Running';
-
     // ── Load problem ──
     useEffect(() => {
         const load = async () => {
             setLoading(true);
-            const problemDetails = await HackathonService.getProblem(hackathonId);
-            setProblem(problemDetails ?? null);
-            const defaultLang = problemDetails?.supportedLanguages?.[0] ?? 'JavaScript';
-            setLanguage(defaultLang);
-            setCode(problemDetails?.starterCode?.[defaultLang] ?? '');
-            setLoading(false);
+            setLoadError(false);
+            try {
+                const problems = await HackathonService.getProblem(hackathonId);
+                const p = problems[0] ?? null;
+                if (!p) throw new Error('No problem found for this hackathon.');
+                setProblem(p);
+                const defaultLang = p.supportedLanguages?.[0] ?? 'JavaScript';
+                setLanguage(defaultLang);
+                setCode(p.starterCode?.[defaultLang] ?? '');
+            } catch {
+                setLoadError(true);
+            } finally {
+                setLoading(false);
+            }
         };
         load();
-    }, [hackathonId]);
+    }, [hackathonId, retryKey]);
 
     // ── Auto fullscreen ──
     useEffect(() => {
@@ -234,14 +251,19 @@ export default function HackathonCodeSandbox({
     }, []);
 
     const handleSubmit = async () => {
-        if (!isActive) return;
+        if (!code.trim()) return;
         setSubmitting(true);
-        const result = await HackathonService.submitSolution(hackathonId, { language, code, notes });
-        setSubmitting(false);
-        setSubmitted(true);
-        setSubmittedAt(new Date());
-        setSubmissionId(result?.submissionId ?? null);
-        if (isFullscreen) exitFullscreen();
+        try {
+            const result = await HackathonService.submitSolution(hackathonId, { language, code, notes });
+            setSubmitted(true);
+            setSubmittedAt(new Date());
+            setSubmissionId(result?.submissionId ?? null);
+            if (isFullscreen) exitFullscreen();
+        } catch {
+            // submission error — keep form open
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     // ── Run against test cases ──
@@ -573,8 +595,30 @@ export default function HackathonCodeSandbox({
 
     // ── Loading ──
     if (loading) return (
-        <div className="flex items-center justify-center py-20">
-            <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+        <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4">
+            <Loader2 className="animate-spin text-[#4F39F6]" size={40} />
+            <p className="text-sm font-bold text-slate-400">Loading problem…</p>
+        </div>
+    );
+
+    // ── Error / fallback ──
+    if (loadError) return (
+        <div className="min-h-[70vh] flex flex-col items-center justify-center gap-5 p-8 text-center">
+            <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center">
+                <AlertTriangle size={28} className="text-red-400" />
+            </div>
+            <div>
+                <h3 className="text-xl font-black text-slate-900">Could not load problem</h3>
+                <p className="text-sm font-medium text-slate-400 mt-2 max-w-xs leading-relaxed">
+                    Failed to fetch the hackathon problem. Please check your connection and try again.
+                </p>
+            </div>
+            <button
+                onClick={() => setRetryKey(k => k + 1)}
+                className="flex items-center gap-2 px-6 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] transition-all"
+            >
+                Try Again
+            </button>
         </div>
     );
 
@@ -620,7 +664,7 @@ export default function HackathonCodeSandbox({
                     {timeLeft && (
                         <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black tabular-nums ${timeLeft.h === 0 && timeLeft.m < 30 ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600'}`}>
                             <Clock size={13} />
-                            {String(timeLeft.h).padStart(2, '0')}:{String(timeLeft.m).padStart(2, '0')}:{String(timeLeft.s).padStart(2, '0')}
+                            {formatTimeLeft(timeLeft)}
                         </div>
                     )}
                     {violations > 0 && (

@@ -58,13 +58,14 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
 
     useEffect(() => {
         if (isOpen) {
-            setStep('mode-select');
+            setStep('team-select');
             setSelectedTeamId(null);
             setJoinedTeam(null);
             resetCreateForm();
             setIndForm({ fullName: '', email: '', agreeToRules: false });
             setIndErrors({});
             setTeamApiError('');
+            loadUserTeams();
         }
     }, [isOpen, hackathon.id]);
 
@@ -357,14 +358,9 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                 {step === 'team-select' && (
                     <>
                         <div className="flex items-center justify-between px-7 pt-7 pb-4">
-                            <div className="flex items-center gap-3">
-                                <button onClick={() => setStep('mode-select')} className="flex items-center gap-1.5 text-[#4F39F6] font-bold text-sm">
-                                    <ArrowLeft size={16} />
-                                </button>
-                                <div>
-                                    <h2 className="text-xl font-black text-slate-900">Select Your Team</h2>
-                                    <p className="text-sm font-medium text-slate-400 mt-0.5">Pick a team or create a new one</p>
-                                </div>
+                            <div>
+                                <h2 className="text-xl font-black text-slate-900">Join {hackathon.title}</h2>
+                                <p className="text-sm font-medium text-slate-400 mt-0.5">Select your team or create a new one</p>
                             </div>
                             <button onClick={onClose} className="p-2 text-slate-300 hover:text-slate-500 transition-colors rounded-xl">
                                 <X size={20} />
@@ -381,7 +377,13 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                                     <button
                                         key={team.id}
                                         onClick={() => setSelectedTeamId(team.id)}
-                                        className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all text-left ${selectedTeamId === team.id ? 'border-[#4F39F6] bg-indigo-50/50' : 'border-slate-100 hover:border-slate-200'}`}
+                                        className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all text-left ${
+                                            selectedTeamId === team.id
+                                                ? 'border-[#4F39F6] bg-indigo-50/50'
+                                                : selectedTeamId !== null
+                                                    ? 'border-slate-100 opacity-40 cursor-not-allowed'
+                                                    : 'border-slate-100 hover:border-slate-200'
+                                        }`}
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F39F6] shrink-0">

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import {
   CheckCircle2, Calendar, Users, Globe, MessageSquare,
-  FileText, UserPlus, Trophy, Clock, CalendarPlus,
+  FileText, UserPlus, Trophy, Clock, CalendarPlus, Play,
 } from 'lucide-react';
 
 interface SuccessState {
@@ -26,6 +26,9 @@ export default function RegistrationSuccessPage() {
   };
   const { id } = params;
   const { hackathonTitle, formattedDate, startDate, endDate, teamName, mode } = state;
+
+  const isLive = !!(startDate && endDate &&
+    new Date() >= new Date(startDate) && new Date() <= new Date(endDate));
 
   const [countdown, setCountdown] = useState<string>('');
 
@@ -113,12 +116,17 @@ export default function RegistrationSuccessPage() {
           title="Join Team Channel"
           desc="Connect with your team on the discussion board"
           action="Open Channel"
+          onAction={() => navigate(`/hackathons/${id}`, { state: { openTab: 'Teams' } })}
         />
         <NextCard
           icon={<FileText size={22} className="text-[#4F39F6]" />}
           title="Review Problem Statement"
-          desc={`Problem statement goes live on ${formattedDate}`}
-          action="Set Reminder"
+          desc={isLive ? 'Problem statement is live — open the sandbox to read it.' : `Problem statement goes live on ${formattedDate}`}
+          action={isLive ? 'Open Problem' : 'View Hackathon'}
+          onAction={() => isLive
+            ? navigate(`/hackathons/${id}/sandbox`, { state: { hackathonStatus: 'Running', hackathonEndDate: endDate } })
+            : navigate(`/hackathons/${id}`)
+          }
         />
         <NextCard
           icon={<UserPlus size={22} className="text-[#4F39F6]" />}
@@ -131,6 +139,17 @@ export default function RegistrationSuccessPage() {
 
       {/* CTA buttons */}
       <div className="flex flex-col items-center gap-3">
+        {isLive && (
+          <button
+            onClick={() => navigate(`/hackathons/${id}/sandbox`, {
+              state: { hackathonStatus: 'Running', hackathonEndDate: endDate },
+            })}
+            className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-sm shadow-xl shadow-emerald-100 hover:bg-emerald-600 transition-all flex items-center justify-center gap-2"
+          >
+            <Play size={16} fill="white" /> Start Hackathon Now
+          </button>
+        )}
+
         <button
           onClick={() => navigate(`/hackathons/${id}`)}
           className="w-full py-4 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-xl shadow-indigo-200 hover:bg-[#3f2dd1] transition-all"
