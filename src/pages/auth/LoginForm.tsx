@@ -51,8 +51,9 @@ export default function LoginForm() {
       console.log("Login response:", response); // Debugging log
       if (response.data.success) {
         login(response.data.accessToken, response.data.user);
-        const role = response.data.user.role;
-        if (role === 'mentor') navigate('/mentor');
+        const role = (response.data.user.role ?? '').toLowerCase();
+        if (role === 'admin' || role === 'superadmin') navigate('/admin');
+        else if (role === 'mentor') navigate('/mentor');
         else if (role === 'organizer') navigate('/organizer');
         else navigate('/dashboard');
       }

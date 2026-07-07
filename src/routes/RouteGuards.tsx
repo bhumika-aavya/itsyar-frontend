@@ -3,13 +3,15 @@ import { useAuth } from '@/context/AuthContext';
 import { Loader2 } from 'lucide-react';
 import React from 'react';
 
+const normalizeRole = (role?: string) => (role ?? '').toLowerCase();
+
 export const AdminRoute = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) return <LoadingScreen />;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
-  const role = user?.role;
+  const role = normalizeRole(user?.role);
   if (role !== 'admin' && role !== 'superadmin') {
     return <Navigate to="/dashboard" replace />;
   }
@@ -21,17 +23,22 @@ export const ProtectedRoute = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) return <LoadingScreen />;
-  
+
   return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
 export const PublicRoute = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) return <LoadingScreen />;
 
-  // If already logged in, don't let them see Login/Register
-  return !isAuthenticated ? <Outlet /> : <Navigate to="/dashboard" replace />;
+  if (!isAuthenticated) return <Outlet />;
+
+  const role = normalizeRole(user?.role);
+  if (role === 'admin' || role === 'superadmin') return <Navigate to="/admin" replace />;
+  if (role === 'mentor') return <Navigate to="/mentor" replace />;
+  if (role === 'organizer') return <Navigate to="/organizer" replace />;
+  return <Navigate to="/dashboard" replace />;
 };
 
 const LoadingScreen = () => (

@@ -2,9 +2,15 @@ import React, { Suspense, lazy } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import MainLayout from "@/pages/layout/MainLayout";
+import AdminLayout from "@/pages/admin/AdminLayout";
 import { ProtectedRoute, PublicRoute, AdminRoute } from "./RouteGuards";
 
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
+const AdminUsersPage = lazy(() => import("@/pages/admin/AdminUsersPage"));
+const AdminCoursesPage = lazy(() => import("@/pages/admin/AdminCoursesPage"));
+const AdminHackathonsPage = lazy(() => import("@/pages/admin/AdminHackathonsPage"));
+const AdminTeamsPage = lazy(() => import("@/pages/admin/AdminTeamsPage"));
+const AdminSettingsPage = lazy(() => import("@/pages/admin/AdminSettingsPage"));
 
 const LandingPage = lazy(() => import("@/pages/home/LandingPage"));
 const LoginPage = lazy(() => import("@/pages/auth/Login"));
@@ -80,9 +86,20 @@ export default function AppRoutes() {
             <Route path="/organizer/hackathons/create" element={<CreateHackathon />} />
             <Route path="/organizer/hackathons/:id/edit" element={<CreateHackathon />} />
 
-            {/* Admin routes */}
-            <Route element={<AdminRoute />}>
+          </Route>
+        </Route>
+
+        {/* Admin routes — own layout, separate from MainLayout */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AdminRoute />}>
+            <Route element={<AdminLayout />}>
               <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/users" element={<AdminUsersPage />} />
+              <Route path="/admin/courses" element={<AdminCoursesPage />} />
+              <Route path="/admin/hackathons" element={<AdminHackathonsPage />} />
+              <Route path="/admin/teams" element={<AdminTeamsPage />} />
+              <Route path="/admin/profile" element={<ProfilePage />} />
+              <Route path="/admin/settings" element={<AdminSettingsPage />} />
             </Route>
           </Route>
         </Route>

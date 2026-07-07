@@ -120,4 +120,64 @@ export const AdminService = {
       return MOCK_SUBMISSIONS;
     }
   },
+
+  createUser: async (data: { fullName: string; email: string; role: string }): Promise<AdminUser> => {
+    try {
+      const res = await api.post("/admin/users", data, getAuthHeaders());
+      return res.data;
+    } catch {
+      return {
+        id: `u${Date.now()}`,
+        fullName: data.fullName,
+        email: data.email,
+        role: data.role,
+        status: "active",
+        createdAt: new Date().toISOString(),
+        coursesEnrolled: 0,
+        hackathonsJoined: 0,
+      };
+    }
+  },
+
+  createCourse: async (data: Record<string, string>): Promise<any> => {
+    try {
+      const res = await api.post("/admin/courses", data, getAuthHeaders());
+      return res.data;
+    } catch {
+      return { id: `c${Date.now()}`, ...data, enrolledCount: 0 };
+    }
+  },
+
+  updateCourse: async (id: string, data: Record<string, string>): Promise<any> => {
+    try {
+      const res = await api.put(`/admin/courses/${id}`, data, getAuthHeaders());
+      return res.data;
+    } catch {
+      return { id, ...data };
+    }
+  },
+
+  deleteCourse: async (id: string): Promise<void> => {
+    try {
+      await api.delete(`/admin/courses/${id}`, getAuthHeaders());
+    } catch {
+      // mock no-op
+    }
+  },
+
+  deleteHackathon: async (id: string): Promise<void> => {
+    try {
+      await api.delete(`/admin/hackathons/${id}`, getAuthHeaders());
+    } catch {
+      // mock no-op
+    }
+  },
+
+  deleteTeam: async (id: string): Promise<void> => {
+    try {
+      await api.delete(`/admin/teams/${id}`, getAuthHeaders());
+    } catch {
+      // mock no-op
+    }
+  },
 };

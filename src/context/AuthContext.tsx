@@ -14,15 +14,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const storedUser = localStorage.getItem("user");
 
     if (token && storedUser) {
-      setUser(JSON.parse(storedUser));
+      const parsed = JSON.parse(storedUser);
+      setUser({ ...parsed, role: (parsed.role ?? '').toLowerCase() });
     }
     setIsLoading(false);
   }, []);
 
   const login = (token: string, userData: any) => {
+    const normalized = { ...userData, role: (userData.role ?? '').toLowerCase() };
     localStorage.setItem("accessToken", token);
-    localStorage.setItem("user", JSON.stringify(userData));
-    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(normalized));
+    setUser(normalized);
   };
 
   const logout = () => {

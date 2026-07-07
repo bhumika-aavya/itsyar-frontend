@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   LayoutDashboard, BookOpen, Zap, Trophy, ClipboardList,
-  User, Search, ChevronDown, LogOut, Settings, GraduationCap, Building2, Users
+  User, Search, ChevronDown, LogOut, Settings, GraduationCap, Building2, Users, Shield
 } from 'lucide-react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -75,6 +75,18 @@ export default function MainLayout() {
             />
           ))}
         </nav>
+
+        {(['admin', 'superadmin'].includes((user?.role ?? '').toLowerCase())) && (
+          <div className="pt-4 border-t border-slate-100">
+            <button
+              onClick={() => navigate('/admin')}
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#4F39F6] hover:bg-indigo-50 transition-all"
+            >
+              <Shield size={16} />
+              Admin Panel
+            </button>
+          </div>
+        )}
       </aside>
 
       {/* Main Area */}
