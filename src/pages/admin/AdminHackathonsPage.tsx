@@ -70,7 +70,7 @@ export default function AdminHackathonsPage() {
           <p className="text-sm font-medium text-slate-400 mt-0.5">{hackathons.length} hackathons on the platform</p>
         </div>
         <button
-          onClick={() => navigate("/organizer/hackathons/create")}
+          onClick={() => navigate("/admin/hackathons/create")}
           className="flex items-center gap-2 px-4 py-2.5 bg-[#4F39F6] text-white rounded-xl text-sm font-black shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] transition-all"
         >
           <Plus size={16} /> Create Hackathon
@@ -157,7 +157,7 @@ export default function AdminHackathonsPage() {
                         <ExternalLink size={15} />
                       </button>
                       <button
-                        onClick={() => navigate(`/organizer/hackathons/${h.id}/edit`)}
+                        onClick={() => navigate(`/admin/hackathons/${h.id}/edit`)}
                         title="Edit"
                         className="p-1.5 text-[#4F39F6] hover:bg-indigo-50 rounded-lg transition-colors"
                       >

@@ -10,7 +10,7 @@ export const loginSchema = z.object({
     .min(8, "Password must be at least 8 characters"),
 
   role: z.enum(
-    ["student", "participant", "organizer", "admin", "mentor", "judge"],
+    ["student", "participant", "organizer", "admin", "mentor/judge"],
     {
       errorMap: () => ({ message: "Please select a valid role" }),
     }

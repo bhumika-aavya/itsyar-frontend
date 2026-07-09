@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -27,7 +27,11 @@ const ErrMsg = ({ msg }: { msg?: string }) =>
 export default function CreateHackathon() {
     const { id } = useParams<{ id?: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
     const isEdit = !!id;
+    // Shared between the Organizer and Admin flows — return to whichever portal launched this page.
+    const basePath = location.pathname.startsWith('/admin') ? '/admin' : '/organizer';
+    const portalLabel = basePath === '/admin' ? 'Admin Portal' : 'Organizer Portal';
 
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
@@ -122,7 +126,7 @@ export default function CreateHackathon() {
                 </p>
             </div>
             <button
-                onClick={() => navigate('/organizer')}
+                onClick={() => navigate(basePath)}
                 className="px-8 py-3 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] transition-all"
             >
                 Back to Dashboard
@@ -133,14 +137,14 @@ export default function CreateHackathon() {
     return (
         <div className="max-w-4xl mx-auto p-6 md:px-10 md:py-8 animate-in fade-in duration-500">
             <button
-                onClick={() => navigate('/organizer')}
+                onClick={() => navigate(basePath)}
                 className="flex items-center gap-2 text-[#4F39F6] font-bold text-sm mb-6 hover:opacity-80 transition-all"
             >
                 <ChevronLeft size={18} /> Back to Dashboard
             </button>
 
             <div className="mb-8">
-                <p className="text-xs font-black uppercase tracking-widest text-[#4F39F6] mb-1">Organizer Portal</p>
+                <p className="text-xs font-black uppercase tracking-widest text-[#4F39F6] mb-1">{portalLabel}</p>
                 <h1 className="text-3xl font-black text-slate-900">{isEdit ? 'Edit Hackathon' : 'Create Hackathon'}</h1>
                 <p className="text-slate-500 font-medium mt-1">
                     {isEdit ? 'Update hackathon details and problem statement.' : 'Fill in the details to launch a new hackathon event.'}
@@ -368,7 +372,7 @@ export default function CreateHackathon() {
                 <div className="flex items-center justify-end gap-3 pb-8">
                     <button
                         type="button"
-                        onClick={() => navigate('/organizer')}
+                        onClick={() => navigate(basePath)}
                         className="px-6 py-3 bg-white border border-slate-200 text-slate-700 rounded-2xl font-black text-sm hover:bg-slate-50 transition-all"
                     >
                         Cancel

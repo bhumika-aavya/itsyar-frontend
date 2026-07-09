@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Search, Plus, Edit2, Trash2, Loader2, BookOpen, X, Save } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { AdminService } from "@/services/admin.service";
-import { CourseService } from "@/services/course.service";
 
 interface CourseForm {
   title: string;
@@ -27,6 +27,7 @@ const EMPTY_FORM: CourseForm = {
 };
 
 export default function AdminCoursesPage() {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -40,8 +41,8 @@ export default function AdminCoursesPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
-    CourseService.getAllCourses()
-      .then(data => { setCourses(Array.isArray(data) ? data : (data as any)?.courses ?? []); })
+    AdminService.getCourses()
+      .then(setCourses)
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -145,7 +146,11 @@ export default function AdminCoursesPage() {
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((course: any) => (
-            <div key={course.id} className="bg-white border border-slate-100 rounded-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all group">
+            <div
+              key={course.id}
+              onClick={() => navigate(`/admin/courses/${course.id}`)}
+              className="bg-white border border-slate-100 rounded-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all group cursor-pointer"
+            >
               {course.thumbnail ? (
                 <img src={course.thumbnail} alt={course.title} className="w-full h-36 object-cover" />
               ) : (
@@ -162,17 +167,17 @@ export default function AdminCoursesPage() {
                   <span className="text-xs font-black text-[#4F39F6] bg-indigo-50 px-2.5 py-1 rounded-lg">
                     {course.level ?? course.difficulty ?? "All levels"}
                   </span>
-                  <span className="text-xs font-bold text-slate-400">{course.enrolledCount ?? 0} enrolled</span>
+                  <span className="text-xs font-bold text-slate-400">{course.enrolled ?? 0} enrolled</span>
                 </div>
                 <div className="flex gap-2 pt-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
-                    onClick={() => openEdit(course)}
+                    onClick={e => { e.stopPropagation(); openEdit(course); }}
                     className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-slate-50 text-slate-600 rounded-xl text-xs font-black hover:bg-indigo-50 hover:text-[#4F39F6] transition-all"
                   >
                     <Edit2 size={13} /> Edit
                   </button>
                   <button
-                    onClick={() => handleDelete(course.id)}
+                    onClick={e => { e.stopPropagation(); handleDelete(course.id); }}
                     disabled={deletingId === course.id}
                     className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-slate-50 text-red-400 rounded-xl text-xs font-black hover:bg-red-50 transition-all disabled:opacity-50"
                   >

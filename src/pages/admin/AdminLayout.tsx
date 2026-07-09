@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   LayoutDashboard, BookOpen, Zap, Users, User, Settings,
-  ChevronDown, LogOut, Shield, Users2,
+  ChevronDown, LogOut, Shield, Users2, Scale,
 } from 'lucide-react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -11,11 +11,10 @@ const NavItem = ({
 }: { icon: React.ElementType; label: string; active: boolean; onClick: () => void }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm ${
-      active
-        ? 'bg-[#4F39F6] text-white shadow-lg shadow-indigo-100'
-        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-    }`}
+    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm ${active
+      ? 'bg-[#4F39F6] text-white shadow-lg shadow-indigo-100'
+      : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+      }`}
   >
     <Icon size={18} strokeWidth={active ? 2.5 : 2} />
     {label}
@@ -29,7 +28,8 @@ const NAV_ITEMS = [
   { icon: Zap, label: 'Hackathons', path: '/admin/hackathons' },
   { icon: Users2, label: 'Teams', path: '/admin/teams' },
   { icon: User, label: 'Profile', path: '/admin/profile' },
-  { icon: Settings, label: 'Settings', path: '/admin/settings' },
+  // { icon: Settings, label: 'Settings', path: '/admin/settings' },
+  { icon: Scale, label: 'Submissions', path: '/admin/submissions' }
 ];
 
 export default function AdminLayout() {

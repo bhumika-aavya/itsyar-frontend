@@ -17,71 +17,123 @@ export interface AdminStats {
   totalCourses: number;
   activeHackathons: number;
   totalSubmissions: number;
-  newUsersThisMonth: number;
-  revenueThisMonth?: string;
 }
 
-export interface AdminSubmission {
+export interface PlatformHealth {
+  apiStatus: string;
+  database: string;
+  authService: string;
+  emailService: string;
+}
+
+export interface AdminOverview {
+  admin: { name: string; role: string };
+  stats: AdminStats;
+  platformHealth: PlatformHealth;
+}
+
+export interface AdminCourse {
   id: string;
-  hackathonId: string;
-  hackathonTitle: string;
-  participantName: string;
-  participantEmail: string;
-  language: string;
-  status: "PENDING" | "ACCEPTED" | "REJECTED";
-  submittedAt: string;
+  title: string;
+  instructor: string;
+  level: string;
+  enrolled: number;
+  modulesCount: number;
+  thumbnail?: string;
 }
 
-const MOCK_STATS: AdminStats = {
-  totalUsers: 2847,
-  totalCourses: 34,
-  activeHackathons: 5,
-  totalSubmissions: 412,
-  newUsersThisMonth: 183,
+export interface AdminHackathon {
+  id: string;
+  title: string;
+  mode: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  participants: string;
+}
+
+export interface AdminTeam {
+  id: string;
+  name: string;
+  hackathonName: string;
+  hackathonId: string;
+  members: string;
+  memberCount: number;
+  maxMembers: number;
+  description: string;
+  status: string;
+}
+
+export interface AdminTeamsResponse {
+  stats: { totalTeams: number; openForJoin: number; fullTeams: number };
+  teams: AdminTeam[];
+}
+
+export interface PlatformSettings {
+  platform: {
+    platformName: string;
+    supportEmail: string;
+    platformTagline: string;
+    defaultMaxTeamSize: number;
+  };
+  accessControl: {
+    maintenanceMode: boolean;
+    allowNewRegistrations: boolean;
+  };
+}
+
+const MOCK_OVERVIEW: AdminOverview = {
+  admin: { name: "Admin", role: "Admin" },
+  stats: { totalUsers: 2847, totalCourses: 34, activeHackathons: 5, totalSubmissions: 412 },
+  platformHealth: { apiStatus: "Operational", database: "Operational", authService: "Operational", emailService: "Operational" },
 };
 
 const MOCK_USERS: AdminUser[] = [
   { id: "u1", fullName: "Alice Johnson", email: "alice@example.com", role: "student", status: "active", createdAt: "2025-01-15", coursesEnrolled: 3, hackathonsJoined: 2 },
   { id: "u2", fullName: "Bob Smith", email: "bob@example.com", role: "mentor", status: "active", createdAt: "2025-02-10", coursesEnrolled: 0, hackathonsJoined: 0 },
   { id: "u3", fullName: "Carol White", email: "carol@example.com", role: "student", status: "active", createdAt: "2025-03-05", coursesEnrolled: 5, hackathonsJoined: 1 },
-  { id: "u4", fullName: "Dave Brown", email: "dave@example.com", role: "organizer", status: "active", createdAt: "2025-01-20", coursesEnrolled: 0, hackathonsJoined: 0 },
-  { id: "u5", fullName: "Eve Davis", email: "eve@example.com", role: "student", status: "inactive", createdAt: "2025-04-01", coursesEnrolled: 1, hackathonsJoined: 0 },
-  { id: "u6", fullName: "Frank Miller", email: "frank@example.com", role: "student", status: "banned", createdAt: "2024-12-01", coursesEnrolled: 2, hackathonsJoined: 3 },
-  { id: "u7", fullName: "Grace Lee", email: "grace@example.com", role: "mentor", status: "active", createdAt: "2025-02-28", coursesEnrolled: 0, hackathonsJoined: 0 },
-  { id: "u8", fullName: "Hank Wilson", email: "hank@example.com", role: "student", status: "active", createdAt: "2025-05-12", coursesEnrolled: 4, hackathonsJoined: 2 },
 ];
 
-const MOCK_SUBMISSIONS: AdminSubmission[] = [
-  { id: "s1", hackathonId: "h7", hackathonTitle: "CodeSprint 2026", participantName: "Alice Johnson", participantEmail: "alice@example.com", language: "Python", status: "PENDING", submittedAt: "2026-05-22T10:30:00Z" },
-  { id: "s2", hackathonId: "h7", hackathonTitle: "CodeSprint 2026", participantName: "Bob Smith", participantEmail: "bob@example.com", language: "JavaScript", status: "ACCEPTED", submittedAt: "2026-05-22T11:15:00Z" },
-  { id: "s3", hackathonId: "h7", hackathonTitle: "CodeSprint 2026", participantName: "Carol White", participantEmail: "carol@example.com", language: "TypeScript", status: "REJECTED", submittedAt: "2026-05-22T12:00:00Z" },
-  { id: "s4", hackathonId: "h4", hackathonTitle: "BlockBuilders", participantName: "Dave Brown", participantEmail: "dave@example.com", language: "Go", status: "PENDING", submittedAt: "2026-05-23T09:00:00Z" },
-  { id: "s5", hackathonId: "h4", hackathonTitle: "BlockBuilders", participantName: "Eve Davis", participantEmail: "eve@example.com", language: "Rust", status: "PENDING", submittedAt: "2026-05-23T10:45:00Z" },
-];
+const MOCK_SETTINGS: PlatformSettings = {
+  platform: { platformName: "ForgeInsight", supportEmail: "support@forgeinsight.com", platformTagline: "Build. Learn. Compete.", defaultMaxTeamSize: 4 },
+  accessControl: { maintenanceMode: false, allowNewRegistrations: true },
+};
+
+// Backend User.status is stored capitalized ("Active"/"Inactive"/"Banned"); the
+// frontend UI works in lowercase throughout — normalize at the service boundary.
+const toLowerStatus = (s: string): AdminUser["status"] => {
+  const v = (s ?? "").toLowerCase();
+  return v === "banned" || v === "inactive" ? v : "active";
+};
+const toBackendStatus = (s: "active" | "inactive" | "banned") =>
+  s === "banned" ? "Banned" : s === "inactive" ? "Inactive" : "Active";
 
 export const AdminService = {
-  getStats: async (): Promise<AdminStats> => {
+  getOverview: async (): Promise<AdminOverview> => {
     try {
-      const res = await api.get("/admin/stats", getAuthHeaders());
-      return res.data;
+      const res = await api.get("/admin/overview", getAuthHeaders());
+      return { admin: res.data.admin, stats: res.data.stats, platformHealth: res.data.platformHealth };
     } catch {
-      return MOCK_STATS;
+      return MOCK_OVERVIEW;
     }
   },
 
-  getUsers: async (): Promise<AdminUser[]> => {
+  // Kept for backwards compatibility with existing callers expecting just stats.
+  getStats: async (): Promise<AdminStats> => (await AdminService.getOverview()).stats,
+
+  getUsers: async (params?: { search?: string; role?: string; status?: string }): Promise<AdminUser[]> => {
     try {
-      const res = await api.get("/admin/users", getAuthHeaders());
-      const users = res.data?.users ?? res.data ?? [];
+      const res = await api.get("/admin/users", { ...getAuthHeaders(), params });
+      const users = res.data?.users ?? [];
       return users.map((u: any) => ({
         id: u.id,
-        fullName: u.full_name ?? u.fullName ?? "",
+        fullName: u.name ?? "",
         email: u.email,
         role: u.role,
-        status: u.status ?? "active",
-        createdAt: u.created_at ?? u.createdAt ?? "",
-        coursesEnrolled: u.courses_enrolled ?? u.coursesEnrolled ?? 0,
-        hackathonsJoined: u.hackathons_joined ?? u.hackathonsJoined ?? 0,
+        status: toLowerStatus(u.status),
+        createdAt: u.joined ?? "",
+        coursesEnrolled: u.activity?.courses ?? 0,
+        hackathonsJoined: u.activity?.hackathons ?? 0,
       }));
     } catch {
       return MOCK_USERS;
@@ -90,7 +142,7 @@ export const AdminService = {
 
   updateUserStatus: async (userId: string, status: "active" | "inactive" | "banned"): Promise<void> => {
     try {
-      await api.patch(`/admin/users/${userId}`, { status }, getAuthHeaders());
+      await api.put(`/admin/users/${userId}/status`, { status: toBackendStatus(status) }, getAuthHeaders());
     } catch {
       // mock: no-op
     }
@@ -98,7 +150,7 @@ export const AdminService = {
 
   updateUserRole: async (userId: string, role: string): Promise<void> => {
     try {
-      await api.patch(`/admin/users/${userId}`, { role }, getAuthHeaders());
+      await api.put(`/admin/users/${userId}/role`, { role }, getAuthHeaders());
     } catch {
       // mock: no-op
     }
@@ -112,19 +164,19 @@ export const AdminService = {
     }
   },
 
-  getSubmissions: async (): Promise<AdminSubmission[]> => {
-    try {
-      const res = await api.get("/admin/submissions", getAuthHeaders());
-      return res.data?.submissions ?? res.data ?? [];
-    } catch {
-      return MOCK_SUBMISSIONS;
-    }
-  },
-
-  createUser: async (data: { fullName: string; email: string; role: string }): Promise<AdminUser> => {
+  createUser: async (data: { fullName: string; email: string; role: string; password: string }): Promise<AdminUser> => {
     try {
       const res = await api.post("/admin/users", data, getAuthHeaders());
-      return res.data;
+      return {
+        id: res.data.user.id,
+        fullName: data.fullName,
+        email: res.data.user.email,
+        role: res.data.user.role,
+        status: "active",
+        createdAt: new Date().toISOString(),
+        coursesEnrolled: 0,
+        hackathonsJoined: 0,
+      };
     } catch {
       return {
         id: `u${Date.now()}`,
@@ -139,19 +191,30 @@ export const AdminService = {
     }
   },
 
-  createCourse: async (data: Record<string, string>): Promise<any> => {
+  getCourses: async (search?: string): Promise<AdminCourse[]> => {
     try {
-      const res = await api.post("/admin/courses", data, getAuthHeaders());
-      return res.data;
+      const res = await api.get("/admin/courses", { ...getAuthHeaders(), params: { search } });
+      return res.data?.courses ?? [];
+    } catch {
+      return [];
+    }
+  },
+
+  createCourse: async (data: { title: string; description?: string; instructor?: string; level?: string; category?: string }): Promise<any> => {
+    const payload = { title: data.title, description: data.description, instructor: data.instructor, level: data.level, tag: data.category };
+    try {
+      const res = await api.post("/admin/courses", payload, getAuthHeaders());
+      return { id: `c${Date.now()}`, ...data, ...res.data?.course };
     } catch {
       return { id: `c${Date.now()}`, ...data, enrolledCount: 0 };
     }
   },
 
-  updateCourse: async (id: string, data: Record<string, string>): Promise<any> => {
+  updateCourse: async (id: string, data: { title?: string; description?: string; instructor?: string; level?: string; category?: string }): Promise<any> => {
+    const payload = { title: data.title, description: data.description, instructor: data.instructor, level: data.level, tag: data.category };
     try {
-      const res = await api.put(`/admin/courses/${id}`, data, getAuthHeaders());
-      return res.data;
+      await api.put(`/admin/courses/${id}`, payload, getAuthHeaders());
+      return { id, ...data };
     } catch {
       return { id, ...data };
     }
@@ -165,6 +228,15 @@ export const AdminService = {
     }
   },
 
+  getHackathons: async (params?: { search?: string; status?: string }): Promise<AdminHackathon[]> => {
+    try {
+      const res = await api.get("/admin/hackathons", { ...getAuthHeaders(), params });
+      return res.data?.hackathons ?? [];
+    } catch {
+      return [];
+    }
+  },
+
   deleteHackathon: async (id: string): Promise<void> => {
     try {
       await api.delete(`/admin/hackathons/${id}`, getAuthHeaders());
@@ -173,11 +245,40 @@ export const AdminService = {
     }
   },
 
+  getTeams: async (params?: { search?: string; hackathonId?: string }): Promise<AdminTeamsResponse> => {
+    try {
+      const res = await api.get("/admin/teams", {
+        ...getAuthHeaders(),
+        params: { search: params?.search, hackathon_id: params?.hackathonId },
+      });
+      return { stats: res.data.stats, teams: res.data.teams ?? [] };
+    } catch {
+      return { stats: { totalTeams: 0, openForJoin: 0, fullTeams: 0 }, teams: [] };
+    }
+  },
+
   deleteTeam: async (id: string): Promise<void> => {
     try {
       await api.delete(`/admin/teams/${id}`, getAuthHeaders());
     } catch {
       // mock no-op
+    }
+  },
+
+  getSettings: async (): Promise<PlatformSettings> => {
+    try {
+      const res = await api.get("/admin/settings", getAuthHeaders());
+      return res.data.settings;
+    } catch {
+      return MOCK_SETTINGS;
+    }
+  },
+
+  updateSettings: async (settings: PlatformSettings): Promise<void> => {
+    try {
+      await api.put("/admin/settings", settings, getAuthHeaders());
+    } catch {
+      // mock: no-op
     }
   },
 };

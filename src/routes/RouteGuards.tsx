@@ -23,9 +23,8 @@ export const PublicRoute = () => {
   if (!isAuthenticated) return <Outlet />;
   const role = normalizeRole(user?.role);
   if (role === 'admin' || role === 'superadmin') return <Navigate to="/admin" replace />;
-  if (role === 'mentor') return <Navigate to="/mentor" replace />;
+  if (role === 'mentor/judge') return <Navigate to="/mentor" replace />;
   if (role === 'organizer') return <Navigate to="/organizer" replace />;
-  if (role === 'judge') return <Navigate to="/judge" replace />;
   return <Navigate to="/dashboard" replace />;
 };
 

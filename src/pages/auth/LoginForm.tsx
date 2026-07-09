@@ -54,8 +54,7 @@ export default function LoginForm() {
         const role = (response.data.user.role ?? '').toLowerCase();
         if (role === 'admin' || role === 'superadmin') navigate('/admin');
         else if (role === 'organizer') navigate('/organizer');
-        else if (role === 'mentor') navigate('/mentor');
-        else if (role === 'judge') navigate('/judge');
+        else if (role === 'mentor/judge') navigate('/mentor');
         else navigate('/dashboard');
       }
     } catch (error: unknown) {
@@ -72,7 +71,7 @@ export default function LoginForm() {
 
   useEffect(() => {
     const roleParam = searchParams.get('role');
-    const validRoles = ["student", "participant", "organizer", "admin", "mentor", "judge"];
+    const validRoles = ["student", "participant", "organizer", "admin", "mentor/judge"];
 
     if (roleParam && validRoles.includes(roleParam)) {
       // @ts-ignore - bypassing strict string literal check for the dynamic param
@@ -157,8 +156,7 @@ export default function LoginForm() {
                 <option value="participant">Participant</option>
                 <option value="organizer">Organizer</option>
                 <option value="admin">Admin</option>
-                <option value="mentor">Mentor</option>
-                <option value="judge">Judge</option>
+                <option value="mentor/judge">Mentor/Judge</option>
               </select>
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18} />
             </div>

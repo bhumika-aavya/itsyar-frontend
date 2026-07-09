@@ -3,13 +3,14 @@ import {
   Users, BookOpen, Zap, BarChart3, Shield, CheckCircle2, XCircle,
   TrendingUp, UserCog, Loader2,
 } from "lucide-react";
-import { AdminService, AdminStats } from "@/services/admin.service";
+import { AdminService, AdminOverview } from "@/services/admin.service";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [overview, setOverview] = useState<AdminOverview | null>(null);
 
   return (
     <div className="space-y-8 max-w-6xl">
@@ -26,21 +27,21 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <StatsGrid />
+      <StatsGrid onLoaded={setOverview} />
       <QuickActions navigate={navigate} />
-      <PlatformHealth />
+      <PlatformHealth health={overview?.platformHealth} />
     </div>
   );
 }
 
-function StatsGrid() {
-  const [stats, setStats] = useState<AdminStats | null>(null);
+function StatsGrid({ onLoaded }: { onLoaded: (o: AdminOverview) => void }) {
+  const [overview, setOverview] = useState<AdminOverview | null>(null);
 
   useEffect(() => {
-    AdminService.getStats().then(setStats);
-  }, []);
+    AdminService.getOverview().then(o => { setOverview(o); onLoaded(o); });
+  }, [onLoaded]);
 
-  if (!stats) {
+  if (!overview) {
     return (
       <div className="flex justify-center py-16">
         <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
@@ -48,8 +49,9 @@ function StatsGrid() {
     );
   }
 
+  const { stats } = overview;
   const cards = [
-    { label: "Total Users", value: stats.totalUsers.toLocaleString(), icon: Users, color: "bg-indigo-50 text-[#4F39F6]", trend: `+${stats.newUsersThisMonth} this month` },
+    { label: "Total Users", value: stats.totalUsers.toLocaleString(), icon: Users, color: "bg-indigo-50 text-[#4F39F6]", trend: "Registered accounts" },
     { label: "Total Courses", value: stats.totalCourses.toString(), icon: BookOpen, color: "bg-emerald-50 text-emerald-600", trend: "Active courses" },
     { label: "Active Hackathons", value: stats.activeHackathons.toString(), icon: Zap, color: "bg-amber-50 text-amber-600", trend: "Currently running" },
     { label: "Total Submissions", value: stats.totalSubmissions.toLocaleString(), icon: BarChart3, color: "bg-rose-50 text-rose-600", trend: "All time" },
@@ -105,13 +107,13 @@ function QuickActions({ navigate }: { navigate: ReturnType<typeof useNavigate> }
   );
 }
 
-function PlatformHealth() {
+function PlatformHealth({ health }: { health?: import("@/services/admin.service").PlatformHealth }) {
   const services = [
-    { label: "API Status", status: "Operational", ok: true },
-    { label: "Database", status: "Operational", ok: true },
-    { label: "Auth Service", status: "Operational", ok: true },
-    { label: "Email Service", status: "Operational", ok: true },
-  ];
+    { label: "API Status", status: health?.apiStatus ?? "Unknown" },
+    { label: "Database", status: health?.database ?? "Unknown" },
+    { label: "Auth Service", status: health?.authService ?? "Unknown" },
+    { label: "Email Service", status: health?.emailService ?? "Unknown" },
+  ].map(s => ({ ...s, ok: s.status === "Operational" }));
 
   return (
     <div className="bg-white border border-slate-100 rounded-[24px] p-6 shadow-sm">

@@ -1,16 +1,53 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Save, Settings, Bell, Shield, Globe, Loader2, CheckCircle2 } from "lucide-react";
+import { AdminService, PlatformSettings } from "@/services/admin.service";
 
 type Tab = "general" | "notifications" | "security";
 
+const DEFAULT_GENERAL = {
+  platformName: "ForgeInsight",
+  platformTagline: "Build. Learn. Compete.",
+  supportEmail: "support@forgeinsight.com",
+  maxTeamSize: "4",
+  maintenanceMode: false,
+  allowRegistrations: true,
+};
+
 export default function AdminSettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("general");
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [general, setGeneral] = useState(DEFAULT_GENERAL);
+
+  useEffect(() => {
+    AdminService.getSettings().then((s: PlatformSettings) => {
+      setGeneral({
+        platformName: s.platform.platformName,
+        platformTagline: s.platform.platformTagline,
+        supportEmail: s.platform.supportEmail,
+        maxTeamSize: String(s.platform.defaultMaxTeamSize),
+        maintenanceMode: s.accessControl.maintenanceMode,
+        allowRegistrations: s.accessControl.allowNewRegistrations,
+      });
+      setLoading(false);
+    });
+  }, []);
 
   const handleSave = async () => {
     setSaving(true);
-    await new Promise(r => setTimeout(r, 800));
+    await AdminService.updateSettings({
+      platform: {
+        platformName: general.platformName,
+        platformTagline: general.platformTagline,
+        supportEmail: general.supportEmail,
+        defaultMaxTeamSize: Number(general.maxTeamSize) || 4,
+      },
+      accessControl: {
+        maintenanceMode: general.maintenanceMode,
+        allowNewRegistrations: general.allowRegistrations,
+      },
+    });
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
@@ -21,6 +58,14 @@ export default function AdminSettingsPage() {
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "security", label: "Security", icon: Shield },
   ];
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-24">
+        <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -52,7 +97,7 @@ export default function AdminSettingsPage() {
 
       {/* Tab panels */}
       <div className="bg-white border border-slate-100 rounded-[24px] p-8 shadow-sm space-y-6">
-        {activeTab === "general" && <GeneralSettings />}
+        {activeTab === "general" && <GeneralSettings form={general} setForm={setGeneral} />}
         {activeTab === "notifications" && <NotificationSettings />}
         {activeTab === "security" && <SecuritySettings />}
 
@@ -62,8 +107,10 @@ export default function AdminSettingsPage() {
             <span className="flex items-center gap-2 text-sm font-bold text-emerald-600">
               <CheckCircle2 size={16} /> Settings saved successfully
             </span>
+          ) : activeTab === "general" ? (
+            <span className="text-xs font-bold text-slate-400">Platform &amp; access control settings are saved to the server</span>
           ) : (
-            <span className="text-xs font-bold text-slate-400">Changes are saved per session until API is connected</span>
+            <span className="text-xs font-bold text-slate-400">Notification &amp; security settings are local-only — not yet backed by an API</span>
           )}
           <button
             onClick={handleSave}
@@ -81,16 +128,7 @@ export default function AdminSettingsPage() {
 
 // ─── General ─────────────────────────────────────────────────────────────────
 
-function GeneralSettings() {
-  const [form, setForm] = useState({
-    platformName: "ForgeInsight",
-    platformTagline: "Build. Learn. Compete.",
-    supportEmail: "support@forgeinsight.com",
-    maxTeamSize: "4",
-    maintenanceMode: false,
-    allowRegistrations: true,
-  });
-
+function GeneralSettings({ form, setForm }: { form: typeof DEFAULT_GENERAL; setForm: React.Dispatch<React.SetStateAction<typeof DEFAULT_GENERAL>> }) {
   return (
     <div className="space-y-5">
       <SectionTitle>Platform</SectionTitle>

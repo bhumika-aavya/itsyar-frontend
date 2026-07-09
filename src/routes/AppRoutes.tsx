@@ -12,9 +12,13 @@ import { ProtectedRoute, PublicRoute, AdminRoute, RoleRoute } from "./RouteGuard
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
 const AdminUsersPage = lazy(() => import("@/pages/admin/AdminUsersPage"));
 const AdminCoursesPage = lazy(() => import("@/pages/admin/AdminCoursesPage"));
+const AdminCourseDetailPage = lazy(() => import("@/pages/admin/AdminCourseDetailPage"));
 const AdminHackathonsPage = lazy(() => import("@/pages/admin/AdminHackathonsPage"));
 const AdminTeamsPage = lazy(() => import("@/pages/admin/AdminTeamsPage"));
 const AdminSettingsPage = lazy(() => import("@/pages/admin/AdminSettingsPage"));
+const AdminSubmissionsPage = lazy(() => import("@/pages/admin/AdminSubmissionsPage"));
+const AdminUserSubmissionsPage = lazy(() => import("@/pages/admin/AdminUserSubmissionsPage"));
+const AdminSubmissionReviewPage = lazy(() => import("@/pages/admin/AdminSubmissionReviewPage"));
 
 // Auth pages
 const LandingPage = lazy(() => import("@/pages/home/LandingPage"));
@@ -39,7 +43,7 @@ const TeamCollaborationPage = lazy(() => import("@/pages/teams/TeamCollaboration
 const LeaderboardPage = lazy(() => import("@/pages/leaderboard/LeaderboardPage"));
 const ProfilePage = lazy(() => import("@/pages/profile/ProfilePage"));
 
-// Organizer pages
+// Organizer pages (CreateHackathon is shared with the Admin hackathon-create/edit flow)
 const OrganizerDashboard = lazy(() => import("@/pages/organizer/OrganizerDashboard"));
 const OrganizerCoursesPage = lazy(() => import("@/pages/organizer/OrganizerCoursesPage"));
 const CreateHackathon = lazy(() => import("@/pages/organizer/CreateHackathon"));
@@ -104,10 +108,16 @@ export default function AppRoutes() {
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/users" element={<AdminUsersPage />} />
               <Route path="/admin/courses" element={<AdminCoursesPage />} />
+              <Route path="/admin/courses/:id" element={<AdminCourseDetailPage />} />
               <Route path="/admin/hackathons" element={<AdminHackathonsPage />} />
+              <Route path="/admin/hackathons/create" element={<CreateHackathon />} />
+              <Route path="/admin/hackathons/:id/edit" element={<CreateHackathon />} />
               <Route path="/admin/teams" element={<AdminTeamsPage />} />
               <Route path="/admin/profile" element={<ProfilePage />} />
               <Route path="/admin/settings" element={<AdminSettingsPage />} />
+              <Route path="/admin/submissions" element={<AdminSubmissionsPage />} />
+              <Route path="/admin/submissions/:userId" element={<AdminUserSubmissionsPage />} />
+              <Route path="/admin/submissions/:userId/:hackathonId" element={<AdminSubmissionReviewPage />} />
             </Route>
           </Route>
         </Route>
@@ -125,9 +135,9 @@ export default function AppRoutes() {
           </Route>
         </Route>
 
-        {/* ── Mentor layout ─────────────────────────────────────────────── */}
+        {/* ── Mentor layout (Mentor and Judge are a single combined role) ── */}
         <Route element={<ProtectedRoute />}>
-          <Route element={<RoleRoute roles={["mentor"]} />}>
+          <Route element={<RoleRoute roles={["mentor/judge"]} />}>
             <Route element={<MentorLayout />}>
               <Route path="/mentor" element={<MentorDashboard />} />
               <Route path="/mentor/submissions/:submissionId" element={<SubmissionReview />} />
@@ -137,9 +147,9 @@ export default function AppRoutes() {
           </Route>
         </Route>
 
-        {/* ── Judge layout ──────────────────────────────────────────────── */}
+        {/* ── Judge layout (Mentor and Judge are a single combined role) ── */}
         <Route element={<ProtectedRoute />}>
-          <Route element={<RoleRoute roles={["judge"]} />}>
+          <Route element={<RoleRoute roles={["mentor/judge"]} />}>
             <Route element={<JudgeLayout />}>
               <Route path="/judge" element={<JudgeDashboard />} />
               <Route path="/judge/hackathons" element={<JudgeHackathonsPage />} />
