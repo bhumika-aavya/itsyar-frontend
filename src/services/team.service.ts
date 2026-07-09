@@ -1,7 +1,9 @@
+import axios from "axios";
 import api from "@/lib/axios";
 import { getAuthHeaders } from "./auth";
 import { CreateTeamValues } from "@/schemas/hackathon.schema";
 import { HackathonService } from "./hackathon.service";
+import { getApiErrorMessage } from "@/lib/getApiErrorMessage";
 
 export interface TeamCardData {
   id: string;
@@ -181,9 +183,8 @@ export const TeamService = {
   requestToJoin: async (teamId: string): Promise<void> => {
     try {
       await api.post(`/teams/${teamId}/request-join`, {}, getAuthHeaders());
-    } catch (err: any) {
-      const msg = err?.response?.data?.message;
-      if (msg) throw new Error(msg);
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response) throw new Error(getApiErrorMessage(err));
     }
   },
 

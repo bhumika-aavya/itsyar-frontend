@@ -39,12 +39,9 @@ export default function HackathonDetail() {
     useEffect(() => {
         const load = async () => {
             if (id) {
-                const [res, registered] = await Promise.all([
-                    HackathonService.getHackathonById(id),
-                    HackathonService.checkRegistration(id),
-                ]);
+                const res = await HackathonService.getHackathonById(id);
                 setData(res);
-                setIsRegistered(registered);
+                setIsRegistered(res.isRegistered ?? false);
             }
         };
         load();
@@ -92,12 +89,8 @@ export default function HackathonDetail() {
         });
     };
 
-    const handleModalClose = async () => {
+    const handleModalClose = () => {
         setIsJoinModalOpen(false);
-        if (id) {
-            const registered = await HackathonService.checkRegistration(id);
-            setIsRegistered(registered);
-        }
     };
 
     const hackathonRef = {
@@ -294,12 +287,12 @@ export default function HackathonDetail() {
 
                             <div className="space-y-4 pt-4 border-t border-slate-50">
                                 {/* Registration status badge */}
-                                <div className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold ${isRegistered ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+                                <div className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold ${data?.isRegistered ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
                                     }`}>
-                                    {isRegistered
+                                    {data?.isRegistered
                                         ? <CheckCircle2 size={13} />
                                         : <AlertTriangle size={13} />}
-                                    {isRegistered ? 'You are registered' : 'Not yet registered'}
+                                    {data?.isRegistered ? 'You are registered' : 'Not yet registered'}
                                 </div>
 
                                 {/* Countdown to start or end */}
@@ -316,20 +309,20 @@ export default function HackathonDetail() {
                                 {/* Start Hackathon — shown when today is within the event window */}
                                 {isHackathonLive && (
                                     <>
-                                        {!isRegistered && (
+                                        {!data?.isRegistered && (
                                             <p className="text-center text-[11px] font-bold text-amber-600 bg-amber-50 px-3 py-2 rounded-xl">
                                                 Register first to enter the sandbox
                                             </p>
                                         )}
                                         <button
                                             onClick={openSandbox}
-                                            className={`w-full py-4 text-white rounded-2xl font-black text-sm shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 ${isRegistered
-                                                    ? 'bg-emerald-500 shadow-emerald-100 hover:bg-emerald-600'
-                                                    : 'bg-[#4F39F6] shadow-indigo-100 hover:bg-[#3f2dd1]'
+                                            className={`w-full py-4 text-white rounded-2xl font-black text-sm shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 ${data?.isRegistered
+                                                ? 'bg-emerald-500 shadow-emerald-100 hover:bg-emerald-600'
+                                                : 'bg-[#4F39F6] shadow-indigo-100 hover:bg-[#3f2dd1]'
                                                 }`}
                                         >
                                             <Play size={15} fill="white" />
-                                            {isRegistered ? 'Start Hackathon' : 'Register to Start'}
+                                            {data?.isRegistered ? 'Start Hackathon' : 'Register to Start'}
                                         </button>
                                     </>
                                 )}

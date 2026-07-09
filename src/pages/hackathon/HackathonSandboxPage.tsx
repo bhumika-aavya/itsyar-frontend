@@ -19,6 +19,7 @@ export default function HackathonSandboxPage() {
         const check = async () => {
             if (!id) return;
             const registered = await HackathonService.checkRegistration(id);
+            console.log(`User registration status for hackathon ${id}:`, registered);
             setIsRegistered(registered);
             setChecking(false);
         };

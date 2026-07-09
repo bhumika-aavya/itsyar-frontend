@@ -8,7 +8,7 @@ import { registerSchema, RegisterFormValues } from "@/schemas/register.schema";
 import { ErrorMsg } from "@/components/ui/error";
 import { useNavigate } from "react-router-dom";
 import api from "@/lib/axios";
-import axios from "axios";
+import { getApiErrorMessage } from "@/lib/getApiErrorMessage";
 import Logo from "./Logo";
 import { useAuth } from "@/context/AuthContext";
 
@@ -53,17 +53,7 @@ export default function RegisterForm() {
         navigate("/dashboard", { replace: true });
       }
     } catch (error: unknown) {
-      console.error("Login error:", error);
-
-      if (axios.isAxiosError(error)) {
-        const message =
-          error.response?.data?.error?.data?.message ??
-          "Something went wrong. Please try again.";
-
-        setServerError(message);
-      } else {
-        setServerError("An unexpected error occurred.");
-      }
+      setServerError(getApiErrorMessage(error));
     } finally {
       setIsLoading(false);
     }

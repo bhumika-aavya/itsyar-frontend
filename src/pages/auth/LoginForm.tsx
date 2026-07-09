@@ -13,9 +13,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, LoginFormValues } from "@/schemas/login.schema";
 import { ErrorMsg } from "@/components/ui/error";
 import api from "@/lib/axios";
+import { getApiErrorMessage } from "@/lib/getApiErrorMessage";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import axios from "axios";
 import Logo from "./Logo";
 
 // Define the API response structure
@@ -53,22 +53,13 @@ export default function LoginForm() {
         login(response.data.accessToken, response.data.user);
         const role = (response.data.user.role ?? '').toLowerCase();
         if (role === 'admin' || role === 'superadmin') navigate('/admin');
-        else if (role === 'mentor') navigate('/mentor');
         else if (role === 'organizer') navigate('/organizer');
+        else if (role === 'mentor') navigate('/mentor');
+        else if (role === 'judge') navigate('/judge');
         else navigate('/dashboard');
       }
     } catch (error: unknown) {
-      console.error("Login error:", error);
-
-      if (axios.isAxiosError(error)) {
-        const message =
-          error.response?.data?.error?.data?.message ??
-          "Something went wrong. Please try again.";
-
-        setServerError(message);
-      } else {
-        setServerError("An unexpected error occurred.");
-      }
+      setServerError(getApiErrorMessage(error));
     } finally {
       setIsLoading(false);
     }

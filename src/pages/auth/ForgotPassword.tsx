@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Mail, Loader2, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '@/lib/axios';
-import axios from 'axios';
+import { getApiErrorMessage } from '@/lib/getApiErrorMessage';
 import Logo from './Logo';
 
 export default function ForgotPassword() {
@@ -21,11 +21,7 @@ export default function ForgotPassword() {
       await api.post('/auth/forgot-password', { email });
       setSent(true);
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message ?? 'Something went wrong. Please try again.');
-      } else {
-        setError('An unexpected error occurred.');
-      }
+      setError(getApiErrorMessage(err));
     } finally {
       setIsLoading(false);
     }

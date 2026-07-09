@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import {
     Trophy, Cpu, Zap, Database, Settings, Cloud, Link as LinkIcon,
-    Loader2
+    Loader2, CheckCircle2
 } from 'lucide-react';
 import { HackathonService } from '@/services/hackathon.service';
 import { Hackathon } from '@/schemas/hackathon.schema';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { isHackathonSubmitted } from '@/lib/submissionStore';
 import HackathonJoinModal from './HackathonJoinModal';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -19,7 +20,7 @@ const formatDate = (dateStr: string) => {
     return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 };
 
-const canJoinHackathon = (status: string) => status === 'Open' || status === 'Running';
+const canJoinHackathon = (status: string, isRegistered: boolean) => !isRegistered && (status === 'Open' || status === 'Running');
 
 export default function HackathonListing() {
     const navigate = useNavigate();
@@ -81,42 +82,57 @@ export default function HackathonListing() {
                         <tbody className="divide-y divide-slate-50">
                             {hackathons.map((hack) => {
                                 const Icon = iconMap[hack.iconType ?? ''] || Trophy;
-                                const joinable = canJoinHackathon(hack.status);
+                                const submitted = isHackathonSubmitted(hack.id);
+                                const joinable = !submitted && canJoinHackathon(hack.status, hack.isRegistered ?? false);
                                 return (
-                                    <tr key={hack.id} className="hover:bg-slate-50/50 transition-colors group">
+                                    <tr key={hack.id} className={`transition-colors group ${submitted ? 'bg-slate-50/60' : 'hover:bg-slate-50/50'}`}>
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-4">
-                                                <div className={`p-3 rounded-2xl bg-indigo-50 text-indigo-500 transition-transform group-hover:scale-110`}>
-                                                    <Icon size={20} />
+                                                <div className={`p-3 rounded-2xl transition-transform group-hover:scale-110 ${submitted ? 'bg-emerald-50 text-emerald-500' : 'bg-indigo-50 text-indigo-500'}`}>
+                                                    {submitted ? <CheckCircle2 size={20} /> : <Icon size={20} />}
                                                 </div>
-                                                <span className="font-bold text-slate-800">{hack.title}</span>
+                                                <span className={`font-bold ${submitted ? 'text-slate-400' : 'text-slate-800'}`}>{hack.title}</span>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
-                                            <span className="font-bold text-slate-600 text-sm">
+                                            <span className={`font-bold text-sm ${submitted ? 'text-slate-400' : 'text-slate-600'}`}>
                                                 From {formatDate(hack.startDate)} - To {formatDate(hack.endDate)}
                                             </span>
                                         </td>
                                         <td className="px-8 py-6 text-center">
-                                            <span className={`inline-block px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${getStatusStyle(hack.status)}`}>
-                                                {hack.status}
-                                            </span>
+                                            {submitted ? (
+                                                <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-600">
+                                                    <CheckCircle2 size={11} /> Submitted
+                                                </span>
+                                            ) : (
+                                                <span className={`inline-block px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${getStatusStyle(hack.status)}`}>
+                                                    {hack.status}
+                                                </span>
+                                            )}
                                         </td>
                                         <td className="px-8 py-6">
                                             <div className="flex items-center justify-center gap-3">
-                                                <button
-                                                    onClick={() => navigate(`/hackathons/${hack.id}`)}
-                                                    className="px-5 py-2 border-2 border-slate-100 rounded-xl font-bold text-xs text-slate-600 hover:bg-white hover:border-slate-300 transition-all"
-                                                >
-                                                    View Details
-                                                </button>
-                                                {joinable && (
-                                                    <button
-                                                        onClick={() => setJoiningHackathon(hack)}
-                                                        className="px-6 py-2 bg-[#4F39F6] text-white rounded-xl font-bold text-xs hover:bg-[#3f2dd1] shadow-lg shadow-indigo-100 transition-all active:scale-95"
-                                                    >
-                                                        Join
-                                                    </button>
+                                                {submitted ? (
+                                                    <span className="px-5 py-2 rounded-xl font-bold text-xs text-slate-400 border-2 border-dashed border-slate-200 cursor-not-allowed">
+                                                        Solution Submitted
+                                                    </span>
+                                                ) : (
+                                                    <>
+                                                        <button
+                                                            onClick={() => navigate(`/hackathons/${hack.id}`)}
+                                                            className="px-5 py-2 border-2 border-slate-100 rounded-xl font-bold text-xs text-slate-600 hover:bg-white hover:border-slate-300 transition-all"
+                                                        >
+                                                            View Details
+                                                        </button>
+                                                        {joinable && (
+                                                            <button
+                                                                onClick={() => setJoiningHackathon(hack)}
+                                                                className="px-6 py-2 bg-[#4F39F6] text-white rounded-xl font-bold text-xs hover:bg-[#3f2dd1] shadow-lg shadow-indigo-100 transition-all active:scale-95"
+                                                            >
+                                                                Join
+                                                            </button>
+                                                        )}
+                                                    </>
                                                 )}
                                             </div>
                                         </td>

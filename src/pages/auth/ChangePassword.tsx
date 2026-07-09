@@ -3,7 +3,7 @@ import { Lock, Eye, EyeOff, Loader2, CheckCircle2, ChevronLeft } from 'lucide-re
 import { useNavigate } from 'react-router-dom';
 import api from '@/lib/axios';
 import { getAuthHeaders } from '@/services/auth';
-import axios from 'axios';
+import { getApiErrorMessage } from '@/lib/getApiErrorMessage';
 
 export default function ChangePassword() {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -33,11 +33,7 @@ export default function ChangePassword() {
       }, getAuthHeaders());
       setDone(true);
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message ?? 'Failed to change password. Please check your current password.');
-      } else {
-        setError('An unexpected error occurred.');
-      }
+      setError(getApiErrorMessage(err, 'Failed to change password. Please check your current password.'));
     } finally {
       setIsLoading(false);
     }

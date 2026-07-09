@@ -3,6 +3,7 @@ import { X, Users, CheckCircle2, Plus, Trash2, Loader2, ArrowLeft, Calendar, Use
 import { useNavigate } from 'react-router-dom';
 import { HackathonService } from '@/services/hackathon.service';
 import { Team } from '@/schemas/hackathon.schema';
+import { getApiErrorMessage } from '@/lib/getApiErrorMessage';
 
 type Step = 'mode-select' | 'team-select' | 'create-team' | 'team-created' | 'confirm' | 'individual-form' | 'success';
 
@@ -58,14 +59,13 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
 
     useEffect(() => {
         if (isOpen) {
-            setStep('team-select');
+            setStep('mode-select');
             setSelectedTeamId(null);
             setJoinedTeam(null);
             resetCreateForm();
             setIndForm({ fullName: '', email: '', agreeToRules: false });
             setIndErrors({});
             setTeamApiError('');
-            loadUserTeams();
         }
     }, [isOpen, hackathon.id]);
 
@@ -179,8 +179,8 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                     mode: 'Online',
                 },
             });
-        } catch {
-            setIndErrors(p => ({ ...p, submit: 'Registration failed. Please try again.' }));
+        } catch (err) {
+            setIndErrors(p => ({ ...p, submit: getApiErrorMessage(err, 'Registration failed. Please try again.') }));
         } finally {
             setSubmitting(false);
         }

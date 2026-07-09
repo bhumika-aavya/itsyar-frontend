@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, Loader2, CheckCircle2 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '@/lib/axios';
-import axios from 'axios';
+import { getApiErrorMessage } from '@/lib/getApiErrorMessage';
 import Logo from './Logo';
 
 export default function ResetPassword() {
@@ -29,11 +29,7 @@ export default function ResetPassword() {
       await api.post('/auth/reset-password', { token, new_password: password, confirm_new_password: confirm });
       setDone(true);
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message ?? 'Reset failed. The link may have expired.');
-      } else {
-        setError('An unexpected error occurred.');
-      }
+      setError(getApiErrorMessage(err, 'Reset failed. The link may have expired.'));
     } finally {
       setIsLoading(false);
     }

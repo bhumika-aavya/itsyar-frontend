@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { X, Trash2, Loader2, CheckCircle2, ChevronDown, AlertCircle } from 'lucide-react';
-import { TeamService, TeamCardData, HackathonOption, HACKATHON_COLOR_MAP } from '@/services/team.service';
+import { TeamService, HackathonOption } from '@/services/team.service';
 import { HackathonService } from '@/services/hackathon.service';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onTeamCreated: (team: TeamCardData) => void;
+  onTeamCreated: () => void;
 }
 
 export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Props) {
@@ -65,31 +65,17 @@ export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Prop
     setSubmitting(true);
     setApiError('');
     try {
-      const created = await HackathonService.createTeam({
+      await HackathonService.createTeam({
         name: teamName,
         description: teamDesc,
         hackathonId: selectedHackathonId,
         inviteEmails,
       });
 
-      const hack = hackathons.find((h) => h.id === selectedHackathonId);
-      const hackathonName = hack?.title ?? 'Hackathon';
-
-      const newCard: TeamCardData = {
-        id: created.id,
-        name: created.name,
-        hackathonName,
-        hackathonId: selectedHackathonId,
-        memberCount: created.members.length,
-        maxMembers: 4,
-        description: created.description,
-        iconBg: HACKATHON_COLOR_MAP[hackathonName] ?? '#4F39F6',
-        iconType: 'settings',
-      };
-
-      setSuccess(true);
-      setTimeout(() => onTeamCreated(newCard), 1200);
+      // setSuccess(true);
+      setTimeout(() => onTeamCreated(), 1200);
     } catch (err: any) {
+      console.log('Error creating team:', err);
       setApiError(err?.message || 'Failed to create team. Please try again.');
     } finally {
       setSubmitting(false);

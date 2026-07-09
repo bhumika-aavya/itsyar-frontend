@@ -1,6 +1,8 @@
+import axios from "axios";
 import api from "@/lib/axios";
 import { Hackathon, HackathonDetail, Team, CreateTeamValues, HackathonProblem, SubmitSolutionValues, SubmitSolutionResponse } from "@/schemas/hackathon.schema";
 import { getAuthHeaders } from "./auth";
+import { getApiErrorMessage } from "@/lib/getApiErrorMessage";
 
 const MOCK_HACKATHONS: Hackathon[] = [
     { id: "h1", title: "CodeSprint 2024", startDate: "2024-05-21", endDate: "2024-05-23", status: "COMPLETED", iconType: "trophy", iconBg: "bg-yellow-50 text-yellow-500" },
@@ -340,7 +342,8 @@ export const HackathonService = {
     joinHackathon: async (id: string) => {
         try {
             return (await api.post(`/hackathons/${id}/join`, {}, getAuthHeaders())).data;
-        } catch {
+        } catch (err) {
+            if (axios.isAxiosError(err) && err.response) throw new Error(getApiErrorMessage(err));
             return { success: true };
         }
     },
@@ -348,9 +351,8 @@ export const HackathonService = {
     registerHackathon: async (id: string, data?: { fullName: string; email: string; role: string; agreeToRules: boolean }) => {
         try {
             return (await api.post(`/hackathons/${id}/register`, data ?? {}, getAuthHeaders())).data;
-        } catch (err: any) {
-            const msg = err?.response?.data?.message;
-            if (msg) throw new Error(msg);
+        } catch (err) {
+            if (axios.isAxiosError(err) && err.response) throw new Error(getApiErrorMessage(err));
             return { success: true };
         }
     },
@@ -379,9 +381,8 @@ export const HackathonService = {
         try {
             const response = await api.post(`/hackathons/${data.hackathonId}/teams`, data, getAuthHeaders());
             return response.data.team;
-        } catch (err: any) {
-            const msg = err?.response?.data?.message;
-            if (msg) throw new Error(msg);
+        } catch (err) {
+            if (axios.isAxiosError(err) && err.response) throw new Error(getApiErrorMessage(err));
             // dev fallback — no backend available
             const newTeam: Team = {
                 id: `t${Date.now()}`,
@@ -408,9 +409,8 @@ export const HackathonService = {
     joinTeamById: async (teamId: string): Promise<void> => {
         try {
             await api.post(`/teams/${teamId}/join`, {}, getAuthHeaders());
-        } catch (err: any) {
-            const msg = err?.response?.data?.message;
-            if (msg) throw new Error(msg);
+        } catch (err) {
+            if (axios.isAxiosError(err) && err.response) throw new Error(getApiErrorMessage(err));
         }
     },
 
@@ -422,9 +422,8 @@ export const HackathonService = {
             if (Array.isArray(raw.problems)) return raw.problems;
             if (raw.problem) return [raw.problem];
             return [raw];
-        } catch (err: any) {
-            const msg = err?.response?.data?.message ?? err?.message ?? 'Failed to load problem';
-            throw new Error(msg);
+        } catch (err) {
+            throw new Error(getApiErrorMessage(err, 'Failed to load problem'));
         }
     },
 
@@ -441,12 +440,12 @@ export const HackathonService = {
         const PISTON: Record<string, { language: string; version: string; filename: string }> = {
             'JavaScript': { language: 'javascript', version: '18.15.0', filename: 'solution.js' },
             'TypeScript': { language: 'typescript', version: '5.0.3', filename: 'solution.ts' },
-            'Python':     { language: 'python',     version: '3.10.0', filename: 'solution.py' },
-            'Java':       { language: 'java',        version: '15.0.2', filename: 'Main.java' },
-            'C++':        { language: 'c++',         version: '10.2.0', filename: 'solution.cpp' },
-            'Go':         { language: 'go',          version: '1.16.2', filename: 'main.go' },
-            'Rust':       { language: 'rust',        version: '1.50.0', filename: 'main.rs' },
-            'Ruby':       { language: 'ruby',        version: '3.0.1',  filename: 'solution.rb' },
+            'Python': { language: 'python', version: '3.10.0', filename: 'solution.py' },
+            'Java': { language: 'java', version: '15.0.2', filename: 'Main.java' },
+            'C++': { language: 'c++', version: '10.2.0', filename: 'solution.cpp' },
+            'Go': { language: 'go', version: '1.16.2', filename: 'main.go' },
+            'Rust': { language: 'rust', version: '1.50.0', filename: 'main.rs' },
+            'Ruby': { language: 'ruby', version: '3.0.1', filename: 'solution.rb' },
         };
         const runtime = PISTON[language] ?? PISTON['JavaScript'];
         const t0 = performance.now();
@@ -490,7 +489,7 @@ export const HackathonService = {
     checkRegistration: async (hackathonId: string): Promise<boolean> => {
         try {
             const response = await api.get(`/hackathons/${hackathonId}/registration-status`, getAuthHeaders());
-            return response.data.registered ?? false;
+            return response.data;
         } catch {
             return true; // graceful fallback — don't block sandbox when backend is unavailable
         }
@@ -503,6 +502,33 @@ export const HackathonService = {
         } catch {
             console.warn("API Error: Simulating solution submission for hackathon:", hackathonId);
             return { submissionId: `sub_${Date.now()}`, status: "PENDING", message: "Submission received and queued for review." };
+        }
+    },
+
+    getChatMessages: async (hackathonId: string, since?: number): Promise<Array<{
+        id: string; sender: string; senderId: string; text: string;
+        timestamp: number; type: string; code?: string; language?: string;
+    }>> => {
+        try {
+            const params = since != null ? `?since=${since}` : '';
+            const response = await api.get(`/hackathons/${hackathonId}/chat${params}`, getAuthHeaders());
+            return response.data?.messages ?? [];
+        } catch {
+            return [];
+        }
+    },
+
+    sendChatMessage: async (hackathonId: string, payload: {
+        text: string; type: string; code?: string; language?: string;
+    }): Promise<{
+        id: string; sender: string; senderId: string; text: string;
+        timestamp: number; type: string; code?: string; language?: string;
+    } | null> => {
+        try {
+            const response = await api.post(`/hackathons/${hackathonId}/chat`, payload, getAuthHeaders());
+            return response.data?.message ?? null;
+        } catch {
+            return null;
         }
     },
 };

@@ -3,8 +3,12 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import MainLayout from "@/pages/layout/MainLayout";
 import AdminLayout from "@/pages/admin/AdminLayout";
-import { ProtectedRoute, PublicRoute, AdminRoute } from "./RouteGuards";
+import OrganizerLayout from "@/pages/organizer/OrganizerLayout";
+import MentorLayout from "@/pages/mentor/MentorLayout";
+import JudgeLayout from "@/pages/judge/JudgeLayout";
+import { ProtectedRoute, PublicRoute, AdminRoute, RoleRoute } from "./RouteGuards";
 
+// Admin pages
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
 const AdminUsersPage = lazy(() => import("@/pages/admin/AdminUsersPage"));
 const AdminCoursesPage = lazy(() => import("@/pages/admin/AdminCoursesPage"));
@@ -12,12 +16,15 @@ const AdminHackathonsPage = lazy(() => import("@/pages/admin/AdminHackathonsPage
 const AdminTeamsPage = lazy(() => import("@/pages/admin/AdminTeamsPage"));
 const AdminSettingsPage = lazy(() => import("@/pages/admin/AdminSettingsPage"));
 
+// Auth pages
 const LandingPage = lazy(() => import("@/pages/home/LandingPage"));
 const LoginPage = lazy(() => import("@/pages/auth/Login"));
 const RegisterPage = lazy(() => import("@/pages/auth/Register"));
 const ForgotPasswordPage = lazy(() => import("@/pages/auth/ForgotPassword"));
 const ResetPasswordPage = lazy(() => import("@/pages/auth/ResetPassword"));
 const ChangePasswordPage = lazy(() => import("@/pages/auth/ChangePassword"));
+
+// Student pages
 const DashboardPage = lazy(() => import("@/pages/dashboard/DashboardPage"));
 const CourseCatalog = lazy(() => import("@/pages/courses/CourseCatalog"));
 const CourseDetail = lazy(() => import("@/pages/courses/CourseDetail"));
@@ -31,10 +38,21 @@ const RegistrationSuccessPage = lazy(() => import("@/pages/hackathon/Registratio
 const TeamCollaborationPage = lazy(() => import("@/pages/teams/TeamCollaborationPage"));
 const LeaderboardPage = lazy(() => import("@/pages/leaderboard/LeaderboardPage"));
 const ProfilePage = lazy(() => import("@/pages/profile/ProfilePage"));
-const MentorDashboard = lazy(() => import("@/pages/mentor/MentorDashboard"));
-const SubmissionReview = lazy(() => import("@/pages/mentor/SubmissionReview"));
+
+// Organizer pages
 const OrganizerDashboard = lazy(() => import("@/pages/organizer/OrganizerDashboard"));
+const OrganizerCoursesPage = lazy(() => import("@/pages/organizer/OrganizerCoursesPage"));
 const CreateHackathon = lazy(() => import("@/pages/organizer/CreateHackathon"));
+
+// Mentor pages
+const MentorDashboard = lazy(() => import("@/pages/mentor/MentorDashboard"));
+const MentorCoursesPage = lazy(() => import("@/pages/mentor/MentorCoursesPage"));
+const SubmissionReview = lazy(() => import("@/pages/mentor/SubmissionReview"));
+
+// Judge pages
+const JudgeDashboard = lazy(() => import("@/pages/judge/JudgeDashboard"));
+const JudgeHackathonsPage = lazy(() => import("@/pages/judge/JudgeHackathonsPage"));
+const JudgeCriteriaPage = lazy(() => import("@/pages/judge/JudgeCriteriaPage"));
 
 function PageLoader() {
   return (
@@ -50,7 +68,7 @@ export default function AppRoutes() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
 
-        {/* Fullscreen sandbox — no navbar/layout */}
+        {/* Fullscreen sandbox — no layout */}
         <Route path="/hackathons/:id/sandbox" element={<HackathonSandboxPage />} />
 
         <Route element={<PublicRoute />}>
@@ -60,36 +78,26 @@ export default function AppRoutes() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
 
+        {/* ── Student / default layout ─────────────────────────────────── */}
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/courses" element={<CourseCatalog />} />
             <Route path="/courses/:courseId" element={<CourseDetail />} />
             <Route path="/courses/:courseId/lessons/:lessonId" element={<LessonView />} />
-
+            <Route path="/courses/:courseId/certificate" element={<CertificatePage />} />
             <Route path="/hackathons" element={<HackathonListing />} />
+            <Route path="/hackathons/:id" element={<HackathonDetail />} />
             <Route path="/hackathons/:id/registration-success" element={<RegistrationSuccessPage />} />
             <Route path="/teams" element={<TeamCollaborationPage />} />
-            <Route path="/hackathons/:id" element={<HackathonDetail />} />
-            <Route path="/courses/:courseId/certificate" element={<CertificatePage />} />
             <Route path="/results" element={<ResultsPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/change-password" element={<ChangePasswordPage />} />
-
-            {/* Mentor routes */}
-            <Route path="/mentor" element={<MentorDashboard />} />
-            <Route path="/mentor/submissions/:submissionId" element={<SubmissionReview />} />
-
-            {/* Organizer routes */}
-            <Route path="/organizer" element={<OrganizerDashboard />} />
-            <Route path="/organizer/hackathons/create" element={<CreateHackathon />} />
-            <Route path="/organizer/hackathons/:id/edit" element={<CreateHackathon />} />
-
           </Route>
         </Route>
 
-        {/* Admin routes — own layout, separate from MainLayout */}
+        {/* ── Admin layout ─────────────────────────────────────────────── */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AdminRoute />}>
             <Route element={<AdminLayout />}>
@@ -100,6 +108,43 @@ export default function AppRoutes() {
               <Route path="/admin/teams" element={<AdminTeamsPage />} />
               <Route path="/admin/profile" element={<ProfilePage />} />
               <Route path="/admin/settings" element={<AdminSettingsPage />} />
+            </Route>
+          </Route>
+        </Route>
+
+        {/* ── Organizer layout ─────────────────────────────────────────── */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<RoleRoute roles={["organizer"]} />}>
+            <Route element={<OrganizerLayout />}>
+              <Route path="/organizer" element={<OrganizerDashboard />} />
+              <Route path="/organizer/courses" element={<OrganizerCoursesPage />} />
+              <Route path="/organizer/hackathons/create" element={<CreateHackathon />} />
+              <Route path="/organizer/hackathons/:id/edit" element={<CreateHackathon />} />
+              <Route path="/organizer/profile" element={<ProfilePage />} />
+            </Route>
+          </Route>
+        </Route>
+
+        {/* ── Mentor layout ─────────────────────────────────────────────── */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<RoleRoute roles={["mentor"]} />}>
+            <Route element={<MentorLayout />}>
+              <Route path="/mentor" element={<MentorDashboard />} />
+              <Route path="/mentor/submissions/:submissionId" element={<SubmissionReview />} />
+              <Route path="/mentor/courses" element={<MentorCoursesPage />} />
+              <Route path="/mentor/profile" element={<ProfilePage />} />
+            </Route>
+          </Route>
+        </Route>
+
+        {/* ── Judge layout ──────────────────────────────────────────────── */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<RoleRoute roles={["judge"]} />}>
+            <Route element={<JudgeLayout />}>
+              <Route path="/judge" element={<JudgeDashboard />} />
+              <Route path="/judge/hackathons" element={<JudgeHackathonsPage />} />
+              <Route path="/judge/criteria" element={<JudgeCriteriaPage />} />
+              <Route path="/judge/profile" element={<ProfilePage />} />
             </Route>
           </Route>
         </Route>

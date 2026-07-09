@@ -192,9 +192,9 @@ export default function TeamCollaborationPage() {
     }
   };
 
-  const handleTeamCreated = (newTeam: TeamCardData) => {
-    setTeams((prev) => [newTeam, ...prev]);
+  const handleTeamCreated = () => {
     setCreateModalOpen(false);
+    TeamService.getAllTeams().then(setTeams);
     TeamService.getMyTeams().then(setMyTeams);
   };
 
