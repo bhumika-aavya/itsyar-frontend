@@ -65,8 +65,7 @@ export default function LoginForm() {
   };
 
   const handleGoogleLogin = () => {
-    // Usually redirects to your backend's Google Auth endpoint
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
+    window.location.href = import.meta.env.VITE_GOOGLE_AUTH_URL;
   };
 
   useEffect(() => {

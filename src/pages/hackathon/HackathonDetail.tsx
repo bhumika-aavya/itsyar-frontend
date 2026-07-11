@@ -3,10 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
     ChevronLeft, Calendar, Users, Globe,
     BarChart2, Loader2, Trophy,
-    ChevronDown, Play, Lightbulb, CheckCircle2, AlertTriangle, Clock
+    ChevronDown, Play, Lightbulb, CheckCircle2, AlertTriangle, Clock, Lock
 } from 'lucide-react';
 import { HackathonService } from '@/services/hackathon.service';
 import { HackathonDetail as HackathonDetailType } from '@/schemas/hackathon.schema';
+import { useCourseCompletionGate } from '@/hooks/useCourseCompletionGate';
 import Timeline from './HackathonTimeline';
 import HackathonJoinModal from './HackathonJoinModal';
 import HackathonTeamsPanel from './HackathonTeamsPanel';
@@ -30,6 +31,8 @@ const isDateBetween = (startDate: string, endDate: string) => {
 export default function HackathonDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { isStudent, allCoursesCompleted, checked } = useCourseCompletionGate();
+    const courseLocked = isStudent && checked && !allCoursesCompleted;
     const [data, setData] = useState<HackathonDetailType | null>(null);
     const [activeTab, setActiveTab] = useState<Tab>('Overview');
     const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
@@ -182,21 +185,29 @@ export default function HackathonDetail() {
                                             <div>
                                                 <p className="text-xs font-extrabold uppercase tracking-widest text-[#4F46E5] mb-1">Hackathon is Live Now</p>
                                                 <h3 className="text-xl font-extrabold text-slate-900">
-                                                    {isRegistered ? 'Ready to compete?' : 'Registration required'}
+                                                    {isRegistered ? 'Ready to compete?' : courseLocked ? 'Almost there' : 'Registration required'}
                                                 </h3>
                                                 <p className="text-sm font-medium text-slate-500 mt-1">
                                                     {isRegistered
                                                         ? 'Open the secure sandbox and start coding your solution.'
-                                                        : 'You must register before accessing the code sandbox.'}
+                                                        : courseLocked
+                                                            ? 'Complete all your courses to unlock registration.'
+                                                            : 'You must register before accessing the code sandbox.'}
                                                 </p>
                                             </div>
-                                            <button
-                                                onClick={openSandbox}
-                                                className="flex items-center gap-2 px-7 py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-200 hover:bg-[#4338CA] transition-all active:scale-95 shrink-0"
-                                            >
-                                                <Play size={16} fill="white" />
-                                                {isRegistered ? 'Start Hackathon' : 'Register Now'}
-                                            </button>
+                                            {!isRegistered && courseLocked ? (
+                                                <div className="flex items-center gap-2 px-7 py-3.5 bg-slate-100 text-slate-400 rounded-2xl font-extrabold text-sm shrink-0">
+                                                    <Lock size={16} /> Locked
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    onClick={openSandbox}
+                                                    className="flex items-center gap-2 px-7 py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-200 hover:bg-[#4338CA] transition-all active:scale-95 shrink-0"
+                                                >
+                                                    <Play size={16} fill="white" />
+                                                    {isRegistered ? 'Start Hackathon' : 'Register Now'}
+                                                </button>
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -309,25 +320,35 @@ export default function HackathonDetail() {
                                 {/* Start Hackathon — shown when today is within the event window */}
                                 {isHackathonLive && (
                                     <>
-                                        {!data?.isRegistered && (
+                                        {!data?.isRegistered && !courseLocked && (
                                             <p className="text-center text-[11px] font-bold text-amber-600 bg-amber-50 px-3 py-2 rounded-xl">
                                                 Register first to enter the sandbox
                                             </p>
                                         )}
-                                        <button
-                                            onClick={openSandbox}
-                                            className={`w-full py-4 text-white rounded-2xl font-extrabold text-sm shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 ${data?.isRegistered
-                                                ? 'bg-emerald-500 shadow-emerald-100 hover:bg-emerald-600'
-                                                : 'bg-[#4F46E5] shadow-indigo-100 hover:bg-[#4338CA]'
-                                                }`}
-                                        >
-                                            <Play size={15} fill="white" />
-                                            {data?.isRegistered ? 'Start Hackathon' : 'Register to Start'}
-                                        </button>
+                                        {!data?.isRegistered && courseLocked ? (
+                                            <div className="w-full py-4 bg-slate-50 text-slate-400 rounded-2xl font-extrabold text-sm flex items-center justify-center gap-2">
+                                                <Lock size={15} /> Complete all your courses to unlock
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={openSandbox}
+                                                className={`w-full py-4 text-white rounded-2xl font-extrabold text-sm shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 ${data?.isRegistered
+                                                    ? 'bg-emerald-500 shadow-emerald-100 hover:bg-emerald-600'
+                                                    : 'bg-[#4F46E5] shadow-indigo-100 hover:bg-[#4338CA]'
+                                                    }`}
+                                            >
+                                                <Play size={15} fill="white" />
+                                                {data?.isRegistered ? 'Start Hackathon' : 'Register to Start'}
+                                            </button>
+                                        )}
                                     </>
                                 )}
 
-                                {canJoin(data.status) ? (
+                                {canJoin(data.status) && courseLocked ? (
+                                    <div className="w-full py-4 bg-amber-50 text-amber-700 rounded-2xl font-extrabold text-sm text-center flex items-center justify-center gap-2">
+                                        <Lock size={15} /> Complete all your courses to unlock joining
+                                    </div>
+                                ) : canJoin(data.status) ? (
                                     <>
                                         <button
                                             onClick={() => setIsJoinModalOpen(true)}

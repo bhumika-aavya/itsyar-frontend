@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import {
     Trophy, Cpu, Zap, Database, Settings, Cloud, Link as LinkIcon,
-    Loader2, CheckCircle2
+    Loader2, CheckCircle2, Lock
 } from 'lucide-react';
 import { HackathonService } from '@/services/hackathon.service';
 import { Hackathon } from '@/schemas/hackathon.schema';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { isHackathonSubmitted } from '@/lib/submissionStore';
+import { useCourseCompletionGate } from '@/hooks/useCourseCompletionGate';
 import HackathonJoinModal from './HackathonJoinModal';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -25,6 +26,7 @@ const canJoinHackathon = (status: string, isRegistered: boolean) => !isRegistere
 export default function HackathonListing() {
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { isStudent, allCoursesCompleted, checked } = useCourseCompletionGate();
     const [hackathons, setHackathons] = useState<Hackathon[]>([]);
     const [loading, setLoading] = useState(true);
     const [joiningHackathon, setJoiningHackathon] = useState<Hackathon | null>(null);
@@ -83,7 +85,9 @@ export default function HackathonListing() {
                             {hackathons.map((hack) => {
                                 const Icon = iconMap[hack.iconType ?? ''] || Trophy;
                                 const submitted = isHackathonSubmitted(hack.id);
-                                const joinable = !submitted && canJoinHackathon(hack.status, hack.isRegistered ?? false);
+                                const otherwiseJoinable = !submitted && canJoinHackathon(hack.status, hack.isRegistered ?? false);
+                                const courseLocked = isStudent && checked && !allCoursesCompleted && otherwiseJoinable;
+                                const joinable = otherwiseJoinable && !courseLocked;
                                 return (
                                     <tr key={hack.id} className={`transition-colors group ${submitted ? 'bg-slate-50/60' : 'hover:bg-slate-50/50'}`}>
                                         <td className="px-8 py-6">
@@ -130,6 +134,15 @@ export default function HackathonListing() {
                                                                 className="px-6 py-2 bg-[#4F46E5] text-white rounded-xl font-bold text-xs hover:bg-[#4338CA] shadow-lg shadow-indigo-100 transition-all active:scale-95"
                                                             >
                                                                 Join
+                                                            </button>
+                                                        )}
+                                                        {courseLocked && (
+                                                            <button
+                                                                disabled
+                                                                title="Complete all your courses to unlock hackathon joining"
+                                                                className="flex items-center gap-1.5 px-4 py-2 bg-slate-50 text-slate-400 rounded-xl font-bold text-xs border-2 border-dashed border-slate-200 cursor-not-allowed"
+                                                            >
+                                                                <Lock size={12} /> Locked
                                                             </button>
                                                         )}
                                                     </>

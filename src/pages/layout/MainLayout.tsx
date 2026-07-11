@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   LayoutDashboard, BookOpen, Zap, Trophy, ClipboardList,
-  User, Search, ChevronDown, LogOut, Settings, GraduationCap, Building2, Users, Shield
+  User, Search, ChevronDown, LogOut, Settings, Users, Shield
 } from 'lucide-react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -38,21 +38,19 @@ export default function MainLayout() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const role = (user?.role ?? '').toLowerCase();
+
   const allMenuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-    { icon: BookOpen, label: 'Courses', path: '/courses' },
+    { icon: BookOpen, label: 'Courses', path: '/courses', roles: ['student'] },
     { icon: Zap, label: 'Hackathons', path: '/hackathons' },
-    { icon: Users, label: 'Team', path: '/teams' },
-    { icon: Trophy, label: 'Leaderboard', path: '/leaderboard' },
-    { icon: ClipboardList, label: 'Result', path: '/results' },
+    { icon: Users, label: 'Team', path: '/teams', roles: ['participant'] },
+    { icon: Trophy, label: 'Leaderboard', path: '/leaderboard', roles: ['participant'] },
+    { icon: ClipboardList, label: 'Result', path: '/results', roles: ['student'] },
     { icon: User, label: 'Profile', path: '/profile' },
-    { icon: GraduationCap, label: 'Mentor', path: '/mentor', roles: ['Mentor'] },
-    { icon: Building2, label: 'Organizer', path: '/organizer', roles: ['Organizer'] },
   ];
 
-  const menuItems = allMenuItems.filter(item =>
-    !item.roles || (user?.role && item.roles.includes(user.role))
-  );
+  const menuItems = allMenuItems.filter(item => !item.roles || item.roles.includes(role));
 
   return (
     <div className="flex min-h-screen bg-[#F9FAFD]">
@@ -108,10 +106,13 @@ export default function MainLayout() {
               className="flex items-center gap-3 cursor-pointer group p-1.5 pr-3 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100"
             >
               <div className="w-10 h-10 rounded-full bg-indigo-50 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center">
-                {/* Fallback to first letter if no image */}
-                <span className="text-[#4F46E5] font-extrabold text-sm uppercase">
-                  {user?.fullName?.charAt(0) || "U"}
-                </span>
+                {user?.avatarUrl ? (
+                  <img src={user.avatarUrl} alt={user?.fullName ?? "User"} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-[#4F46E5] font-extrabold text-sm uppercase">
+                    {user?.fullName?.charAt(0) || "U"}
+                  </span>
+                )}
               </div>
               <div className="text-right hidden sm:block">
                 <div className="text-sm font-bold text-slate-900 leading-tight">

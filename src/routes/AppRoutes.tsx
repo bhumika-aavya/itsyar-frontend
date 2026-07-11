@@ -25,6 +25,7 @@ const LandingPage = lazy(() => import("@/pages/home/LandingPage"));
 const LoginPage = lazy(() => import("@/pages/auth/Login"));
 const RegisterPage = lazy(() => import("@/pages/auth/Register"));
 const ForgotPasswordPage = lazy(() => import("@/pages/auth/ForgotPassword"));
+const AuthCallback = lazy(() => import("@/pages/auth/AuthCallback"));
 const ResetPasswordPage = lazy(() => import("@/pages/auth/ResetPassword"));
 const ChangePasswordPage = lazy(() => import("@/pages/auth/ChangePassword"));
 
@@ -75,6 +76,9 @@ export default function AppRoutes() {
         {/* Fullscreen sandbox — no layout */}
         <Route path="/hackathons/:id/sandbox" element={<HackathonSandboxPage />} />
 
+        {/* Google OAuth redirect target — must be reachable before auth state exists */}
+        <Route path="/auth/callback" element={<AuthCallback />} />
+
         <Route element={<PublicRoute />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -82,7 +86,7 @@ export default function AppRoutes() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
 
-        {/* ── Student / default layout ─────────────────────────────────── */}
+        {/* ── Student / participant shared layout ───────────────────────── */}
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />

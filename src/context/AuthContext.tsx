@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { recordActiveDay } from '@/lib/streakStore';
 
 const AuthContext = createContext<any>(undefined);
 
@@ -15,7 +16,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     if (token && storedUser) {
       const parsed = JSON.parse(storedUser);
-      setUser({ ...parsed, role: (parsed.role ?? '').toLowerCase() });
+      const normalized = { ...parsed, role: (parsed.role ?? '').toLowerCase() };
+      setUser(normalized);
+      recordActiveDay(normalized.id);
     }
     setIsLoading(false);
   }, []);
@@ -25,6 +28,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem("accessToken", token);
     localStorage.setItem("user", JSON.stringify(normalized));
     setUser(normalized);
+    recordActiveDay(normalized.id);
   };
 
   const logout = () => {
@@ -34,13 +38,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
      navigate("/login", { replace: true });
   };
 
+  const updateUser = (patch: Partial<{ fullName: string; email: string; avatarUrl: string }>) => {
+    setUser((prev: any) => {
+      if (!prev) return prev;
+      const updated = { ...prev, ...patch };
+      localStorage.setItem("user", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isAuthenticated: !!user, 
-      isLoading, 
-      login, 
-      logout 
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated: !!user,
+      isLoading,
+      login,
+      logout,
+      updateUser,
     }}>
       {children}
     </AuthContext.Provider>

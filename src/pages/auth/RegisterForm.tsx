@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   User, Mail, Lock, Eye, EyeOff, GraduationCap, ChevronDown, Loader2
 } from "lucide-react";
@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, RegisterFormValues } from "@/schemas/register.schema";
 import { ErrorMsg } from "@/components/ui/error";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "@/lib/axios";
 import { getApiErrorMessage } from "@/lib/getApiErrorMessage";
 import Logo from "./Logo";
@@ -17,30 +17,46 @@ interface RegisterResponse {
   message: string;
 }
 
+const ROLE_OPTIONS = ["Student", "Participant"] as const;
+
 export default function RegisterForm() {
   const [showPass, setShowPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [serverError, setServerError] = useState("");
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login } = useAuth();
 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
+      userType: "Student",
       acceptTerms: false,
     },
   });
+
+  // Landing page CTAs deep-link here with ?role=student / ?role=participant
+  useEffect(() => {
+    const roleParam = (searchParams.get("role") ?? "").toLowerCase();
+    const matched = ROLE_OPTIONS.find(r => r.toLowerCase() === roleParam);
+    if (matched) setValue("userType", matched);
+  }, [searchParams, setValue]);
 
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
     setServerError("");
     try {
-      const response = await api.post<RegisterResponse>("/auth/signup", data);
+      const response = await api.post<RegisterResponse>("/auth/signup", {
+        ...data,
+        role: data.userType,
+      });
 
       if (response.data.success) {
         const loginResponse = await api.post("/auth/login", {
@@ -72,7 +88,7 @@ export default function RegisterForm() {
       <div className="w-full rounded-[40px] bg-white shadow-2xl border border-slate-100 overflow-hidden">
         <div className="px-10 pt-10 pb-2">
           <div className="text-center mb-10">
-            <h2 className="text-[32px] font-bold text-[#1A1C1E] tracking-tight">Join as a Learner</h2>
+            <h2 className="text-[32px] font-bold text-[#1A1C1E] tracking-tight">{`Join as a ${watch('userType') === 'Student' ? 'Learner' : 'Participant'}`}</h2>
             <p className="mt-2 text-sm text-slate-500 max-w-[420px] mx-auto leading-relaxed font-medium">
               Register to access courses, track your progress and grow your skills.
             </p>
@@ -180,7 +196,7 @@ export default function RegisterForm() {
             <div className="space-y-3 pt-2">
               <label className="text-[13px] font-bold text-slate-800 ml-1 block">I am a</label>
               <div className="flex flex-wrap gap-6 ml-1">
-                {['Student', 'Working Professional', 'Other'].map((type) => (
+                {ROLE_OPTIONS.map((type) => (
                   <label key={type} className="flex items-center gap-3 cursor-pointer group">
                     <div className="relative flex items-center justify-center">
                       <input

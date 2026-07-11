@@ -88,7 +88,7 @@ const Hero = () => {
   const navigate = useNavigate();
 
   const handleNavigation = (role: string) => {
-    navigate(`/login?role=${role}`);
+    navigate(`/register?role=${role}`);
   };
   return (
     <section id="home" className="py-16 lg:py-24 bg-white w-full overflow-hidden">

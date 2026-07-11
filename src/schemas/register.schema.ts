@@ -6,7 +6,7 @@ export const registerSchema = z.object({
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
     // interest: z.string().min(1, "Please select an interest"),
-    userType: z.enum(["Student", "Working Professional", "Other"], {
+    userType: z.enum(["Student", "Participant"], {
         errorMap: () => ({ message: "Please select your current role" }),
     }),
     acceptTerms: z.literal(true, {

@@ -3,6 +3,7 @@ import { Code2, Globe, Trophy, ChevronRight, Loader2, CalendarDays, Clock, Chevr
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { DashboardService } from '@/services/dashboard.service';
+import { getCurrentStreak } from '@/lib/streakStore';
 
 const COURSE_ICONS: Record<string, React.ReactNode> = {
   'Python Core': <Code2 size={18} className="text-slate-500" />,
@@ -93,6 +94,7 @@ export default function DashboardPage() {
   const firstName = (user?.fullName || 'there').split(' ')[0];
   const maxHours = Math.max(...(data?.studyActivity?.map((d: any) => d.hours) || [1]));
   const todayDay = 'Thu';
+  const streak = getCurrentStreak(user?.id);
 
   return (
     <div className="space-y-6">
@@ -110,7 +112,7 @@ export default function DashboardPage() {
         <div className="flex gap-4 relative z-10 shrink-0">
           <div className="bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-3.5 text-center min-w-[120px]">
             <p className="text-[9px] font-extrabold text-white/70 uppercase tracking-widest mb-1">Learning Streak</p>
-            <p className="text-white font-extrabold text-xl leading-none">🔥 {data?.streak} <span className="text-sm font-extrabold">Days</span></p>
+            <p className="text-white font-extrabold text-xl leading-none">🔥 {streak} <span className="text-sm font-extrabold">Days</span></p>
           </div>
           <div className="bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-3.5 text-center min-w-[120px]">
             <p className="text-[9px] font-extrabold text-white/70 uppercase tracking-widest mb-1">Total Points</p>
