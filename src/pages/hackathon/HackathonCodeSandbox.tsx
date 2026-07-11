@@ -559,7 +559,7 @@ export default function HackathonCodeSandbox({
                 onClick={() => setLangOpen(p => !p)}
                 className="flex items-center gap-2 h-10 px-4 bg-white border border-slate-200 rounded-xl font-bold text-sm text-slate-700 hover:bg-slate-50 transition-all"
             >
-                <Code2 size={15} className="text-[#4F39F6]" />
+                <Code2 size={15} className="text-[#4F46E5]" />
                 {language}
                 <ChevronDown size={14} className={`text-slate-400 transition-transform ${langOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -567,7 +567,7 @@ export default function HackathonCodeSandbox({
                 <div className="absolute top-12 left-0 z-20 bg-white border border-slate-100 rounded-2xl shadow-xl py-2 w-44 animate-in fade-in zoom-in-95 duration-150">
                     {languages.map(lang => (
                         <button key={lang} onClick={() => handleLangChange(lang)}
-                            className={`w-full text-left px-4 py-2 text-sm font-bold transition-colors ${lang === language ? 'text-[#4F39F6] bg-indigo-50' : 'text-slate-600 hover:bg-slate-50'}`}>
+                            className={`w-full text-left px-4 py-2 text-sm font-bold transition-colors ${lang === language ? 'text-[#4F46E5] bg-indigo-50' : 'text-slate-600 hover:bg-slate-50'}`}>
                             {lang}
                         </button>
                     ))}
@@ -600,12 +600,12 @@ export default function HackathonCodeSandbox({
 
     const renderNotesArea = () => (
         <div>
-            <label className="text-xs font-black text-slate-600 uppercase tracking-wide block mb-1.5">
+            <label className="text-xs font-extrabold text-slate-600 uppercase tracking-wide block mb-1.5">
                 Submission Notes <span className="font-bold text-slate-400 normal-case tracking-normal">(optional)</span>
             </label>
             <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3}
                 placeholder="Explain your approach, assumptions, or anything the mentor should know..."
-                className="w-full bg-white border border-slate-100 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 outline-none focus:border-[#4F39F6] transition-all resize-none"
+                className="w-full bg-white border border-slate-100 rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 outline-none focus:border-[#3AADDD] transition-all resize-none"
                 style={{ userSelect: 'text' }} />
         </div>
     );
@@ -621,7 +621,7 @@ export default function HackathonCodeSandbox({
                 <button
                     onClick={handleSubmit}
                     disabled={submitting || !code.trim()}
-                    className="flex items-center gap-2 px-8 py-2.5 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95"
+                    className="flex items-center gap-2 px-8 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95"
                 >
                     {submitting ? <><Loader2 size={15} className="animate-spin" /> Submitting…</> : <><Send size={15} /> Submit</>}
                 </button>
@@ -648,18 +648,18 @@ export default function HackathonCodeSandbox({
                     onClick={() => setResultsOpen(p => !p)}
                 >
                     <div className="flex items-center gap-3">
-                        <span className="flex items-center gap-1.5 text-xs font-black text-slate-700">
+                        <span className="flex items-center gap-1.5 text-xs font-extrabold text-slate-700">
                             <Terminal size={13} className="text-slate-400" /> Test Results
                         </span>
                         {caseResults.length > 0 && !anyRunning && (
-                            <span className={`text-xs font-black px-2.5 py-1 rounded-full ${allPassed ? 'bg-emerald-50 text-emerald-600' : anyError ? 'bg-orange-50 text-orange-600' : 'bg-red-50 text-red-600'}`}>
+                            <span className={`text-xs font-extrabold px-2.5 py-1 rounded-full ${allPassed ? 'bg-emerald-50 text-emerald-600' : anyError ? 'bg-orange-50 text-orange-600' : 'bg-red-50 text-red-600'}`}>
                                 {allPassed ? `✓ ${caseResults.length}/${caseResults.length} Passed` :
                                     anyError ? '⚠ Error' :
                                         `✗ ${failCount} Failed`}
                             </span>
                         )}
                         {anyRunning && (
-                            <span className="flex items-center gap-1.5 text-xs font-black text-blue-600 px-2.5 py-1 rounded-full bg-blue-50">
+                            <span className="flex items-center gap-1.5 text-xs font-extrabold text-blue-600 px-2.5 py-1 rounded-full bg-blue-50">
                                 <Loader2 size={11} className="animate-spin" /> Running…
                             </span>
                         )}
@@ -691,7 +691,7 @@ export default function HackathonCodeSandbox({
                                 )}
                                 {cases.length === 0 && (
                                     <p className="text-xs font-medium text-slate-400">
-                                        Click <span className="font-black text-slate-600">Run Code</span> to test against sample cases.
+                                        Click <span className="font-extrabold text-slate-600">Run Code</span> to test against sample cases.
                                     </p>
                                 )}
                             </div>
@@ -701,7 +701,7 @@ export default function HackathonCodeSandbox({
                                 <div className="space-y-3">
                                     {/* Status bar */}
                                     {sel && sel.status !== 'idle' && (
-                                        <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-black ${STATUS_CFG[sel.status].bar}`}>
+                                        <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-extrabold ${STATUS_CFG[sel.status].bar}`}>
                                             {sel.status === 'running' && <Loader2 size={12} className="animate-spin" />}
                                             {STATUS_CFG[sel.status].label}
                                             {sel.durationMs > 0 && sel.status !== 'running' && (
@@ -716,7 +716,7 @@ export default function HackathonCodeSandbox({
                                     {/* Compile error */}
                                     {sel?.compileError && (
                                         <div>
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Compilation Error</p>
+                                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Compilation Error</p>
                                             <pre className="bg-[#180000] text-red-300 text-xs p-3 rounded-xl font-mono overflow-x-auto max-h-28 whitespace-pre-wrap leading-relaxed">{sel.compileError}</pre>
                                         </div>
                                     )}
@@ -725,15 +725,15 @@ export default function HackathonCodeSandbox({
                                     {!sel?.compileError && (
                                         <div className="grid grid-cols-3 gap-2">
                                             <div>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Input</p>
+                                                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Input</p>
                                                 <pre className="bg-slate-50 border border-slate-100 text-slate-600 text-xs p-3 rounded-xl font-mono overflow-auto max-h-28 whitespace-pre">{selCase.stdin}</pre>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Expected Output</p>
+                                                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Expected Output</p>
                                                 <pre className="bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs p-3 rounded-xl font-mono overflow-auto max-h-28 whitespace-pre">{selCase.expectedOutput}</pre>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Your Output</p>
+                                                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Your Output</p>
                                                 <pre className={`text-xs p-3 rounded-xl font-mono overflow-auto max-h-28 whitespace-pre border ${sel?.status === 'accepted' ? 'bg-emerald-50 border-emerald-100 text-emerald-700' :
                                                     sel?.status === 'wrong' ? 'bg-red-50 border-red-100 text-red-700' :
                                                         sel?.status === 'running' ? 'bg-blue-50 border-blue-100 text-blue-400 italic' :
@@ -749,7 +749,7 @@ export default function HackathonCodeSandbox({
                                     {/* Stderr */}
                                     {sel?.stderr && !sel.compileError && (
                                         <div>
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Standard Error</p>
+                                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Standard Error</p>
                                             <pre className="bg-[#130800] text-orange-300 text-xs p-3 rounded-xl font-mono overflow-x-auto max-h-24 whitespace-pre-wrap leading-relaxed">{sel.stderr}</pre>
                                         </div>
                                     )}
@@ -815,7 +815,7 @@ export default function HackathonCodeSandbox({
                                         </pre>
                                     </div>
                                 ) : (
-                                    <div className={`max-w-[230px] px-3 py-2 rounded-2xl text-xs font-medium leading-relaxed ${msg.sender === 'You' ? 'bg-[#4F39F6] text-white' : 'bg-slate-100 text-slate-700'}`}>
+                                    <div className={`max-w-[230px] px-3 py-2 rounded-2xl text-xs font-medium leading-relaxed ${msg.sender === 'You' ? 'bg-[#4F46E5] text-white' : 'bg-slate-100 text-slate-700'}`}>
                                         {msg.text}
                                     </div>
                                 )}
@@ -838,11 +838,11 @@ export default function HackathonCodeSandbox({
                                 onChange={e => setChatInput(e.target.value)}
                                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendChat(); } }}
                                 placeholder="Message team…"
-                                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-[#4F39F6] transition-all"
+                                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-700 outline-none focus:border-[#3AADDD] transition-all"
                                 style={{ userSelect: 'text' }}
                             />
                             <button onClick={handleSendChat} disabled={!chatInput.trim()}
-                                className="w-9 h-9 bg-[#4F39F6] text-white rounded-xl flex items-center justify-center hover:bg-[#3f2dd1] disabled:opacity-40 transition-all shrink-0">
+                                className="w-9 h-9 bg-[#4F46E5] text-white rounded-xl flex items-center justify-center hover:bg-[#4338CA] disabled:opacity-40 transition-all shrink-0">
                                 <Send size={13} />
                             </button>
                         </div>
@@ -865,7 +865,7 @@ export default function HackathonCodeSandbox({
                         <div key={m.id} className="flex items-center gap-2.5 px-3 py-2.5 bg-slate-50 rounded-xl">
                             <div className="relative shrink-0">
                                 <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
-                                    <span className="text-xs font-black text-[#4F39F6]">{m.name.charAt(0).toUpperCase()}</span>
+                                    <span className="text-xs font-extrabold text-[#4F46E5]">{m.name.charAt(0).toUpperCase()}</span>
                                 </div>
                                 <span className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white ${m.online ? 'bg-emerald-500' : 'bg-slate-300'}`} />
                             </div>
@@ -873,7 +873,7 @@ export default function HackathonCodeSandbox({
                                 <p className="text-xs font-bold text-slate-700 truncate">{m.name}</p>
                                 <p className="text-[10px] font-medium text-slate-400">{m.role === 'LEAD' ? 'Team Lead' : 'Member'}</p>
                             </div>
-                            {m.online && <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full shrink-0">Online</span>}
+                            {m.online && <span className="text-[9px] font-extrabold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full shrink-0">Online</span>}
                         </div>
                     ))}
                 </div>
@@ -884,7 +884,7 @@ export default function HackathonCodeSandbox({
     // ── Loading ──
     if (loading) return (
         <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4">
-            <Loader2 className="animate-spin text-[#4F39F6]" size={40} />
+            <Loader2 className="animate-spin text-[#4F46E5]" size={40} />
             <p className="text-sm font-bold text-slate-400">Loading problem…</p>
         </div>
     );
@@ -896,14 +896,14 @@ export default function HackathonCodeSandbox({
                 <AlertTriangle size={28} className="text-red-400" />
             </div>
             <div>
-                <h3 className="text-xl font-black text-slate-900">Could not load problem</h3>
+                <h3 className="text-xl font-extrabold text-slate-900">Could not load problem</h3>
                 <p className="text-sm font-medium text-slate-400 mt-2 max-w-xs leading-relaxed">
                     Failed to fetch the hackathon problem. Please check your connection and try again.
                 </p>
             </div>
             <button
                 onClick={() => setRetryKey(k => k + 1)}
-                className="flex items-center gap-2 px-6 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] transition-all"
+                className="flex items-center gap-2 px-6 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all"
             >
                 Try Again
             </button>
@@ -916,28 +916,28 @@ export default function HackathonCodeSandbox({
             <div className="flex items-center justify-between px-6 py-3 bg-white border-b border-slate-100 shadow-sm shrink-0">
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center">
-                        <Code2 size={16} className="text-[#4F39F6]" />
+                        <Code2 size={16} className="text-[#4F46E5]" />
                     </div>
                     <div>
-                        <p className="text-sm font-black text-slate-900">Secure Code Sandbox</p>
+                        <p className="text-sm font-extrabold text-slate-900">Secure Code Sandbox</p>
                         <p className="text-xs font-bold text-slate-400">All activity is monitored</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
                     {timeLeft && (
-                        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black tabular-nums ${timeLeft.h === 0 && timeLeft.m < 30 ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600'}`}>
+                        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold tabular-nums ${timeLeft.h === 0 && timeLeft.m < 30 ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-600'}`}>
                             <Clock size={13} />
                             {formatTimeLeft(timeLeft)}
                         </div>
                     )}
                     {violations > 0 && (
-                        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black ${violations >= MAX_VIOLATIONS ? 'bg-red-600 text-white' : violations >= MAX_VIOLATIONS - 2 ? 'bg-red-100 text-red-700' : 'bg-red-50 text-red-500'}`}>
+                        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold ${violations >= MAX_VIOLATIONS ? 'bg-red-600 text-white' : violations >= MAX_VIOLATIONS - 2 ? 'bg-red-100 text-red-700' : 'bg-red-50 text-red-500'}`}>
                             <AlertTriangle size={13} />
                             {violations}/{MAX_VIOLATIONS} Violation{violations !== 1 ? 's' : ''}
                         </div>
                     )}
                     <button onClick={() => setShowTeamPanel(p => !p)}
-                        className={`relative flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-xs transition-all ${showTeamPanel ? 'bg-[#4F39F6] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+                        className={`relative flex items-center gap-1.5 px-4 py-2 rounded-xl font-bold text-xs transition-all ${showTeamPanel ? 'bg-[#4F46E5] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
                         <MessageSquare size={13} /> Team
                         {chatMessages.length > 0 && !showTeamPanel && (
                             <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
@@ -958,7 +958,7 @@ export default function HackathonCodeSandbox({
                     <div className="absolute top-16 left-1/2 -translate-x-1/2 z-[600] bg-red-600 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-top-2 duration-200 w-[360px]">
                         <AlertTriangle size={18} className="shrink-0" />
                         <div className="flex-1">
-                            <p className="text-sm font-black">Violation Detected!</p>
+                            <p className="text-sm font-extrabold">Violation Detected!</p>
                             <p className="text-xs font-medium opacity-90 mt-0.5">{warningMsg}</p>
                         </div>
                         <button onClick={() => setShowWarning(false)} className="p-1 hover:bg-red-700 rounded-lg transition-colors shrink-0">
@@ -974,18 +974,18 @@ export default function HackathonCodeSandbox({
                             <AlertTriangle size={40} className="text-red-300" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-black text-white">Tab Switch Detected!</h2>
+                            <h2 className="text-2xl font-extrabold text-white">Tab Switch Detected!</h2>
                             <p className="text-sm font-medium text-red-200 mt-2 max-w-sm leading-relaxed">
                                 You switched away from the hackathon sandbox. This has been recorded as a violation. Stay on this page for the entire duration of the hackathon.
                             </p>
                         </div>
-                        <div className={`px-4 py-2 rounded-xl text-sm font-black ${violations >= MAX_VIOLATIONS ? 'bg-red-500/30 text-red-200' : 'bg-white/10 text-white/80'}`}>
+                        <div className={`px-4 py-2 rounded-xl text-sm font-extrabold ${violations >= MAX_VIOLATIONS ? 'bg-red-500/30 text-red-200' : 'bg-white/10 text-white/80'}`}>
                             {violations}/{MAX_VIOLATIONS} Violations
                             {violations >= MAX_VIOLATIONS && <span className="ml-2 text-red-300">— Score will be set to 0</span>}
                         </div>
                         <button
                             onClick={() => setShowTabBlockOverlay(false)}
-                            className="px-8 py-3 bg-white text-red-900 rounded-2xl font-black text-sm hover:bg-red-50 transition-all shadow-lg"
+                            className="px-8 py-3 bg-white text-red-900 rounded-2xl font-extrabold text-sm hover:bg-red-50 transition-all shadow-lg"
                         >
                             I Understand — Return to Hackathon
                         </button>
@@ -1000,7 +1000,7 @@ export default function HackathonCodeSandbox({
                                 <AlertTriangle size={32} className="text-red-500" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-black text-slate-900">Final Warning</h3>
+                                <h3 className="text-xl font-extrabold text-slate-900">Final Warning</h3>
                                 <p className="text-sm font-medium text-slate-500 mt-2 leading-relaxed">
                                     You have reached <strong className="text-red-600">{violations} violation{violations !== 1 ? 's' : ''}</strong>. Your hackathon score will be set to <strong className="text-red-600">0</strong> if any further violations occur.
                                 </p>
@@ -1010,7 +1010,7 @@ export default function HackathonCodeSandbox({
                             </div>
                             <button
                                 onClick={() => setShowScoreZeroModal(false)}
-                                className="w-full py-3 bg-red-500 text-white rounded-xl font-black text-sm hover:bg-red-600 transition-all"
+                                className="w-full py-3 bg-red-500 text-white rounded-xl font-extrabold text-sm hover:bg-red-600 transition-all"
                             >
                                 I Understand — Stay on This Page
                             </button>
@@ -1026,7 +1026,7 @@ export default function HackathonCodeSandbox({
                                 <AlertTriangle size={28} className="text-amber-500" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-black text-slate-900">Leave Hackathon?</h3>
+                                <h3 className="text-xl font-extrabold text-slate-900">Leave Hackathon?</h3>
                                 <p className="text-sm font-medium text-slate-400 mt-2 leading-relaxed">
                                     Exiting the secure environment will be logged as a violation. Your code is <strong className="text-slate-600">not</strong> automatically submitted.
                                 </p>
@@ -1035,7 +1035,7 @@ export default function HackathonCodeSandbox({
                                 <button onClick={() => setShowExitConfirm(false)}
                                     className="flex-1 py-3 border border-slate-200 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition-all">Stay In</button>
                                 <button onClick={() => { setShowExitConfirm(false); exitFullscreen(); }}
-                                    className="flex-1 py-3 bg-red-500 text-white rounded-xl font-black text-sm hover:bg-red-600 transition-all">Exit Anyway</button>
+                                    className="flex-1 py-3 bg-red-500 text-white rounded-xl font-extrabold text-sm hover:bg-red-600 transition-all">Exit Anyway</button>
                             </div>
                         </div>
                     </div>
@@ -1053,35 +1053,35 @@ export default function HackathonCodeSandbox({
                         {problem && (
                             <>
                                 <div>
-                                    <h2 className="text-2xl font-black text-slate-900">{problem.title}</h2>
+                                    <h2 className="text-2xl font-extrabold text-slate-900">{problem.title}</h2>
                                     <div className="flex items-center gap-3 mt-2">
-                                        <span className={`px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wide ${difficultyStyle(problem.difficulty)}`}>{problem.difficulty}</span>
-                                        <span className="px-3 py-1 bg-indigo-50 text-[#4F39F6] rounded-lg text-xs font-black">{problem.points} pts</span>
+                                        <span className={`px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wide ${difficultyStyle(problem.difficulty)}`}>{problem.difficulty}</span>
+                                        <span className="px-3 py-1 bg-indigo-50 text-[#4F46E5] rounded-lg text-xs font-extrabold">{problem.points} pts</span>
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 className="text-base font-black text-slate-800 mb-2">Description</h3>
+                                    <h3 className="text-base font-extrabold text-slate-800 mb-2">Description</h3>
                                     <p className="text-slate-600 font-medium leading-relaxed whitespace-pre-line text-sm" style={{ userSelect: 'text' }}>{problem.description}</p>
                                 </div>
                                 <div>
-                                    <h3 className="text-base font-black text-slate-800 mb-3">Constraints</h3>
+                                    <h3 className="text-base font-extrabold text-slate-800 mb-3">Constraints</h3>
                                     <ul className="space-y-2">
                                         {problem.constraints?.map((c, i) => (
                                             <li key={i} className="flex items-start gap-3 text-sm font-medium text-slate-600">
-                                                <span className="w-5 h-5 rounded-full bg-indigo-50 text-[#4F39F6] flex items-center justify-center text-xs font-black shrink-0 mt-0.5">{i + 1}</span>
+                                                <span className="w-5 h-5 rounded-full bg-indigo-50 text-[#4F46E5] flex items-center justify-center text-xs font-extrabold shrink-0 mt-0.5">{i + 1}</span>
                                                 <span style={{ userSelect: 'text' }}>{c}</span>
                                             </li>
                                         ))}
                                     </ul>
                                 </div>
                                 <div>
-                                    <h3 className="text-base font-black text-slate-800 mb-3">Examples</h3>
+                                    <h3 className="text-base font-extrabold text-slate-800 mb-3">Examples</h3>
                                     <div className="space-y-3">
                                         {problem.examples?.map((ex, i) => (
                                             <div key={i} className="bg-white rounded-2xl p-4 border border-slate-100 space-y-1">
-                                                <p className="text-xs font-black text-slate-400 uppercase tracking-wide">Scenario</p>
+                                                <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wide">Scenario</p>
                                                 <p className="text-sm font-bold text-slate-700" style={{ userSelect: 'text' }}>{ex.label}</p>
-                                                <p className="text-xs font-black text-slate-400 uppercase tracking-wide mt-2">Expected Result</p>
+                                                <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wide mt-2">Expected Result</p>
                                                 <p className="text-sm font-bold text-emerald-600" style={{ userSelect: 'text' }}>{ex.result}</p>
                                             </div>
                                         ))}
@@ -1089,21 +1089,21 @@ export default function HackathonCodeSandbox({
                                 </div>
                                 {(problem.testCases ?? []).filter(tc => !tc.isHidden).length > 0 && (
                                     <div>
-                                        <h3 className="text-base font-black text-slate-800 mb-3">Sample Test Cases</h3>
+                                        <h3 className="text-base font-extrabold text-slate-800 mb-3">Sample Test Cases</h3>
                                         <div className="space-y-3">
                                             {(problem.testCases ?? []).filter(tc => !tc.isHidden).map((tc, i) => (
                                                 <div key={tc.id} className="border border-slate-100 rounded-2xl overflow-hidden bg-white">
                                                     <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-                                                        <span className="text-xs font-black text-slate-500">Case {i + 1}</span>
+                                                        <span className="text-xs font-extrabold text-slate-500">Case {i + 1}</span>
                                                         <span className="text-xs font-medium text-slate-400">{tc.label}</span>
                                                     </div>
                                                     <div className="grid grid-cols-2 divide-x divide-slate-100">
                                                         <div className="p-3">
-                                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Input</p>
+                                                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Input</p>
                                                             <pre className="text-xs font-mono text-slate-600 whitespace-pre">{tc.stdin}</pre>
                                                         </div>
                                                         <div className="p-3">
-                                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Expected Output</p>
+                                                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Expected Output</p>
                                                             <pre className="text-xs font-mono text-emerald-700 whitespace-pre">{tc.expectedOutput}</pre>
                                                         </div>
                                                     </div>
@@ -1119,7 +1119,7 @@ export default function HackathonCodeSandbox({
                 <div className="shrink-0 bg-white border-t border-slate-100 px-8 py-5 flex items-center justify-center">
                     <button
                         onClick={() => setFsView('split')}
-                        className="flex items-center gap-3 px-10 py-4 bg-[#4F39F6] text-white rounded-2xl font-black text-base shadow-lg shadow-indigo-200 hover:bg-[#3f2dd1] transition-all active:scale-[0.98]"
+                        className="flex items-center gap-3 px-10 py-4 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-base shadow-lg shadow-indigo-200 hover:bg-[#4338CA] transition-all active:scale-[0.98]"
                     >
                         <Code2 size={18} /> Start Coding
                     </button>
@@ -1140,35 +1140,35 @@ export default function HackathonCodeSandbox({
                         {problem && (
                             <>
                                 <div>
-                                    <h2 className="text-xl font-black text-slate-900">{problem?.title}</h2>
+                                    <h2 className="text-xl font-extrabold text-slate-900">{problem?.title}</h2>
                                     <div className="flex items-center gap-3 mt-2">
-                                        <span className={`px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wide ${difficultyStyle(problem?.difficulty)}`}>{problem?.difficulty}</span>
-                                        <span className="px-3 py-1 bg-indigo-50 text-[#4F39F6] rounded-lg text-xs font-black">{problem?.points} pts</span>
+                                        <span className={`px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wide ${difficultyStyle(problem?.difficulty)}`}>{problem?.difficulty}</span>
+                                        <span className="px-3 py-1 bg-indigo-50 text-[#4F46E5] rounded-lg text-xs font-extrabold">{problem?.points} pts</span>
                                     </div>
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-black text-slate-800 mb-2">Description</h3>
+                                    <h3 className="text-sm font-extrabold text-slate-800 mb-2">Description</h3>
                                     <p className="text-slate-600 font-medium leading-relaxed whitespace-pre-line text-sm" style={{ userSelect: 'text' }}>{problem?.description}</p>
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-black text-slate-800 mb-3">Constraints</h3>
+                                    <h3 className="text-sm font-extrabold text-slate-800 mb-3">Constraints</h3>
                                     <ul className="space-y-2">
                                         {problem?.constraints?.map((c, i) => (
                                             <li key={i} className="flex items-start gap-3 text-sm font-medium text-slate-600">
-                                                <span className="w-5 h-5 rounded-full bg-indigo-50 text-[#4F39F6] flex items-center justify-center text-xs font-black shrink-0 mt-0.5">{i + 1}</span>
+                                                <span className="w-5 h-5 rounded-full bg-indigo-50 text-[#4F46E5] flex items-center justify-center text-xs font-extrabold shrink-0 mt-0.5">{i + 1}</span>
                                                 <span style={{ userSelect: 'text' }}>{c}</span>
                                             </li>
                                         ))}
                                     </ul>
                                 </div>
                                 <div>
-                                    <h3 className="text-sm font-black text-slate-800 mb-3">Examples</h3>
+                                    <h3 className="text-sm font-extrabold text-slate-800 mb-3">Examples</h3>
                                     <div className="space-y-3">
                                         {problem?.examples?.map((ex, i) => (
                                             <div key={i} className="bg-slate-50 rounded-2xl p-4 space-y-1">
-                                                <p className="text-xs font-black text-slate-400 uppercase tracking-wide">Scenario</p>
+                                                <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wide">Scenario</p>
                                                 <p className="text-sm font-bold text-slate-700" style={{ userSelect: 'text' }}>{ex.label}</p>
-                                                <p className="text-xs font-black text-slate-400 uppercase tracking-wide mt-2">Expected Result</p>
+                                                <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wide mt-2">Expected Result</p>
                                                 <p className="text-sm font-bold text-emerald-600" style={{ userSelect: 'text' }}>{ex.result}</p>
                                             </div>
                                         ))}
@@ -1193,7 +1193,7 @@ export default function HackathonCodeSandbox({
                                     </button>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-black">
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-extrabold">
                                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
                                     </span>
                                     <button onClick={() => setShowExitConfirm(true)}
@@ -1223,7 +1223,7 @@ export default function HackathonCodeSandbox({
             <div className="flex items-center gap-1 bg-slate-50 rounded-2xl p-1 w-fit">
                 {(['problem', 'editor'] as const).map(t => (
                     <button key={t} onClick={() => setTab(t)}
-                        className={`px-5 py-2 rounded-xl font-bold text-sm transition-all capitalize ${tab === t ? 'bg-white text-[#4F39F6] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                        className={`px-5 py-2 rounded-xl font-bold text-sm transition-all capitalize ${tab === t ? 'bg-white text-[#4F46E5] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
                         {t === 'problem' ? 'Problem Statement' : 'Code Editor'}
                     </button>
                 ))}
@@ -1234,10 +1234,10 @@ export default function HackathonCodeSandbox({
                 <div className="bg-white border border-slate-100 rounded-3xl p-8 space-y-6">
                     <div className="flex items-start justify-between gap-4">
                         <div>
-                            <h2 className="text-2xl font-black text-slate-900">{problem.title}</h2>
+                            <h2 className="text-2xl font-extrabold text-slate-900">{problem.title}</h2>
                             <div className="flex items-center gap-3 mt-2">
-                                <span className={`px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wide ${difficultyStyle(problem.difficulty)}`}>{problem.difficulty}</span>
-                                <span className="px-3 py-1 bg-indigo-50 text-[#4F39F6] rounded-lg text-xs font-black">{problem.points} pts</span>
+                                <span className={`px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wide ${difficultyStyle(problem.difficulty)}`}>{problem.difficulty}</span>
+                                <span className="px-3 py-1 bg-indigo-50 text-[#4F46E5] rounded-lg text-xs font-extrabold">{problem.points} pts</span>
                             </div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
@@ -1246,34 +1246,34 @@ export default function HackathonCodeSandbox({
                                 <Maximize2 size={14} /> Fullscreen
                             </button>
                             <button onClick={() => setTab('editor')}
-                                className="px-5 py-2.5 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] transition-all">
+                                className="px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all">
                                 Open Editor
                             </button>
                         </div>
                     </div>
                     <div>
-                        <h3 className="text-base font-black text-slate-800 mb-2">Description</h3>
+                        <h3 className="text-base font-extrabold text-slate-800 mb-2">Description</h3>
                         <p className="text-slate-600 font-medium leading-relaxed whitespace-pre-line text-sm">{problem.description}</p>
                     </div>
                     <div>
-                        <h3 className="text-base font-black text-slate-800 mb-3">Constraints</h3>
+                        <h3 className="text-base font-extrabold text-slate-800 mb-3">Constraints</h3>
                         <ul className="space-y-2">
                             {problem?.constraints?.map((c, i) => (
                                 <li key={i} className="flex items-start gap-3 text-sm font-medium text-slate-600">
-                                    <span className="w-5 h-5 rounded-full bg-indigo-50 text-[#4F39F6] flex items-center justify-center text-xs font-black shrink-0 mt-0.5">{i + 1}</span>
+                                    <span className="w-5 h-5 rounded-full bg-indigo-50 text-[#4F46E5] flex items-center justify-center text-xs font-extrabold shrink-0 mt-0.5">{i + 1}</span>
                                     {c}
                                 </li>
                             ))}
                         </ul>
                     </div>
                     <div>
-                        <h3 className="text-base font-black text-slate-800 mb-3">Examples</h3>
+                        <h3 className="text-base font-extrabold text-slate-800 mb-3">Examples</h3>
                         <div className="space-y-3">
                             {problem?.examples?.map((ex, i) => (
                                 <div key={i} className="bg-slate-50 rounded-2xl p-4 space-y-1">
-                                    <p className="text-xs font-black text-slate-400 uppercase tracking-wide">Scenario</p>
+                                    <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wide">Scenario</p>
                                     <p className="text-sm font-bold text-slate-700">{ex.label}</p>
-                                    <p className="text-xs font-black text-slate-400 uppercase tracking-wide mt-2">Expected Result</p>
+                                    <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wide mt-2">Expected Result</p>
                                     <p className="text-sm font-bold text-emerald-600">{ex.result}</p>
                                 </div>
                             ))}
@@ -1282,21 +1282,21 @@ export default function HackathonCodeSandbox({
                     {/* Sample test case preview */}
                     {(problem?.testCases ?? []).filter(tc => !tc.isHidden).length > 0 && (
                         <div>
-                            <h3 className="text-base font-black text-slate-800 mb-3">Sample Test Cases</h3>
+                            <h3 className="text-base font-extrabold text-slate-800 mb-3">Sample Test Cases</h3>
                             <div className="space-y-3">
                                 {(problem?.testCases ?? []).filter(tc => !tc.isHidden).map((tc, i) => (
                                     <div key={tc.id} className="border border-slate-100 rounded-2xl overflow-hidden">
                                         <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-                                            <span className="text-xs font-black text-slate-500">Case {i + 1}</span>
+                                            <span className="text-xs font-extrabold text-slate-500">Case {i + 1}</span>
                                             <span className="text-xs font-medium text-slate-400">{tc.label}</span>
                                         </div>
                                         <div className="grid grid-cols-2 divide-x divide-slate-100">
                                             <div className="p-3">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Input</p>
+                                                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Input</p>
                                                 <pre className="text-xs font-mono text-slate-600 whitespace-pre">{tc.stdin}</pre>
                                             </div>
                                             <div className="p-3">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Expected Output</p>
+                                                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Expected Output</p>
                                                 <pre className="text-xs font-mono text-emerald-700 whitespace-pre">{tc.expectedOutput}</pre>
                                             </div>
                                         </div>
@@ -1323,7 +1323,7 @@ export default function HackathonCodeSandbox({
                                 </button>
                             </div>
                             <div className="flex items-center gap-2">
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-black">
+                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-extrabold">
                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
                                 </span>
                                 <button onClick={enterFullscreen}
@@ -1344,8 +1344,8 @@ export default function HackathonCodeSandbox({
                             onClick={() => setShowTeamPanel(p => !p)}
                         >
                             <div className="flex items-center gap-2">
-                                <MessageSquare size={13} className="text-[#4F39F6]" />
-                                <span className="text-xs font-black text-slate-700">Team Chat</span>
+                                <MessageSquare size={13} className="text-[#4F46E5]" />
+                                <span className="text-xs font-extrabold text-slate-700">Team Chat</span>
                                 {teamMembers.filter(m => m.online).length > 0 && (
                                     <span className="text-xs font-medium text-slate-400">· {teamMembers.filter(m => m.online).length} online</span>
                                 )}

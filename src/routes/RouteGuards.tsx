@@ -7,7 +7,7 @@ const normalizeRole = (role?: string) => (role ?? '').toLowerCase();
 
 const LoadingScreen = () => (
   <div className="h-screen w-full flex items-center justify-center bg-[#F9FAFD]">
-    <Loader2 className="animate-spin text-[#4F39F6]" size={40} />
+    <Loader2 className="animate-spin text-[#4F46E5]" size={40} />
   </div>
 );
 

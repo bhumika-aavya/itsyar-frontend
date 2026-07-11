@@ -78,7 +78,7 @@ export default function AdminCourseDetailPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-24">
-        <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+        <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
       </div>
     );
   }
@@ -88,7 +88,7 @@ export default function AdminCourseDetailPage() {
       <div className="max-w-6xl space-y-5">
         <button
           onClick={() => navigate("/admin/courses")}
-          className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-[#4F39F6] transition-colors"
+          className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-[#4F46E5] transition-colors"
         >
           <ArrowLeft size={15} /> Back to Courses
         </button>
@@ -106,7 +106,7 @@ export default function AdminCourseDetailPage() {
     <div className="max-w-4xl space-y-5">
       <button
         onClick={() => navigate("/admin/courses")}
-        className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-[#4F39F6] transition-colors"
+        className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-[#4F46E5] transition-colors"
       >
         <ArrowLeft size={15} /> Back to Courses
       </button>
@@ -116,14 +116,14 @@ export default function AdminCourseDetailPage() {
           <img src={course.thumbnail} alt={course.title} className="w-full h-56 object-cover" />
         ) : (
           <div className="w-full h-56 bg-indigo-50 flex items-center justify-center">
-            <BookOpen size={48} className="text-[#4F39F6]/30" />
+            <BookOpen size={48} className="text-[#4F46E5]/30" />
           </div>
         )}
 
         <div className="p-8 space-y-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-black text-slate-900">{course.title}</h1>
+              <h1 className="text-2xl font-extrabold text-slate-900">{course.title}</h1>
               <p className="text-sm font-bold text-slate-400 mt-1">
                 {course.instructor ?? course.author ?? "—"}
               </p>
@@ -131,14 +131,14 @@ export default function AdminCourseDetailPage() {
             <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={openEdit}
-                className="flex items-center gap-1.5 px-4 py-2.5 bg-indigo-50 text-[#4F39F6] rounded-xl text-sm font-black hover:bg-indigo-100 transition-all"
+                className="flex items-center gap-1.5 px-4 py-2.5 bg-indigo-50 text-[#4F46E5] rounded-xl text-sm font-extrabold hover:bg-indigo-100 transition-all"
               >
                 <Edit2 size={15} /> Edit
               </button>
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="flex items-center gap-1.5 px-4 py-2.5 bg-red-50 text-red-500 rounded-xl text-sm font-black hover:bg-red-100 transition-all disabled:opacity-50"
+                className="flex items-center gap-1.5 px-4 py-2.5 bg-red-50 text-red-500 rounded-xl text-sm font-extrabold hover:bg-red-100 transition-all disabled:opacity-50"
               >
                 {deleting ? <Loader2 size={15} className="animate-spin" /> : <Trash2 size={15} />} Delete
               </button>
@@ -146,7 +146,7 @@ export default function AdminCourseDetailPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-xs font-black text-[#4F39F6] bg-indigo-50 px-2.5 py-1.5 rounded-lg">
+            <span className="text-xs font-extrabold text-[#4F46E5] bg-indigo-50 px-2.5 py-1.5 rounded-lg">
               {course.level ?? course.difficulty ?? "All levels"}
             </span>
             <span className="flex items-center gap-1.5 text-xs font-bold text-slate-400">
@@ -159,7 +159,7 @@ export default function AdminCourseDetailPage() {
 
           {course.description && (
             <div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Description</p>
+              <p className="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-2">Description</p>
               <p className="text-sm font-medium text-slate-600 leading-relaxed">{course.description}</p>
             </div>
           )}
@@ -172,7 +172,7 @@ export default function AdminCourseDetailPage() {
           <div className="bg-white rounded-[28px] shadow-2xl w-full max-w-lg p-8 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-black text-slate-900">Edit Course</h2>
+                <h2 className="text-xl font-extrabold text-slate-900">Edit Course</h2>
                 <p className="text-sm font-medium text-slate-400 mt-0.5">Update course details</p>
               </div>
               <button
@@ -257,14 +257,14 @@ export default function AdminCourseDetailPage() {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowModal(false)}
-                className="flex-1 py-3 bg-slate-50 text-slate-700 rounded-xl font-black text-sm hover:bg-slate-100 transition-all"
+                className="flex-1 py-3 bg-slate-50 text-slate-700 rounded-xl font-extrabold text-sm hover:bg-slate-100 transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
               >
                 {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
                 {saving ? "Saving…" : "Save Changes"}
@@ -278,12 +278,12 @@ export default function AdminCourseDetailPage() {
 }
 
 const INPUT_CLS =
-  "w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#4F39F6] focus:bg-white transition-all";
+  "w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#3AADDD] focus:bg-white transition-all";
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div>
-      <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 block">
+      <label className="text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-1.5 block">
         {label}{required && <span className="text-red-400 ml-0.5">*</span>}
       </label>
       {children}

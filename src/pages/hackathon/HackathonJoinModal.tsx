@@ -199,7 +199,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                     <>
                         <div className="flex items-center justify-between px-7 pt-7 pb-4">
                             <div>
-                                <h2 className="text-xl font-black text-slate-900">Join {hackathon.title}</h2>
+                                <h2 className="text-xl font-extrabold text-slate-900">Join {hackathon.title}</h2>
                                 <p className="text-sm font-medium text-slate-400 mt-0.5">How would you like to participate?</p>
                             </div>
                             <button onClick={onClose} className="p-2 text-slate-300 hover:text-slate-500 transition-colors rounded-xl">
@@ -210,26 +210,26 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                         <div className="px-7 pb-4 space-y-3">
                             <button
                                 onClick={() => setStep('individual-form')}
-                                className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-slate-100 hover:border-[#4F39F6] hover:bg-indigo-50/30 transition-all text-left group"
+                                className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-slate-100 hover:border-[#3AADDD] hover:bg-indigo-50/30 transition-all text-left group"
                             >
-                                <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F39F6] shrink-0 group-hover:bg-[#4F39F6] group-hover:text-white transition-colors">
+                                <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F46E5] shrink-0 group-hover:bg-[#4F46E5] group-hover:text-white transition-colors">
                                     <User size={22} />
                                 </div>
                                 <div>
-                                    <p className="text-base font-black text-slate-800 group-hover:text-[#4F39F6] transition-colors">Join as Individual</p>
+                                    <p className="text-base font-extrabold text-slate-800 group-hover:text-[#4F46E5] transition-colors">Join as Individual</p>
                                     <p className="text-xs font-bold text-slate-400 mt-0.5">Compete solo — no team required</p>
                                 </div>
                             </button>
 
                             <button
                                 onClick={() => { loadUserTeams(); setStep('team-select'); }}
-                                className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-slate-100 hover:border-[#4F39F6] hover:bg-indigo-50/30 transition-all text-left group"
+                                className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-slate-100 hover:border-[#3AADDD] hover:bg-indigo-50/30 transition-all text-left group"
                             >
-                                <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F39F6] shrink-0 group-hover:bg-[#4F39F6] group-hover:text-white transition-colors">
+                                <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F46E5] shrink-0 group-hover:bg-[#4F46E5] group-hover:text-white transition-colors">
                                     <Users size={22} />
                                 </div>
                                 <div>
-                                    <p className="text-base font-black text-slate-800 group-hover:text-[#4F39F6] transition-colors">Join with a Team</p>
+                                    <p className="text-base font-extrabold text-slate-800 group-hover:text-[#4F46E5] transition-colors">Join with a Team</p>
                                     <p className="text-xs font-bold text-slate-400 mt-0.5">Create a team or join an existing one</p>
                                 </div>
                             </button>
@@ -246,11 +246,11 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                     <>
                         <div className="flex items-center justify-between px-7 pt-7 pb-4">
                             <div className="flex items-center gap-3">
-                                <button onClick={() => setStep('mode-select')} className="p-1.5 text-[#4F39F6] hover:bg-indigo-50 rounded-lg transition-colors">
+                                <button onClick={() => setStep('mode-select')} className="p-1.5 text-[#4F46E5] hover:bg-indigo-50 rounded-lg transition-colors">
                                     <ArrowLeft size={16} />
                                 </button>
                                 <div>
-                                    <h2 className="text-xl font-black text-slate-900">Individual Registration</h2>
+                                    <h2 className="text-xl font-extrabold text-slate-900">Individual Registration</h2>
                                     <p className="text-sm font-medium text-slate-400 mt-0.5">Fill in your details to register solo</p>
                                 </div>
                             </div>
@@ -262,11 +262,11 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                         {/* Hackathon badge */}
                         <div className="px-7 pb-3">
                             <div className="bg-indigo-50/60 border border-indigo-100 rounded-2xl px-4 py-3 flex items-center gap-3">
-                                <div className="w-8 h-8 bg-[#4F39F6] rounded-xl flex items-center justify-center shrink-0">
+                                <div className="w-8 h-8 bg-[#4F46E5] rounded-xl flex items-center justify-center shrink-0">
                                     <Calendar size={15} className="text-white" />
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-xs font-black text-[#4F39F6] truncate">{hackathon.title}</p>
+                                    <p className="text-xs font-extrabold text-[#4F46E5] truncate">{hackathon.title}</p>
                                     <p className="text-[11px] font-bold text-slate-400">{formatDate(hackathon.startDate)} – {formatDate(hackathon.endDate)}</p>
                                 </div>
                             </div>
@@ -275,7 +275,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                         <div className="px-7 pb-2 space-y-4 max-h-[340px] overflow-y-auto">
                             {/* Full Name */}
                             <div>
-                                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">
+                                <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide block mb-1.5">
                                     Full Name <span className="text-red-400">*</span>
                                 </label>
                                 <div className="relative">
@@ -284,7 +284,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                                         value={indForm.fullName}
                                         onChange={e => { setIndForm(p => ({ ...p, fullName: e.target.value })); setIndErrors(p => ({ ...p, fullName: '' })); }}
                                         placeholder="John Doe"
-                                        className={`w-full h-11 bg-slate-50 border rounded-xl pl-9 pr-4 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none transition-all ${indErrors.fullName ? 'border-red-400 bg-red-50/30' : 'border-slate-100 focus:border-[#4F39F6]'}`}
+                                        className={`w-full h-11 bg-slate-50 border rounded-xl pl-9 pr-4 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none transition-all ${indErrors.fullName ? 'border-red-400 bg-red-50/30' : 'border-slate-100 focus:border-[#3AADDD]'}`}
                                     />
                                 </div>
                                 {indErrors.fullName && <p className="text-xs font-bold text-red-500 mt-1">{indErrors.fullName}</p>}
@@ -292,7 +292,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
 
                             {/* Email */}
                             <div>
-                                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">
+                                <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide block mb-1.5">
                                     Email <span className="text-red-400">*</span>
                                 </label>
                                 <input
@@ -300,7 +300,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                                     value={indForm.email}
                                     onChange={e => { setIndForm(p => ({ ...p, email: e.target.value })); setIndErrors(p => ({ ...p, email: '' })); }}
                                     placeholder="john.doe@example.com"
-                                    className={`w-full h-11 bg-slate-50 border rounded-xl px-4 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none transition-all ${indErrors.email ? 'border-red-400 bg-red-50/30' : 'border-slate-100 focus:border-[#4F39F6]'}`}
+                                    className={`w-full h-11 bg-slate-50 border rounded-xl px-4 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none transition-all ${indErrors.email ? 'border-red-400 bg-red-50/30' : 'border-slate-100 focus:border-[#3AADDD]'}`}
                                 />
                                 {indErrors.email && <p className="text-xs font-bold text-red-500 mt-1">{indErrors.email}</p>}
                             </div>
@@ -308,7 +308,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                             {/* Terms & Conditions */}
                             <div>
                                 <label
-                                    className={`flex items-start gap-3 cursor-pointer p-4 rounded-2xl border-2 transition-all ${indErrors.agreeToRules ? 'border-red-200 bg-red-50/30' : indForm.agreeToRules ? 'border-[#4F39F6]/30 bg-indigo-50/40' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'}`}
+                                    className={`flex items-start gap-3 cursor-pointer p-4 rounded-2xl border-2 transition-all ${indErrors.agreeToRules ? 'border-red-200 bg-red-50/30' : indForm.agreeToRules ? 'border-[#4F46E5]/30 bg-indigo-50/40' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50/50'}`}
                                 >
                                     <input
                                         type="checkbox"
@@ -316,14 +316,14 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                                         checked={indForm.agreeToRules}
                                         onChange={e => { setIndForm(p => ({ ...p, agreeToRules: e.target.checked })); setIndErrors(p => ({ ...p, agreeToRules: '' })); }}
                                     />
-                                    <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 mt-0.5 border-2 transition-all ${indForm.agreeToRules ? 'bg-[#4F39F6] border-[#4F39F6]' : 'border-slate-300 bg-white'}`}>
+                                    <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 mt-0.5 border-2 transition-all ${indForm.agreeToRules ? 'bg-[#4F46E5] border-[#4F46E5]' : 'border-slate-300 bg-white'}`}>
                                         {indForm.agreeToRules && <Check size={11} className="text-white" strokeWidth={3} />}
                                     </div>
                                     <span className="text-xs font-bold text-slate-600 leading-relaxed select-none">
                                         I have read and agree to the{' '}
-                                        <span className="text-[#4F39F6] hover:underline underline-offset-2 cursor-pointer">Hackathon Rules</span>
+                                        <span className="text-[#4F46E5] hover:underline underline-offset-2 cursor-pointer">Hackathon Rules</span>
                                         {' '}and{' '}
-                                        <span className="text-[#4F39F6] hover:underline underline-offset-2 cursor-pointer">Terms of Service</span>
+                                        <span className="text-[#4F46E5] hover:underline underline-offset-2 cursor-pointer">Terms of Service</span>
                                     </span>
                                 </label>
                                 {indErrors.agreeToRules && (
@@ -346,7 +346,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                             <button
                                 onClick={handleIndividualRegister}
                                 disabled={submitting}
-                                className="flex-1 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
                             >
                                 {submitting ? <><Loader2 size={16} className="animate-spin" /> Registering...</> : 'Register Now'}
                             </button>
@@ -359,7 +359,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                     <>
                         <div className="flex items-center justify-between px-7 pt-7 pb-4">
                             <div>
-                                <h2 className="text-xl font-black text-slate-900">Join {hackathon.title}</h2>
+                                <h2 className="text-xl font-extrabold text-slate-900">Join {hackathon.title}</h2>
                                 <p className="text-sm font-medium text-slate-400 mt-0.5">Select your team or create a new one</p>
                             </div>
                             <button onClick={onClose} className="p-2 text-slate-300 hover:text-slate-500 transition-colors rounded-xl">
@@ -369,7 +369,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
 
                         <div className="px-7 pb-2 space-y-3 max-h-72 overflow-y-auto">
                             {loading ? (
-                                <div className="flex justify-center py-8"><Loader2 className="animate-spin text-[#4F39F6]" size={28} /></div>
+                                <div className="flex justify-center py-8"><Loader2 className="animate-spin text-[#4F46E5]" size={28} /></div>
                             ) : userTeams.length === 0 ? (
                                 <p className="text-sm text-slate-400 font-medium text-center py-6">You have no teams yet. Create one below.</p>
                             ) : (
@@ -379,25 +379,25 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                                         onClick={() => setSelectedTeamId(team.id)}
                                         className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all text-left ${
                                             selectedTeamId === team.id
-                                                ? 'border-[#4F39F6] bg-indigo-50/50'
+                                                ? 'border-[#4F46E5] bg-indigo-50/50'
                                                 : selectedTeamId !== null
                                                     ? 'border-slate-100 opacity-40 cursor-not-allowed'
                                                     : 'border-slate-100 hover:border-slate-200'
                                         }`}
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F39F6] shrink-0">
+                                            <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F46E5] shrink-0">
                                                 <Users size={18} />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-black text-slate-900">
+                                                <p className="text-sm font-extrabold text-slate-900">
                                                     {team.name}
                                                     {team.leadId === 'current-user' && <span className="text-slate-400 font-bold"> (You)</span>}
                                                 </p>
                                                 <p className="text-xs font-bold text-slate-400">{team.members.length} Members</p>
                                             </div>
                                         </div>
-                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${selectedTeamId === team.id ? 'border-[#4F39F6] bg-[#4F39F6]' : 'border-slate-200'}`}>
+                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${selectedTeamId === team.id ? 'border-[#4F46E5] bg-[#4F46E5]' : 'border-slate-200'}`}>
                                             {selectedTeamId === team.id && <div className="w-2 h-2 rounded-full bg-white" />}
                                         </div>
                                     </button>
@@ -406,16 +406,16 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                         </div>
 
                         <div className="px-7 pt-2 pb-4">
-                            <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Other option</p>
+                            <p className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">Other option</p>
                             <button
                                 onClick={() => { resetCreateForm(); setStep('create-team'); }}
-                                className="w-full flex items-center gap-3 p-4 rounded-2xl border-2 border-dashed border-slate-200 hover:border-[#4F39F6] hover:bg-indigo-50/30 transition-all text-left group"
+                                className="w-full flex items-center gap-3 p-4 rounded-2xl border-2 border-dashed border-slate-200 hover:border-[#3AADDD] hover:bg-indigo-50/30 transition-all text-left group"
                             >
-                                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:text-[#4F39F6] transition-colors shrink-0">
+                                <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:text-[#4F46E5] transition-colors shrink-0">
                                     <Plus size={20} />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-black text-slate-700 group-hover:text-[#4F39F6] transition-colors">Create New Team</p>
+                                    <p className="text-sm font-extrabold text-slate-700 group-hover:text-[#4F46E5] transition-colors">Create New Team</p>
                                     <p className="text-xs font-bold text-slate-400">Build a new team and invite members</p>
                                 </div>
                             </button>
@@ -426,7 +426,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                             <button
                                 onClick={() => selectedTeamId && setStep('confirm')}
                                 disabled={!selectedTeamId}
-                                className="flex-1 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                             >
                                 Continue
                             </button>
@@ -438,7 +438,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                 {step === 'create-team' && (
                     <>
                         <div className="flex items-center justify-between px-7 pt-7 pb-4">
-                            <button onClick={() => setStep('team-select')} className="flex items-center gap-1.5 text-[#4F39F6] font-bold text-sm">
+                            <button onClick={() => setStep('team-select')} className="flex items-center gap-1.5 text-[#4F46E5] font-bold text-sm">
                                 <ArrowLeft size={16} /> Back
                             </button>
                             <button onClick={onClose} className="p-2 text-slate-300 hover:text-slate-500 transition-colors rounded-xl">
@@ -447,37 +447,37 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                         </div>
 
                         <div className="px-7 pb-2">
-                            <h2 className="text-xl font-black text-slate-900">Create New Team</h2>
+                            <h2 className="text-xl font-extrabold text-slate-900">Create New Team</h2>
                             <p className="text-sm font-medium text-slate-400 mt-0.5">Assemble your squad for the hackathon</p>
                         </div>
 
                         <div className="px-7 pb-4 space-y-4 max-h-80 overflow-y-auto">
                             <div>
-                                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">Team Name</label>
+                                <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide block mb-1.5">Team Name</label>
                                 <input
                                     value={teamName}
                                     onChange={e => setTeamName(e.target.value)}
                                     placeholder="e.g. Neural Ninjas"
-                                    className={`w-full h-12 bg-slate-50 border rounded-xl px-4 text-sm font-medium outline-none transition-all ${formErrors.teamName ? 'border-red-400' : 'border-slate-100 focus:border-[#4F39F6]'}`}
+                                    className={`w-full h-12 bg-slate-50 border rounded-xl px-4 text-sm font-medium outline-none transition-all ${formErrors.teamName ? 'border-red-400' : 'border-slate-100 focus:border-[#3AADDD]'}`}
                                 />
                                 {formErrors.teamName && <p className="text-xs font-bold text-red-500 mt-1">{formErrors.teamName}</p>}
                             </div>
 
                             <div>
-                                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">Team Description</label>
+                                <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide block mb-1.5">Team Description</label>
                                 <textarea
                                     value={teamDesc}
                                     onChange={e => setTeamDesc(e.target.value)}
                                     rows={3}
                                     placeholder="Briefly describe your team's focus or goals..."
-                                    className={`w-full bg-slate-50 border rounded-xl px-4 py-3 text-sm font-medium outline-none transition-all resize-none ${formErrors.teamDesc ? 'border-red-400' : 'border-slate-100 focus:border-[#4F39F6]'}`}
+                                    className={`w-full bg-slate-50 border rounded-xl px-4 py-3 text-sm font-medium outline-none transition-all resize-none ${formErrors.teamDesc ? 'border-red-400' : 'border-slate-100 focus:border-[#3AADDD]'}`}
                                 />
                                 {formErrors.teamDesc && <p className="text-xs font-bold text-red-500 mt-1">{formErrors.teamDesc}</p>}
                             </div>
 
                             <div>
                                 <div className="flex items-center justify-between mb-1.5">
-                                    <label className="text-xs font-black text-slate-700 uppercase tracking-wide">Add Members</label>
+                                    <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide">Add Members</label>
                                     <span className="text-xs font-bold text-slate-400">{inviteEmails.length}/3 Members</span>
                                 </div>
                                 <div className="flex gap-2">
@@ -486,12 +486,12 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                                         onChange={e => setInviteInput(e.target.value)}
                                         onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddInvite())}
                                         placeholder="Enter their email"
-                                        className={`flex-1 h-12 bg-slate-50 border rounded-xl px-4 text-sm font-medium outline-none transition-all ${formErrors.invite ? 'border-red-400' : 'border-slate-100 focus:border-[#4F39F6]'}`}
+                                        className={`flex-1 h-12 bg-slate-50 border rounded-xl px-4 text-sm font-medium outline-none transition-all ${formErrors.invite ? 'border-red-400' : 'border-slate-100 focus:border-[#3AADDD]'}`}
                                     />
                                     <button
                                         type="button"
                                         onClick={handleAddInvite}
-                                        className="px-4 h-12 bg-[#4F39F6] text-white rounded-xl font-bold text-sm hover:bg-[#3f2dd1] transition-all shrink-0"
+                                        className="px-4 h-12 bg-[#4F46E5] text-white rounded-xl font-bold text-sm hover:bg-[#4338CA] transition-all shrink-0"
                                     >
                                         + Add
                                     </button>
@@ -502,7 +502,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                                     <div className="mt-2 space-y-1.5">
                                         {inviteEmails.map(email => (
                                             <div key={email} className="flex items-center justify-between bg-indigo-50 px-3 py-2 rounded-xl">
-                                                <span className="text-xs font-bold text-[#4F39F6]">{email}</span>
+                                                <span className="text-xs font-bold text-[#4F46E5]">{email}</span>
                                                 <button onClick={() => setInviteEmails(p => p.filter(e => e !== email))} className="text-slate-400 hover:text-red-500 transition-colors">
                                                     <Trash2 size={14} />
                                                 </button>
@@ -524,7 +524,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                             <button
                                 onClick={handleCreateTeam}
                                 disabled={submitting}
-                                className="flex-1 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
                             >
                                 {submitting ? <><Loader2 size={16} className="animate-spin" /> Creating...</> : 'Create Team'}
                             </button>
@@ -539,14 +539,14 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                             <CheckCircle2 size={36} className="text-emerald-500" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-black text-slate-900">Team Created Successfully!</h2>
+                            <h2 className="text-2xl font-extrabold text-slate-900">Team Created Successfully!</h2>
                             <p className="text-sm font-medium text-slate-400 mt-1">
                                 Welcome aboard, <span className="font-bold text-slate-600">{joinedTeam?.name}</span>. Your collaboration hub is ready.
                             </p>
                         </div>
                         <button
                             onClick={() => setStep('confirm')}
-                            className="w-full py-3.5 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] transition-all mt-2"
+                            className="w-full py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all mt-2"
                         >
                             Go to Hackathon
                         </button>
@@ -557,7 +557,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                 {step === 'confirm' && (
                     <>
                         <div className="flex items-center justify-between px-7 pt-7 pb-4">
-                            <button onClick={() => setStep('team-select')} className="flex items-center gap-1.5 text-[#4F39F6] font-bold text-sm">
+                            <button onClick={() => setStep('team-select')} className="flex items-center gap-1.5 text-[#4F46E5] font-bold text-sm">
                                 <ArrowLeft size={16} /> Back
                             </button>
                             <button onClick={onClose} className="p-2 text-slate-300 hover:text-slate-500 transition-colors rounded-xl">
@@ -566,29 +566,29 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                         </div>
 
                         <div className="px-7 pb-2">
-                            <h2 className="text-xl font-black text-slate-900">Confirm Join</h2>
+                            <h2 className="text-xl font-extrabold text-slate-900">Confirm Join</h2>
                             <p className="text-sm font-medium text-slate-400 mt-0.5">You are about to join</p>
                         </div>
 
                         <div className="px-7 pb-6 space-y-3">
                             <div className="bg-slate-50 rounded-2xl p-4 flex items-center gap-3">
-                                <div className="w-10 h-10 bg-[#4F39F6] rounded-xl flex items-center justify-center shrink-0">
+                                <div className="w-10 h-10 bg-[#4F46E5] rounded-xl flex items-center justify-center shrink-0">
                                     <Calendar size={18} className="text-white" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-black text-slate-900">{hackathon.title}</p>
+                                    <p className="text-sm font-extrabold text-slate-900">{hackathon.title}</p>
                                     <p className="text-xs font-bold text-slate-400">{formatDate(hackathon.startDate)} – {formatDate(hackathon.endDate)}</p>
                                 </div>
                             </div>
 
                             <div className="bg-slate-50 rounded-2xl p-4">
-                                <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2">Team</p>
+                                <p className="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">Team</p>
                                 <div className="flex items-center gap-3">
                                     <div className="w-9 h-9 bg-indigo-100 rounded-xl flex items-center justify-center shrink-0">
-                                        <Users size={16} className="text-[#4F39F6]" />
+                                        <Users size={16} className="text-[#4F46E5]" />
                                     </div>
                                     <div>
-                                        <p className="text-sm font-black text-slate-900">{selectedTeam?.name}</p>
+                                        <p className="text-sm font-extrabold text-slate-900">{selectedTeam?.name}</p>
                                         <p className="text-xs font-bold text-slate-400">{selectedTeam?.members.length} Members</p>
                                     </div>
                                 </div>
@@ -606,7 +606,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                             <button
                                 onClick={handleConfirmJoin}
                                 disabled={submitting}
-                                className="flex-1 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
                             >
                                 {submitting ? <><Loader2 size={16} className="animate-spin" /> Joining...</> : 'Confirm Join'}
                             </button>
@@ -621,7 +621,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                             <CheckCircle2 size={36} className="text-emerald-500" />
                         </div>
                         <div>
-                            <h2 className="text-2xl font-black text-slate-900">
+                            <h2 className="text-2xl font-extrabold text-slate-900">
                                 {joinedTeam ? 'Successfully Joined!' : 'Registration Successful!'}
                             </h2>
                             <p className="text-sm font-medium text-slate-400 mt-1">
@@ -633,7 +633,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                         </div>
                         <button
                             onClick={onClose}
-                            className="w-full py-3.5 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] transition-all mt-2"
+                            className="w-full py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all mt-2"
                         >
                             {joinedTeam ? 'Go to Dashboard' : 'View Hackathon'}
                         </button>

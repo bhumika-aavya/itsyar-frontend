@@ -103,7 +103,7 @@ export default function AdminCoursesPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-24">
-        <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+        <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
       </div>
     );
   }
@@ -113,12 +113,12 @@ export default function AdminCoursesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black text-slate-900">Courses</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900">Courses</h1>
           <p className="text-sm font-medium text-slate-400 mt-0.5">{courses.length} courses on the platform</p>
         </div>
         <button
           onClick={openAdd}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#4F39F6] text-white rounded-xl text-sm font-black shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#4F46E5] text-white rounded-xl text-sm font-extrabold shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all"
         >
           <Plus size={16} /> Add Course
         </button>
@@ -131,7 +131,7 @@ export default function AdminCoursesPage() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search courses..."
-          className="w-full h-10 pl-9 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#4F39F6]"
+          className="w-full h-10 pl-9 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#3AADDD]"
         />
       </div>
 
@@ -155,16 +155,16 @@ export default function AdminCoursesPage() {
                 <img src={course.thumbnail} alt={course.title} className="w-full h-36 object-cover" />
               ) : (
                 <div className="w-full h-36 bg-indigo-50 flex items-center justify-center">
-                  <BookOpen size={32} className="text-[#4F39F6]/30" />
+                  <BookOpen size={32} className="text-[#4F46E5]/30" />
                 </div>
               )}
               <div className="p-5 space-y-3">
                 <div>
-                  <p className="font-black text-slate-900 leading-snug">{course.title}</p>
+                  <p className="font-extrabold text-slate-900 leading-snug">{course.title}</p>
                   <p className="text-xs font-bold text-slate-400 mt-1">{course.instructor ?? course.author ?? "—"}</p>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-black text-[#4F39F6] bg-indigo-50 px-2.5 py-1 rounded-lg">
+                  <span className="text-xs font-extrabold text-[#4F46E5] bg-indigo-50 px-2.5 py-1 rounded-lg">
                     {course.level ?? course.difficulty ?? "All levels"}
                   </span>
                   <span className="text-xs font-bold text-slate-400">{course.enrolled ?? 0} enrolled</span>
@@ -172,14 +172,14 @@ export default function AdminCoursesPage() {
                 <div className="flex gap-2 pt-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={e => { e.stopPropagation(); openEdit(course); }}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-slate-50 text-slate-600 rounded-xl text-xs font-black hover:bg-indigo-50 hover:text-[#4F39F6] transition-all"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-slate-50 text-slate-600 rounded-xl text-xs font-extrabold hover:bg-indigo-50 hover:text-[#4F46E5] transition-all"
                   >
                     <Edit2 size={13} /> Edit
                   </button>
                   <button
                     onClick={e => { e.stopPropagation(); handleDelete(course.id); }}
                     disabled={deletingId === course.id}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-slate-50 text-red-400 rounded-xl text-xs font-black hover:bg-red-50 transition-all disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-slate-50 text-red-400 rounded-xl text-xs font-extrabold hover:bg-red-50 transition-all disabled:opacity-50"
                   >
                     {deletingId === course.id ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
                     Delete
@@ -197,7 +197,7 @@ export default function AdminCoursesPage() {
           <div className="bg-white rounded-[28px] shadow-2xl w-full max-w-lg p-8 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-black text-slate-900">{editingId ? "Edit Course" : "Add Course"}</h2>
+                <h2 className="text-xl font-extrabold text-slate-900">{editingId ? "Edit Course" : "Add Course"}</h2>
                 <p className="text-sm font-medium text-slate-400 mt-0.5">
                   {editingId ? "Update course details" : "Create a new course on the platform"}
                 </p>
@@ -287,14 +287,14 @@ export default function AdminCoursesPage() {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowModal(false)}
-                className="flex-1 py-3 bg-slate-50 text-slate-700 rounded-xl font-black text-sm hover:bg-slate-100 transition-all"
+                className="flex-1 py-3 bg-slate-50 text-slate-700 rounded-xl font-extrabold text-sm hover:bg-slate-100 transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
               >
                 {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
                 {saving ? "Saving…" : editingId ? "Save Changes" : "Create Course"}
@@ -308,12 +308,12 @@ export default function AdminCoursesPage() {
 }
 
 const INPUT_CLS =
-  "w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#4F39F6] focus:bg-white transition-all";
+  "w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#3AADDD] focus:bg-white transition-all";
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div>
-      <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 block">
+      <label className="text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-1.5 block">
         {label}{required && <span className="text-red-400 ml-0.5">*</span>}
       </label>
       {children}

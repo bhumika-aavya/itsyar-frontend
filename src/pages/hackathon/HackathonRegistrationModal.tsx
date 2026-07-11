@@ -34,7 +34,7 @@ export default function HackathonRegistrationModal({ isOpen, onClose, hackathonD
 
                 {/* Fixed Header */}
                 <div className="px-10 py-5 border-b border-slate-50 flex justify-between items-center bg-white">
-                    <button onClick={onClose} className="flex items-center gap-2 text-[#4F39F6] font-bold text-xs uppercase tracking-wider">
+                    <button onClick={onClose} className="flex items-center gap-2 text-[#4F46E5] font-bold text-xs uppercase tracking-wider">
                         <ChevronLeft size={18} /> Back to {hackathonData.title}
                     </button>
                     <button onClick={onClose} className="p-2 text-slate-300 hover:text-slate-500 transition-colors">
@@ -48,7 +48,7 @@ export default function HackathonRegistrationModal({ isOpen, onClose, hackathonD
                     {/* Left: Form Content */}
                     <div className="flex-1 p-10 space-y-10">
                         <div className="space-y-2">
-                            <h2 className="text-[42px] font-black text-slate-900 tracking-tight leading-[1.1]">
+                            <h2 className="text-[42px] font-extrabold text-slate-900 tracking-tight leading-[1.1]">
                                 Register for {hackathonData.title}
                             </h2>
                             <p className="text-[15px] font-medium text-slate-500">
@@ -59,19 +59,19 @@ export default function HackathonRegistrationModal({ isOpen, onClose, hackathonD
                         {/* Team Info Section */}
                         <div className="space-y-4">
                             <h3 className="text-base font-bold text-slate-800">Team Information</h3>
-                            <div className="bg-white border-2 border-[#4F39F6]/40 p-6 rounded-[24px] flex items-center justify-between">
+                            <div className="bg-white border-2 border-[#4F46E5]/40 p-6 rounded-[24px] flex items-center justify-between">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F39F6]">
+                                    <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F46E5]">
                                         <Users size={24} />
                                     </div>
                                     <div>
-                                        <p className="text-[17px] font-black text-slate-900">Team Neural Ninjas V2</p>
+                                        <p className="text-[17px] font-extrabold text-slate-900">Team Neural Ninjas V2</p>
                                         <p className="text-sm font-bold text-slate-400">4 members</p>
                                     </div>
                                 </div>
-                                <span className="px-4 py-1.5 bg-[#4F39F6] text-white text-[10px] font-black uppercase tracking-widest rounded-lg">Team Lead</span>
+                                <span className="px-4 py-1.5 bg-[#4F46E5] text-white text-[10px] font-extrabold uppercase tracking-widest rounded-lg">Team Lead</span>
                             </div>
-                            <button type="button" className="text-xs font-bold text-slate-500 hover:text-[#4F39F6] underline ml-1">Change Team</button>
+                            <button type="button" className="text-xs font-bold text-slate-500 hover:text-[#4F46E5] underline ml-1">Change Team</button>
                         </div>
 
                         {/* Participant Details */}
@@ -83,7 +83,7 @@ export default function HackathonRegistrationModal({ isOpen, onClose, hackathonD
                                     <label className="text-[13px] font-bold text-slate-700 ml-1 mb-1.5">Full Name</label>
                                     <input
                                         {...register("fullName")}
-                                        className={`h-14 w-full bg-slate-50/50 border rounded-xl px-5 text-sm font-medium outline-none transition-all ${errors.fullName ? "border-red-400 focus:border-red-400" : "border-slate-100 focus:border-[#4F39F6]"
+                                        className={`h-14 w-full bg-slate-50/50 border rounded-xl px-5 text-sm font-medium outline-none transition-all ${errors.fullName ? "border-red-400 focus:border-red-400" : "border-slate-100 focus:border-[#3AADDD]"
                                             }`}
                                         placeholder="John Doe"
                                     />
@@ -99,7 +99,7 @@ export default function HackathonRegistrationModal({ isOpen, onClose, hackathonD
                                     <label className="text-[13px] font-bold text-slate-700 ml-1 mb-1.5">Email Address</label>
                                     <input
                                         {...register("email")}
-                                        className={`h-14 w-full bg-slate-50/50 border rounded-xl px-5 text-sm font-medium outline-none transition-all ${errors.email ? "border-red-400 focus:border-red-400" : "border-slate-100 focus:border-[#4F39F6]"
+                                        className={`h-14 w-full bg-slate-50/50 border rounded-xl px-5 text-sm font-medium outline-none transition-all ${errors.email ? "border-red-400 focus:border-red-400" : "border-slate-100 focus:border-[#3AADDD]"
                                             }`}
                                         placeholder="john.doe@example.com"
                                     />
@@ -118,7 +118,7 @@ export default function HackathonRegistrationModal({ isOpen, onClose, hackathonD
                                     <input
                                         type="checkbox"
                                         {...register("agreeToRules")}
-                                        className="w-5 h-5 rounded border-slate-300 text-[#4F39F6] focus:ring-0 cursor-pointer"
+                                        className="w-5 h-5 rounded border-slate-300 text-[#4F46E5] focus:ring-0 cursor-pointer"
                                     />
                                     <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">
                                         I agree to the hackathon rules and code of conduct
@@ -134,7 +134,7 @@ export default function HackathonRegistrationModal({ isOpen, onClose, hackathonD
                                 <label className="flex items-center gap-3 cursor-pointer group">
                                     <input
                                         type="checkbox"
-                                        className="w-5 h-5 rounded border-slate-300 text-[#4F39F6] focus:ring-0 cursor-pointer"
+                                        className="w-5 h-5 rounded border-slate-300 text-[#4F46E5] focus:ring-0 cursor-pointer"
                                     />
                                     <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900 transition-colors">
                                         I consent to my team details being visible to organizers
@@ -158,7 +158,7 @@ export default function HackathonRegistrationModal({ isOpen, onClose, hackathonD
                             <div className="h-px bg-slate-200" />
                             <div className="flex justify-between items-center">
                                 <span className="text-lg font-bold text-slate-800">Total Cost</span>
-                                <span className="text-[32px] font-black text-[#10B981] tracking-tighter">Free</span>
+                                <span className="text-[32px] font-extrabold text-[#10B981] tracking-tighter">Free</span>
                             </div>
                         </div>
 
@@ -166,7 +166,7 @@ export default function HackathonRegistrationModal({ isOpen, onClose, hackathonD
                             <button
                                 type="button"
                                 onClick={handleSubmit(onSubmit)}
-                                className="w-full py-4 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-xl shadow-indigo-100 hover:bg-[#3f2dd1] transition-all"
+                                className="w-full py-4 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 hover:bg-[#4338CA] transition-all"
                             >
                                 {isSubmitting ? <Loader2 className="animate-spin" /> : "Confirm Registration"}
                             </button>
@@ -180,7 +180,7 @@ export default function HackathonRegistrationModal({ isOpen, onClose, hackathonD
                     <span className="text-sm font-bold text-slate-900">Team Neural Ninjas V2 (You)</span>
                     <div className="flex gap-4">
                         <button type="button" onClick={onClose} className="px-10 py-3 bg-white border border-slate-200 rounded-xl font-bold text-xs text-slate-600 hover:bg-slate-50">Cancel</button>
-                        <button type="button" onClick={handleSubmit(onSubmit)} className="px-10 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-xs shadow-lg shadow-indigo-100">Confirm Registration</button>
+                        <button type="button" onClick={handleSubmit(onSubmit)} className="px-10 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-xs shadow-lg shadow-indigo-100">Confirm Registration</button>
                     </div>
                 </div>
             </div>
@@ -191,6 +191,6 @@ export default function HackathonRegistrationModal({ isOpen, onClose, hackathonD
 const SummaryRow = ({ label, value }: { label: string, value: string }) => (
     <div className="flex justify-between items-center">
         <span className="text-[13px] font-bold text-slate-400">{label}</span>
-        <span className="text-[13px] font-black text-slate-700">{value}</span>
+        <span className="text-[13px] font-extrabold text-slate-700">{value}</span>
     </div>
 );

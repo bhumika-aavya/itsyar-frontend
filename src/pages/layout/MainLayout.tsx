@@ -10,7 +10,7 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }: any) => (
   <button
     onClick={onClick}
     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm ${active
-      ? "bg-[#4F39F6] text-white shadow-lg shadow-indigo-100"
+      ? "bg-[#4F46E5] text-white shadow-lg shadow-indigo-100"
       : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
       }`}
   >
@@ -59,7 +59,7 @@ export default function MainLayout() {
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-slate-100 p-6 flex flex-col sticky top-0 h-screen">
         <div className="flex items-center gap-2 mb-10 px-2 cursor-pointer" onClick={() => navigate('/dashboard')}>
-          <div className="bg-[#4F39F6] p-1.5 rounded-lg">
+          <div className="bg-[#4F46E5] p-1.5 rounded-lg">
             <Zap className="text-white fill-white" size={20} />
           </div>
           <span className="text-xl font-bold tracking-tight">ForgeInsight</span>
@@ -80,7 +80,7 @@ export default function MainLayout() {
           <div className="pt-4 border-t border-slate-100">
             <button
               onClick={() => navigate('/admin')}
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#4F39F6] hover:bg-indigo-50 transition-all"
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#4F46E5] hover:bg-indigo-50 transition-all"
             >
               <Shield size={16} />
               Admin Panel
@@ -97,7 +97,7 @@ export default function MainLayout() {
             <input
               type="text"
               placeholder="Search courses..."
-              className="w-full h-11 bg-[#F5F6FA] border-none rounded-xl pl-12 pr-4 text-sm focus:ring-2 focus:ring-[#4F39F6]/20 transition-all"
+              className="w-full h-11 bg-[#F5F6FA] border-none rounded-xl pl-12 pr-4 text-sm focus:ring-2 focus:ring-[#3AADDD]/20 transition-all"
             />
           </div>
 
@@ -109,7 +109,7 @@ export default function MainLayout() {
             >
               <div className="w-10 h-10 rounded-full bg-indigo-50 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center">
                 {/* Fallback to first letter if no image */}
-                <span className="text-[#4F39F6] font-black text-sm uppercase">
+                <span className="text-[#4F46E5] font-extrabold text-sm uppercase">
                   {user?.fullName?.charAt(0) || "U"}
                 </span>
               </div>
@@ -137,14 +137,14 @@ export default function MainLayout() {
 
                 <button
                   onClick={() => { navigate('/profile'); setIsDropdownOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#4F39F6] transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#4F46E5] transition-colors"
                 >
                   <User size={16} /> My Profile
                 </button>
 
                 <button
                   onClick={() => setIsDropdownOpen(false)}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#4F39F6] transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#4F46E5] transition-colors"
                 >
                   <Settings size={16} /> Settings
                 </button>

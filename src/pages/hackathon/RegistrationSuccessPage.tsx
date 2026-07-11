@@ -72,14 +72,14 @@ export default function RegistrationSuccessPage() {
         <div className="relative mb-6 flex items-center justify-center w-32 h-32">
           <div className="absolute inset-0 rounded-full bg-indigo-50" />
           <div className="absolute inset-4 rounded-full bg-indigo-100" />
-          <div className="relative w-20 h-20 rounded-full bg-[#4F39F6] flex items-center justify-center shadow-2xl shadow-indigo-300">
+          <div className="relative w-20 h-20 rounded-full bg-[#4F46E5] flex items-center justify-center shadow-2xl shadow-indigo-300">
             <CheckCircle2 size={40} className="text-white" strokeWidth={2} />
           </div>
           <span className="absolute -top-1 -right-0 text-lg">✨</span>
           <div className="absolute top-3 -left-2 w-2.5 h-2.5 rounded-full bg-indigo-300" />
           <div className="absolute -bottom-1 right-5 w-2 h-2 rounded-full bg-yellow-400" />
         </div>
-        <h1 className="text-3xl font-black text-slate-900">You're Registered! 🎉</h1>
+        <h1 className="text-3xl font-extrabold text-slate-900">You're Registered! 🎉</h1>
         <p className="text-slate-500 font-medium mt-2 max-w-md leading-relaxed">
           Your registration for{' '}
           <span className="font-bold text-slate-700">{hackathonTitle}</span> has been confirmed.
@@ -100,26 +100,26 @@ export default function RegistrationSuccessPage() {
       {/* Countdown */}
       {countdown && (
         <div className="flex items-center justify-between bg-indigo-50 border border-indigo-100 rounded-2xl px-6 py-4 mb-6">
-          <div className="flex items-center gap-2 text-sm font-bold text-[#4F39F6]">
+          <div className="flex items-center gap-2 text-sm font-bold text-[#4F46E5]">
             <Clock size={16} />
             {countdown === 'Live now!' ? 'Hackathon is live!' : 'Hackathon starts in'}
           </div>
-          <span className="text-sm font-black text-[#4F39F6] tabular-nums">{countdown}</span>
+          <span className="text-sm font-extrabold text-[#4F46E5] tabular-nums">{countdown}</span>
         </div>
       )}
 
       {/* What's Next? */}
-      <h2 className="text-xl font-black text-slate-800 mb-4">What's Next?</h2>
+      <h2 className="text-xl font-extrabold text-slate-800 mb-4">What's Next?</h2>
       <div className="grid md:grid-cols-3 gap-4 mb-8">
         <NextCard
-          icon={<MessageSquare size={22} className="text-[#4F39F6]" />}
+          icon={<MessageSquare size={22} className="text-[#4F46E5]" />}
           title="Join Team Channel"
           desc="Connect with your team on the discussion board"
           action="Open Channel"
           onAction={() => navigate(`/hackathons/${id}`, { state: { openTab: 'Teams' } })}
         />
         <NextCard
-          icon={<FileText size={22} className="text-[#4F39F6]" />}
+          icon={<FileText size={22} className="text-[#4F46E5]" />}
           title="Review Problem Statement"
           desc={isLive ? 'Problem statement is live — open the sandbox to read it.' : `Problem statement goes live on ${formattedDate}`}
           action={isLive ? 'Open Problem' : 'View Hackathon'}
@@ -129,7 +129,7 @@ export default function RegistrationSuccessPage() {
           }
         />
         <NextCard
-          icon={<UserPlus size={22} className="text-[#4F39F6]" />}
+          icon={<UserPlus size={22} className="text-[#4F46E5]" />}
           title="Invite Team Members"
           desc="Make sure all members have joined the hackathon"
           action="Invite Now"
@@ -144,7 +144,7 @@ export default function RegistrationSuccessPage() {
             onClick={() => navigate(`/hackathons/${id}/sandbox`, {
               state: { hackathonStatus: 'Running', hackathonEndDate: endDate },
             })}
-            className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-sm shadow-xl shadow-emerald-100 hover:bg-emerald-600 transition-all flex items-center justify-center gap-2"
+            className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-emerald-100 hover:bg-emerald-600 transition-all flex items-center justify-center gap-2"
           >
             <Play size={16} fill="white" /> Start Hackathon Now
           </button>
@@ -152,7 +152,7 @@ export default function RegistrationSuccessPage() {
 
         <button
           onClick={() => navigate(`/hackathons/${id}`)}
-          className="w-full py-4 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-xl shadow-indigo-200 hover:bg-[#3f2dd1] transition-all"
+          className="w-full py-4 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-200 hover:bg-[#4338CA] transition-all"
         >
           View Hackathon
         </button>
@@ -160,15 +160,15 @@ export default function RegistrationSuccessPage() {
         {startDate && endDate && (
           <button
             onClick={addToCalendar}
-            className="w-full py-4 bg-white border-2 border-slate-100 text-slate-700 rounded-2xl font-black text-sm hover:border-[#4F39F6]/30 hover:bg-indigo-50/30 transition-all flex items-center justify-center gap-2"
+            className="w-full py-4 bg-white border-2 border-slate-100 text-slate-700 rounded-2xl font-extrabold text-sm hover:border-[#3AADDD]/30 hover:bg-indigo-50/30 transition-all flex items-center justify-center gap-2"
           >
-            <CalendarPlus size={16} className="text-[#4F39F6]" /> Add to Google Calendar
+            <CalendarPlus size={16} className="text-[#4F46E5]" /> Add to Google Calendar
           </button>
         )}
 
         <button
           onClick={() => navigate('/hackathons')}
-          className="text-sm font-bold text-[#4F39F6] hover:underline underline-offset-2"
+          className="text-sm font-bold text-[#4F46E5] hover:underline underline-offset-2"
         >
           Back to Hackathons List
         </button>
@@ -184,10 +184,10 @@ function InfoBox({
 }) {
   return (
     <div className={`p-4 text-center ${divider ? 'border-l border-slate-100' : ''}`}>
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">{label}</p>
+      <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">{label}</p>
       <div className="flex items-center justify-center gap-1.5">
         {icon}
-        <p className="text-sm font-black text-slate-900 leading-tight truncate">{value}</p>
+        <p className="text-sm font-extrabold text-slate-900 leading-tight truncate">{value}</p>
       </div>
     </div>
   );
@@ -204,12 +204,12 @@ function NextCard({
         {icon}
       </div>
       <div className="flex-1">
-        <p className="text-sm font-black text-slate-800">{title}</p>
+        <p className="text-sm font-extrabold text-slate-800">{title}</p>
         <p className="text-xs font-medium text-slate-400 mt-0.5 leading-relaxed">{desc}</p>
       </div>
       <button
         onClick={onAction}
-        className="w-full py-2 border border-slate-200 rounded-xl text-xs font-black text-slate-700 hover:border-[#4F39F6] hover:text-[#4F39F6] transition-all"
+        className="w-full py-2 border border-slate-200 rounded-xl text-xs font-extrabold text-slate-700 hover:border-[#3AADDD] hover:text-[#4F46E5] transition-all"
       >
         {action}
       </button>

@@ -94,7 +94,7 @@ export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Prop
               <CheckCircle2 size={36} className="text-emerald-500" />
             </div>
             <div>
-              <h2 className="text-2xl font-black text-slate-900">Team Created!</h2>
+              <h2 className="text-2xl font-extrabold text-slate-900">Team Created!</h2>
               <p className="text-sm font-medium text-slate-400 mt-1">
                 Your team <span className="font-bold text-slate-600">{teamName}</span> is ready for the hackathon.
               </p>
@@ -105,7 +105,7 @@ export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Prop
             {/* Header */}
             <div className="flex items-center justify-between px-7 pt-7 pb-4">
               <div>
-                <h2 className="text-xl font-black text-slate-900">Create New Team</h2>
+                <h2 className="text-xl font-extrabold text-slate-900">Create New Team</h2>
                 <p className="text-sm font-medium text-slate-400 mt-0.5">Assemble your squad for a hackathon</p>
               </div>
               <button
@@ -119,7 +119,7 @@ export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Prop
             <div className="px-7 pb-4 space-y-4 max-h-[420px] overflow-y-auto">
               {/* Hackathon Select */}
               <div>
-                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">
+                <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide block mb-1.5">
                   Select Hackathon <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
@@ -131,7 +131,7 @@ export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Prop
                     }}
                     className={`w-full h-12 bg-slate-50 border rounded-xl px-4 pr-10 text-sm font-medium
                       outline-none transition-all appearance-none cursor-pointer
-                      ${errors.hackathon ? 'border-red-400 bg-red-50/30' : 'border-slate-100 focus:border-[#4F39F6]'}`}
+                      ${errors.hackathon ? 'border-red-400 bg-red-50/30' : 'border-slate-100 focus:border-[#3AADDD]'}`}
                   >
                     <option value="">Choose a hackathon...</option>
                     {hackathons.map((h) => (
@@ -152,7 +152,7 @@ export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Prop
 
               {/* Team Name */}
               <div>
-                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">
+                <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide block mb-1.5">
                   Team Name <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -161,7 +161,7 @@ export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Prop
                   placeholder="e.g. Neural Ninjas"
                   className={`w-full h-12 bg-slate-50 border rounded-xl px-4 text-sm font-medium
                     outline-none transition-all
-                    ${errors.teamName ? 'border-red-400 bg-red-50/30' : 'border-slate-100 focus:border-[#4F39F6]'}`}
+                    ${errors.teamName ? 'border-red-400 bg-red-50/30' : 'border-slate-100 focus:border-[#3AADDD]'}`}
                 />
                 {errors.teamName && (
                   <p className="flex items-center gap-1 text-xs font-bold text-red-500 mt-1">
@@ -172,7 +172,7 @@ export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Prop
 
               {/* Team Description */}
               <div>
-                <label className="text-xs font-black text-slate-700 uppercase tracking-wide block mb-1.5">
+                <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide block mb-1.5">
                   Team Description <span className="text-red-400">*</span>
                 </label>
                 <textarea
@@ -182,7 +182,7 @@ export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Prop
                   placeholder="Describe your team's focus or what skills you're looking for..."
                   className={`w-full bg-slate-50 border rounded-xl px-4 py-3 text-sm font-medium
                     outline-none transition-all resize-none
-                    ${errors.teamDesc ? 'border-red-400 bg-red-50/30' : 'border-slate-100 focus:border-[#4F39F6]'}`}
+                    ${errors.teamDesc ? 'border-red-400 bg-red-50/30' : 'border-slate-100 focus:border-[#3AADDD]'}`}
                 />
                 {errors.teamDesc && (
                   <p className="flex items-center gap-1 text-xs font-bold text-red-500 mt-1">
@@ -194,7 +194,7 @@ export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Prop
               {/* Invite Members */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-black text-slate-700 uppercase tracking-wide">
+                  <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide">
                     Invite Members
                   </label>
                   <span className="text-xs font-bold text-slate-400">{inviteEmails.length}/3</span>
@@ -207,13 +207,13 @@ export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Prop
                     placeholder="Enter email address"
                     className={`flex-1 h-12 bg-slate-50 border rounded-xl px-4 text-sm font-medium
                       outline-none transition-all
-                      ${errors.invite ? 'border-red-400' : 'border-slate-100 focus:border-[#4F39F6]'}`}
+                      ${errors.invite ? 'border-red-400' : 'border-slate-100 focus:border-[#3AADDD]'}`}
                   />
                   <button
                     type="button"
                     onClick={handleAddInvite}
-                    className="px-4 h-12 bg-[#4F39F6] text-white rounded-xl font-bold text-sm
-                      hover:bg-[#3f2dd1] transition-all shrink-0"
+                    className="px-4 h-12 bg-[#4F46E5] text-white rounded-xl font-bold text-sm
+                      hover:bg-[#4338CA] transition-all shrink-0"
                   >
                     + Add
                   </button>
@@ -228,7 +228,7 @@ export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Prop
                         key={email}
                         className="flex items-center justify-between bg-indigo-50 px-3 py-2 rounded-xl"
                       >
-                        <span className="text-xs font-bold text-[#4F39F6]">{email}</span>
+                        <span className="text-xs font-bold text-[#4F46E5]">{email}</span>
                         <button
                           onClick={() => setInviteEmails((p) => p.filter((e) => e !== email))}
                           className="text-slate-400 hover:text-red-500 transition-colors"
@@ -261,8 +261,8 @@ export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Prop
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="flex-1 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm
-                  shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-60 transition-all
+                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm
+                  shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all
                   flex items-center justify-center gap-2"
               >
                 {submitting

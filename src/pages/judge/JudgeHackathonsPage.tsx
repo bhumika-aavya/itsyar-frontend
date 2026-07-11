@@ -82,7 +82,7 @@ export default function JudgeHackathonsPage() {
   return (
     <div className="space-y-5 max-w-5xl">
       <div>
-        <h1 className="text-2xl font-black text-slate-900">Judge Hackathons</h1>
+        <h1 className="text-2xl font-extrabold text-slate-900">Judge Hackathons</h1>
         <p className="text-sm font-medium text-slate-400 mt-0.5">Score submissions for your assigned hackathons</p>
       </div>
 
@@ -105,8 +105,8 @@ export default function JudgeHackathonsPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3">
-                    <p className="font-black text-slate-900">{h.title}</p>
-                    <span className={`text-[11px] font-black px-2.5 py-1 rounded-lg shrink-0 ${
+                    <p className="font-extrabold text-slate-900">{h.title}</p>
+                    <span className={`text-[11px] font-extrabold px-2.5 py-1 rounded-lg shrink-0 ${
                       isDone ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"
                     }`}>
                       {isDone ? "Completed" : `${total - reviewed} pending`}
@@ -116,10 +116,10 @@ export default function JudgeHackathonsPage() {
                 </div>
                 <div className="flex items-center gap-4 shrink-0">
                   <div className="text-right hidden sm:block">
-                    <p className="text-[11px] font-black text-slate-400">{reviewed}/{total} reviewed</p>
+                    <p className="text-[11px] font-extrabold text-slate-400">{reviewed}/{total} reviewed</p>
                     <div className="w-24 h-1.5 bg-slate-100 rounded-full mt-1.5 overflow-hidden">
                       <div
-                        className={`h-full rounded-full ${isDone ? "bg-emerald-400" : "bg-[#4F39F6]"}`}
+                        className={`h-full rounded-full ${isDone ? "bg-emerald-400" : "bg-[#4F46E5]"}`}
                         style={{ width: `${total > 0 ? (reviewed / total) * 100 : 0}%` }}
                       />
                     </div>
@@ -137,7 +137,7 @@ export default function JudgeHackathonsPage() {
                         <Code2 size={16} className="text-[#CDD6F4]" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-black text-slate-900 text-sm">{sub.name}</p>
+                        <p className="font-extrabold text-slate-900 text-sm">{sub.name}</p>
                         <div className="flex items-center gap-3 text-xs font-bold text-slate-400 mt-0.5">
                           <span>{sub.team}</span>
                           <span className="text-slate-200">|</span>
@@ -147,13 +147,13 @@ export default function JudgeHackathonsPage() {
                         </div>
                       </div>
                       {sub.scored ? (
-                        <span className="flex items-center gap-1.5 text-xs font-black text-emerald-600 bg-emerald-50 px-2.5 py-1.5 rounded-xl shrink-0">
+                        <span className="flex items-center gap-1.5 text-xs font-extrabold text-emerald-600 bg-emerald-50 px-2.5 py-1.5 rounded-xl shrink-0">
                           <CheckCircle2 size={13} /> Scored
                         </span>
                       ) : (
                         <button
                           onClick={() => openScoring(sub.id)}
-                          className="flex items-center gap-1.5 px-4 py-2 bg-[#4F39F6] text-white rounded-xl text-xs font-black hover:bg-[#3f2dd1] transition-all shrink-0"
+                          className="flex items-center gap-1.5 px-4 py-2 bg-[#4F46E5] text-white rounded-xl text-xs font-extrabold hover:bg-[#4338CA] transition-all shrink-0"
                         >
                           Score <ChevronRight size={12} />
                         </button>
@@ -173,7 +173,7 @@ export default function JudgeHackathonsPage() {
           <div className="bg-white rounded-[28px] shadow-2xl w-full max-w-lg p-8 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-black text-slate-900">Score Submission</h2>
+                <h2 className="text-xl font-extrabold text-slate-900">Score Submission</h2>
                 <p className="text-sm font-medium text-slate-400 mt-0.5">
                   {scoringSubmission.name} — {scoringSubmission.team}
                 </p>
@@ -188,10 +188,10 @@ export default function JudgeHackathonsPage() {
                 <div key={c.key}>
                   <div className="flex items-center justify-between mb-2">
                     <div>
-                      <p className="text-sm font-black text-slate-800">{c.label}</p>
+                      <p className="text-sm font-extrabold text-slate-800">{c.label}</p>
                       <p className="text-[11px] font-bold text-slate-400">Weight: {c.weight}%</p>
                     </div>
-                    <span className="text-lg font-black text-[#4F39F6] w-12 text-right">
+                    <span className="text-lg font-extrabold text-[#4F46E5] w-12 text-right">
                       {scores[c.key] ?? 0}<span className="text-sm text-slate-400">/{c.max}</span>
                     </span>
                   </div>
@@ -202,7 +202,7 @@ export default function JudgeHackathonsPage() {
                     step={0.5}
                     value={scores[c.key] ?? 0}
                     onChange={e => setScores(s => ({ ...s, [c.key]: parseFloat(e.target.value) }))}
-                    className="w-full h-2 rounded-full appearance-none bg-slate-100 accent-[#4F39F6]"
+                    className="w-full h-2 rounded-full appearance-none bg-slate-100 accent-[#4F46E5]"
                   />
                   <div className="flex justify-between text-[10px] font-bold text-slate-300 mt-0.5">
                     <span>0</span><span>5</span><span>10</span>
@@ -212,30 +212,30 @@ export default function JudgeHackathonsPage() {
 
               {/* Weighted total */}
               <div className="bg-indigo-50 rounded-2xl p-4 flex items-center justify-between">
-                <p className="text-sm font-black text-[#4F39F6]">Weighted Total Score</p>
-                <p className="text-2xl font-black text-[#4F39F6]">{totalScore.toFixed(1)}<span className="text-sm">/10</span></p>
+                <p className="text-sm font-extrabold text-[#4F46E5]">Weighted Total Score</p>
+                <p className="text-2xl font-extrabold text-[#4F46E5]">{totalScore.toFixed(1)}<span className="text-sm">/10</span></p>
               </div>
 
               <div>
-                <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Feedback (optional)</label>
+                <label className="text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-1.5 block">Feedback (optional)</label>
                 <textarea
                   value={feedback}
                   onChange={e => setFeedback(e.target.value)}
                   placeholder="Add comments for the participant..."
                   rows={3}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#4F39F6] focus:bg-white transition-all resize-none"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#3AADDD] focus:bg-white transition-all resize-none"
                 />
               </div>
             </div>
 
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setScoringId(null)} className="flex-1 py-3 bg-slate-50 text-slate-700 rounded-xl font-black text-sm hover:bg-slate-100 transition-all">
+              <button onClick={() => setScoringId(null)} className="flex-1 py-3 bg-slate-50 text-slate-700 rounded-xl font-extrabold text-sm hover:bg-slate-100 transition-all">
                 Cancel
               </button>
               <button
                 onClick={handleSubmitScore}
                 disabled={saving}
-                className="flex-1 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
               >
                 {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
                 {saving ? "Submitting…" : "Submit Score"}

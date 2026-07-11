@@ -16,13 +16,13 @@ export default function AdminDashboard() {
     <div className="space-y-8 max-w-6xl">
       {/* Page header */}
       <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-[#4F39F6] rounded-xl flex items-center justify-center">
+        <div className="w-10 h-10 bg-[#4F46E5] rounded-xl flex items-center justify-center">
           <Shield className="text-white" size={20} />
         </div>
         <div>
-          <h1 className="text-2xl font-black text-slate-900">Admin Overview</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900">Admin Overview</h1>
           <p className="text-sm font-medium text-slate-400">
-            Signed in as <span className="text-[#4F39F6] font-bold">{user?.fullName}</span>
+            Signed in as <span className="text-[#4F46E5] font-bold">{user?.fullName}</span>
           </p>
         </div>
       </div>
@@ -44,14 +44,14 @@ function StatsGrid({ onLoaded }: { onLoaded: (o: AdminOverview) => void }) {
   if (!overview) {
     return (
       <div className="flex justify-center py-16">
-        <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+        <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
       </div>
     );
   }
 
   const { stats } = overview;
   const cards = [
-    { label: "Total Users", value: stats.totalUsers.toLocaleString(), icon: Users, color: "bg-indigo-50 text-[#4F39F6]", trend: "Registered accounts" },
+    { label: "Total Users", value: stats.totalUsers.toLocaleString(), icon: Users, color: "bg-indigo-50 text-[#4F46E5]", trend: "Registered accounts" },
     { label: "Total Courses", value: stats.totalCourses.toString(), icon: BookOpen, color: "bg-emerald-50 text-emerald-600", trend: "Active courses" },
     { label: "Active Hackathons", value: stats.activeHackathons.toString(), icon: Zap, color: "bg-amber-50 text-amber-600", trend: "Currently running" },
     { label: "Total Submissions", value: stats.totalSubmissions.toLocaleString(), icon: BarChart3, color: "bg-rose-50 text-rose-600", trend: "All time" },
@@ -65,7 +65,7 @@ function StatsGrid({ onLoaded }: { onLoaded: (o: AdminOverview) => void }) {
             <Icon size={20} />
           </div>
           <div>
-            <p className="text-3xl font-black text-slate-900">{value}</p>
+            <p className="text-3xl font-extrabold text-slate-900">{value}</p>
             <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-wide">{label}</p>
           </div>
           <p className="text-xs font-bold text-slate-400 flex items-center gap-1">
@@ -87,7 +87,7 @@ function QuickActions({ navigate }: { navigate: ReturnType<typeof useNavigate> }
 
   return (
     <div className="bg-white border border-slate-100 rounded-[24px] p-6 shadow-sm">
-      <h3 className="text-base font-black text-slate-800 mb-4">Quick Actions</h3>
+      <h3 className="text-base font-extrabold text-slate-800 mb-4">Quick Actions</h3>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {actions.map(({ label, icon: Icon, desc, path }) => (
           <button
@@ -95,10 +95,10 @@ function QuickActions({ navigate }: { navigate: ReturnType<typeof useNavigate> }
             onClick={() => navigate(path)}
             className="flex flex-col items-start gap-2 p-4 bg-slate-50 rounded-2xl hover:bg-indigo-50/50 border border-transparent hover:border-indigo-100 transition-all text-left"
           >
-            <div className="w-8 h-8 bg-white rounded-xl flex items-center justify-center text-[#4F39F6] shadow-sm">
+            <div className="w-8 h-8 bg-white rounded-xl flex items-center justify-center text-[#4F46E5] shadow-sm">
               <Icon size={16} />
             </div>
-            <p className="text-sm font-black text-slate-800">{label}</p>
+            <p className="text-sm font-extrabold text-slate-800">{label}</p>
             <p className="text-[11px] font-bold text-slate-400 leading-tight">{desc}</p>
           </button>
         ))}
@@ -117,12 +117,12 @@ function PlatformHealth({ health }: { health?: import("@/services/admin.service"
 
   return (
     <div className="bg-white border border-slate-100 rounded-[24px] p-6 shadow-sm">
-      <h3 className="text-base font-black text-slate-800 mb-4">Platform Health</h3>
+      <h3 className="text-base font-extrabold text-slate-800 mb-4">Platform Health</h3>
       <div className="grid sm:grid-cols-2 gap-3">
         {services.map(({ label, status, ok }) => (
           <div key={label} className="flex items-center justify-between p-3 bg-slate-50/50 rounded-xl">
             <span className="text-sm font-bold text-slate-600">{label}</span>
-            <span className={`flex items-center gap-1.5 text-xs font-black px-2.5 py-1 rounded-lg ${ok ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-500"}`}>
+            <span className={`flex items-center gap-1.5 text-xs font-extrabold px-2.5 py-1 rounded-lg ${ok ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-500"}`}>
               {ok ? <CheckCircle2 size={11} /> : <XCircle size={11} />} {status}
             </span>
           </div>

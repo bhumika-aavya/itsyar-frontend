@@ -62,7 +62,7 @@ export default function AdminSettingsPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-24">
-        <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+        <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
       </div>
     );
   }
@@ -75,7 +75,7 @@ export default function AdminSettingsPage() {
           <Settings size={20} className="text-slate-600" />
         </div>
         <div>
-          <h1 className="text-2xl font-black text-slate-900">Settings</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900">Settings</h1>
           <p className="text-sm font-medium text-slate-400 mt-0.5">Configure platform-wide settings</p>
         </div>
       </div>
@@ -87,7 +87,7 @@ export default function AdminSettingsPage() {
             key={id}
             onClick={() => setActiveTab(id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-              activeTab === id ? "bg-white text-[#4F39F6] shadow-sm" : "text-slate-500 hover:text-slate-700"
+              activeTab === id ? "bg-white text-[#4F46E5] shadow-sm" : "text-slate-500 hover:text-slate-700"
             }`}
           >
             <Icon size={15} /> {label}
@@ -115,7 +115,7 @@ export default function AdminSettingsPage() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 px-5 py-2.5 bg-[#4F39F6] text-white rounded-xl text-sm font-black shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-60 transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl text-sm font-extrabold shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all"
           >
             {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
             {saving ? "Saving…" : "Save Changes"}
@@ -299,10 +299,10 @@ function SecuritySettings() {
 // ─── Shared helpers ───────────────────────────────────────────────────────────
 
 const INPUT =
-  "h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#4F39F6] focus:bg-white transition-all";
+  "h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#3AADDD] focus:bg-white transition-all";
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <p className="text-xs font-black text-slate-400 uppercase tracking-widest">{children}</p>;
+  return <p className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">{children}</p>;
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -330,7 +330,7 @@ function Toggle({
         onClick={() => onChange(!checked)}
         className={`relative shrink-0 w-11 h-6 rounded-full transition-all ${
           checked
-            ? danger ? "bg-red-500" : "bg-[#4F39F6]"
+            ? danger ? "bg-red-500" : "bg-[#4F46E5]"
             : "bg-slate-200"
         }`}
       >

@@ -34,7 +34,7 @@ const ContinueCard = ({ data }: { data: MyCourse }) => {
       </div>
       <div className="w-full h-1.5 bg-slate-100 rounded-full mb-6 overflow-hidden">
         <div
-          className="h-full bg-[#4F39F6] rounded-full transition-all duration-1000"
+          className="h-full bg-[#4F46E5] rounded-full transition-all duration-1000"
           style={{ width: `${data.courseCompletionPercentage}%` }}
         />
       </div>
@@ -63,10 +63,10 @@ const CourseGridCard = ({ data }: { data: Course }) => {
       </div>
       <div className="p-6 flex flex-col flex-1">
         <div className="flex gap-2 mb-4">
-          <span className="bg-indigo-50 text-[#4F39F6] text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider">{data.tag}</span>
+          <span className="bg-indigo-50 text-[#4F46E5] text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider">{data.tag}</span>
           <span className="bg-slate-50 text-slate-400 text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider">{data.duration}</span>
         </div>
-        <h3 className="font-bold text-slate-900 mb-3 group-hover:text-[#4F39F6] transition-colors">{data.title}</h3>
+        <h3 className="font-bold text-slate-900 mb-3 group-hover:text-[#4F46E5] transition-colors">{data.title}</h3>
         <p className="text-xs text-slate-400 leading-relaxed font-medium mb-6 flex-1">{data.description}</p>
 
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-50">
@@ -76,7 +76,7 @@ const CourseGridCard = ({ data }: { data: Course }) => {
             </div>
             <span className="text-[11px] font-bold text-slate-500">by {data.instructor}</span>
           </div>
-          <button className="text-[11px] font-bold text-[#4F39F6] hover:underline">View Details →</button>
+          <button className="text-[11px] font-bold text-[#4F46E5] hover:underline">View Details →</button>
         </div>
       </div>
     </div>
@@ -109,7 +109,7 @@ export default function CourseCatalog() {
   if (isLoading) {
     return (
       <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
-        <Loader2 className="h-10 w-10 animate-spin text-[#4F39F6]" />
+        <Loader2 className="h-10 w-10 animate-spin text-[#4F46E5]" />
         <p className="text-slate-400 font-bold text-sm uppercase tracking-widest">Loading Catalog...</p>
       </div>
     );
@@ -118,15 +118,15 @@ export default function CourseCatalog() {
   return (
     <div className="space-y-12">
       <section className="text-left space-y-2">
-        <h2 className="text-3xl font-black text-slate-900 tracking-tight">Available Courses</h2>
+        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Available Courses</h2>
         <p className="text-slate-500 text-sm font-medium">Explore and enroll in wide variety of courses designed for you.</p>
       </section>
 
       {myCourses?.length > 0 && (
         <section className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-black text-[#4F39F6] uppercase tracking-[0.2em]">Continue Learning</h2>
-            <button className="text-[11px] font-bold text-[#4F39F6] hover:underline uppercase tracking-widest">My Dashboard →</button>
+            <h2 className="text-sm font-extrabold text-[#4F46E5] uppercase tracking-[0.2em]">Continue Learning</h2>
+            <button className="text-[11px] font-bold text-[#4F46E5] hover:underline uppercase tracking-widest">My Dashboard →</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {myCourses.map(item => <ContinueCard key={item.id} data={item} />)}
@@ -135,7 +135,7 @@ export default function CourseCatalog() {
       )}
 
       <section className="space-y-6 pb-20">
-        <h2 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] text-left">All Courses</h2>
+        <h2 className="text-sm font-extrabold text-slate-900 uppercase tracking-[0.2em] text-left">All Courses</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {courses.map(course => <CourseGridCard key={course.id} data={course} />)}
         </div>

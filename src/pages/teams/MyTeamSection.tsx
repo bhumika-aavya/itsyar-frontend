@@ -19,27 +19,27 @@ function getInitials(name: string | null, username: string | null): string {
 function StatusBadge({ status, type }: { status: OutgoingRequest['status']; type: OutgoingRequest['type'] }) {
   if (status === 'REJECTED') {
     return (
-      <span className="px-2.5 py-1 bg-red-50 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-lg">
+      <span className="px-2.5 py-1 bg-red-50 text-red-500 text-[10px] font-extrabold uppercase tracking-widest rounded-lg">
         REJECTED
       </span>
     );
   }
   if (status === 'APPROVED' && type === 'OPEN_REQUEST') {
     return (
-      <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-lg">
+      <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-extrabold uppercase tracking-widest rounded-lg">
         APPROVED
       </span>
     );
   }
   if (status === 'APPROVED') {
     return (
-      <span className="px-2.5 py-1 bg-amber-50 text-amber-600 text-[10px] font-black uppercase tracking-widest rounded-lg">
+      <span className="px-2.5 py-1 bg-amber-50 text-amber-600 text-[10px] font-extrabold uppercase tracking-widest rounded-lg">
         APPROVED
       </span>
     );
   }
   return (
-    <span className="px-2.5 py-1 bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-lg">
+    <span className="px-2.5 py-1 bg-slate-100 text-slate-500 text-[10px] font-extrabold uppercase tracking-widest rounded-lg">
       PENDING
     </span>
   );
@@ -129,14 +129,14 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
     <div className="space-y-5">
       {/* ── Your Team Card ── */}
       <div className="bg-white border border-slate-100 rounded-[24px] p-6 shadow-sm space-y-5">
-        <h2 className="text-base font-black text-slate-700">
+        <h2 className="text-base font-extrabold text-slate-700">
           Your Team:{' '}
-          <span className="text-[#4F39F6]">{team.hackathonName}</span>
+          <span className="text-[#4F46E5]">{team.hackathonName}</span>
         </h2>
 
         {/* Team Name */}
         <div>
-          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1.5">
+          <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block mb-1.5">
             Team Name
           </label>
           <div className="flex items-center gap-2">
@@ -147,12 +147,12 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
                   value={draftName}
                   onChange={(e) => setDraftName(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') saveName(); if (e.key === 'Escape') setIsEditingName(false); }}
-                  className="flex-1 h-11 bg-slate-50 border border-[#4F39F6] rounded-xl px-4 text-sm font-bold text-slate-900 outline-none"
+                  className="flex-1 h-11 bg-slate-50 border border-[#4F46E5] rounded-xl px-4 text-sm font-bold text-slate-900 outline-none"
                 />
                 <button
                   onClick={saveName}
                   disabled={savingName}
-                  className="w-9 h-9 bg-[#4F39F6] rounded-xl flex items-center justify-center text-white hover:bg-[#3f2dd1] transition-all"
+                  className="w-9 h-9 bg-[#4F46E5] rounded-xl flex items-center justify-center text-white hover:bg-[#4338CA] transition-all"
                 >
                   {savingName ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
                 </button>
@@ -170,7 +170,7 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
                 </div>
                 <button
                   onClick={() => setIsEditingName(true)}
-                  className="w-9 h-9 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#4F39F6] hover:border-[#4F39F6] transition-all"
+                  className="w-9 h-9 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#4F46E5] hover:border-[#3AADDD] transition-all"
                 >
                   <Pencil size={14} />
                 </button>
@@ -182,7 +182,7 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
         {/* Members */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-black text-slate-700">
+            <span className="text-xs font-extrabold text-slate-700">
               Current Members (max{team.maxMembers})
             </span>
             <span className="text-xs font-bold text-slate-400">
@@ -209,7 +209,7 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
                 <span className="flex-1 text-sm font-bold text-slate-400">Empty</span>
                 <button
                   onClick={() => setShowInviteInput(true)}
-                  className="px-3 py-1.5 border border-slate-200 rounded-xl text-xs font-black text-slate-600 hover:border-[#4F39F6] hover:text-[#4F39F6] transition-all"
+                  className="px-3 py-1.5 border border-slate-200 rounded-xl text-xs font-extrabold text-slate-600 hover:border-[#3AADDD] hover:text-[#4F46E5] transition-all"
                 >
                   Invite Member
                 </button>
@@ -229,12 +229,12 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
                 onChange={(e) => { setInviteEmail(e.target.value); setInviteError(''); }}
                 onKeyDown={(e) => e.key === 'Enter' && handleInvite()}
                 placeholder="Enter email address to invite"
-                className={`flex-1 h-11 bg-slate-50 border rounded-xl px-4 text-sm font-medium outline-none transition-all ${inviteError ? 'border-red-400' : 'border-slate-200 focus:border-[#4F39F6]'}`}
+                className={`flex-1 h-11 bg-slate-50 border rounded-xl px-4 text-sm font-medium outline-none transition-all ${inviteError ? 'border-red-400' : 'border-slate-200 focus:border-[#3AADDD]'}`}
               />
               <button
                 onClick={handleInvite}
                 disabled={inviting}
-                className="px-4 h-11 bg-[#4F39F6] text-white rounded-xl font-black text-sm hover:bg-[#3f2dd1] disabled:opacity-60 transition-all flex items-center gap-1.5"
+                className="px-4 h-11 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center gap-1.5"
               >
                 {inviting ? <Loader2 size={14} className="animate-spin" /> : 'Send'}
               </button>
@@ -253,7 +253,7 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
         <button
           onClick={() => setShowInviteInput(true)}
           disabled={filledCount >= team.maxMembers}
-          className="w-70 py-3 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+          className="w-70 py-3 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
         >
           <UserPlus size={16} />
           Invite Member (Send Request)
@@ -268,7 +268,7 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
               checked={isOpenRequest}
               onChange={(e) => handleOpenRequestToggle(e.target.checked)}
             />
-            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${isOpenRequest ? 'bg-[#4F39F6] border-[#4F39F6]' : 'border-slate-300 bg-white'}`}>
+            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${isOpenRequest ? 'bg-[#4F46E5] border-[#4F46E5]' : 'border-slate-300 bg-white'}`}>
               {isOpenRequest && <Check size={11} className="text-white" strokeWidth={3} />}
             </div>
           </div>
@@ -281,10 +281,10 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
       {/* ── Outgoing Requests Card ── */}
       <div className="bg-white border border-slate-100 rounded-[24px] p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-black text-slate-700">Your Outgoing Requests &amp; Status</h2>
+          <h2 className="text-base font-extrabold text-slate-700">Your Outgoing Requests &amp; Status</h2>
           <button
             onClick={refreshRequests}
-            className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-[#4F39F6] hover:bg-indigo-50 rounded-xl transition-all"
+            className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-[#4F46E5] hover:bg-indigo-50 rounded-xl transition-all"
           >
             <RefreshCw size={15} className={loadingRequests ? 'animate-spin' : ''} />
           </button>
@@ -292,7 +292,7 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
 
         {loadingRequests ? (
           <div className="flex justify-center py-8">
-            <Loader2 className="animate-spin text-[#4F39F6]" size={24} />
+            <Loader2 className="animate-spin text-[#4F46E5]" size={24} />
           </div>
         ) : requests.length === 0 ? (
           <p className="text-sm font-medium text-slate-400 text-center py-8">No outgoing requests</p>
@@ -302,7 +302,7 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
               <thead>
                 <tr className="border-b border-slate-50">
                   {['TYPE', 'HACKATHON EVENT', 'REQUEST STATUS', 'ACTION'].map((h) => (
-                    <th key={h} className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-left pb-3 pr-4">
+                    <th key={h} className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-left pb-3 pr-4">
                       {h}
                     </th>
                   ))}
@@ -320,7 +320,7 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
                           }
                         </div>
                         <div>
-                          <p className="text-xs font-black text-slate-800">
+                          <p className="text-xs font-extrabold text-slate-800">
                             {req.type === 'INVITE' ? 'Invite to join' : 'Open Request application'}
                           </p>
                           <p className="text-[11px] font-bold text-slate-400">{req.targetName}</p>
@@ -338,7 +338,7 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
                         <button
                           onClick={() => handleWithdraw(req.id)}
                           disabled={withdrawingId === req.id}
-                          className="text-xs font-black text-red-500 hover:text-red-600 transition-colors disabled:opacity-50"
+                          className="text-xs font-extrabold text-red-500 hover:text-red-600 transition-colors disabled:opacity-50"
                         >
                           {withdrawingId === req.id ? 'Withdrawing...' : 'Withdraw'}
                         </button>
@@ -373,24 +373,24 @@ function MemberRow({
   return (
     <div className="flex items-center gap-3 px-4 py-3 bg-slate-50/50 rounded-2xl">
       <div
-        className="w-9 h-9 rounded-full flex items-center justify-center text-white font-black text-sm shrink-0"
+        className="w-9 h-9 rounded-full flex items-center justify-center text-white font-extrabold text-sm shrink-0"
         style={{ backgroundColor: member.isSelf ? '#1e293b' : '#64748b' }}
       >
         {initials}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-black text-slate-800 truncate">{displayName}</p>
+        <p className="text-sm font-extrabold text-slate-800 truncate">{displayName}</p>
         <p className="text-xs font-bold text-slate-400">{statusLabel}</p>
       </div>
       {member.isSelf ? (
-        <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-lg shrink-0">
+        <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-extrabold uppercase tracking-widest rounded-lg shrink-0">
           FILLED
         </span>
       ) : (
         <button
           onClick={onResend}
           disabled={resending}
-          className="text-xs font-black text-[#4F39F6] hover:underline underline-offset-2 disabled:opacity-50 shrink-0 transition-opacity"
+          className="text-xs font-extrabold text-[#4F46E5] hover:underline underline-offset-2 disabled:opacity-50 shrink-0 transition-opacity"
         >
           {resending ? 'Sending...' : 'Resend Invite'}
         </button>

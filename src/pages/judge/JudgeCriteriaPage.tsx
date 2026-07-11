@@ -24,7 +24,7 @@ const SCALE = [
   { score: "3–4", label: "Below Average", color: "text-orange-500", bg: "bg-orange-50" },
   { score: "5–6", label: "Average", color: "text-amber-600", bg: "bg-amber-50" },
   { score: "7–8", label: "Good", color: "text-emerald-600", bg: "bg-emerald-50" },
-  { score: "9–10", label: "Excellent", color: "text-[#4F39F6]", bg: "bg-indigo-50" },
+  { score: "9–10", label: "Excellent", color: "text-[#4F46E5]", bg: "bg-indigo-50" },
 ];
 
 export default function JudgeCriteriaPage() {
@@ -54,7 +54,7 @@ export default function JudgeCriteriaPage() {
           <ListChecks size={20} className="text-amber-600" />
         </div>
         <div>
-          <h1 className="text-2xl font-black text-slate-900">Judging Criteria</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900">Judging Criteria</h1>
           <p className="text-sm font-medium text-slate-400 mt-0.5">
             Standard rubric used to evaluate hackathon submissions. Weights must total 100%.
           </p>
@@ -76,11 +76,11 @@ export default function JudgeCriteriaPage() {
           <div key={c.key} className="bg-white border border-slate-100 rounded-[20px] p-6 shadow-sm">
             <div className="flex items-start justify-between gap-4 mb-3">
               <div className="flex items-center gap-3">
-                <div className="w-7 h-7 bg-indigo-50 rounded-xl flex items-center justify-center text-xs font-black text-[#4F39F6]">
+                <div className="w-7 h-7 bg-indigo-50 rounded-xl flex items-center justify-center text-xs font-extrabold text-[#4F46E5]">
                   {i + 1}
                 </div>
                 <div>
-                  <p className="font-black text-slate-900">{c.label}</p>
+                  <p className="font-extrabold text-slate-900">{c.label}</p>
                   <p className="text-xs font-bold text-slate-400 mt-0.5">Max score: {c.maxScore}/10</p>
                 </div>
               </div>
@@ -91,16 +91,16 @@ export default function JudgeCriteriaPage() {
                   max={100}
                   value={c.weight}
                   onChange={e => handleWeightChange(c.key, parseInt(e.target.value) || 0)}
-                  className="w-16 h-9 text-center bg-slate-50 border border-slate-200 rounded-xl text-sm font-black text-[#4F39F6] outline-none focus:border-[#4F39F6] focus:bg-white transition-all"
+                  className="w-16 h-9 text-center bg-slate-50 border border-slate-200 rounded-xl text-sm font-extrabold text-[#4F46E5] outline-none focus:border-[#3AADDD] focus:bg-white transition-all"
                 />
-                <span className="text-sm font-black text-slate-400">%</span>
+                <span className="text-sm font-extrabold text-slate-400">%</span>
               </div>
             </div>
             <p className="text-sm font-medium text-slate-500 leading-relaxed">{c.description}</p>
             {/* Weight bar */}
             <div className="mt-3 h-1.5 bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#4F39F6] rounded-full transition-all"
+                className="h-full bg-[#4F46E5] rounded-full transition-all"
                 style={{ width: `${c.weight}%` }}
               />
             </div>
@@ -110,12 +110,12 @@ export default function JudgeCriteriaPage() {
 
       {/* Scoring scale reference */}
       <div className="bg-white border border-slate-100 rounded-[20px] p-6 shadow-sm">
-        <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Scoring Scale Reference</p>
+        <p className="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-4">Scoring Scale Reference</p>
         <div className="grid grid-cols-5 gap-3">
           {SCALE.map(s => (
             <div key={s.score} className={`${s.bg} rounded-xl p-3 text-center`}>
-              <p className={`text-lg font-black ${s.color}`}>{s.score}</p>
-              <p className={`text-[10px] font-black uppercase tracking-wide mt-0.5 ${s.color}`}>{s.label}</p>
+              <p className={`text-lg font-extrabold ${s.color}`}>{s.score}</p>
+              <p className={`text-[10px] font-extrabold uppercase tracking-wide mt-0.5 ${s.color}`}>{s.label}</p>
             </div>
           ))}
         </div>
@@ -135,7 +135,7 @@ export default function JudgeCriteriaPage() {
         <button
           onClick={handleSave}
           disabled={saving || !isValid}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#4F39F6] text-white rounded-xl text-sm font-black shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-50 transition-all"
+          className="flex items-center gap-2 px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl text-sm font-extrabold shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-50 transition-all"
         >
           {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
           {saving ? "Saving…" : "Save Criteria"}

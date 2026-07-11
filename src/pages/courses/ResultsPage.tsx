@@ -17,7 +17,7 @@ export default function ResultsPage() {
 
   if (isLoading) return (
     <div className="h-64 flex items-center justify-center">
-      <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+      <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
     </div>
   );
 
@@ -25,7 +25,7 @@ export default function ResultsPage() {
     // <div className="max-w-4xl mx-auto p-6 md:p-10 space-y-8 text-left">
     <>
       <div>
-        <h1 className="text-3xl font-black text-slate-900">Results</h1>
+        <h1 className="text-3xl font-extrabold text-slate-900">Results</h1>
         <p className="text-slate-400 font-medium mt-1">Track your learning milestones and academic achievements.</p>
       </div>
 
@@ -33,10 +33,10 @@ export default function ResultsPage() {
         {/* Card Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <Award className="text-[#4F39F6]" size={22} />
-            <h2 className="text-base font-black text-slate-900">Completed Courses &amp; Certificates</h2>
+            <Award className="text-[#4F46E5]" size={22} />
+            <h2 className="text-base font-extrabold text-slate-900">Completed Courses &amp; Certificates</h2>
           </div>
-          <span className="px-4 py-1.5 bg-indigo-50 text-[#4F39F6] rounded-full text-xs font-black">
+          <span className="px-4 py-1.5 bg-indigo-50 text-[#4F46E5] rounded-full text-xs font-extrabold">
             {results.length} Total Certificates
           </span>
         </div>
@@ -59,10 +59,10 @@ export default function ResultsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-100">
-                  <th className="text-left text-[10px] font-black text-slate-400 uppercase tracking-widest pb-4">Course Name</th>
-                  <th className="text-left text-[10px] font-black text-slate-400 uppercase tracking-widest pb-4">Completion Date</th>
-                  <th className="text-left text-[10px] font-black text-slate-400 uppercase tracking-widest pb-4">Status</th>
-                  <th className="text-right text-[10px] font-black text-slate-400 uppercase tracking-widest pb-4">Action</th>
+                  <th className="text-left text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pb-4">Course Name</th>
+                  <th className="text-left text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pb-4">Completion Date</th>
+                  <th className="text-left text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pb-4">Status</th>
+                  <th className="text-right text-[10px] font-extrabold text-slate-400 uppercase tracking-widest pb-4">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -70,7 +70,7 @@ export default function ResultsPage() {
                   <tr key={r.id}>
                     <td className="py-5">
                       <p className="text-sm font-bold text-slate-900">{r.title}</p>
-                      <p className="text-[11px] font-bold text-[#4F39F6] mt-0.5">{r.category}</p>
+                      <p className="text-[11px] font-bold text-[#4F46E5] mt-0.5">{r.category}</p>
                     </td>
                     <td className="py-5 text-sm font-medium text-slate-500">{r.completionDate}</td>
                     <td className="py-5">

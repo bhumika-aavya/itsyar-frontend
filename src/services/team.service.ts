@@ -83,7 +83,7 @@ const MOCK_OUTGOING_REQUESTS: OutgoingRequest[] = [
 ];
 
 export const HACKATHON_COLOR_MAP: Record<string, string> = {
-  "CodeSprint 2026": "#4F39F6",
+  "CodeSprint 2026": "#4F46E5",
   "Data Challenge 2026": "#0d9488",
   "BlockBuilders": "#16a34a",
   "InnovateX": "#ea580c",
@@ -274,7 +274,7 @@ export const TeamService = {
         memberCount: created.members.length,
         maxMembers: 4,
         description: created.description,
-        iconBg: "#4F39F6",
+        iconBg: "#4F46E5",
         iconType: "settings",
       };
     } catch (err: any) {

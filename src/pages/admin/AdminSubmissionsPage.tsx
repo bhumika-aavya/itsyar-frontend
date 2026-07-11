@@ -36,7 +36,7 @@ export default function AdminSubmissionsPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-24">
-        <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+        <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
       </div>
     );
   }
@@ -44,8 +44,8 @@ export default function AdminSubmissionsPage() {
   return (
     <div className="space-y-5 max-w-5xl">
       <div>
-        <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-          <Scale size={22} className="text-[#4F39F6]" /> Hackathon Submissions
+        <h1 className="text-2xl font-extrabold text-slate-900 flex items-center gap-2">
+          <Scale size={22} className="text-[#4F46E5]" /> Hackathon Submissions
         </h1>
         <p className="text-sm font-medium text-slate-400 mt-0.5">
           {rows.length} users have submitted to a hackathon — pick one to review and judge
@@ -58,7 +58,7 @@ export default function AdminSubmissionsPage() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search users..."
-          className="w-full h-10 pl-9 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#4F39F6]"
+          className="w-full h-10 pl-9 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#3AADDD]"
         />
       </div>
 
@@ -69,14 +69,14 @@ export default function AdminSubmissionsPage() {
             onClick={() => navigate(`/admin/submissions/${u.id}`)}
             className="w-full flex items-center gap-4 px-6 py-4 hover:bg-slate-50/50 transition-colors text-left"
           >
-            <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F39F6] font-black text-sm shrink-0">
+            <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F46E5] font-extrabold text-sm shrink-0">
               {u.fullName.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-black text-slate-900 text-sm">{u.fullName}</p>
+              <p className="font-extrabold text-slate-900 text-sm">{u.fullName}</p>
               <p className="text-xs font-bold text-slate-400">{u.email}</p>
             </div>
-            <span className="text-xs font-black text-[#4F39F6] bg-indigo-50 px-2.5 py-1 rounded-lg hidden sm:block">
+            <span className="text-xs font-extrabold text-[#4F46E5] bg-indigo-50 px-2.5 py-1 rounded-lg hidden sm:block">
               {submissionCount} submission{submissionCount > 1 ? "s" : ""}
             </span>
             <ChevronRight size={16} className="text-slate-300 shrink-0" />

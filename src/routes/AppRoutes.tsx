@@ -61,7 +61,7 @@ const JudgeCriteriaPage = lazy(() => import("@/pages/judge/JudgeCriteriaPage"));
 function PageLoader() {
   return (
     <div className="h-[60vh] flex items-center justify-center">
-      <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+      <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
     </div>
   );
 }

@@ -50,7 +50,7 @@ export default function HackathonListing() {
 
     if (loading) return (
         <div className="h-[60vh] flex items-center justify-center">
-            <Loader2 className="animate-spin text-[#4F39F6]" size={40} />
+            <Loader2 className="animate-spin text-[#4F46E5]" size={40} />
         </div>
     );
 
@@ -59,7 +59,7 @@ export default function HackathonListing() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 text-left">
                 <div>
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Hackathon</h1>
+                    <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Hackathon</h1>
                     <p className="text-slate-500 font-medium mt-1">
                         Welcome back, {user?.fullName?.split(' ')[0]}! 👋
                     </p>
@@ -73,10 +73,10 @@ export default function HackathonListing() {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-slate-50">
-                                <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest">Hackathon</th>
-                                <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest">Date</th>
-                                <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
-                                <th className="px-8 py-5 text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">Action</th>
+                                <th className="px-8 py-5 text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">Hackathon</th>
+                                <th className="px-8 py-5 text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">Date</th>
+                                <th className="px-8 py-5 text-[11px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Status</th>
+                                <th className="px-8 py-5 text-[11px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
@@ -101,11 +101,11 @@ export default function HackathonListing() {
                                         </td>
                                         <td className="px-8 py-6 text-center">
                                             {submitted ? (
-                                                <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-600">
+                                                <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider bg-emerald-50 text-emerald-600">
                                                     <CheckCircle2 size={11} /> Submitted
                                                 </span>
                                             ) : (
-                                                <span className={`inline-block px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider ${getStatusStyle(hack.status)}`}>
+                                                <span className={`inline-block px-4 py-1.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider ${getStatusStyle(hack.status)}`}>
                                                     {hack.status}
                                                 </span>
                                             )}
@@ -127,7 +127,7 @@ export default function HackathonListing() {
                                                         {joinable && (
                                                             <button
                                                                 onClick={() => setJoiningHackathon(hack)}
-                                                                className="px-6 py-2 bg-[#4F39F6] text-white rounded-xl font-bold text-xs hover:bg-[#3f2dd1] shadow-lg shadow-indigo-100 transition-all active:scale-95"
+                                                                className="px-6 py-2 bg-[#4F46E5] text-white rounded-xl font-bold text-xs hover:bg-[#4338CA] shadow-lg shadow-indigo-100 transition-all active:scale-95"
                                                             >
                                                                 Join
                                                             </button>

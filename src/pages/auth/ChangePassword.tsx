@@ -43,7 +43,7 @@ export default function ChangePassword() {
     <div className="max-w-lg mx-auto py-12 px-6 text-left">
       <button
         onClick={() => navigate('/profile')}
-        className="flex items-center gap-2 text-slate-400 hover:text-[#4F39F6] text-sm font-bold mb-8 transition-colors"
+        className="flex items-center gap-2 text-slate-400 hover:text-[#4F46E5] text-sm font-bold mb-8 transition-colors"
       >
         <ChevronLeft size={16} /> Back to Profile
       </button>
@@ -54,18 +54,18 @@ export default function ChangePassword() {
             <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto">
               <CheckCircle2 className="text-emerald-500" size={32} />
             </div>
-            <h2 className="text-2xl font-black text-slate-900">Password changed!</h2>
+            <h2 className="text-2xl font-extrabold text-slate-900">Password changed!</h2>
             <p className="text-sm font-medium text-slate-500">Your password has been updated successfully.</p>
             <button
               onClick={() => navigate('/profile')}
-              className="mt-4 w-full h-12 rounded-xl bg-[#4F39F6] text-white font-bold text-sm hover:bg-[#3f2dd1] transition-all"
+              className="mt-4 w-full h-12 rounded-xl bg-[#4F46E5] text-white font-bold text-sm hover:bg-[#4338CA] transition-all"
             >
               Back to Profile
             </button>
           </div>
         ) : (
           <>
-            <h2 className="text-2xl font-black text-slate-900 mb-2">Change Password</h2>
+            <h2 className="text-2xl font-extrabold text-slate-900 mb-2">Change Password</h2>
             <p className="text-sm font-medium text-slate-500 mb-8">Update your account password below.</p>
 
             {error && (
@@ -89,7 +89,7 @@ export default function ChangePassword() {
                       value={value}
                       onChange={(e) => onChange(e.target.value)}
                       placeholder="••••••••"
-                      className="h-14 w-full rounded-xl border-2 border-transparent pl-12 pr-12 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 focus:border-[#4F39F6] focus:bg-white"
+                      className="h-14 w-full rounded-xl border-2 border-transparent pl-12 pr-12 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 focus:border-[#3AADDD] focus:bg-white"
                     />
                     <button type="button" onClick={() => setShow(!show)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                       {show ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -101,7 +101,7 @@ export default function ChangePassword() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="h-14 w-full rounded-xl bg-[#4F39F6] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#3f2dd1] transition-all disabled:opacity-70 shadow-lg shadow-indigo-100 mt-2"
+                className="h-14 w-full rounded-xl bg-[#4F46E5] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#4338CA] transition-all disabled:opacity-70 shadow-lg shadow-indigo-100 mt-2"
               >
                 {isLoading ? <Loader2 className="animate-spin" size={20} /> : 'Update Password'}
               </button>

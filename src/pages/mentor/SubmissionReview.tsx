@@ -58,7 +58,7 @@ export default function SubmissionReview() {
 
     if (loading) return (
         <div className="h-screen flex items-center justify-center">
-            <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+            <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
         </div>
     );
 
@@ -77,17 +77,17 @@ export default function SubmissionReview() {
                 <CheckCircle2 size={40} className="text-emerald-500" />
             </div>
             <div>
-                <h2 className="text-2xl font-black text-slate-900">Review Submitted</h2>
+                <h2 className="text-2xl font-extrabold text-slate-900">Review Submitted</h2>
                 <p className="text-slate-500 font-medium mt-2">
                     {submission.participantName}'s submission has been marked as{' '}
-                    <span className={`font-black ${selectedStatus === 'ACCEPTED' ? 'text-emerald-600' : 'text-red-500'}`}>
+                    <span className={`font-extrabold ${selectedStatus === 'ACCEPTED' ? 'text-emerald-600' : 'text-red-500'}`}>
                         {selectedStatus}
                     </span>.
                 </p>
             </div>
             <button
                 onClick={() => navigate('/mentor')}
-                className="px-8 py-3 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] transition-all"
+                className="px-8 py-3 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all"
             >
                 Back to Dashboard
             </button>
@@ -99,17 +99,17 @@ export default function SubmissionReview() {
             {/* Back + header */}
             <button
                 onClick={() => navigate('/mentor')}
-                className="flex items-center gap-2 text-[#4F39F6] font-bold text-sm mb-6 hover:opacity-80 transition-all"
+                className="flex items-center gap-2 text-[#4F46E5] font-bold text-sm mb-6 hover:opacity-80 transition-all"
             >
                 <ChevronLeft size={18} /> Back to Dashboard
             </button>
 
             <div className="flex items-start justify-between gap-4 flex-wrap mb-8">
                 <div>
-                    <p className="text-xs font-black uppercase tracking-widest text-[#4F39F6] mb-1">Mentor Review</p>
-                    <h1 className="text-3xl font-black text-slate-900">{submission.hackathonTitle}</h1>
+                    <p className="text-xs font-extrabold uppercase tracking-widest text-[#4F46E5] mb-1">Mentor Review</p>
+                    <h1 className="text-3xl font-extrabold text-slate-900">{submission.hackathonTitle}</h1>
                 </div>
-                <span className={`px-4 py-2 rounded-xl text-sm font-black ${statusCfg.color}`}>
+                <span className={`px-4 py-2 rounded-xl text-sm font-extrabold ${statusCfg.color}`}>
                     {statusCfg.label}
                 </span>
             </div>
@@ -121,38 +121,38 @@ export default function SubmissionReview() {
                     <div className="bg-white border border-slate-100 rounded-2xl p-5 grid grid-cols-2 gap-4">
                         <div className="flex items-center gap-3">
                             <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center">
-                                <User size={16} className="text-[#4F39F6]" />
+                                <User size={16} className="text-[#4F46E5]" />
                             </div>
                             <div>
                                 <p className="text-xs font-bold text-slate-400">Participant</p>
-                                <p className="text-sm font-black text-slate-900">{submission.participantName}</p>
+                                <p className="text-sm font-extrabold text-slate-900">{submission.participantName}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
                             <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center">
-                                <Mail size={16} className="text-[#4F39F6]" />
+                                <Mail size={16} className="text-[#4F46E5]" />
                             </div>
                             <div>
                                 <p className="text-xs font-bold text-slate-400">Email</p>
-                                <p className="text-sm font-black text-slate-900 truncate">{submission.participantEmail}</p>
+                                <p className="text-sm font-extrabold text-slate-900 truncate">{submission.participantEmail}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
                             <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center">
-                                <Code2 size={16} className="text-[#4F39F6]" />
+                                <Code2 size={16} className="text-[#4F46E5]" />
                             </div>
                             <div>
                                 <p className="text-xs font-bold text-slate-400">Language</p>
-                                <p className="text-sm font-black text-slate-900">{submission.language}</p>
+                                <p className="text-sm font-extrabold text-slate-900">{submission.language}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
                             <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center">
-                                <Calendar size={16} className="text-[#4F39F6]" />
+                                <Calendar size={16} className="text-[#4F46E5]" />
                             </div>
                             <div>
                                 <p className="text-xs font-bold text-slate-400">Submitted</p>
-                                <p className="text-sm font-black text-slate-900">{formatDateTime(submission.submittedAt)}</p>
+                                <p className="text-sm font-extrabold text-slate-900">{formatDateTime(submission.submittedAt)}</p>
                             </div>
                         </div>
                     </div>
@@ -176,7 +176,7 @@ export default function SubmissionReview() {
                     {/* Participant notes */}
                     {submission.notes && (
                         <div className="bg-white border border-slate-100 rounded-2xl p-5">
-                            <p className="text-xs font-black uppercase tracking-wide text-slate-400 mb-2">Participant Notes</p>
+                            <p className="text-xs font-extrabold uppercase tracking-wide text-slate-400 mb-2">Participant Notes</p>
                             <p className="text-sm font-medium text-slate-600 leading-relaxed">{submission.notes}</p>
                         </div>
                     )}
@@ -187,8 +187,8 @@ export default function SubmissionReview() {
                     {submission.status !== 'PENDING' ? (
                         /* Already reviewed — show read-only verdict */
                         <div className="bg-white border border-slate-100 rounded-3xl p-7 space-y-5">
-                            <h2 className="text-lg font-black text-slate-900">Review Complete</h2>
-                            <div className={`flex items-center gap-2 px-4 py-3 rounded-xl font-black text-sm ${statusCfg.color}`}>
+                            <h2 className="text-lg font-extrabold text-slate-900">Review Complete</h2>
+                            <div className={`flex items-center gap-2 px-4 py-3 rounded-xl font-extrabold text-sm ${statusCfg.color}`}>
                                 {submission.status === 'ACCEPTED'
                                     ? <CheckCircle2 size={16} />
                                     : <XCircle size={16} />}
@@ -196,7 +196,7 @@ export default function SubmissionReview() {
                             </div>
                             {submission.reviewNotes && (
                                 <div>
-                                    <p className="text-xs font-black uppercase tracking-wide text-slate-400 mb-2">Mentor Feedback</p>
+                                    <p className="text-xs font-extrabold uppercase tracking-wide text-slate-400 mb-2">Mentor Feedback</p>
                                     <p className="text-sm font-medium text-slate-600 leading-relaxed">{submission.reviewNotes}</p>
                                 </div>
                             )}
@@ -210,7 +210,7 @@ export default function SubmissionReview() {
                         /* Pending — show review form */
                         <form onSubmit={handleSubmit(onSubmit)} className="bg-white border border-slate-100 rounded-3xl p-7 space-y-6">
                             <div>
-                                <h2 className="text-lg font-black text-slate-900 mb-1">Submit Your Review</h2>
+                                <h2 className="text-lg font-extrabold text-slate-900 mb-1">Submit Your Review</h2>
                                 <p className="text-sm font-medium text-slate-400">
                                     Evaluate this submission and provide feedback to the participant.
                                 </p>
@@ -218,12 +218,12 @@ export default function SubmissionReview() {
 
                             {/* Status picker */}
                             <div className="space-y-2">
-                                <p className="text-xs font-black uppercase tracking-wide text-slate-600">Decision</p>
+                                <p className="text-xs font-extrabold uppercase tracking-wide text-slate-600">Decision</p>
                                 <div className="grid grid-cols-2 gap-3">
                                     <button
                                         type="button"
                                         onClick={() => setValue('status', 'ACCEPTED', { shouldValidate: true })}
-                                        className={`flex items-center justify-center gap-2 py-3.5 rounded-xl font-black text-sm border-2 transition-all ${selectedStatus === 'ACCEPTED'
+                                        className={`flex items-center justify-center gap-2 py-3.5 rounded-xl font-extrabold text-sm border-2 transition-all ${selectedStatus === 'ACCEPTED'
                                             ? 'border-emerald-400 bg-emerald-50 text-emerald-600'
                                             : 'border-slate-100 text-slate-400 hover:border-slate-200'}`}
                                     >
@@ -232,7 +232,7 @@ export default function SubmissionReview() {
                                     <button
                                         type="button"
                                         onClick={() => setValue('status', 'REJECTED', { shouldValidate: true })}
-                                        className={`flex items-center justify-center gap-2 py-3.5 rounded-xl font-black text-sm border-2 transition-all ${selectedStatus === 'REJECTED'
+                                        className={`flex items-center justify-center gap-2 py-3.5 rounded-xl font-extrabold text-sm border-2 transition-all ${selectedStatus === 'REJECTED'
                                             ? 'border-red-400 bg-red-50 text-red-500'
                                             : 'border-slate-100 text-slate-400 hover:border-slate-200'}`}
                                     >
@@ -248,14 +248,14 @@ export default function SubmissionReview() {
 
                             {/* Feedback textarea */}
                             <div className="space-y-2">
-                                <label className="text-xs font-black uppercase tracking-wide text-slate-600">
+                                <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600">
                                     Feedback <span className="font-bold text-slate-400 normal-case tracking-normal">(required, min 10 chars)</span>
                                 </label>
                                 <textarea
                                     {...register('reviewNotes')}
                                     rows={6}
                                     placeholder="Describe what was done well, what could be improved, correctness of the solution, efficiency considerations..."
-                                    className={`w-full bg-slate-50 border rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 outline-none focus:border-[#4F39F6] transition-all resize-none ${errors.reviewNotes ? 'border-red-300' : 'border-slate-100'}`}
+                                    className={`w-full bg-slate-50 border rounded-2xl px-4 py-3 text-sm font-medium text-slate-700 outline-none focus:border-[#3AADDD] transition-all resize-none ${errors.reviewNotes ? 'border-red-300' : 'border-slate-100'}`}
                                 />
                                 {errors.reviewNotes && (
                                     <p className="text-xs font-bold text-red-500">{errors.reviewNotes.message}</p>
@@ -265,7 +265,7 @@ export default function SubmissionReview() {
                             <button
                                 type="submit"
                                 disabled={submitting || !selectedStatus}
-                                className="w-full flex items-center justify-center gap-2 py-4 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95"
+                                className="w-full flex items-center justify-center gap-2 py-4 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95"
                             >
                                 {submitting
                                     ? <><Loader2 size={16} className="animate-spin" /> Submitting...</>
@@ -276,13 +276,13 @@ export default function SubmissionReview() {
 
                     {/* Quick timeline */}
                     <div className="bg-white border border-slate-100 rounded-2xl p-5 space-y-4">
-                        <p className="text-xs font-black uppercase tracking-wide text-slate-400">Activity</p>
+                        <p className="text-xs font-extrabold uppercase tracking-wide text-slate-400">Activity</p>
                         <div className="flex items-start gap-3">
                             <div className="w-7 h-7 bg-indigo-50 rounded-lg flex items-center justify-center shrink-0 mt-0.5">
-                                <Clock size={13} className="text-[#4F39F6]" />
+                                <Clock size={13} className="text-[#4F46E5]" />
                             </div>
                             <div>
-                                <p className="text-xs font-black text-slate-700">Solution submitted</p>
+                                <p className="text-xs font-extrabold text-slate-700">Solution submitted</p>
                                 <p className="text-xs font-bold text-slate-400 mt-0.5">{formatDateTime(submission.submittedAt)}</p>
                             </div>
                         </div>
@@ -294,7 +294,7 @@ export default function SubmissionReview() {
                                         : <XCircle size={13} className="text-red-500" />}
                                 </div>
                                 <div>
-                                    <p className="text-xs font-black text-slate-700">Review completed — {submission.status}</p>
+                                    <p className="text-xs font-extrabold text-slate-700">Review completed — {submission.status}</p>
                                     <p className="text-xs font-bold text-slate-400 mt-0.5">{formatDateTime(submission.reviewedAt)}</p>
                                 </div>
                             </div>

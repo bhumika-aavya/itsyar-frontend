@@ -40,7 +40,7 @@ export default function AdminTeamsPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-24">
-        <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+        <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
       </div>
     );
   }
@@ -50,7 +50,7 @@ export default function AdminTeamsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black text-slate-900">Teams</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900">Teams</h1>
           <p className="text-sm font-medium text-slate-400 mt-0.5">
             {teams.length} teams &mdash; {openTeams} open slots, {fullTeams} full
           </p>
@@ -60,7 +60,7 @@ export default function AdminTeamsPage() {
       {/* Stats strip */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: "Total Teams", value: teams.length, color: "text-[#4F39F6] bg-indigo-50" },
+          { label: "Total Teams", value: teams.length, color: "text-[#4F46E5] bg-indigo-50" },
           { label: "Open for Join", value: openTeams, color: "text-emerald-600 bg-emerald-50" },
           { label: "Full Teams", value: fullTeams, color: "text-amber-600 bg-amber-50" },
         ].map(({ label, value, color }) => (
@@ -69,7 +69,7 @@ export default function AdminTeamsPage() {
               <Users2 size={20} />
             </div>
             <div>
-              <p className="text-2xl font-black text-slate-900">{value}</p>
+              <p className="text-2xl font-extrabold text-slate-900">{value}</p>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">{label}</p>
             </div>
           </div>
@@ -84,13 +84,13 @@ export default function AdminTeamsPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search teams..."
-            className="h-10 pl-9 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#4F39F6] w-56"
+            className="h-10 pl-9 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#3AADDD] w-56"
           />
         </div>
         <select
           value={hackathonFilter}
           onChange={e => setHackathonFilter(e.target.value)}
-          className="h-10 px-3 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 outline-none focus:border-[#4F39F6] cursor-pointer max-w-xs"
+          className="h-10 px-3 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 outline-none focus:border-[#3AADDD] cursor-pointer max-w-xs"
         >
           <option value="all">All Hackathons</option>
           {hackathonOptions.filter(h => h !== "all").map(h => (
@@ -105,12 +105,12 @@ export default function AdminTeamsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-50 bg-slate-50/50">
-                <th className="text-left px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider">Team</th>
-                <th className="text-left px-4 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider hidden md:table-cell">Hackathon</th>
-                <th className="text-left px-4 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider">Members</th>
-                <th className="text-left px-4 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider hidden lg:table-cell">Looking for</th>
-                <th className="text-left px-4 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider">Status</th>
-                <th className="text-right px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider">Actions</th>
+                <th className="text-left px-6 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Team</th>
+                <th className="text-left px-4 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hidden md:table-cell">Hackathon</th>
+                <th className="text-left px-4 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Members</th>
+                <th className="text-left px-4 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hidden lg:table-cell">Looking for</th>
+                <th className="text-left px-4 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Status</th>
+                <th className="text-right px-6 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -126,7 +126,7 @@ export default function AdminTeamsPage() {
                         >
                           <Users size={16} className="text-white" />
                         </div>
-                        <p className="font-black text-slate-900">{t.name}</p>
+                        <p className="font-extrabold text-slate-900">{t.name}</p>
                       </div>
                     </td>
                     <td className="px-4 py-4 hidden md:table-cell">
@@ -138,7 +138,7 @@ export default function AdminTeamsPage() {
                           {Array.from({ length: t.maxMembers }).map((_, i) => (
                             <div
                               key={i}
-                              className={`w-2 h-2 rounded-full ${i < t.memberCount ? "bg-[#4F39F6]" : "bg-slate-200"}`}
+                              className={`w-2 h-2 rounded-full ${i < t.memberCount ? "bg-[#4F46E5]" : "bg-slate-200"}`}
                             />
                           ))}
                         </div>
@@ -149,7 +149,7 @@ export default function AdminTeamsPage() {
                       <span className="text-xs font-medium text-slate-400 truncate max-w-[180px] block">{t.description}</span>
                     </td>
                     <td className="px-4 py-4">
-                      <span className={`text-[11px] font-black px-2.5 py-1 rounded-lg ${
+                      <span className={`text-[11px] font-extrabold px-2.5 py-1 rounded-lg ${
                         isFull ? "bg-slate-50 text-slate-500" : "bg-emerald-50 text-emerald-600"
                       }`}>
                         {isFull ? "Full" : "Open"}

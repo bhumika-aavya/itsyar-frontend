@@ -86,7 +86,7 @@ export default function AdminSubmissionReviewPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-24">
-        <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+        <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
       </div>
     );
   }
@@ -94,7 +94,7 @@ export default function AdminSubmissionReviewPage() {
   if (!current) {
     return (
       <div className="max-w-5xl space-y-5">
-        <button onClick={() => navigate(`/admin/submissions/${userId}`)} className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-[#4F39F6] transition-colors">
+        <button onClick={() => navigate(`/admin/submissions/${userId}`)} className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-[#4F46E5] transition-colors">
           <ArrowLeft size={15} /> Back to Queue
         </button>
         <p className="text-sm font-bold text-slate-400">Submission not found.</p>
@@ -106,14 +106,14 @@ export default function AdminSubmissionReviewPage() {
     <div className="max-w-5xl space-y-5 pb-4">
       <button
         onClick={() => navigate(`/admin/submissions/${userId}`)}
-        className="flex items-center gap-2 text-sm font-bold text-[#4F39F6] hover:underline"
+        className="flex items-center gap-2 text-sm font-bold text-[#4F46E5] hover:underline"
       >
         <ArrowLeft size={15} /> Back to Judging Queue
       </button>
 
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-900">{current.team}</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900">{current.team}</h1>
           <p className="text-sm font-bold text-slate-400 mt-1">
             {user?.fullName}, {current.teammate} · {current.hackathonTitle}
           </p>
@@ -134,8 +134,8 @@ export default function AdminSubmissionReviewPage() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`pb-3 text-sm font-black border-b-2 transition-colors ${
-              tab === t ? "border-[#4F39F6] text-[#4F39F6]" : "border-transparent text-slate-400 hover:text-slate-600"
+            className={`pb-3 text-sm font-extrabold border-b-2 transition-colors ${
+              tab === t ? "border-[#4F46E5] text-[#4F46E5]" : "border-transparent text-slate-400 hover:text-slate-600"
             }`}
           >
             {t}
@@ -155,21 +155,21 @@ export default function AdminSubmissionReviewPage() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="bg-white border border-slate-100 rounded-[20px] p-5">
                   <div className="flex items-center gap-2 mb-2">
-                    <Info size={15} className="text-[#4F39F6]" />
-                    <p className="text-sm font-black text-slate-900">About Project</p>
+                    <Info size={15} className="text-[#4F46E5]" />
+                    <p className="text-sm font-extrabold text-slate-900">About Project</p>
                   </div>
                   <p className="text-xs font-medium text-slate-500 leading-relaxed">{current.aboutProject}</p>
                 </div>
                 <div className="bg-indigo-50/60 border border-indigo-100 rounded-[20px] p-5">
                   <div className="flex items-center gap-2 mb-2">
-                    <Zap size={15} className="text-[#4F39F6]" />
-                    <p className="text-sm font-black text-slate-900">Problem Statement</p>
+                    <Zap size={15} className="text-[#4F46E5]" />
+                    <p className="text-sm font-extrabold text-slate-900">Problem Statement</p>
                   </div>
                   <p className="text-xs font-medium text-slate-600 leading-relaxed">{current.problemStatement}</p>
                 </div>
               </div>
               <div className="bg-white border border-slate-100 rounded-[20px] p-5">
-                <p className="text-sm font-black text-slate-900 mb-3">Tech Stack</p>
+                <p className="text-sm font-extrabold text-slate-900 mb-3">Tech Stack</p>
                 <div className="flex flex-wrap gap-2">
                   {current.techStack.map(t => (
                     <span key={t} className="text-xs font-bold text-slate-600 bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-lg">
@@ -183,7 +183,7 @@ export default function AdminSubmissionReviewPage() {
 
           {tab === "Files & Links" && (
             <div className="bg-white border border-slate-100 rounded-[20px] p-5 space-y-3">
-              <p className="text-sm font-black text-slate-900 mb-1">Submission Files</p>
+              <p className="text-sm font-extrabold text-slate-900 mb-1">Submission Files</p>
               {current.files.map(f => (
                 <div key={f.name} className="flex items-center gap-3 px-4 py-3 bg-slate-50 rounded-xl">
                   <FileText size={16} className="text-slate-400 shrink-0" />
@@ -204,7 +204,7 @@ export default function AdminSubmissionReviewPage() {
                 ["Submitted", fmt(current.submittedAt)],
               ].map(([label, value]) => (
                 <div key={label} className="flex items-center justify-between py-3">
-                  <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{label}</span>
+                  <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">{label}</span>
                   <span className="text-sm font-bold text-slate-700">{value}</span>
                 </div>
               ))}
@@ -216,17 +216,17 @@ export default function AdminSubmissionReviewPage() {
         <div className="bg-white border border-slate-100 rounded-[24px] p-6 space-y-5 lg:sticky lg:top-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Judge Panel</p>
-              <p className="text-lg font-black text-slate-900">Evaluation</p>
+              <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Judge Panel</p>
+              <p className="text-lg font-extrabold text-slate-900">Evaluation</p>
             </div>
-            <span className="text-xs font-black text-[#4F39F6] bg-indigo-50 px-3 py-1.5 rounded-xl text-center">
+            <span className="text-xs font-extrabold text-[#4F46E5] bg-indigo-50 px-3 py-1.5 rounded-xl text-center">
               <span className="block text-[9px] tracking-widest">WEIGHTED SCORE</span>
               {totalScore.toFixed(1)}/10
             </span>
           </div>
 
           {isFinal && (
-            <div className="flex items-center gap-1.5 text-xs font-black text-emerald-600 bg-emerald-50 px-3 py-2 rounded-xl">
+            <div className="flex items-center gap-1.5 text-xs font-extrabold text-emerald-600 bg-emerald-50 px-3 py-2 rounded-xl">
               <CheckCircle2 size={13} /> Reviewed & confirmed
             </div>
           )}
@@ -236,7 +236,7 @@ export default function AdminSubmissionReviewPage() {
               <div key={c.key}>
                 <div className="flex items-center justify-between mb-1.5">
                   <p className="text-sm font-bold text-slate-700">{c.label}</p>
-                  <span className="text-sm font-black text-[#4F39F6]">{(scores[c.key] ?? 0).toFixed(1)}</span>
+                  <span className="text-sm font-extrabold text-[#4F46E5]">{(scores[c.key] ?? 0).toFixed(1)}</span>
                 </div>
                 <input
                   type="range"
@@ -246,14 +246,14 @@ export default function AdminSubmissionReviewPage() {
                   value={scores[c.key] ?? 0}
                   disabled={isFinal}
                   onChange={e => setScores(s => ({ ...s, [c.key]: parseFloat(e.target.value) }))}
-                  className="w-full h-2 rounded-full appearance-none bg-slate-100 accent-[#4F39F6] disabled:opacity-50"
+                  className="w-full h-2 rounded-full appearance-none bg-slate-100 accent-[#4F46E5] disabled:opacity-50"
                 />
               </div>
             ))}
           </div>
 
           <div>
-            <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 block">
+            <label className="text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-1.5 block">
               Evaluation Notes & Feedback
             </label>
             <textarea
@@ -262,7 +262,7 @@ export default function AdminSubmissionReviewPage() {
               disabled={isFinal}
               placeholder="Provide constructive feedback for the team..."
               rows={4}
-              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#4F39F6] focus:bg-white transition-all resize-none disabled:opacity-60"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#3AADDD] focus:bg-white transition-all resize-none disabled:opacity-60"
             />
           </div>
 
@@ -270,7 +270,7 @@ export default function AdminSubmissionReviewPage() {
             <button
               onClick={() => handleSave(false)}
               disabled={isFinal || saving !== null}
-              className="flex-1 py-2.5 bg-slate-50 text-slate-700 rounded-xl font-black text-sm hover:bg-slate-100 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+              className="flex-1 py-2.5 bg-slate-50 text-slate-700 rounded-xl font-extrabold text-sm hover:bg-slate-100 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
             >
               {saving === "draft" ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
               Save Draft
@@ -278,7 +278,7 @@ export default function AdminSubmissionReviewPage() {
             <button
               onClick={() => handleSave(true)}
               disabled={isFinal || saving !== null}
-              className="flex-1 py-2.5 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+              className="flex-1 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
             >
               {saving === "submit" ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
               Submit Review
@@ -293,14 +293,14 @@ export default function AdminSubmissionReviewPage() {
       {/* Focus mode footer */}
       <div className="sticky bottom-0 bg-white border border-slate-100 rounded-[20px] px-6 py-4 shadow-sm flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+          <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
             Submission Review · Focus Mode: {user?.fullName}'s Queue
           </p>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-xs font-black text-slate-500">Reviewed {reviewedCount}/{submissions.length}</span>
+            <span className="text-xs font-extrabold text-slate-500">Reviewed {reviewedCount}/{submissions.length}</span>
             <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#4F39F6] rounded-full"
+                className="h-full bg-[#4F46E5] rounded-full"
                 style={{ width: `${submissions.length ? (reviewedCount / submissions.length) * 100 : 0}%` }}
               />
             </div>
@@ -310,21 +310,21 @@ export default function AdminSubmissionReviewPage() {
           <button
             onClick={() => goto(index - 1)}
             disabled={index <= 0}
-            className="flex items-center gap-1.5 px-4 py-2 bg-slate-50 text-slate-600 rounded-xl text-xs font-black hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            className="flex items-center gap-1.5 px-4 py-2 bg-slate-50 text-slate-600 rounded-xl text-xs font-extrabold hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
           >
             <ChevronLeft size={14} /> Previous
           </button>
           <button
             onClick={() => goto(index + 1)}
             disabled={index >= submissions.length - 1}
-            className="flex items-center gap-1.5 px-4 py-2 bg-[#4F39F6] text-white rounded-xl text-xs font-black hover:bg-[#3f2dd1] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#4F46E5] text-white rounded-xl text-xs font-extrabold hover:bg-[#4338CA] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
           >
             Next <ChevronRight size={14} />
           </button>
           <button
             onClick={() => goto(index + 1)}
             disabled={index >= submissions.length - 1}
-            className="px-3 py-2 text-xs font-black text-slate-400 hover:text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            className="px-3 py-2 text-xs font-extrabold text-slate-400 hover:text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
           >
             Skip
           </button>

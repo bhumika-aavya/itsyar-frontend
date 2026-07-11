@@ -30,7 +30,7 @@ export default function MentorCoursesPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-24">
-        <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+        <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
       </div>
     );
   }
@@ -38,7 +38,7 @@ export default function MentorCoursesPage() {
   return (
     <div className="space-y-5 max-w-6xl">
       <div>
-        <h1 className="text-2xl font-black text-slate-900">My Courses</h1>
+        <h1 className="text-2xl font-extrabold text-slate-900">My Courses</h1>
         <p className="text-sm font-medium text-slate-400 mt-0.5">Courses you are currently mentoring</p>
       </div>
 
@@ -48,7 +48,7 @@ export default function MentorCoursesPage() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search courses..."
-          className="w-full h-10 pl-9 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#4F39F6]"
+          className="w-full h-10 pl-9 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#3AADDD]"
         />
       </div>
 
@@ -75,16 +75,16 @@ export default function MentorCoursesPage() {
                 )}
                 <div className="p-5 space-y-3">
                   <div>
-                    <p className="font-black text-slate-900 leading-snug">{course.title}</p>
+                    <p className="font-extrabold text-slate-900 leading-snug">{course.title}</p>
                     <p className="text-xs font-bold text-slate-400 mt-1">{course.instructor ?? course.author ?? "—"}</p>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className={`text-xs font-black px-2.5 py-1 rounded-lg ${levelCls}`}>{level}</span>
+                    <span className={`text-xs font-extrabold px-2.5 py-1 rounded-lg ${levelCls}`}>{level}</span>
                     <span className="text-xs font-bold text-slate-400">{course.enrolledCount ?? 0} students</span>
                   </div>
                   <button
                     onClick={() => navigate(`/courses/${course.id}`)}
-                    className="w-full flex items-center justify-center gap-2 py-2 bg-slate-50 text-slate-600 rounded-xl text-xs font-black hover:bg-sky-50 hover:text-sky-600 transition-all"
+                    className="w-full flex items-center justify-center gap-2 py-2 bg-slate-50 text-slate-600 rounded-xl text-xs font-extrabold hover:bg-sky-50 hover:text-sky-600 transition-all"
                   >
                     <ExternalLink size={13} /> View Course
                   </button>

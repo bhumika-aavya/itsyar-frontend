@@ -30,7 +30,7 @@ export default function HackathonSandboxPage() {
 
     if (checking) return (
         <div className="h-screen flex items-center justify-center bg-[#F8F9FC]">
-            <Loader2 className="animate-spin text-[#4F39F6]" size={36} />
+            <Loader2 className="animate-spin text-[#4F46E5]" size={36} />
         </div>
     );
 
@@ -40,14 +40,14 @@ export default function HackathonSandboxPage() {
                 <Lock size={28} className="text-red-400" />
             </div>
             <div>
-                <h2 className="text-2xl font-black text-slate-900">Registration Required</h2>
+                <h2 className="text-2xl font-extrabold text-slate-900">Registration Required</h2>
                 <p className="text-sm font-medium text-slate-400 mt-2 max-w-sm leading-relaxed">
                     You must register for this hackathon before accessing the code sandbox. Please go back and complete registration.
                 </p>
             </div>
             <button
                 onClick={() => navigate(`/hackathons/${id}`)}
-                className="flex items-center gap-2 px-6 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] transition-all"
+                className="flex items-center gap-2 px-6 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all"
             >
                 <ArrowLeft size={15} /> Back to Hackathon
             </button>

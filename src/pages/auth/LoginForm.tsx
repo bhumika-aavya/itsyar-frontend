@@ -108,7 +108,7 @@ export default function LoginForm() {
                 {...register("email")}
                 type="email"
                 placeholder="name@company.com"
-                className={`h-14 w-full rounded-xl border-2 pl-12 pr-4 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 ${errors.email ? "border-red-400" : "border-transparent focus:border-[#4F39F6] focus:bg-white"
+                className={`h-14 w-full rounded-xl border-2 pl-12 pr-4 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 ${errors.email ? "border-red-400" : "border-transparent focus:border-[#3AADDD] focus:bg-white"
                   }`}
               />
             </div>
@@ -119,7 +119,7 @@ export default function LoginForm() {
           <div className="flex flex-col space-y-1.5 items-start">
             <div className="flex justify-between items-center w-full px-1">
               <label className="text-[13px] font-bold text-slate-800">Password</label>
-              <button type="button" className="text-[12px] font-bold text-[#4F39F6] hover:underline">Forgot password?</button>
+              <button type="button" className="text-[12px] font-bold text-[#4F46E5] hover:underline">Forgot password?</button>
             </div>
             <div className="relative w-full">
               <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.password ? 'text-red-400' : 'text-slate-400'}`} size={18} />
@@ -127,7 +127,7 @@ export default function LoginForm() {
                 {...register("password")}
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-                className={`h-14 w-full rounded-xl border-2 pl-12 pr-12 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 ${errors.password ? "border-red-400" : "border-transparent focus:border-[#4F39F6] focus:bg-white"
+                className={`h-14 w-full rounded-xl border-2 pl-12 pr-12 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 ${errors.password ? "border-red-400" : "border-transparent focus:border-[#3AADDD] focus:bg-white"
                   }`}
               />
               <button
@@ -148,7 +148,7 @@ export default function LoginForm() {
               <UserCog className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.role ? 'text-red-400' : 'text-slate-400'}`} size={18} />
               <select
                 {...register("role")}
-                className={`h-14 w-full appearance-none rounded-xl border-2 pl-12 pr-10 bg-[#F8F6FC] outline-none transition-all cursor-pointer font-bold text-slate-700 ${errors.role ? "border-red-400" : "border-transparent focus:border-[#4F39F6] focus:bg-white"
+                className={`h-14 w-full appearance-none rounded-xl border-2 pl-12 pr-10 bg-[#F8F6FC] outline-none transition-all cursor-pointer font-bold text-slate-700 ${errors.role ? "border-red-400" : "border-transparent focus:border-[#3AADDD] focus:bg-white"
                   }`}
               >
                 <option value="">Select your role</option>
@@ -166,7 +166,7 @@ export default function LoginForm() {
           <button
             disabled={isLoading}
             type="submit"
-            className="h-14 w-full rounded-xl bg-[#4F39F6] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#3f2dd1] transition-all disabled:opacity-70 shadow-lg shadow-indigo-100 active:scale-[0.98]"
+            className="h-14 w-full rounded-xl bg-[#4F46E5] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#4338CA] transition-all disabled:opacity-70 shadow-lg shadow-indigo-100 active:scale-[0.98]"
           >
             {isLoading ? <Loader2 className="animate-spin" /> : "Sign In"}
           </button>
@@ -198,7 +198,7 @@ export default function LoginForm() {
           <button
             type="button"
             onClick={() => navigate('/register')}
-            className="text-[#4F39F6] hover:underline"
+            className="text-[#4F46E5] hover:underline"
           >
             Sign up
           </button>

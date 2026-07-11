@@ -61,12 +61,12 @@ export default function MentorDashboard() {
             {/* Header */}
             <div className="flex items-start justify-between gap-6 flex-wrap">
                 <div>
-                    <p className="text-xs font-black uppercase tracking-widest text-[#4F39F6] mb-1">Mentor Portal</p>
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Submission Reviews</h1>
+                    <p className="text-xs font-extrabold uppercase tracking-widest text-[#4F46E5] mb-1">Mentor Portal</p>
+                    <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Submission Reviews</h1>
                     <p className="text-slate-500 font-medium mt-1">Review and evaluate hackathon submissions from participants.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="px-4 py-2 bg-amber-50 text-amber-600 rounded-xl text-sm font-black">
+                    <div className="px-4 py-2 bg-amber-50 text-amber-600 rounded-xl text-sm font-extrabold">
                         {counts.PENDING} Pending
                     </div>
                 </div>
@@ -82,12 +82,12 @@ export default function MentorDashboard() {
                         <button
                             key={key}
                             onClick={() => setFilter(key)}
-                            className={`p-5 rounded-2xl text-left border transition-all ${filter === key ? 'border-[#4F39F6] shadow-md shadow-indigo-50' : 'border-slate-100 hover:border-slate-200'} bg-white`}
+                            className={`p-5 rounded-2xl text-left border transition-all ${filter === key ? 'border-[#4F46E5] shadow-md shadow-indigo-50' : 'border-slate-100 hover:border-slate-200'} bg-white`}
                         >
                             <div className={`w-9 h-9 ${cfg.bg} rounded-xl flex items-center justify-center mb-3`}>
                                 <cfg.Icon size={18} className={cfg.color} />
                             </div>
-                            <p className="text-2xl font-black text-slate-900">{count}</p>
+                            <p className="text-2xl font-extrabold text-slate-900">{count}</p>
                             <p className="text-xs font-bold text-slate-400 mt-0.5">{cfg.label}</p>
                         </button>
                     );
@@ -102,7 +102,7 @@ export default function MentorDashboard() {
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         placeholder="Search by name, hackathon, language..."
-                        className="w-full h-11 pl-10 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none focus:border-[#4F39F6] transition-all"
+                        className="w-full h-11 pl-10 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none focus:border-[#3AADDD] transition-all"
                     />
                 </div>
                 <div className="flex items-center gap-2">
@@ -111,7 +111,7 @@ export default function MentorDashboard() {
                         <button
                             key={f}
                             onClick={() => setFilter(f)}
-                            className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${filter === f ? 'bg-[#4F39F6] text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
+                            className={`px-4 py-2 rounded-xl text-xs font-extrabold transition-all ${filter === f ? 'bg-[#4F46E5] text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
                         >
                             {f === 'ALL' ? 'All' : STATUS_CONFIG[f].label}
                         </button>
@@ -122,14 +122,14 @@ export default function MentorDashboard() {
             {/* Submissions list */}
             {loading ? (
                 <div className="flex justify-center py-20">
-                    <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+                    <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
                 </div>
             ) : filtered.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 text-center">
                     <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4">
                         <ClipboardList size={28} className="text-slate-300" />
                     </div>
-                    <p className="font-black text-slate-700">No submissions found</p>
+                    <p className="font-extrabold text-slate-700">No submissions found</p>
                     <p className="text-sm text-slate-400 font-medium mt-1">Try adjusting your filters.</p>
                 </div>
             ) : (
@@ -140,7 +140,7 @@ export default function MentorDashboard() {
                             <button
                                 key={sub.submissionId}
                                 onClick={() => navigate(`/mentor/submissions/${sub.submissionId}`)}
-                                className="w-full bg-white border border-slate-100 rounded-2xl p-5 flex items-center gap-5 hover:border-[#4F39F6]/30 hover:shadow-md hover:shadow-indigo-50/50 transition-all text-left group"
+                                className="w-full bg-white border border-slate-100 rounded-2xl p-5 flex items-center gap-5 hover:border-[#3AADDD]/30 hover:shadow-md hover:shadow-indigo-50/50 transition-all text-left group"
                             >
                                 {/* Language badge */}
                                 <div className="w-12 h-12 bg-[#1E1E2E] rounded-xl flex items-center justify-center shrink-0">
@@ -150,7 +150,7 @@ export default function MentorDashboard() {
                                 {/* Info */}
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-0.5">
-                                        <p className="font-black text-slate-900 truncate">{sub.participantName}</p>
+                                        <p className="font-extrabold text-slate-900 truncate">{sub.participantName}</p>
                                         <span className="text-slate-300 font-bold">·</span>
                                         <p className="text-sm font-bold text-slate-500 truncate">{sub.hackathonTitle}</p>
                                     </div>
@@ -165,13 +165,13 @@ export default function MentorDashboard() {
                                 <div className="flex items-center gap-4 shrink-0">
                                     <div className="text-right hidden sm:block">
                                         <p className="text-xs font-bold text-slate-400">Submitted</p>
-                                        <p className="text-xs font-black text-slate-600">{timeAgo(sub.submittedAt)}</p>
+                                        <p className="text-xs font-extrabold text-slate-600">{timeAgo(sub.submittedAt)}</p>
                                     </div>
-                                    <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black ${cfg.color}`}>
+                                    <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-extrabold ${cfg.color}`}>
                                         <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
                                         {cfg.label}
                                     </span>
-                                    <ChevronRight size={16} className="text-slate-300 group-hover:text-[#4F39F6] transition-colors" />
+                                    <ChevronRight size={16} className="text-slate-300 group-hover:text-[#4F46E5] transition-colors" />
                                 </div>
                             </button>
                         );

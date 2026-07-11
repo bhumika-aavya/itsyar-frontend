@@ -79,11 +79,11 @@ export default function QuizModal({ isOpen, onClose, onQuizComplete, data, isFin
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
         <div className="bg-white w-full max-w-lg rounded-[40px] p-12 text-center shadow-2xl animate-in zoom-in-95 duration-300">
           <div className="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Trophy className="text-[#4F39F6]" size={48} />
+            <Trophy className="text-[#4F46E5]" size={48} />
           </div>
-          <h2 className="text-3xl font-black text-slate-900 mb-2">Quiz Completed!</h2>
+          <h2 className="text-3xl font-extrabold text-slate-900 mb-2">Quiz Completed!</h2>
           <p className="text-slate-500 font-medium mb-2">Great job! You've finished the module assessment.</p>
-          <p className={`text-2xl font-black mb-8 ${isPassed ? 'text-emerald-500' : 'text-red-500'}`}>
+          <p className={`text-2xl font-extrabold mb-8 ${isPassed ? 'text-emerald-500' : 'text-red-500'}`}>
             {percentage}%
           </p>
 
@@ -91,7 +91,7 @@ export default function QuizModal({ isOpen, onClose, onQuizComplete, data, isFin
             {isFinalQuiz && (
               <button
                 onClick={() => navigate(`/courses/${courseId}/certificate`)}
-                className="w-full py-4 bg-[#10B981] text-white rounded-2xl font-black text-sm shadow-xl shadow-emerald-100 flex items-center justify-center gap-2 hover:bg-emerald-600 transition-all"
+                className="w-full py-4 bg-[#10B981] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-emerald-100 flex items-center justify-center gap-2 hover:bg-emerald-600 transition-all"
               >
                 <Award size={20} /> View &amp; Download Certificate
               </button>
@@ -101,7 +101,7 @@ export default function QuizModal({ isOpen, onClose, onQuizComplete, data, isFin
                 if (!isFinalQuiz) onQuizComplete?.();
                 onClose();
               }}
-              className="w-full py-4 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-xl hover:bg-[#3f2dd1] transition-all"
+              className="w-full py-4 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl hover:bg-[#4338CA] transition-all"
             >
               {isFinalQuiz ? 'Close' : 'Continue to Next Module'}
             </button>
@@ -119,14 +119,14 @@ export default function QuizModal({ isOpen, onClose, onQuizComplete, data, isFin
         <div className="flex-1 p-12 flex flex-col bg-white">
           <div className="flex justify-between items-start mb-10">
             <div className="text-left">
-              <h2 className="text-2xl font-black text-slate-900 tracking-tight">{data.title}</h2>
-              <p className="text-[11px] font-bold text-[#4F39F6] uppercase tracking-[0.15em] mt-1">{data.path}</p>
+              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">{data.title}</h2>
+              <p className="text-[11px] font-bold text-[#4F46E5] uppercase tracking-[0.15em] mt-1">{data.path}</p>
             </div>
             <button onClick={onClose} className="p-2 hover:bg-slate-50 rounded-full text-slate-400"><X size={24} /></button>
           </div>
 
           <div className="flex-1 text-left">
-            <p className="text-[11px] font-black text-slate-300 uppercase tracking-[0.2em] mb-4">
+            <p className="text-[11px] font-extrabold text-slate-300 uppercase tracking-[0.2em] mb-4">
               Question {currentIdx + 1} of {data.questions.length}
             </p>
             <h3 className="text-xl font-bold text-slate-800 leading-relaxed mb-10">
@@ -151,7 +151,7 @@ export default function QuizModal({ isOpen, onClose, onQuizComplete, data, isFin
                     icon = <XCircle className="text-red-500" size={24} />;
                   }
                 } else if (isSelected) {
-                  containerStyle = "border-[#4F39F6] bg-indigo-50/30";
+                  containerStyle = "border-[#4F46E5] bg-indigo-50/30";
                 }
 
                 return (
@@ -182,7 +182,7 @@ export default function QuizModal({ isOpen, onClose, onQuizComplete, data, isFin
             <button
               disabled={selectedAnswers[currentIdx] === undefined}
               onClick={() => currentIdx < data.questions.length - 1 ? setCurrentIdx(prev => prev + 1) : setIsFinished(true)}
-              className="flex items-center gap-2 px-12 py-4 bg-[#1E293B] text-white rounded-2xl font-black text-sm hover:bg-slate-800 disabled:opacity-50 transition-all"
+              className="flex items-center gap-2 px-12 py-4 bg-[#1E293B] text-white rounded-2xl font-extrabold text-sm hover:bg-slate-800 disabled:opacity-50 transition-all"
             >
               {currentIdx === data.questions.length - 1 ? "Finish" : "Next"} <ChevronRight size={20} />
             </button>
@@ -192,8 +192,8 @@ export default function QuizModal({ isOpen, onClose, onQuizComplete, data, isFin
         {/* Sidebar */}
         <div className="w-[340px] bg-[#F8F9FD] p-10 flex flex-col border-l border-slate-50">
           <div className="bg-white rounded-[32px] p-10 text-center shadow-xl shadow-indigo-500/5 border border-indigo-50">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Time Remaining</p>
-            <div className={`text-6xl font-black tabular-nums tracking-tighter ${timeLeft < 60 ? 'text-red-500 animate-pulse' : 'text-slate-900'}`}>
+            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-3">Time Remaining</p>
+            <div className={`text-6xl font-extrabold tabular-nums tracking-tighter ${timeLeft < 60 ? 'text-red-500 animate-pulse' : 'text-slate-900'}`}>
               {formatTime(timeLeft)}
             </div>
           </div>
@@ -207,7 +207,7 @@ export default function QuizModal({ isOpen, onClose, onQuizComplete, data, isFin
             </div>
             <button
               onClick={() => setIsFinished(true)}
-              className="w-full py-5 bg-[#4F39F6] text-white rounded-2xl font-black text-[15px] shadow-2xl shadow-indigo-200 hover:bg-[#3f2dd1] transition-all active:scale-95"
+              className="w-full py-5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-[15px] shadow-2xl shadow-indigo-200 hover:bg-[#4338CA] transition-all active:scale-95"
             >
               Submit Test
             </button>

@@ -123,7 +123,7 @@ export default function AdminUsersPage() {
   if (initialLoading) {
     return (
       <div className="flex justify-center py-24">
-        <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+        <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
       </div>
     );
   }
@@ -133,7 +133,7 @@ export default function AdminUsersPage() {
       {/* Header row */}
       <div className="flex flex-wrap gap-3 items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black text-slate-900">Users</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900">Users</h1>
           <p className="text-sm font-medium text-slate-400 mt-0.5 flex items-center gap-1.5">
             {users.length} total members
             {loading && <Loader2 size={12} className="animate-spin text-slate-300" />}
@@ -141,7 +141,7 @@ export default function AdminUsersPage() {
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#4F39F6] text-white rounded-xl text-sm font-black shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#4F46E5] text-white rounded-xl text-sm font-extrabold shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all"
         >
           <UserPlus size={16} /> Add User
         </button>
@@ -155,13 +155,13 @@ export default function AdminUsersPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search users..."
-            className="h-10 pl-9 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#4F39F6] w-56"
+            className="h-10 pl-9 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#3AADDD] w-56"
           />
         </div>
         <select
           value={roleFilter}
           onChange={e => setRoleFilter(e.target.value)}
-          className="h-10 px-3 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 outline-none focus:border-[#4F39F6] cursor-pointer"
+          className="h-10 px-3 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 outline-none focus:border-[#3AADDD] cursor-pointer"
         >
           <option value="all">All Roles</option>
           {ROLES.map(r => <option key={r} value={r}>{roleLabel(r)}</option>)}
@@ -169,7 +169,7 @@ export default function AdminUsersPage() {
         <select
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value)}
-          className="h-10 px-3 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 outline-none focus:border-[#4F39F6] cursor-pointer"
+          className="h-10 px-3 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-600 outline-none focus:border-[#3AADDD] cursor-pointer"
         >
           <option value="all">All Status</option>
           <option value="active">Active</option>
@@ -179,7 +179,7 @@ export default function AdminUsersPage() {
         {(search || roleFilter !== "all" || statusFilter !== "all") && (
           <button
             onClick={handleReset}
-            className="h-10 px-4 text-sm font-bold text-slate-500 hover:text-[#4F39F6] transition-colors"
+            className="h-10 px-4 text-sm font-bold text-slate-500 hover:text-[#4F46E5] transition-colors"
           >
             Reset filters
           </button>
@@ -192,12 +192,12 @@ export default function AdminUsersPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-50 bg-slate-50/50">
-                <th className="text-left px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider">User</th>
-                <th className="text-left px-4 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider">Role</th>
-                <th className="text-left px-4 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider">Status</th>
-                <th className="text-left px-4 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider hidden md:table-cell">Created</th>
-                <th className="text-left px-4 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider hidden lg:table-cell">Activity</th>
-                <th className="text-right px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider">Actions</th>
+                <th className="text-left px-6 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">User</th>
+                <th className="text-left px-4 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Role</th>
+                <th className="text-left px-4 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Status</th>
+                <th className="text-left px-4 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hidden md:table-cell">Created</th>
+                <th className="text-left px-4 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hidden lg:table-cell">Activity</th>
+                <th className="text-right px-6 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -205,22 +205,22 @@ export default function AdminUsersPage() {
                 <tr key={u.id} className="hover:bg-slate-50/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F39F6] font-black text-sm shrink-0">
+                      <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F46E5] font-extrabold text-sm shrink-0">
                         {u.fullName.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-black text-slate-900">{u.fullName}</p>
+                        <p className="font-extrabold text-slate-900">{u.fullName}</p>
                         <p className="text-xs font-bold text-slate-400">{u.email}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <span className="text-[11px] font-black px-2.5 py-1 rounded-lg bg-indigo-50 text-[#4F39F6]">
+                    <span className="text-[11px] font-extrabold px-2.5 py-1 rounded-lg bg-indigo-50 text-[#4F46E5]">
                       {roleLabel(u.role)}
                     </span>
                   </td>
                   <td className="px-4 py-4">
-                    <span className={`text-[11px] font-black px-2.5 py-1 rounded-lg capitalize ${statusBadge(u.status)}`}>
+                    <span className={`text-[11px] font-extrabold px-2.5 py-1 rounded-lg capitalize ${statusBadge(u.status)}`}>
                       {u.status}
                     </span>
                   </td>
@@ -244,7 +244,7 @@ export default function AdminUsersPage() {
                           <button
                             onClick={() => openEditUser(u)}
                             title="Edit user"
-                            className="p-1.5 text-[#4F39F6] hover:bg-indigo-50 rounded-lg transition-colors"
+                            className="p-1.5 text-[#4F46E5] hover:bg-indigo-50 rounded-lg transition-colors"
                           >
                             <Edit2 size={15} />
                           </button>
@@ -301,14 +301,14 @@ export default function AdminUsersPage() {
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="px-3 py-1.5 text-xs font-black text-slate-600 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                className="px-3 py-1.5 text-xs font-extrabold text-slate-600 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
                 Previous
               </button>
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
-                className="px-3 py-1.5 text-xs font-black text-slate-600 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                className="px-3 py-1.5 text-xs font-extrabold text-slate-600 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
               >
                 Next
               </button>
@@ -323,7 +323,7 @@ export default function AdminUsersPage() {
           <div className="bg-white rounded-[28px] shadow-2xl w-full max-w-md p-8">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-black text-slate-900">Add User</h2>
+                <h2 className="text-xl font-extrabold text-slate-900">Add User</h2>
                 <p className="text-sm font-medium text-slate-400 mt-0.5">Create a new platform account</p>
               </div>
               <button
@@ -336,42 +336,42 @@ export default function AdminUsersPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Full Name</label>
+                <label className="text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-1.5 block">Full Name</label>
                 <input
                   value={inviteForm.fullName}
                   onChange={e => setInviteForm(f => ({ ...f, fullName: e.target.value }))}
                   placeholder="Jane Smith"
-                  className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#4F39F6] focus:bg-white transition-all"
+                  className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#3AADDD] focus:bg-white transition-all"
                 />
               </div>
               <div>
-                <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Email</label>
+                <label className="text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-1.5 block">Email</label>
                 <input
                   value={inviteForm.email}
                   onChange={e => setInviteForm(f => ({ ...f, email: e.target.value }))}
                   placeholder="jane@example.com"
                   type="email"
-                  className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#4F39F6] focus:bg-white transition-all"
+                  className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#3AADDD] focus:bg-white transition-all"
                 />
               </div>
               <div>
-                <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Role</label>
+                <label className="text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-1.5 block">Role</label>
                 <select
                   value={inviteForm.role}
                   onChange={e => setInviteForm(f => ({ ...f, role: e.target.value }))}
-                  className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:border-[#4F39F6] focus:bg-white transition-all cursor-pointer"
+                  className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:border-[#3AADDD] focus:bg-white transition-all cursor-pointer"
                 >
                   {ROLES.map(r => <option key={r} value={r}>{roleLabel(r)}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Temporary Password</label>
+                <label className="text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-1.5 block">Temporary Password</label>
                 <input
                   value={inviteForm.password}
                   onChange={e => setInviteForm(f => ({ ...f, password: e.target.value }))}
                   placeholder="At least 8 characters"
                   type="password"
-                  className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#4F39F6] focus:bg-white transition-all"
+                  className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#3AADDD] focus:bg-white transition-all"
                 />
               </div>
 
@@ -383,14 +383,14 @@ export default function AdminUsersPage() {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => { setShowModal(false); setInviteError(""); }}
-                className="flex-1 py-3 bg-slate-50 text-slate-700 rounded-xl font-black text-sm hover:bg-slate-100 transition-all"
+                className="flex-1 py-3 bg-slate-50 text-slate-700 rounded-xl font-extrabold text-sm hover:bg-slate-100 transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={handleInvite}
                 disabled={inviting}
-                className="flex-1 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
               >
                 {inviting ? <Loader2 size={15} className="animate-spin" /> : <UserPlus size={15} />}
                 {inviting ? "Creating…" : "Create User"}
@@ -406,7 +406,7 @@ export default function AdminUsersPage() {
           <div className="bg-white rounded-[28px] shadow-2xl w-full max-w-md p-8">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-black text-slate-900">Edit User</h2>
+                <h2 className="text-xl font-extrabold text-slate-900">Edit User</h2>
                 <p className="text-sm font-medium text-slate-400 mt-0.5">{editingUser.fullName} · {editingUser.email}</p>
               </div>
               <button
@@ -419,21 +419,21 @@ export default function AdminUsersPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Role</label>
+                <label className="text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-1.5 block">Role</label>
                 <select
                   value={editRole}
                   onChange={e => setEditRole(e.target.value)}
-                  className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:border-[#4F39F6] focus:bg-white transition-all cursor-pointer"
+                  className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:border-[#3AADDD] focus:bg-white transition-all cursor-pointer"
                 >
                   {ROLES.map(r => <option key={r} value={r}>{roleLabel(r)}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 block">Status</label>
+                <label className="text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-1.5 block">Status</label>
                 <select
                   value={editStatus}
                   onChange={e => setEditStatus(e.target.value as "active" | "inactive" | "banned")}
-                  className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:border-[#4F39F6] focus:bg-white transition-all cursor-pointer"
+                  className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:border-[#3AADDD] focus:bg-white transition-all cursor-pointer"
                 >
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
@@ -445,14 +445,14 @@ export default function AdminUsersPage() {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setEditingUser(null)}
-                className="flex-1 py-3 bg-slate-50 text-slate-700 rounded-xl font-black text-sm hover:bg-slate-100 transition-all"
+                className="flex-1 py-3 bg-slate-50 text-slate-700 rounded-xl font-extrabold text-sm hover:bg-slate-100 transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveEdit}
                 disabled={savingEdit}
-                className="flex-1 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
               >
                 {savingEdit ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
                 {savingEdit ? "Saving…" : "Save Changes"}

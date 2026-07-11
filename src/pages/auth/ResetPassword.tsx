@@ -46,11 +46,11 @@ export default function ResetPassword() {
               <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle2 className="text-emerald-500" size={32} />
               </div>
-              <h2 className="text-2xl font-black text-slate-900">Password updated!</h2>
+              <h2 className="text-2xl font-extrabold text-slate-900">Password updated!</h2>
               <p className="text-sm font-medium text-slate-500">Your password has been reset successfully.</p>
               <button
                 onClick={() => navigate('/login')}
-                className="mt-4 w-full h-12 rounded-xl bg-[#4F39F6] text-white font-bold text-sm hover:bg-[#3f2dd1] transition-all"
+                className="mt-4 w-full h-12 rounded-xl bg-[#4F46E5] text-white font-bold text-sm hover:bg-[#4338CA] transition-all"
               >
                 Sign In
               </button>
@@ -58,7 +58,7 @@ export default function ResetPassword() {
           ) : (
             <>
               <div className="mb-8">
-                <h2 className="text-2xl font-black text-slate-900">Set new password</h2>
+                <h2 className="text-2xl font-extrabold text-slate-900">Set new password</h2>
                 <p className="text-sm font-medium text-slate-500 mt-2">Choose a strong password for your account.</p>
               </div>
 
@@ -84,7 +84,7 @@ export default function ResetPassword() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="At least 8 characters"
-                      className="h-14 w-full rounded-xl border-2 border-transparent pl-12 pr-12 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 focus:border-[#4F39F6] focus:bg-white"
+                      className="h-14 w-full rounded-xl border-2 border-transparent pl-12 pr-12 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 focus:border-[#3AADDD] focus:bg-white"
                     />
                     <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
                       {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -101,7 +101,7 @@ export default function ResetPassword() {
                       value={confirm}
                       onChange={(e) => setConfirm(e.target.value)}
                       placeholder="Repeat your password"
-                      className="h-14 w-full rounded-xl border-2 border-transparent pl-12 pr-12 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 focus:border-[#4F39F6] focus:bg-white"
+                      className="h-14 w-full rounded-xl border-2 border-transparent pl-12 pr-12 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 focus:border-[#3AADDD] focus:bg-white"
                     />
                     <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
                       {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -112,7 +112,7 @@ export default function ResetPassword() {
                 <button
                   type="submit"
                   disabled={isLoading || !token}
-                  className="h-14 w-full rounded-xl bg-[#4F39F6] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#3f2dd1] transition-all disabled:opacity-70 shadow-lg shadow-indigo-100"
+                  className="h-14 w-full rounded-xl bg-[#4F46E5] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#4338CA] transition-all disabled:opacity-70 shadow-lg shadow-indigo-100"
                 >
                   {isLoading ? <Loader2 className="animate-spin" size={20} /> : 'Reset Password'}
                 </button>

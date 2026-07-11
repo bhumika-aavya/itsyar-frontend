@@ -56,7 +56,7 @@ export default function AdminHackathonsPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-24">
-        <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+        <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
       </div>
     );
   }
@@ -66,12 +66,12 @@ export default function AdminHackathonsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black text-slate-900">Hackathons</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900">Hackathons</h1>
           <p className="text-sm font-medium text-slate-400 mt-0.5">{hackathons.length} hackathons on the platform</p>
         </div>
         <button
           onClick={() => navigate("/admin/hackathons/create")}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#4F39F6] text-white rounded-xl text-sm font-black shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#4F46E5] text-white rounded-xl text-sm font-extrabold shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all"
         >
           <Plus size={16} /> Create Hackathon
         </button>
@@ -85,7 +85,7 @@ export default function AdminHackathonsPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search hackathons..."
-            className="h-10 pl-9 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#4F39F6] w-56"
+            className="h-10 pl-9 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#3AADDD] w-56"
           />
         </div>
         <div className="flex gap-2">
@@ -93,8 +93,8 @@ export default function AdminHackathonsPage() {
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`px-3 py-1.5 text-xs font-black rounded-xl transition-all ${
-                statusFilter === s ? "bg-[#4F39F6] text-white" : "bg-white border border-slate-200 text-slate-500 hover:border-slate-300"
+              className={`px-3 py-1.5 text-xs font-extrabold rounded-xl transition-all ${
+                statusFilter === s ? "bg-[#4F46E5] text-white" : "bg-white border border-slate-200 text-slate-500 hover:border-slate-300"
               }`}
             >
               {s === "all" ? "All" : s}
@@ -109,12 +109,12 @@ export default function AdminHackathonsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-50 bg-slate-50/50">
-                <th className="text-left px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider">Hackathon</th>
-                <th className="text-left px-4 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider hidden md:table-cell">Start Date</th>
-                <th className="text-left px-4 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider hidden md:table-cell">End Date</th>
-                <th className="text-left px-4 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider">Status</th>
-                <th className="text-left px-4 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider hidden lg:table-cell">Participants</th>
-                <th className="text-right px-6 py-4 text-[11px] font-black text-slate-400 uppercase tracking-wider">Actions</th>
+                <th className="text-left px-6 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Hackathon</th>
+                <th className="text-left px-4 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hidden md:table-cell">Start Date</th>
+                <th className="text-left px-4 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hidden md:table-cell">End Date</th>
+                <th className="text-left px-4 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Status</th>
+                <th className="text-left px-4 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hidden lg:table-cell">Participants</th>
+                <th className="text-right px-6 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
@@ -126,7 +126,7 @@ export default function AdminHackathonsPage() {
                         <Zap size={16} />
                       </div>
                       <div>
-                        <p className="font-black text-slate-900">{h.title}</p>
+                        <p className="font-extrabold text-slate-900">{h.title}</p>
                         {h.mode && <p className="text-xs font-bold text-slate-400">{h.mode}</p>}
                       </div>
                     </div>
@@ -138,7 +138,7 @@ export default function AdminHackathonsPage() {
                     <span className="text-xs font-bold text-slate-500">{h.endDate ? fmt(h.endDate) : "—"}</span>
                   </td>
                   <td className="px-4 py-4">
-                    <span className={`text-[11px] font-black px-2.5 py-1 rounded-lg ${statusBadge(h.status)}`}>
+                    <span className={`text-[11px] font-extrabold px-2.5 py-1 rounded-lg ${statusBadge(h.status)}`}>
                       {h.status ?? "—"}
                     </span>
                   </td>
@@ -159,7 +159,7 @@ export default function AdminHackathonsPage() {
                       <button
                         onClick={() => navigate(`/admin/hackathons/${h.id}/edit`)}
                         title="Edit"
-                        className="p-1.5 text-[#4F39F6] hover:bg-indigo-50 rounded-lg transition-colors"
+                        className="p-1.5 text-[#4F46E5] hover:bg-indigo-50 rounded-lg transition-colors"
                       >
                         <Edit2 size={15} />
                       </button>

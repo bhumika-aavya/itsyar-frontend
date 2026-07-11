@@ -39,7 +39,7 @@ export default function HackathonTeamsPanel({ hackathon }: Props) {
     if (loading) {
         return (
             <div className="flex justify-center py-16">
-                <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+                <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
             </div>
         );
     }
@@ -48,13 +48,13 @@ export default function HackathonTeamsPanel({ hackathon }: Props) {
         <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-300">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-black text-slate-800">Participating Teams</h2>
+                    <h2 className="text-2xl font-extrabold text-slate-800">Participating Teams</h2>
                     <p className="text-sm font-medium text-slate-400 mt-0.5">{teams.length} teams registered for this hackathon</p>
                 </div>
                 {canJoin && (
                     <button
                         onClick={() => setJoinModalOpen(true)}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] transition-all active:scale-95"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all active:scale-95"
                     >
                         <Plus size={16} /> Create Team
                     </button>
@@ -66,12 +66,12 @@ export default function HackathonTeamsPanel({ hackathon }: Props) {
                     <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
                         <Users size={28} className="text-slate-300" />
                     </div>
-                    <h3 className="text-lg font-black text-slate-700">No teams yet</h3>
+                    <h3 className="text-lg font-extrabold text-slate-700">No teams yet</h3>
                     <p className="text-sm font-medium text-slate-400 mt-1 mb-6">Be the first to create a team for this hackathon.</p>
                     {canJoin && (
                         <button
                             onClick={() => setJoinModalOpen(true)}
-                            className="px-6 py-2.5 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-lg shadow-indigo-100 hover:bg-[#3f2dd1] transition-all"
+                            className="px-6 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all"
                         >
                             Create First Team
                         </button>
@@ -89,14 +89,14 @@ export default function HackathonTeamsPanel({ hackathon }: Props) {
                             <div key={team.id} className="bg-white border border-slate-100 rounded-[24px] p-6 shadow-sm hover:shadow-md transition-all space-y-4">
                                 <div className="flex items-start justify-between gap-3">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-11 h-11 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F39F6] shrink-0">
+                                        <div className="w-11 h-11 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F46E5] shrink-0">
                                             <Users size={20} />
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2">
-                                                <h3 className="text-base font-black text-slate-900">{team?.name}</h3>
+                                                <h3 className="text-base font-extrabold text-slate-900">{team?.name}</h3>
                                                 {isLead && (
-                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-black uppercase tracking-wide">
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-600 rounded-lg text-[10px] font-extrabold uppercase tracking-wide">
                                                         <Crown size={10} /> Lead
                                                     </span>
                                                 )}
@@ -106,20 +106,20 @@ export default function HackathonTeamsPanel({ hackathon }: Props) {
                                     </div>
 
                                     {isMember || isLead ? (
-                                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-black uppercase tracking-wide shrink-0">
+                                        <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[10px] font-extrabold uppercase tracking-wide shrink-0">
                                             Joined
                                         </span>
                                     ) : canJoin && !isFull ? (
                                         <button
                                             onClick={() => handleJoinTeam(team.id)}
                                             disabled={isJoining}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#4F39F6] text-white rounded-xl font-black text-xs hover:bg-[#3f2dd1] disabled:opacity-60 transition-all shrink-0"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-xs hover:bg-[#4338CA] disabled:opacity-60 transition-all shrink-0"
                                         >
                                             {isJoining ? <Loader2 size={12} className="animate-spin" /> : <UserPlus size={12} />}
                                             {isJoining ? 'Joining...' : 'Join'}
                                         </button>
                                     ) : isFull ? (
-                                        <span className="px-3 py-1 bg-slate-50 text-slate-400 rounded-lg text-[10px] font-black uppercase tracking-wide shrink-0">Full</span>
+                                        <span className="px-3 py-1 bg-slate-50 text-slate-400 rounded-lg text-[10px] font-extrabold uppercase tracking-wide shrink-0">Full</span>
                                     ) : null}
                                 </div>
 
@@ -129,7 +129,7 @@ export default function HackathonTeamsPanel({ hackathon }: Props) {
                                     {team?.members?.slice(0, 3)?.map((member, idx) => (
                                         <div key={member.id} className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
-                                                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black ${AVATAR_COLORS[idx % AVATAR_COLORS.length]}`}>
+                                                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-extrabold ${AVATAR_COLORS[idx % AVATAR_COLORS.length]}`}>
                                                     {member?.name?.charAt(0)?.toUpperCase()}
                                                 </div>
                                                 <span className="text-xs font-bold text-slate-700">{member?.name}</span>
@@ -141,7 +141,7 @@ export default function HackathonTeamsPanel({ hackathon }: Props) {
                                                         <Mail size={10} /> Invited
                                                     </span>
                                                 )}
-                                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-md ${member?.role === 'LEAD' ? 'bg-amber-50 text-amber-600' : 'bg-slate-50 text-slate-500'}`}>
+                                                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md ${member?.role === 'LEAD' ? 'bg-amber-50 text-amber-600' : 'bg-slate-50 text-slate-500'}`}>
                                                     {member?.role}
                                                 </span>
                                             </div>

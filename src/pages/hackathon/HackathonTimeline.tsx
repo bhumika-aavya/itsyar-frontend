@@ -28,15 +28,15 @@ export default function Timeline({ timeline }: { timeline: TimelineEvent[] }) {
                                 )}
 
                                 {/* Phase node */}
-                                <div className="relative z-10 mt-1 w-4 h-4 rounded-full bg-[#4F39F6]/20 border-2 border-[#4F39F6] flex items-center justify-center shrink-0">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-[#4F39F6]" />
+                                <div className="relative z-10 mt-1 w-4 h-4 rounded-full bg-[#4F46E5]/20 border-2 border-[#4F46E5] flex items-center justify-center shrink-0">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-[#4F46E5]" />
                                 </div>
 
                                 {/* Phase block */}
                                 <div className="flex-1 bg-indigo-50/60 border border-indigo-100 rounded-2xl px-5 py-4 space-y-1">
                                     <div className="flex items-center gap-2">
-                                        <Lightbulb size={15} className="text-[#4F39F6]" />
-                                        <span className="text-[13px] font-black text-[#4F39F6] uppercase tracking-wide">{item.label}</span>
+                                        <Lightbulb size={15} className="text-[#4F46E5]" />
+                                        <span className="text-[13px] font-extrabold text-[#4F46E5] uppercase tracking-wide">{item.label}</span>
                                     </div>
                                     <p className="text-[13px] font-bold text-slate-500">{item.date}</p>
                                     {item.description && (
@@ -57,7 +57,7 @@ export default function Timeline({ timeline }: { timeline: TimelineEvent[] }) {
                             {/* Node */}
                             <div className="relative z-10 mt-1">
                                 {item.isActive ? (
-                                    <div className="w-4 h-4 rounded-full bg-[#4F39F6] ring-4 ring-indigo-50 border-2 border-white shadow-sm" />
+                                    <div className="w-4 h-4 rounded-full bg-[#4F46E5] ring-4 ring-indigo-50 border-2 border-white shadow-sm" />
                                 ) : (
                                     <div className="w-4 h-4 rounded-full border-2 border-slate-300 bg-white" />
                                 )}

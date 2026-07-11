@@ -18,7 +18,7 @@ const ModuleAccordion = ({ module, index, isOpen, onToggle }: { module: CourseMo
         <div className="border border-slate-100 rounded-2xl overflow-hidden mb-4 bg-white shadow-sm">
             <button onClick={onToggle} className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-50/50 transition-colors">
                 <div className="flex items-center gap-4">
-                    <span className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[11px] font-black text-slate-400">
+                    <span className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[11px] font-extrabold text-slate-400">
                         {displayNum < 10 ? `0${displayNum}` : displayNum}
                     </span>
                     <div>
@@ -38,9 +38,9 @@ const ModuleAccordion = ({ module, index, isOpen, onToggle }: { module: CourseMo
                     {items.length > 0 && items.map((item) => (
                         <div key={item.id} className="flex items-center justify-between group cursor-pointer">
                             <div className="flex items-center gap-3">
-                                {item.type === 'video' && <PlayCircle size={18} className="text-slate-300 group-hover:text-[#4F39F6]" />}
-                                {item.type === 'reading' && <FileText size={18} className="text-slate-300 group-hover:text-[#4F39F6]" />}
-                                {item.type === 'assessment' && <HelpCircle size={18} className="text-slate-300 group-hover:text-[#4F39F6]" />}
+                                {item.type === 'video' && <PlayCircle size={18} className="text-slate-300 group-hover:text-[#4F46E5]" />}
+                                {item.type === 'reading' && <FileText size={18} className="text-slate-300 group-hover:text-[#4F46E5]" />}
+                                {item.type === 'assessment' && <HelpCircle size={18} className="text-slate-300 group-hover:text-[#4F46E5]" />}
                                 <span className="text-sm font-medium text-slate-600 group-hover:text-slate-900">{item.title}</span>
                             </div>
                             <span className="text-[11px] font-bold text-slate-400">{item.duration || `${item.questions} Qs`}</span>
@@ -101,7 +101,7 @@ export default function CourseDetailPage() {
     if (loading) {
         return (
             <div className="h-[60vh] flex flex-col items-center justify-center gap-4">
-                <Loader2 className="h-10 w-10 animate-spin text-[#4F39F6]" />
+                <Loader2 className="h-10 w-10 animate-spin text-[#4F46E5]" />
                 <p className="text-slate-400 font-bold text-sm uppercase tracking-widest">Loading Course Details...</p>
             </div>
         );
@@ -109,29 +109,29 @@ export default function CourseDetailPage() {
 
     return (
         <div className="max-w-6xl mx-auto text-left pb-20">
-            <button onClick={() => navigate('/courses')} className="flex items-center gap-2 text-slate-400 hover:text-[#4F39F6] font-bold text-xs transition-colors mb-6 uppercase">
+            <button onClick={() => navigate('/courses')} className="flex items-center gap-2 text-slate-400 hover:text-[#4F46E5] font-bold text-xs transition-colors mb-6 uppercase">
                 <ChevronLeft size={16} /> Back to Courses
             </button>
 
             {/* Hero Section */}
             <section className="grid lg:grid-cols-5 gap-12 items-start mb-16">
                 <div className="lg:col-span-3 space-y-6">
-                    <span className="inline-block px-3 py-1 rounded-md bg-indigo-50 text-[#4F39F6] text-[10px] font-black uppercase tracking-widest">
+                    <span className="inline-block px-3 py-1 rounded-md bg-indigo-50 text-[#4F46E5] text-[10px] font-extrabold uppercase tracking-widest">
                         {course?.category}
                     </span>
-                    <h1 className="text-5xl font-black text-slate-900 leading-tight tracking-tight">{course?.title}</h1>
+                    <h1 className="text-5xl font-extrabold text-slate-900 leading-tight tracking-tight">{course?.title}</h1>
                     <p className="text-lg text-slate-500 font-medium leading-relaxed max-w-xl">{course?.description || "Learn to bridge the gap between high-end design and high-performance frontend code for Palantir foundry."}</p>
 
                     <div className="flex flex-wrap gap-8 py-4">
                         <MetaItem icon={BarChart2} label="Level" val={course?.level} color="text-blue-500" bg="bg-blue-50" />
-                        <MetaItem icon={BookOpen} label="Lessons" val={`${course?.modulesCount} Modules`} color="text-[#4F39F6]" bg="bg-indigo-50" />
+                        <MetaItem icon={BookOpen} label="Lessons" val={`${course?.modulesCount} Modules`} color="text-[#4F46E5]" bg="bg-indigo-50" />
                         <MetaItem icon={Clock} label="Duration" val={course?.duration} color="text-orange-500" bg="bg-orange-50" />
                     </div>
 
                     <button
                         disabled={isEnrolling}
                         onClick={handleEnroll}
-                        className="bg-[#4F39F6] text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-indigo-100 hover:bg-[#3f2dd1] transition-all transform active:scale-95 flex items-center gap-2"
+                        className="bg-[#4F46E5] text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-indigo-100 hover:bg-[#4338CA] transition-all transform active:scale-95 flex items-center gap-2"
                     >
                         {course?.isEnrolled ? "View Course" : isEnrolling ? <Loader2 className="animate-spin" size={20} /> : "Enroll Now"}
                     </button>
@@ -151,7 +151,7 @@ export default function CourseDetailPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 pt-6">
                             {course?.takeaways && JSON.parse(course?.takeaways)?.map((item, i) => (
                                 <div key={i} className="flex items-start gap-3">
-                                    <CheckCircle2 size={18} className="text-[#4F39F6] shrink-0 mt-0.5" />
+                                    <CheckCircle2 size={18} className="text-[#4F46E5] shrink-0 mt-0.5" />
                                     <span className="text-[14px] font-semibold text-slate-600 leading-snug">{item}</span>
                                 </div>
                             ))}
@@ -182,18 +182,18 @@ export default function CourseDetailPage() {
                         {course?.isEnrolled && course?.courseCompletionPercentage !== undefined && (
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em]">Your Progress</span>
-                                    <span className="text-[13px] font-black text-[#4F39F6]">{course.courseCompletionPercentage}%</span>
+                                    <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-[0.2em]">Your Progress</span>
+                                    <span className="text-[13px] font-extrabold text-[#4F46E5]">{course.courseCompletionPercentage}%</span>
                                 </div>
                                 <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
                                     <div
-                                        className="h-full rounded-full bg-[#4F39F6] transition-all"
+                                        className="h-full rounded-full bg-[#4F46E5] transition-all"
                                         style={{ width: `${course.courseCompletionPercentage}%` }}
                                     />
                                 </div>
                             </div>
                         )}
-                        <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.25em] leading-none">
+                        <h3 className="text-[11px] font-extrabold text-slate-900 uppercase tracking-[0.25em] leading-none">
                             Course Includes
                         </h3>
                         {/* List Container - Spacing between items */}
@@ -201,7 +201,7 @@ export default function CourseDetailPage() {
                             {course?.include?.map((item, idx) => (
                                 <div key={idx} className="flex items-start gap-4 group">
                                     <div className="mt-0.5 shrink-0">
-                                        <Zap size={18} className="text-[#4F39F6] fill-[#4F39F6]/10" />
+                                        <Zap size={18} className="text-[#4F46E5] fill-[#4F46E5]/10" />
                                     </div>
                                     <span className="text-[14px] font-bold text-slate-600 leading-snug">
                                         {item}

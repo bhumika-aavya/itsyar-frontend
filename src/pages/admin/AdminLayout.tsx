@@ -12,7 +12,7 @@ const NavItem = ({
   <button
     onClick={onClick}
     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm ${active
-      ? 'bg-[#4F39F6] text-white shadow-lg shadow-indigo-100'
+      ? 'bg-[#4F46E5] text-white shadow-lg shadow-indigo-100'
       : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
       }`}
   >
@@ -63,7 +63,7 @@ export default function AdminLayout() {
           className="flex items-center gap-2 mb-2 px-2 cursor-pointer"
           onClick={() => navigate('/admin')}
         >
-          <div className="bg-[#4F39F6] p-1.5 rounded-lg">
+          <div className="bg-[#4F46E5] p-1.5 rounded-lg">
             <Zap className="text-white fill-white" size={20} />
           </div>
           <span className="text-xl font-bold tracking-tight">ForgeInsight</span>
@@ -71,9 +71,9 @@ export default function AdminLayout() {
 
         {/* Admin badge */}
         <div className="mx-2 mb-8">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#4F39F6]/10 rounded-lg">
-            <Shield size={11} className="text-[#4F39F6]" />
-            <span className="text-[11px] font-black text-[#4F39F6] uppercase tracking-widest">Admin Panel</span>
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#4F46E5]/10 rounded-lg">
+            <Shield size={11} className="text-[#4F46E5]" />
+            <span className="text-[11px] font-extrabold text-[#4F46E5] uppercase tracking-widest">Admin Panel</span>
           </span>
         </div>
 
@@ -113,8 +113,8 @@ export default function AdminLayout() {
         {/* Top header */}
         <header className="h-16 bg-white border-b border-slate-100 flex items-center justify-between px-8 sticky top-0 z-40">
           <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Admin</p>
-            <p className="text-sm font-black text-slate-900 leading-none">{activeLabel}</p>
+            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest leading-none mb-0.5">Admin</p>
+            <p className="text-sm font-extrabold text-slate-900 leading-none">{activeLabel}</p>
           </div>
 
           <div className="relative" ref={dropdownRef}>
@@ -123,13 +123,13 @@ export default function AdminLayout() {
               className="flex items-center gap-3 p-1.5 pr-3 rounded-2xl hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100"
             >
               <div className="w-9 h-9 rounded-full bg-indigo-50 flex items-center justify-center">
-                <span className="text-[#4F39F6] font-black text-sm uppercase">
+                <span className="text-[#4F46E5] font-extrabold text-sm uppercase">
                   {user?.fullName?.charAt(0) || 'A'}
                 </span>
               </div>
               <div className="text-right hidden sm:block">
                 <div className="text-sm font-bold text-slate-900 leading-tight">{user?.fullName || 'Admin'}</div>
-                <div className="text-[10px] font-black text-[#4F39F6] uppercase tracking-widest">{user?.role}</div>
+                <div className="text-[10px] font-extrabold text-[#4F46E5] uppercase tracking-widest">{user?.role}</div>
               </div>
               <ChevronDown
                 size={15}
@@ -140,18 +140,18 @@ export default function AdminLayout() {
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
                 <div className="px-4 py-3 border-b border-slate-50 mb-1">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Account</p>
+                  <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1">Account</p>
                   <p className="text-sm font-bold text-slate-700 truncate">{user?.email}</p>
                 </div>
                 <button
                   onClick={() => { navigate('/admin/profile'); setDropdownOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#4F39F6] transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#4F46E5] transition-colors"
                 >
                   <User size={15} /> My Profile
                 </button>
                 <button
                   onClick={() => { navigate('/admin/settings'); setDropdownOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#4F39F6] transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#4F46E5] transition-colors"
                 >
                   <Settings size={15} /> Settings
                 </button>

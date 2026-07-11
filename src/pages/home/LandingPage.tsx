@@ -42,7 +42,7 @@ const Navbar = () => {
           className="flex items-center gap-2 cursor-pointer"
           onClick={() => scrollToSection('home')}
         >
-          <div className="bg-[#4F39F6] p-1.5 rounded-lg">
+          <div className="bg-[#4F46E5] p-1.5 rounded-lg">
             <Zap className="text-white fill-white" size={18} />
           </div>
           <span className="text-xl font-bold tracking-tight text-slate-900">ForgeInsight</span>
@@ -58,7 +58,7 @@ const Navbar = () => {
             <button
               key={item.id}
               onClick={() => scrollToSection(item.id)}
-              className="text-[14px] font-bold text-slate-500 hover:text-[#4F39F6] transition-colors"
+              className="text-[14px] font-bold text-slate-500 hover:text-[#4F46E5] transition-colors"
             >
               {item.label}
             </button>
@@ -67,13 +67,13 @@ const Navbar = () => {
 
         <div className="flex items-center gap-3">
           <button
-            className="text-[14px] font-bold text-slate-700 px-4 py-2 hover:text-[#4F39F6]"
+            className="text-[14px] font-bold text-slate-700 px-4 py-2 hover:text-[#4F46E5]"
             onClick={() => navigate('/login')}
           >
             Sign In
           </button>
           <button
-            className="text-[14px] font-bold bg-[#4F39F6] text-white px-6 py-2.5 rounded-xl hover:bg-[#3f2dd1] transition-all shadow-lg shadow-indigo-100"
+            className="text-[14px] font-bold bg-[#4F46E5] text-white px-6 py-2.5 rounded-xl hover:bg-[#4338CA] transition-all shadow-lg shadow-indigo-100"
             onClick={() => navigate('/register')}
           >
             Sign Up
@@ -94,13 +94,13 @@ const Hero = () => {
     <section id="home" className="py-16 lg:py-24 bg-white w-full overflow-hidden">
       <Container className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
         <div className="text-left space-y-8">
-          <div className="inline-block px-3 py-1 rounded-md bg-indigo-50 text-[#4F39F6] text-[11px] font-bold uppercase tracking-widest">
+          <div className="inline-block px-3 py-1 rounded-md bg-indigo-50 text-[#4F46E5] text-[11px] font-bold uppercase tracking-widest">
             Build, Learn, Win. Together.
           </div>
 
-          <h1 className="text-5xl md:text-6xl lg:text-[80px] font-black text-slate-900 leading-[1] tracking-tight">
+          <h1 className="text-5xl md:text-6xl lg:text-[80px] font-extrabold text-slate-900 leading-[1] tracking-tight">
             Learn. Build. <br />
-            <span className="text-[#4F39F6]">Compete.</span>
+            <span className="text-[#4F46E5]">Compete.</span>
           </h1>
 
           <p className="text-lg md:text-xl text-slate-500 max-w-md leading-relaxed font-medium">
@@ -110,7 +110,7 @@ const Hero = () => {
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <button
               onClick={() => handleNavigation('student')}
-              className="flex items-center gap-2 bg-[#4F39F6] text-white px-8 py-4 rounded-2xl font-bold hover:scale-[1.02] transition-all shadow-xl shadow-indigo-200/50"
+              className="flex items-center gap-2 bg-[#4F46E5] text-white px-8 py-4 rounded-2xl font-bold hover:scale-[1.02] transition-all shadow-xl shadow-indigo-200/50"
             >
               <Play size={18} fill="white" />
               Start Learning
@@ -119,7 +119,7 @@ const Hero = () => {
               onClick={() => handleNavigation('participant')}
               className="flex items-center gap-2 border-2 border-slate-100 bg-slate-50/30 px-8 py-4 rounded-2xl font-bold hover:bg-slate-50 transition-all"
             >
-              <ChevronRight size={18} className="text-[#4F39F6]" />
+              <ChevronRight size={18} className="text-[#4F46E5]" />
               Join Hackathon
             </button>
           </div>
@@ -127,7 +127,7 @@ const Hero = () => {
           <div className="grid grid-cols-2 gap-x-8 gap-y-4 pt-6">
             {['Hands-on Learning', 'Real-world Projects', 'Rank & Win Prizes', 'Global Community'].map((item) => (
               <div key={item} className="flex items-center gap-3 text-[13px] font-bold text-slate-400">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#4F39F6]" />
+                <div className="w-1.5 h-1.5 rounded-full bg-[#4F46E5]" />
                 {item}
               </div>
             ))}
@@ -167,7 +167,7 @@ const ImpactStats = ({ stats }: { stats: any }) => {
               <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-white border border-white/5">
                 <s.icon size={24} />
               </div>
-              <div className="text-5xl font-black text-white tracking-tight">{s.val}</div>
+              <div className="text-5xl font-extrabold text-white tracking-tight">{s.val}</div>
               <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed max-w-[180px] mx-auto">{s.sub}</p>
             </div>
           ))}
@@ -185,7 +185,7 @@ const ContentGrid = ({ courses, hackathons, categories }: { courses: any[]; hack
 
       {/* Training Tracks */}
       <div id="courses" className="space-y-6">
-        <div className="flex items-center gap-2 text-[#4F39F6] font-extrabold uppercase text-[11px] tracking-widest ml-1">
+        <div className="flex items-center gap-2 text-[#4F46E5] font-extrabold uppercase text-[11px] tracking-widest ml-1">
           <TrendingUp size={16} strokeWidth={3} /> Training Tracks
         </div>
         <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm space-y-4">
@@ -199,18 +199,18 @@ const ContentGrid = ({ courses, hackathons, categories }: { courses: any[]; hack
                     <div className={`${track.bgClass ?? "bg-slate-100"} ${track.colorClass ?? "text-slate-600"} p-2 rounded-lg`}><Icon size={18} /></div>
                     <span className="text-sm font-bold text-slate-800">{track.name ?? track.title}</span>
                   </div>
-                  <span className="text-[10px] font-black text-slate-300">{track.progress ?? ""}</span>
+                  <span className="text-[10px] font-extrabold text-slate-300">{track.progress ?? ""}</span>
                 </div>
               );
             })}
           </div>
-          <button className="w-full text-center py-2 text-[#4F39F6] text-sm font-bold hover:underline">Explore all courses →</button>
+          <button className="w-full text-center py-2 text-[#4F46E5] text-sm font-bold hover:underline">Explore all courses →</button>
         </div>
       </div>
 
       {/* Upcoming Hackathons */}
       <div id="hackathons" className="space-y-6">
-        <div className="flex items-center gap-2 text-[#4F39F6] font-extrabold uppercase text-[11px] tracking-widest ml-1">
+        <div className="flex items-center gap-2 text-[#4F46E5] font-extrabold uppercase text-[11px] tracking-widest ml-1">
           <Zap size={16} strokeWidth={3} /> UpComing Hackathons
         </div>
         <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm space-y-4">
@@ -231,13 +231,13 @@ const ContentGrid = ({ courses, hackathons, categories }: { courses: any[]; hack
               );
             })}
           </div>
-          <button className="w-full text-center py-2 text-[#4F39F6] text-sm font-bold hover:underline">View all hackathons →</button>
+          <button className="w-full text-center py-2 text-[#4F46E5] text-sm font-bold hover:underline">View all hackathons →</button>
         </div>
       </div>
 
       {/* Categories */}
       <div className="space-y-6 md:col-span-2 lg:col-span-1">
-        <div className="flex items-center gap-2 text-[#4F39F6] font-extrabold uppercase text-[11px] tracking-widest ml-1">
+        <div className="flex items-center gap-2 text-[#4F46E5] font-extrabold uppercase text-[11px] tracking-widest ml-1">
           <Layout size={16} strokeWidth={3} /> Categories
         </div>
         <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm space-y-2 h-full">
@@ -245,10 +245,10 @@ const ContentGrid = ({ courses, hackathons, categories }: { courses: any[]; hack
           {categories.map((cat, i) => (
             <div key={i} className="flex items-center justify-between p-3.5 hover:bg-slate-50 rounded-xl cursor-pointer group transition-colors">
               <span className="text-sm font-bold text-slate-700">{cat}</span>
-              <ChevronRight size={14} className="text-slate-300 group-hover:text-[#4F39F6] group-hover:translate-x-1 transition-all" />
+              <ChevronRight size={14} className="text-slate-300 group-hover:text-[#4F46E5] group-hover:translate-x-1 transition-all" />
             </div>
           ))}
-          <button className="w-full text-center py-2 mt-4 text-[#4F39F6] text-sm font-bold border-t border-slate-50 pt-6">View all categories →</button>
+          <button className="w-full text-center py-2 mt-4 text-[#4F46E5] text-sm font-bold border-t border-slate-50 pt-6">View all categories →</button>
         </div>
       </div>
     </Container>
@@ -260,10 +260,10 @@ const SocialProof = ({ leaderboard, reviews }: { leaderboard: any[]; reviews: an
     <Container className="grid lg:grid-cols-2 gap-20">
       <div className="space-y-10">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-[#4F39F6] font-extrabold uppercase text-[11px] tracking-widest ml-1">
+          <div className="flex items-center gap-2 text-[#4F46E5] font-extrabold uppercase text-[11px] tracking-widest ml-1">
             <Star size={16} fill="currentColor" /> Leader Board
           </div>
-          <button className="text-[10px] font-bold text-[#4F39F6] uppercase tracking-widest hover:underline">View Full Leaderboard →</button>
+          <button className="text-[10px] font-bold text-[#4F46E5] uppercase tracking-widest hover:underline">View Full Leaderboard →</button>
         </div>
 
         <div className="space-y-8 bg-slate-50/50 p-6 md:p-10 rounded-[40px] border border-slate-100">
@@ -276,7 +276,7 @@ const SocialProof = ({ leaderboard, reviews }: { leaderboard: any[]; reviews: an
               </div>
               <div className="flex items-center gap-4 md:gap-6">
                 <div className="h-2 w-20 md:w-32 bg-slate-200 rounded-full overflow-hidden hidden sm:block">
-                  <div className="h-full bg-[#4F39F6]" style={{ width: `${user.pct}%` }} />
+                  <div className="h-full bg-[#4F46E5]" style={{ width: `${user.pct}%` }} />
                 </div>
                 <span className="text-[13px] font-bold text-slate-600 w-20 text-right">{user.pts}</span>
               </div>
@@ -287,7 +287,7 @@ const SocialProof = ({ leaderboard, reviews }: { leaderboard: any[]; reviews: an
 
       {/* Testimonials */}
       <div className="space-y-10">
-        <div className="flex items-center gap-2 text-[#4F39F6] font-extrabold uppercase text-[11px] tracking-widest ml-1">
+        <div className="flex items-center gap-2 text-[#4F46E5] font-extrabold uppercase text-[11px] tracking-widest ml-1">
           <Users size={16} strokeWidth={3} /> What Developers Say
         </div>
 
@@ -318,7 +318,7 @@ const Footer = () => (
     <Container className="grid grid-cols-2 md:grid-cols-5 gap-16 mb-24">
       <div className="col-span-2 space-y-8">
         <div className="flex items-center gap-2">
-          <div className="bg-[#4F39F6] p-1 rounded-lg">
+          <div className="bg-[#4F46E5] p-1 rounded-lg">
             <Zap className="text-white fill-white" size={16} />
           </div>
           <span className="text-lg font-bold tracking-tight">ForgeInsight</span>
@@ -337,7 +337,7 @@ const Footer = () => (
           <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-900">{col.t}</h4>
           <ul className="space-y-4">
             {col.links.map(l => (
-              <li key={l}><a href="#" className="text-[13px] font-bold text-slate-400 hover:text-[#4F39F6] transition-colors">{l}</a></li>
+              <li key={l}><a href="#" className="text-[13px] font-bold text-slate-400 hover:text-[#4F46E5] transition-colors">{l}</a></li>
             ))}
           </ul>
         </div>

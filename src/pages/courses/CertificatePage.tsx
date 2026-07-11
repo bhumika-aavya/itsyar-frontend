@@ -86,7 +86,7 @@ export default function CertificatePage() {
 
     if (isLoading) return (
         <div className="h-screen flex flex-col items-center justify-center gap-4">
-            <Loader2 className="animate-spin text-[#4F39F6]" size={40} />
+            <Loader2 className="animate-spin text-[#4F46E5]" size={40} />
             <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Generating Certificate...</p>
         </div>
     );
@@ -95,13 +95,13 @@ export default function CertificatePage() {
         <div className="max-w-6xl mx-auto p-6 text-left animate-in fade-in duration-700">
             {/* Action Header */}
             {/* <div className="flex justify-between items-center mb-10 no-print">
-                <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-500 font-bold text-sm hover:text-[#4F39F6] transition-colors">
+                <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-500 font-bold text-sm hover:text-[#4F46E5] transition-colors">
                     <ChevronLeft size={20} /> Back to Course
                 </button>
                 <button
                     onClick={handleDownload}
                     disabled={isDownloading}
-                    className="flex items-center gap-2 px-8 py-3 bg-[#4F39F6] text-white rounded-xl font-black text-sm shadow-xl shadow-indigo-100 hover:bg-[#3f2dd1] transition-all active:scale-95 disabled:opacity-70"
+                    className="flex items-center gap-2 px-8 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-xl shadow-indigo-100 hover:bg-[#4338CA] transition-all active:scale-95 disabled:opacity-70"
                 >
                     {isDownloading ? <Loader2 className="animate-spin" size={18} /> : <Download size={18} />}
                     {isDownloading ? "Generating PDF..." : "Download Certificate (PDF)"}
@@ -120,17 +120,17 @@ export default function CertificatePage() {
 
                 {/* Logo */}
                 <div className="flex items-center gap-3 mb-12 relative">
-                    <div className="bg-[#4F39F6] p-2.5 rounded-2xl shadow-lg">
+                    <div className="bg-[#4F46E5] p-2.5 rounded-2xl shadow-lg">
                         <Zap className="text-white fill-white" size={32} />
                     </div>
-                    <span className="text-3xl font-black tracking-tighter text-slate-900 uppercase">ForgeInsight</span>
+                    <span className="text-3xl font-extrabold tracking-tighter text-slate-900 uppercase">ForgeInsight</span>
                 </div>
 
                 <div className="text-center relative">
-                    <p className="text-[#4F39F6] font-black uppercase tracking-[0.5em] text-[13px] mb-8">Certificate of Completion</p>
+                    <p className="text-[#4F46E5] font-extrabold uppercase tracking-[0.5em] text-[13px] mb-8">Certificate of Completion</p>
                     <h1 className="text-2xl font-medium text-slate-400 mb-8 italic">This is to certify that</h1>
 
-                    <h2 className="text-6xl font-black text-slate-900 mb-10 tracking-tight">
+                    <h2 className="text-6xl font-extrabold text-slate-900 mb-10 tracking-tight">
                         {certData?.studentName.toUpperCase()}
                     </h2>
 
@@ -146,16 +146,16 @@ export default function CertificatePage() {
                 {/* Footer Details */}
                 <div className="mt-20 w-full flex justify-between items-end border-t border-slate-100 pt-10 px-10">
                     <div className="text-left">
-                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Issue Date</p>
+                        <p className="text-[10px] font-extrabold text-slate-300 uppercase tracking-widest mb-1">Issue Date</p>
                         <p className="text-sm font-bold text-slate-700">{certData?.issueDate}</p>
                     </div>
                     <div className="text-center">
                         <div className="w-32 h-0.5 bg-slate-200 mb-3 mx-auto" />
-                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Authorized By</p>
+                        <p className="text-[10px] font-extrabold text-slate-300 uppercase tracking-widest">Authorized By</p>
                         <p className="text-sm font-bold text-slate-800">{certData?.instructorName}</p>
                     </div>
                     <div className="text-right">
-                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">Verify Authenticity</p>
+                        <p className="text-[10px] font-extrabold text-slate-300 uppercase tracking-widest mb-1">Verify Authenticity</p>
                         <p className="text-sm font-mono font-bold text-slate-700 uppercase tracking-tighter">
                             {certData?.certificateId}
                         </p>
@@ -164,7 +164,7 @@ export default function CertificatePage() {
 
                 {/* Watermark */}
                 <div className="absolute bottom-16 right-16 rotate-12 opacity-[0.03] pointer-events-none">
-                    <Zap size={250} className="text-[#4F39F6]" />
+                    <Zap size={250} className="text-[#4F46E5]" />
                 </div>
             </div>
         </div>

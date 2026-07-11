@@ -93,7 +93,7 @@ export default function RegisterForm() {
                 <input
                   {...register("fullName")}
                   placeholder="Enter your full name"
-                  className={`h-14 w-full rounded-xl border-2 pl-12 pr-4 outline-none transition-all font-medium text-slate-900 ${errors.fullName ? "border-red-400" : "border-transparent bg-[#F8F6FC] focus:border-[#4F39F6] focus:bg-white"
+                  className={`h-14 w-full rounded-xl border-2 pl-12 pr-4 outline-none transition-all font-medium text-slate-900 ${errors.fullName ? "border-red-400" : "border-transparent bg-[#F8F6FC] focus:border-[#3AADDD] focus:bg-white"
                     }`}
                 />
               </div>
@@ -109,7 +109,7 @@ export default function RegisterForm() {
                   {...register("email")}
                   type="email"
                   placeholder="Enter your email"
-                  className={`h-14 w-full rounded-xl border-2 pl-12 pr-4 outline-none transition-all font-medium text-slate-900 ${errors.email ? "border-red-400" : "border-transparent bg-[#F8F6FC] focus:border-[#4F39F6] focus:bg-white"
+                  className={`h-14 w-full rounded-xl border-2 pl-12 pr-4 outline-none transition-all font-medium text-slate-900 ${errors.email ? "border-red-400" : "border-transparent bg-[#F8F6FC] focus:border-[#3AADDD] focus:bg-white"
                     }`}
                 />
               </div>
@@ -126,7 +126,7 @@ export default function RegisterForm() {
                     {...register("password")}
                     type={showPass ? "text" : "password"}
                     placeholder="Create password"
-                    className={`h-14 w-full rounded-xl border-2 pl-11 pr-10 outline-none transition-all font-medium text-slate-900 text-sm ${errors.password ? "border-red-400" : "border-transparent bg-[#F8F6FC] focus:border-[#4F39F6] focus:bg-white"
+                    className={`h-14 w-full rounded-xl border-2 pl-11 pr-10 outline-none transition-all font-medium text-slate-900 text-sm ${errors.password ? "border-red-400" : "border-transparent bg-[#F8F6FC] focus:border-[#3AADDD] focus:bg-white"
                       }`}
                   />
                   <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
@@ -143,7 +143,7 @@ export default function RegisterForm() {
                     {...register("confirmPassword")}
                     type={showConfirmPass ? "text" : "password"}
                     placeholder="Confirm password"
-                    className={`h-14 w-full rounded-xl border-2 pl-11 pr-10 outline-none transition-all font-medium text-slate-900 text-sm ${errors.confirmPassword ? "border-red-400" : "border-transparent bg-[#F8F6FC] focus:border-[#4F39F6] focus:bg-white"
+                    className={`h-14 w-full rounded-xl border-2 pl-11 pr-10 outline-none transition-all font-medium text-slate-900 text-sm ${errors.confirmPassword ? "border-red-400" : "border-transparent bg-[#F8F6FC] focus:border-[#3AADDD] focus:bg-white"
                       }`}
                   />
                   <button type="button" onClick={() => setShowConfirmPass(!showConfirmPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
@@ -163,7 +163,7 @@ export default function RegisterForm() {
                 <GraduationCap className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.interest ? 'text-red-400' : 'text-slate-400'}`} size={18} />
                 <select
                   {...register("interest")}
-                  className={`h-14 w-full appearance-none rounded-xl border-2 pl-12 pr-10 outline-none transition-all cursor-pointer font-bold text-slate-700 ${errors.interest ? "border-red-400" : "border-transparent bg-[#F8F6FC] focus:border-[#4F39F6] focus:bg-white"
+                  className={`h-14 w-full appearance-none rounded-xl border-2 pl-12 pr-10 outline-none transition-all cursor-pointer font-bold text-slate-700 ${errors.interest ? "border-red-400" : "border-transparent bg-[#F8F6FC] focus:border-[#3AADDD] focus:bg-white"
                     }`}
                 >
                   <option value="">Select your field</option>
@@ -187,9 +187,9 @@ export default function RegisterForm() {
                         {...register("userType")}
                         type="radio"
                         value={type}
-                        className="peer appearance-none h-6 w-6 rounded-full border-2 border-slate-300 checked:border-[#4F39F6] transition-all cursor-pointer"
+                        className="peer appearance-none h-6 w-6 rounded-full border-2 border-slate-300 checked:border-[#4F46E5] transition-all cursor-pointer"
                       />
-                      <div className="absolute h-3 w-3 rounded-full bg-[#4F39F6] scale-0 peer-checked:scale-100 transition-all duration-200" />
+                      <div className="absolute h-3 w-3 rounded-full bg-[#4F46E5] scale-0 peer-checked:scale-100 transition-all duration-200" />
                     </div>
                     <span className="text-[15px] font-semibold text-slate-600 group-hover:text-slate-900">{type}</span>
                   </label>
@@ -204,10 +204,10 @@ export default function RegisterForm() {
                 <input
                   {...register("acceptTerms")}
                   type="checkbox"
-                  className="mt-1 h-5 w-5 rounded border-2 border-slate-300 text-[#4F39F6] focus:ring-0 cursor-pointer"
+                  className="mt-1 h-5 w-5 rounded border-2 border-slate-300 text-[#4F46E5] focus:ring-0 cursor-pointer"
                 />
                 <span className="text-[13px] leading-tight font-semibold text-slate-600 select-none">
-                  I agree to the <span className="text-[#4F39F6] font-bold hover:underline">Terms of Service</span> and <span className="text-[#4F39F6] font-bold hover:underline">Privacy Policy</span>.
+                  I agree to the <span className="text-[#4F46E5] font-bold hover:underline">Terms of Service</span> and <span className="text-[#4F46E5] font-bold hover:underline">Privacy Policy</span>.
                 </span>
               </label>
               <ErrorMsg message={errors.acceptTerms?.message} />
@@ -216,7 +216,7 @@ export default function RegisterForm() {
             <button
               disabled={isLoading}
               type="submit"
-              className="h-14 w-full rounded-xl bg-[#4F39F6] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#3f2dd1] transition-all disabled:opacity-70 shadow-lg shadow-indigo-100 active:scale-[0.98] mt-4"
+              className="h-14 w-full rounded-xl bg-[#4F46E5] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#4338CA] transition-all disabled:opacity-70 shadow-lg shadow-indigo-100 active:scale-[0.98] mt-4"
             >
               {isLoading ? <Loader2 className="animate-spin" /> : "Complete Enrollment"}
             </button>
@@ -242,7 +242,7 @@ export default function RegisterForm() {
 
         <div className="bg-[#F4F2FF] p-8 text-center border-t border-slate-100">
           <p className="text-[15px] font-bold text-slate-500">
-            Already have an account? <button onClick={() => navigate('/login')} className="text-[#4F39F6] font-extrabold hover:underline">Sign In</button>
+            Already have an account? <button onClick={() => navigate('/login')} className="text-[#4F46E5] font-extrabold hover:underline">Sign In</button>
           </p>
         </div>
       </div>

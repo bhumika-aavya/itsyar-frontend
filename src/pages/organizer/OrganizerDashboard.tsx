@@ -47,7 +47,7 @@ export default function OrganizerDashboard() {
     };
 
     const stats = [
-        { label: 'Total',     value: counts.total,     Icon: Trophy,        bg: 'bg-indigo-50',  color: 'text-[#4F39F6]' },
+        { label: 'Total',     value: counts.total,     Icon: Trophy,        bg: 'bg-indigo-50',  color: 'text-[#4F46E5]' },
         { label: 'Active',    value: counts.active,    Icon: Zap,           bg: 'bg-emerald-50', color: 'text-emerald-600' },
         { label: 'Upcoming',  value: counts.upcoming,  Icon: Clock,         bg: 'bg-amber-50',   color: 'text-amber-600' },
         { label: 'Completed', value: counts.completed, Icon: CheckCircle2,  bg: 'bg-slate-50',   color: 'text-slate-500' },
@@ -58,13 +58,13 @@ export default function OrganizerDashboard() {
             {/* Header */}
             <div className="flex items-start justify-between gap-6 flex-wrap">
                 <div>
-                    <p className="text-xs font-black uppercase tracking-widest text-[#4F39F6] mb-1">Organizer Portal</p>
-                    <h1 className="text-4xl font-black text-slate-900 tracking-tight">Manage Hackathons</h1>
+                    <p className="text-xs font-extrabold uppercase tracking-widest text-[#4F46E5] mb-1">Organizer Portal</p>
+                    <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Manage Hackathons</h1>
                     <p className="text-slate-500 font-medium mt-1">Create, edit, and oversee all your hackathon events.</p>
                 </div>
                 <button
                     onClick={() => navigate('/organizer/hackathons/create')}
-                    className="flex items-center gap-2 px-6 py-3 bg-[#4F39F6] text-white rounded-2xl font-black text-sm shadow-xl shadow-indigo-100 hover:bg-[#3f2dd1] transition-all active:scale-95"
+                    className="flex items-center gap-2 px-6 py-3 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 hover:bg-[#4338CA] transition-all active:scale-95"
                 >
                     <Plus size={16} /> Create Hackathon
                 </button>
@@ -77,7 +77,7 @@ export default function OrganizerDashboard() {
                         <div className={`w-9 h-9 ${bg} rounded-xl flex items-center justify-center mb-3`}>
                             <Icon size={18} className={color} />
                         </div>
-                        <p className="text-2xl font-black text-slate-900">{value}</p>
+                        <p className="text-2xl font-extrabold text-slate-900">{value}</p>
                         <p className="text-xs font-bold text-slate-400 mt-0.5">{label}</p>
                     </div>
                 ))}
@@ -86,18 +86,18 @@ export default function OrganizerDashboard() {
             {/* List */}
             {loading ? (
                 <div className="flex justify-center py-20">
-                    <Loader2 className="animate-spin text-[#4F39F6]" size={32} />
+                    <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
                 </div>
             ) : hackathons.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 text-center bg-white border border-slate-100 rounded-3xl">
                     <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-4">
-                        <Trophy size={28} className="text-[#4F39F6]" />
+                        <Trophy size={28} className="text-[#4F46E5]" />
                     </div>
-                    <p className="font-black text-slate-700 text-lg">No hackathons yet</p>
+                    <p className="font-extrabold text-slate-700 text-lg">No hackathons yet</p>
                     <p className="text-sm text-slate-400 font-medium mt-1 mb-6">Create your first hackathon to get started.</p>
                     <button
                         onClick={() => navigate('/organizer/hackathons/create')}
-                        className="flex items-center gap-2 px-6 py-3 bg-[#4F39F6] text-white rounded-2xl font-black text-sm hover:bg-[#3f2dd1] transition-all"
+                        className="flex items-center gap-2 px-6 py-3 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm hover:bg-[#4338CA] transition-all"
                     >
                         <Plus size={15} /> Create Hackathon
                     </button>
@@ -114,14 +114,14 @@ export default function OrganizerDashboard() {
                             >
                                 {/* Icon */}
                                 <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center shrink-0">
-                                    <Trophy size={22} className="text-[#4F39F6]" />
+                                    <Trophy size={22} className="text-[#4F46E5]" />
                                 </div>
 
                                 {/* Info */}
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-3 mb-1">
-                                        <h3 className="font-black text-slate-900 text-lg truncate">{h.title}</h3>
-                                        <span className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-black shrink-0 ${cfg.color}`}>
+                                        <h3 className="font-extrabold text-slate-900 text-lg truncate">{h.title}</h3>
+                                        <span className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-extrabold shrink-0 ${cfg.color}`}>
                                             <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
                                             {cfg.label}
                                         </span>
@@ -137,7 +137,7 @@ export default function OrganizerDashboard() {
                                         <span className="flex items-center gap-1.5">
                                             <Globe size={13} /> {h.mode}
                                         </span>
-                                        <span className={`px-2 py-0.5 rounded-md font-black ${h.problemCount > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'}`}>
+                                        <span className={`px-2 py-0.5 rounded-md font-extrabold ${h.problemCount > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'}`}>
                                             {h.problemCount > 0 ? `${h.problemCount} Problem` : 'No Problem Set'}
                                         </span>
                                     </div>
@@ -153,7 +153,7 @@ export default function OrganizerDashboard() {
                                     </button>
                                     <button
                                         onClick={() => navigate(`/organizer/hackathons/${h.id}/edit`)}
-                                        className="flex items-center gap-1.5 px-4 py-2.5 bg-indigo-50 border border-indigo-100 rounded-xl font-bold text-xs text-[#4F39F6] hover:bg-indigo-100 transition-all"
+                                        className="flex items-center gap-1.5 px-4 py-2.5 bg-indigo-50 border border-indigo-100 rounded-xl font-bold text-xs text-[#4F46E5] hover:bg-indigo-100 transition-all"
                                     >
                                         <Edit2 size={13} /> Edit
                                     </button>
