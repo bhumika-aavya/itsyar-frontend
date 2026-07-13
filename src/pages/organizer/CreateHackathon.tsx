@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     ChevronLeft, Save, Loader2, Plus, X, Code2,
-    Calendar, Globe, Users, FileText, Trophy, CheckCircle2, AlertCircle
+    Calendar, Globe, Users, FileText, Trophy, CheckCircle2, AlertCircle,
+    ListChecks, Scale, Gift, HelpCircle, Milestone, Sparkles, Trash2
 } from 'lucide-react';
 import {
     OrganizerCreateHackathonSchema, OrganizerCreateHackathonValues,
@@ -14,6 +15,7 @@ import { OrganizerService } from '@/services/organizer.service';
 
 const SUPPORTED_LANGS = ['JavaScript', 'TypeScript', 'Python', 'Java', 'C++', 'Go', 'Rust', 'Ruby'];
 const DIFFICULTY_OPTS = ['Easy', 'Medium', 'Hard'] as const;
+const HACKATHON_DIFFICULTY_OPTS = ['Beginner', 'Intermediate', 'Advanced'] as const;
 
 const fieldCls = (hasErr: boolean) =>
     `w-full h-11 rounded-xl border-2 px-4 bg-slate-50 outline-none transition-all font-medium text-slate-800 text-sm ${hasErr ? 'border-red-300 focus:border-red-400' : 'border-transparent focus:border-[#3AADDD] focus:bg-white'}`;
@@ -23,6 +25,27 @@ const textareaCls = (hasErr: boolean) =>
 
 const ErrMsg = ({ msg }: { msg?: string }) =>
     msg ? <p className="text-xs font-bold text-red-500 mt-1">{msg}</p> : null;
+
+const RemoveRowBtn = ({ onClick }: { onClick: () => void }) => (
+    <button
+        type="button"
+        onClick={onClick}
+        className="p-2.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all shrink-0"
+        aria-label="Remove"
+    >
+        <Trash2 size={15} />
+    </button>
+);
+
+const AddRowBtn = ({ onClick, label }: { onClick: () => void; label: string }) => (
+    <button
+        type="button"
+        onClick={onClick}
+        className="flex items-center gap-1.5 px-4 py-2 bg-indigo-50 text-[#4F46E5] rounded-xl font-extrabold text-xs hover:bg-indigo-100 transition-all"
+    >
+        <Plus size={13} /> {label}
+    </button>
+);
 
 export default function CreateHackathon() {
     const { id } = useParams<{ id?: string }>();
@@ -41,6 +64,16 @@ export default function CreateHackathon() {
 
     const hackForm = useForm<OrganizerCreateHackathonValues>({
         resolver: zodResolver(OrganizerCreateHackathonSchema),
+        defaultValues: {
+            difficultyLevel: 'Intermediate',
+            ideationStartDate: '',
+            ideationEndDate: '',
+            rulesText: '',
+            criteria: [],
+            prizes: [],
+            faqs: [],
+            timeline: [],
+        },
     });
 
     const probForm = useForm<OrganizerCreateProblemValues>({
@@ -48,10 +81,18 @@ export default function CreateHackathon() {
         defaultValues: { difficulty: 'Medium', points: 100, supportedLanguages: ['JavaScript', 'Python'] },
     });
 
-    const { register: hackReg, handleSubmit: hackHS, formState: { errors: hackErr }, reset: hackReset } = hackForm;
+    const {
+        register: hackReg, handleSubmit: hackHS, formState: { errors: hackErr },
+        reset: hackReset, control: hackControl,
+    } = hackForm;
     const { register: probReg, handleSubmit: probHS, formState: { errors: probErr }, setValue: probSet, watch: probWatch } = probForm;
 
     const selectedDifficulty = probWatch('difficulty');
+
+    const criteriaArray = useFieldArray({ control: hackControl, name: 'criteria' });
+    const prizesArray = useFieldArray({ control: hackControl, name: 'prizes' });
+    const faqsArray = useFieldArray({ control: hackControl, name: 'faqs' });
+    const timelineArray = useFieldArray({ control: hackControl, name: 'timeline' });
 
     // Load existing data in edit mode
     useEffect(() => {
@@ -67,6 +108,14 @@ export default function CreateHackathon() {
                     mode: data.mode,
                     teamSize: data.teamSize,
                     registrationDeadline: data.registrationDeadline,
+                    difficultyLevel: data.difficultyLevel ?? 'Intermediate',
+                    ideationStartDate: data.ideationStartDate ?? '',
+                    ideationEndDate: data.ideationEndDate ?? '',
+                    rulesText: (data.rules ?? []).join('\n'),
+                    criteria: data.criteria ?? [],
+                    prizes: data.prizes ?? [],
+                    faqs: data.faqs ?? [],
+                    timeline: data.timeline ?? [],
                 });
                 if (data.problemCount > 0) setIncludeProblem(true);
             }
@@ -239,6 +288,297 @@ export default function CreateHackathon() {
                             <ErrMsg msg={hackErr.teamSize?.message} />
                         </div>
                     </div>
+
+                    {/* Difficulty Level */}
+                    <div>
+                        <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
+                            <span className="flex items-center gap-1.5"><Scale size={11} /> Difficulty Level</span>
+                        </label>
+                        <div className="flex gap-2">
+                            {HACKATHON_DIFFICULTY_OPTS.map(d => (
+                                <button
+                                    key={d}
+                                    type="button"
+                                    onClick={() => hackForm.setValue('difficultyLevel', d)}
+                                    className={`flex-1 py-2.5 rounded-xl font-extrabold text-xs border-2 transition-all ${hackForm.watch('difficultyLevel') === d
+                                        ? 'border-[#4F46E5] bg-indigo-50 text-[#4F46E5]'
+                                        : 'border-slate-100 text-slate-400 hover:border-slate-200'}`}
+                                >
+                                    {d}
+                                </button>
+                            ))}
+                        </div>
+                        <ErrMsg msg={hackErr.difficultyLevel?.message} />
+                    </div>
+
+                    {/* Ideation phase (optional) */}
+                    <div>
+                        <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
+                            <span className="flex items-center gap-1.5"><Sparkles size={11} /> Ideation Phase <span className="font-bold text-slate-400 normal-case tracking-normal">(optional)</span></span>
+                        </label>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <input type="date" {...hackReg('ideationStartDate')} className={fieldCls(false)} />
+                                <p className="text-[11px] font-bold text-slate-400 mt-1">Ideation start</p>
+                            </div>
+                            <div>
+                                <input type="date" {...hackReg('ideationEndDate')} className={fieldCls(false)} />
+                                <p className="text-[11px] font-bold text-slate-400 mt-1">Ideation end</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* ── Rules Card ── */}
+                <div className="bg-white border border-slate-100 rounded-3xl p-7 space-y-4">
+                    <div className="flex items-center gap-3 pb-2 border-b border-slate-50">
+                        <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center">
+                            <ListChecks size={18} className="text-amber-500" />
+                        </div>
+                        <div>
+                            <h2 className="font-extrabold text-slate-900">Rules</h2>
+                            <p className="text-xs font-bold text-slate-400">Guidelines participants must follow</p>
+                        </div>
+                    </div>
+                    <div>
+                        <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
+                            Rules <span className="font-bold text-slate-400 normal-case tracking-normal">(one per line)</span>
+                        </label>
+                        <textarea
+                            {...hackReg('rulesText')}
+                            rows={5}
+                            placeholder={"Teams must consist of 1-4 members\nAll code must be written during the hackathon\nUse of external libraries is allowed"}
+                            className={textareaCls(false)}
+                        />
+                    </div>
+                </div>
+
+                {/* ── Judging Criteria Card ── */}
+                <div className="bg-white border border-slate-100 rounded-3xl p-7 space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-50">
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center">
+                                <Scale size={18} className="text-blue-500" />
+                            </div>
+                            <div>
+                                <h2 className="font-extrabold text-slate-900">Judging Criteria</h2>
+                                <p className="text-xs font-bold text-slate-400">How submissions will be evaluated</p>
+                            </div>
+                        </div>
+                        <AddRowBtn label="Add Criterion" onClick={() => criteriaArray.append({ category: '', description: '', weight: 10 })} />
+                    </div>
+
+                    {criteriaArray.fields.length === 0 ? (
+                        <div className="flex items-center gap-3 p-5 bg-slate-50 rounded-2xl">
+                            <AlertCircle size={18} className="text-slate-400 shrink-0" />
+                            <p className="text-sm font-bold text-slate-500">No judging criteria added yet.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {criteriaArray.fields.map((field, i) => (
+                                <div key={field.id} className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl">
+                                    <div className="flex-1 grid md:grid-cols-[1fr_2fr_auto] gap-3">
+                                        <div>
+                                            <input
+                                                {...hackReg(`criteria.${i}.category`)}
+                                                placeholder="Category e.g. Innovation"
+                                                className={fieldCls(!!hackErr.criteria?.[i]?.category)}
+                                            />
+                                            <ErrMsg msg={hackErr.criteria?.[i]?.category?.message} />
+                                        </div>
+                                        <div>
+                                            <input
+                                                {...hackReg(`criteria.${i}.description`)}
+                                                placeholder="What judges should look for"
+                                                className={fieldCls(!!hackErr.criteria?.[i]?.description)}
+                                            />
+                                            <ErrMsg msg={hackErr.criteria?.[i]?.description?.message} />
+                                        </div>
+                                        <div>
+                                            <input
+                                                {...hackReg(`criteria.${i}.weight`)}
+                                                type="number"
+                                                min={1}
+                                                max={100}
+                                                placeholder="Weight %"
+                                                className={fieldCls(!!hackErr.criteria?.[i]?.weight)}
+                                            />
+                                            <ErrMsg msg={hackErr.criteria?.[i]?.weight?.message} />
+                                        </div>
+                                    </div>
+                                    <RemoveRowBtn onClick={() => criteriaArray.remove(i)} />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* ── Prizes Card ── */}
+                <div className="bg-white border border-slate-100 rounded-3xl p-7 space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-50">
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 bg-yellow-50 rounded-xl flex items-center justify-center">
+                                <Gift size={18} className="text-yellow-500" />
+                            </div>
+                            <div>
+                                <h2 className="font-extrabold text-slate-900">Prizes</h2>
+                                <p className="text-xs font-bold text-slate-400">Rewards for top-performing teams</p>
+                            </div>
+                        </div>
+                        <AddRowBtn label="Add Prize" onClick={() => prizesArray.append({ rank: '', amount: '', perk: '' })} />
+                    </div>
+
+                    {prizesArray.fields.length === 0 ? (
+                        <div className="flex items-center gap-3 p-5 bg-slate-50 rounded-2xl">
+                            <AlertCircle size={18} className="text-slate-400 shrink-0" />
+                            <p className="text-sm font-bold text-slate-500">No prizes added yet.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {prizesArray.fields.map((field, i) => (
+                                <div key={field.id} className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl">
+                                    <div className="flex-1 grid md:grid-cols-3 gap-3">
+                                        <div>
+                                            <input
+                                                {...hackReg(`prizes.${i}.rank`)}
+                                                placeholder="Rank e.g. 1st Place"
+                                                className={fieldCls(!!hackErr.prizes?.[i]?.rank)}
+                                            />
+                                            <ErrMsg msg={hackErr.prizes?.[i]?.rank?.message} />
+                                        </div>
+                                        <div>
+                                            <input
+                                                {...hackReg(`prizes.${i}.amount`)}
+                                                placeholder="Amount e.g. $5,000"
+                                                className={fieldCls(!!hackErr.prizes?.[i]?.amount)}
+                                            />
+                                            <ErrMsg msg={hackErr.prizes?.[i]?.amount?.message} />
+                                        </div>
+                                        <div>
+                                            <input
+                                                {...hackReg(`prizes.${i}.perk`)}
+                                                placeholder="Perk (optional)"
+                                                className={fieldCls(false)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <RemoveRowBtn onClick={() => prizesArray.remove(i)} />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* ── FAQs Card ── */}
+                <div className="bg-white border border-slate-100 rounded-3xl p-7 space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-50">
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center">
+                                <HelpCircle size={18} className="text-emerald-500" />
+                            </div>
+                            <div>
+                                <h2 className="font-extrabold text-slate-900">FAQs</h2>
+                                <p className="text-xs font-bold text-slate-400">Answer common participant questions</p>
+                            </div>
+                        </div>
+                        <AddRowBtn label="Add FAQ" onClick={() => faqsArray.append({ q: '', a: '' })} />
+                    </div>
+
+                    {faqsArray.fields.length === 0 ? (
+                        <div className="flex items-center gap-3 p-5 bg-slate-50 rounded-2xl">
+                            <AlertCircle size={18} className="text-slate-400 shrink-0" />
+                            <p className="text-sm font-bold text-slate-500">No FAQs added yet.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {faqsArray.fields.map((field, i) => (
+                                <div key={field.id} className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl">
+                                    <div className="flex-1 space-y-2">
+                                        <div>
+                                            <input
+                                                {...hackReg(`faqs.${i}.q`)}
+                                                placeholder="Question"
+                                                className={fieldCls(!!hackErr.faqs?.[i]?.q)}
+                                            />
+                                            <ErrMsg msg={hackErr.faqs?.[i]?.q?.message} />
+                                        </div>
+                                        <div>
+                                            <textarea
+                                                {...hackReg(`faqs.${i}.a`)}
+                                                rows={2}
+                                                placeholder="Answer"
+                                                className={textareaCls(!!hackErr.faqs?.[i]?.a)}
+                                            />
+                                            <ErrMsg msg={hackErr.faqs?.[i]?.a?.message} />
+                                        </div>
+                                    </div>
+                                    <RemoveRowBtn onClick={() => faqsArray.remove(i)} />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* ── Timeline Card ── */}
+                <div className="bg-white border border-slate-100 rounded-3xl p-7 space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-50">
+                        <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 bg-rose-50 rounded-xl flex items-center justify-center">
+                                <Milestone size={18} className="text-rose-500" />
+                            </div>
+                            <div>
+                                <h2 className="font-extrabold text-slate-900">Timeline</h2>
+                                <p className="text-xs font-bold text-slate-400">Key events and phases participants should track</p>
+                            </div>
+                        </div>
+                        <AddRowBtn label="Add Milestone" onClick={() => timelineArray.append({ label: '', date: '', type: 'event', description: '' })} />
+                    </div>
+
+                    {timelineArray.fields.length === 0 ? (
+                        <div className="flex items-center gap-3 p-5 bg-slate-50 rounded-2xl">
+                            <AlertCircle size={18} className="text-slate-400 shrink-0" />
+                            <p className="text-sm font-bold text-slate-500">No timeline milestones added yet.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {timelineArray.fields.map((field, i) => (
+                                <div key={field.id} className="flex items-start gap-3 p-4 bg-slate-50 rounded-2xl">
+                                    <div className="flex-1 grid md:grid-cols-[2fr_1fr_1fr] gap-3">
+                                        <div>
+                                            <input
+                                                {...hackReg(`timeline.${i}.label`)}
+                                                placeholder="Label e.g. Opening Ceremony"
+                                                className={fieldCls(!!hackErr.timeline?.[i]?.label)}
+                                            />
+                                            <ErrMsg msg={hackErr.timeline?.[i]?.label?.message} />
+                                        </div>
+                                        <div>
+                                            <input
+                                                type="date"
+                                                {...hackReg(`timeline.${i}.date`)}
+                                                className={fieldCls(!!hackErr.timeline?.[i]?.date)}
+                                            />
+                                            <ErrMsg msg={hackErr.timeline?.[i]?.date?.message} />
+                                        </div>
+                                        <div>
+                                            <select {...hackReg(`timeline.${i}.type`)} className={`${fieldCls(false)} cursor-pointer`}>
+                                                <option value="event">Event</option>
+                                                <option value="phase">Phase</option>
+                                            </select>
+                                        </div>
+                                        <div className="md:col-span-3">
+                                            <input
+                                                {...hackReg(`timeline.${i}.description`)}
+                                                placeholder="Description (optional)"
+                                                className={fieldCls(false)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <RemoveRowBtn onClick={() => timelineArray.remove(i)} />
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* ── Problem Statement Card ── */}

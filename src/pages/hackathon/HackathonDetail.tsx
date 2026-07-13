@@ -38,6 +38,7 @@ export default function HackathonDetail() {
     const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
     const [isRegistered, setIsRegistered] = useState(false);
     const [sidebarCountdown, setSidebarCountdown] = useState<string | null>(null);
+    const [hasSavedProgress, setHasSavedProgress] = useState(false);
 
     useEffect(() => {
         const load = async () => {
@@ -49,6 +50,25 @@ export default function HackathonDetail() {
         };
         load();
     }, [id]);
+
+    // Check whether this participant (or their team) left off mid-solve, so
+    // the CTA can offer "Resume" instead of "Start" — a fresh team member
+    // picks up whatever a teammate last saved, not just their own progress.
+    useEffect(() => {
+        if (!id || !isRegistered) { setHasSavedProgress(false); return; }
+        let active = true;
+        (async () => {
+            try {
+                const teams = await HackathonService.getUserTeams(id);
+                const teamId = teams[0]?.id;
+                const saved = await HackathonService.getSavedProgress(id, teamId);
+                if (active) setHasSavedProgress(!!saved?.code?.trim());
+            } catch {
+                if (active) setHasSavedProgress(false);
+            }
+        })();
+        return () => { active = false; };
+    }, [id, isRegistered]);
 
     // Sidebar countdown — to start if upcoming, to end if live
     useEffect(() => {
@@ -189,7 +209,9 @@ export default function HackathonDetail() {
                                                 </h3>
                                                 <p className="text-sm font-medium text-slate-500 mt-1">
                                                     {isRegistered
-                                                        ? 'Open the secure sandbox and start coding your solution.'
+                                                        ? hasSavedProgress
+                                                            ? 'Pick up right where you (or your team) left off.'
+                                                            : 'Open the secure sandbox and start coding your solution.'
                                                         : courseLocked
                                                             ? 'Complete all your courses to unlock registration.'
                                                             : 'You must register before accessing the code sandbox.'}
@@ -205,7 +227,7 @@ export default function HackathonDetail() {
                                                     className="flex items-center gap-2 px-7 py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-200 hover:bg-[#4338CA] transition-all active:scale-95 shrink-0"
                                                 >
                                                     <Play size={16} fill="white" />
-                                                    {isRegistered ? 'Start Hackathon' : 'Register Now'}
+                                                    {isRegistered ? (hasSavedProgress ? 'Resume Hackathon' : 'Start Hackathon') : 'Register Now'}
                                                 </button>
                                             )}
                                         </div>
@@ -338,7 +360,7 @@ export default function HackathonDetail() {
                                                     }`}
                                             >
                                                 <Play size={15} fill="white" />
-                                                {data?.isRegistered ? 'Start Hackathon' : 'Register to Start'}
+                                                {data?.isRegistered ? (hasSavedProgress ? 'Resume Hackathon' : 'Start Hackathon') : 'Register to Start'}
                                             </button>
                                         )}
                                     </>

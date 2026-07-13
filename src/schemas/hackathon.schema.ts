@@ -108,6 +108,19 @@ export const SubmitSolutionResponseSchema = z.object({
     message: z.string().optional(),
 });
 
+export const SaveProgressSchema = z.object({
+    language: z.string(),
+    code: z.string(),
+    // When present, progress is shared across the whole team so a teammate
+    // who resumes later (even on their own device) picks up from here too.
+    teamId: z.string().optional(),
+});
+
+export const SaveProgressResponseSchema = z.object({
+    saved: z.boolean(),
+    savedAt: z.string().optional(),
+});
+
 export type HackathonDetail = z.infer<typeof HackathonDetailSchema>;
 export type Hackathon = z.infer<typeof HackathonSchema>;
 export type HackathonStatus = z.infer<typeof HackathonStatusSchema>;
@@ -139,8 +152,39 @@ export type HackathonProblem = z.infer<typeof HackathonProblemSchema>;
 export type HackathonTestCase = z.infer<typeof HackathonTestCaseSchema>;
 export type SubmitSolutionValues = z.infer<typeof SubmitSolutionSchema>;
 export type SubmitSolutionResponse = z.infer<typeof SubmitSolutionResponseSchema>;
+export type SaveProgressValues = z.infer<typeof SaveProgressSchema>;
+export type SaveProgressResponse = z.infer<typeof SaveProgressResponseSchema>;
 export type MentorSubmission = z.infer<typeof MentorSubmissionSchema>;
 export type MentorReviewValues = z.infer<typeof MentorReviewSchema>;
+
+export const HackathonCriteriaSchema = z.object({
+    category: z.string().min(1, 'Category is required'),
+    description: z.string().min(1, 'Description is required'),
+    weight: z.coerce.number().min(1, 'Weight is required').max(100, 'Weight cannot exceed 100'),
+});
+
+export const HackathonFaqSchema = z.object({
+    q: z.string().min(1, 'Question is required'),
+    a: z.string().min(1, 'Answer is required'),
+});
+
+export const HackathonPrizeSchema = z.object({
+    rank: z.string().min(1, 'Rank is required'),
+    amount: z.string().min(1, 'Amount is required'),
+    perk: z.string().optional(),
+});
+
+export const HackathonTimelineItemSchema = z.object({
+    label: z.string().min(1, 'Label is required'),
+    date: z.string().min(1, 'Date is required'),
+    type: z.enum(['event', 'phase']).optional(),
+    description: z.string().optional(),
+});
+
+export type HackathonCriteriaValues = z.infer<typeof HackathonCriteriaSchema>;
+export type HackathonFaqValues = z.infer<typeof HackathonFaqSchema>;
+export type HackathonPrizeValues = z.infer<typeof HackathonPrizeSchema>;
+export type HackathonTimelineItemValues = z.infer<typeof HackathonTimelineItemSchema>;
 
 export const OrganizerCreateHackathonSchema = z.object({
     title: z.string().min(3, 'Title must be at least 3 characters'),
@@ -150,6 +194,14 @@ export const OrganizerCreateHackathonSchema = z.object({
     mode: z.string().min(1, 'Mode is required'),
     teamSize: z.string().min(1, 'Team size is required'),
     registrationDeadline: z.string().min(1, 'Registration deadline is required'),
+    difficultyLevel: z.string().min(1, 'Difficulty level is required'),
+    ideationStartDate: z.string().optional(),
+    ideationEndDate: z.string().optional(),
+    rulesText: z.string().optional(),
+    criteria: z.array(HackathonCriteriaSchema).default([]),
+    prizes: z.array(HackathonPrizeSchema).default([]),
+    faqs: z.array(HackathonFaqSchema).default([]),
+    timeline: z.array(HackathonTimelineItemSchema).default([]),
 });
 
 export const OrganizerCreateProblemSchema = z.object({

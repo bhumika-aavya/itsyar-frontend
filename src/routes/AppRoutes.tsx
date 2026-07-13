@@ -46,7 +46,6 @@ const ProfilePage = lazy(() => import("@/pages/profile/ProfilePage"));
 
 // Organizer pages (CreateHackathon is shared with the Admin hackathon-create/edit flow)
 const OrganizerDashboard = lazy(() => import("@/pages/organizer/OrganizerDashboard"));
-const OrganizerCoursesPage = lazy(() => import("@/pages/organizer/OrganizerCoursesPage"));
 const CreateHackathon = lazy(() => import("@/pages/organizer/CreateHackathon"));
 
 // Mentor pages
@@ -131,7 +130,6 @@ export default function AppRoutes() {
           <Route element={<RoleRoute roles={["organizer"]} />}>
             <Route element={<OrganizerLayout />}>
               <Route path="/organizer" element={<OrganizerDashboard />} />
-              <Route path="/organizer/courses" element={<OrganizerCoursesPage />} />
               <Route path="/organizer/hackathons/create" element={<CreateHackathon />} />
               <Route path="/organizer/hackathons/:id/edit" element={<CreateHackathon />} />
               <Route path="/organizer/profile" element={<ProfilePage />} />

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Zap, BookOpen, User, LogOut, ChevronDown, Building2, Plus, LayoutDashboard } from 'lucide-react';
+import { Zap, User, LogOut, ChevronDown, Building2, Plus, LayoutDashboard } from 'lucide-react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 
@@ -21,7 +21,6 @@ const NavItem = ({
 
 const NAV_ITEMS = [
   { icon: Zap, label: 'My Hackathons', path: '/organizer' },
-  { icon: BookOpen, label: 'Courses', path: '/organizer/courses' },
   { icon: User, label: 'Profile', path: '/organizer/profile' },
 ];
 

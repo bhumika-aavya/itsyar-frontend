@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import {
-    Code2, ChevronDown, Upload, Send, Loader2,
+    Code2, ChevronDown, Upload, Send, Loader2, Save,
     FileCode, RotateCcw, Lock, Maximize2, Minimize2, AlertTriangle, X, Clock,
     Play, Terminal, AlignLeft, MessageSquare, Users, Share2,
 } from 'lucide-react';
@@ -200,6 +200,7 @@ export default function HackathonCodeSandbox({
     const [notes, setNotes] = useState('');
     const [langOpen, setLangOpen] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [savingProgress, setSavingProgress] = useState(false);
     const [tab, setTab] = useState<'problem' | 'editor'>('problem');
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [violations, setViolations] = useState(0);
@@ -228,10 +229,14 @@ export default function HackathonCodeSandbox({
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const [chatInput, setChatInput] = useState('');
     const [teamMembers, setTeamMembers] = useState<Array<{ id: string; name: string; role: string; online: boolean }>>([]);
+    const [myTeamId, setMyTeamId] = useState<string | null>(null);
 
     const chatEndRef = useRef<HTMLDivElement | null>(null);
     const chatPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const lastMsgTsRef = useRef<number>(0);
+    // Opening the native "Upload File" dialog steals window focus (and can hide
+    // the document), which would otherwise be mistaken for tab-switching/alt-tabbing.
+    const fileDialogOpenRef = useRef(false);
 
     // ── Load problem ──
     useEffect(() => {
@@ -239,13 +244,31 @@ export default function HackathonCodeSandbox({
             setLoading(true);
             setLoadError(false);
             try {
-                const problems = await HackathonService.getProblem(hackathonId);
+                const [problems, teams] = await Promise.all([
+                    HackathonService.getProblem(hackathonId),
+                    HackathonService.getUserTeams(hackathonId).catch(() => []),
+                ]);
                 const p = problems[0] ?? null;
                 if (!p) throw new Error('No problem found for this hackathon.');
                 setProblem(p);
+                const myTeam = teams[0] ?? null;
+                setMyTeamId(myTeam?.id ?? null);
+                if (myTeam) {
+                    setTeamMembers(myTeam.members.map(m => ({
+                        id: m.id, name: m.name, role: m.role, online: m.status === 'JOINED',
+                    })));
+                }
                 const defaultLang = p.supportedLanguages?.[0] ?? 'JavaScript';
-                setLanguage(defaultLang);
-                setCode(autoFormatCode(p.starterCode?.[defaultLang] ?? '', defaultLang));
+                // Team-scoped first (whatever a teammate last saved), falling back to
+                // this participant's own solo save.
+                const saved = await HackathonService.getSavedProgress(hackathonId, myTeam?.id);
+                if (saved?.code?.trim()) {
+                    setLanguage(saved.language || defaultLang);
+                    setCode(saved.code);
+                } else {
+                    setLanguage(defaultLang);
+                    setCode(autoFormatCode(p.starterCode?.[defaultLang] ?? '', defaultLang));
+                }
             } catch {
                 setLoadError(true);
             } finally {
@@ -284,18 +307,6 @@ export default function HackathonCodeSandbox({
             active = false;
             if (chatPollRef.current) clearInterval(chatPollRef.current);
         };
-    }, [hackathonId]);
-
-    // ── Load team members dynamically ──
-    useEffect(() => {
-        HackathonService.getUserTeams(hackathonId).then(teams => {
-            const myTeam = teams[0];
-            if (myTeam) {
-                setTeamMembers(myTeam.members.map(m => ({
-                    id: m.id, name: m.name, role: m.role, online: m.status === 'JOINED',
-                })));
-            }
-        }).catch(() => { });
     }, [hackathonId]);
 
     // ── Auto-scroll chat to latest message ──
@@ -375,12 +386,16 @@ export default function HackathonCodeSandbox({
         };
         const handleContextMenu = (e: MouseEvent) => e.preventDefault();
         const handleVisibilityChange = () => {
-            if (document.hidden) {
+            if (document.hidden && !fileDialogOpenRef.current) {
                 triggerViolation('Tab switch detected! Stay on this page during the hackathon.');
                 // setShowTabBlockOverlay(true);
             }
         };
-        const handleBlur = () => triggerViolation('Window focus lost! Switching away from the sandbox is not allowed.');
+        const handleBlur = () => {
+            if (fileDialogOpenRef.current) return; // expected blur from the Upload File dialog — not a violation
+            triggerViolation('Window focus lost! Switching away from the sandbox is not allowed.');
+        };
+        const handleWindowFocus = () => { fileDialogOpenRef.current = false; };
         const handleFullscreenChange = () => { if (!document.fullscreenElement) setIsFullscreen(false); };
         const handleCopy = (e: ClipboardEvent) => e.preventDefault();
         const handleCut = (e: ClipboardEvent) => e.preventDefault();
@@ -390,6 +405,7 @@ export default function HackathonCodeSandbox({
         document.addEventListener('contextmenu', handleContextMenu);
         document.addEventListener('visibilitychange', handleVisibilityChange);
         window.addEventListener('blur', handleBlur);
+        window.addEventListener('focus', handleWindowFocus);
         document.addEventListener('fullscreenchange', handleFullscreenChange);
         document.addEventListener('copy', handleCopy);
         document.addEventListener('cut', handleCut);
@@ -399,6 +415,7 @@ export default function HackathonCodeSandbox({
             document.removeEventListener('contextmenu', handleContextMenu);
             document.removeEventListener('visibilitychange', handleVisibilityChange);
             window.removeEventListener('blur', handleBlur);
+            window.removeEventListener('focus', handleWindowFocus);
             document.removeEventListener('fullscreenchange', handleFullscreenChange);
             document.removeEventListener('copy', handleCopy);
             document.removeEventListener('cut', handleCut);
@@ -438,6 +455,7 @@ export default function HackathonCodeSandbox({
     }, [problem, language]);
 
     const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        fileDialogOpenRef.current = false;
         const file = e.target.files?.[0];
         if (!file) return;
         const reader = new FileReader();
@@ -450,7 +468,7 @@ export default function HackathonCodeSandbox({
         if (!code.trim()) return;
         setSubmitting(true);
         try {
-            const result = await HackathonService.submitSolution(hackathonId, { language, code, notes });
+            const result = await HackathonService.submitSolution(hackathonId, { language, code, notes }, myTeamId ?? undefined);
             markHackathonSubmitted(hackathonId);
             toast.success('Solution submitted successfully!', {
                 description: result?.submissionId ? `Submission ID: ${result.submissionId}` : undefined,
@@ -463,6 +481,21 @@ export default function HackathonCodeSandbox({
             setSubmitting(false);
         }
     };
+
+    const handleSaveProgress = useCallback(async () => {
+        if (!code.trim()) return;
+        setSavingProgress(true);
+        try {
+            await HackathonService.saveProgress(hackathonId, { language, code, teamId: myTeamId ?? undefined });
+            toast.success('Progress saved', {
+                description: myTeamId
+                    ? 'Your teammates can resume from this point too.'
+                    : 'Resume right where you left off, anytime before submitting.',
+            });
+        } finally {
+            setSavingProgress(false);
+        }
+    }, [hackathonId, language, code, myTeamId]);
 
     // ── Run against test cases ──
     const handleRunCode = useCallback(async () => {
@@ -617,7 +650,13 @@ export default function HackathonCodeSandbox({
                 <input type="file" accept=".js,.ts,.py,.java,.cpp,.go,.rs,.rb,.txt" className="hidden" onChange={handleFileUpload} />
             </label>
             <div className="flex items-center gap-2">
-
+                <button
+                    onClick={handleSaveProgress}
+                    disabled={savingProgress || !code.trim()}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-extrabold text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95"
+                >
+                    {savingProgress ? <><Loader2 size={15} className="animate-spin" /> Saving…</> : <><Save size={15} /> Save Progress</>}
+                </button>
                 <button
                     onClick={handleSubmit}
                     disabled={submitting || !code.trim()}

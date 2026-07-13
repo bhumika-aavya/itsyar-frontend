@@ -377,13 +377,12 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                                     <button
                                         key={team.id}
                                         onClick={() => setSelectedTeamId(team.id)}
-                                        className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all text-left ${
-                                            selectedTeamId === team.id
+                                        className={`w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all text-left ${selectedTeamId === team.id
                                                 ? 'border-[#4F46E5] bg-indigo-50/50'
                                                 : selectedTeamId !== null
                                                     ? 'border-slate-100 opacity-40 cursor-not-allowed'
                                                     : 'border-slate-100 hover:border-slate-200'
-                                        }`}
+                                            }`}
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F46E5] shrink-0">
@@ -589,7 +588,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                                     </div>
                                     <div>
                                         <p className="text-sm font-extrabold text-slate-900">{selectedTeam?.name}</p>
-                                        <p className="text-xs font-bold text-slate-400">{selectedTeam?.members.length} Members</p>
+                                        <p className="text-xs font-bold text-slate-400">{selectedTeam?.members?.length} Members</p>
                                     </div>
                                 </div>
                             </div>

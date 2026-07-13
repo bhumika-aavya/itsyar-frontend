@@ -1,8 +1,9 @@
 import axios from "axios";
 import api from "@/lib/axios";
-import { Hackathon, HackathonDetail, Team, CreateTeamValues, HackathonProblem, SubmitSolutionValues, SubmitSolutionResponse } from "@/schemas/hackathon.schema";
+import { Hackathon, HackathonDetail, Team, CreateTeamValues, HackathonProblem, SubmitSolutionValues, SubmitSolutionResponse, SaveProgressValues, SaveProgressResponse } from "@/schemas/hackathon.schema";
 import { getAuthHeaders } from "./auth";
 import { getApiErrorMessage } from "@/lib/getApiErrorMessage";
+import { getLocalProgress, saveLocalProgress, clearLocalProgress } from "@/lib/progressStore";
 
 const MOCK_HACKATHONS: Hackathon[] = [
     { id: "h1", title: "CodeSprint 2024", startDate: "2024-05-21", endDate: "2024-05-23", status: "COMPLETED", iconType: "trophy", iconBg: "bg-yellow-50 text-yellow-500" },
@@ -495,13 +496,39 @@ export const HackathonService = {
         }
     },
 
-    submitSolution: async (hackathonId: string, data: SubmitSolutionValues): Promise<SubmitSolutionResponse> => {
+    submitSolution: async (hackathonId: string, data: SubmitSolutionValues, teamId?: string): Promise<SubmitSolutionResponse> => {
         try {
             const response = await api.post(`/hackathons/${hackathonId}/submit`, data, getAuthHeaders());
+            clearLocalProgress(hackathonId, teamId);
             return response.data;
         } catch {
             console.warn("API Error: Simulating solution submission for hackathon:", hackathonId);
+            clearLocalProgress(hackathonId, teamId);
             return { submissionId: `sub_${Date.now()}`, status: "PENDING", message: "Submission received and queued for review." };
+        }
+    },
+
+    // Saves in-progress (unsubmitted) code so a participant can leave the
+    // sandbox and resume later. Always mirrored to localStorage as a safety
+    // net since the backend endpoint may not persist it yet. When solving as
+    // a team, passing teamId lets any teammate's session resume from here too.
+    saveProgress: async (hackathonId: string, data: SaveProgressValues): Promise<SaveProgressResponse> => {
+        saveLocalProgress(hackathonId, data.language, data.code, data.teamId);
+        try {
+            const response = await api.post(`/hackathons/${hackathonId}/progress`, data, getAuthHeaders());
+            return response.data;
+        } catch {
+            return { saved: true, savedAt: new Date().toISOString() };
+        }
+    },
+
+    getSavedProgress: async (hackathonId: string, teamId?: string): Promise<SaveProgressValues | null> => {
+        try {
+            const params = teamId ? { teamId } : undefined;
+            const response = await api.get(`/hackathons/${hackathonId}/progress`, { ...getAuthHeaders(), params });
+            return response.data?.progress ?? null;
+        } catch {
+            return getLocalProgress(hackathonId, teamId);
         }
     },
 
