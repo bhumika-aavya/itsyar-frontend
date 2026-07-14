@@ -1,11 +1,18 @@
 const STORAGE_KEY = "adminSubmissionReviews";
 
+export interface SubmissionScores {
+  innovation: number;
+  technicalFeasibility: number;
+  uiUx: number;
+  accessibility: number;
+}
+
 export interface SubmissionReview {
-  scores: Record<string, number>;
+  scores: SubmissionScores;
   feedback: string;
-  totalScore: number;
+  weightedScore: number;
   reviewedAt: string;
-  isFinal: boolean;
+  status: "UNDER_REVIEW" | "EVALUATED";
 }
 
 const key = (userId: string, hackathonId: string) => `${userId}:${hackathonId}`;

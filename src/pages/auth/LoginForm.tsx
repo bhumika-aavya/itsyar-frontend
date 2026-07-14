@@ -118,7 +118,13 @@ export default function LoginForm() {
           <div className="flex flex-col space-y-1.5 items-start">
             <div className="flex justify-between items-center w-full px-1">
               <label className="text-[13px] font-bold text-slate-800">Password</label>
-              <button type="button" className="text-[12px] font-bold text-[#4F46E5] hover:underline">Forgot password?</button>
+              <button
+                type="button"
+                onClick={() => navigate('/forgot-password')}
+                className="text-[12px] font-bold text-[#4F46E5] hover:underline"
+              >
+                Forgot password?
+              </button>
             </div>
             <div className="relative w-full">
               <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.password ? 'text-red-400' : 'text-slate-400'}`} size={18} />

@@ -3,23 +3,22 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import {
   ArrowLeft, ChevronLeft, ChevronRight, Save, Send, Loader2,
-  PlayCircle, FileText, Info, Zap, CheckCircle2, Share2, Flag,
+  FileText, Zap, CheckCircle2, Share2, Flag, Code2,
 } from "lucide-react";
-import { AdminService, AdminUser } from "@/services/admin.service";
-import { HackathonService } from "@/services/hackathon.service";
-import { getMockSubmissionsForUser, MockUserSubmission } from "@/lib/mockUserSubmissions";
-import { getReview, saveReview } from "@/lib/adminReviewStore";
+import {
+  AdminSubmissionService, SubmissionDetail, UserSubmissionsResult, SubmissionScores,
+} from "@/services/admin-submission.service";
 
-interface Criterion { key: string; label: string; weight: number; max: number }
+interface Criterion { key: keyof SubmissionScores; label: string; max: number }
 
 const CRITERIA: Criterion[] = [
-  { key: "innovation", label: "Innovation", weight: 25, max: 10 },
-  { key: "technical", label: "Technical Feasibility", weight: 40, max: 10 },
-  { key: "uiux", label: "UI/UX", weight: 25, max: 10 },
-  { key: "accessibility", label: "Accessibility", weight: 10, max: 10 },
+  { key: "innovation", label: "Innovation", max: 10 },
+  { key: "technicalFeasibility", label: "Technical Feasibility", max: 10 },
+  { key: "uiUx", label: "UI/UX", max: 10 },
+  { key: "accessibility", label: "Accessibility", max: 10 },
 ];
 
-const TABS = ["Overview", "Files & Links", "Submission Info"] as const;
+const TABS = ["Overview", "Code", "Files & Links", "Submission Info"] as const;
 type Tab = typeof TABS[number];
 
 const fmt = (iso: string) => {
@@ -28,59 +27,65 @@ const fmt = (iso: string) => {
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 };
 
-const zeroScores = () => Object.fromEntries(CRITERIA.map(c => [c.key, 0]));
+const zeroScores = (): SubmissionScores => ({ innovation: 0, technicalFeasibility: 0, uiUx: 0, accessibility: 0 });
 
 export default function AdminSubmissionReviewPage() {
-  const { userId, hackathonId } = useParams<{ userId: string; hackathonId: string }>();
+  const { userId, submissionId } = useParams<{ userId: string; submissionId: string }>();
   const navigate = useNavigate();
-  const [user, setUser] = useState<AdminUser | null>(null);
-  const [submissions, setSubmissions] = useState<MockUserSubmission[]>([]);
+  const [queue, setQueue] = useState<UserSubmissionsResult | null>(null);
+  const [detail, setDetail] = useState<SubmissionDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("Overview");
 
-  const [scores, setScores] = useState<Record<string, number>>(zeroScores());
+  const [scores, setScores] = useState<SubmissionScores>(zeroScores());
   const [feedback, setFeedback] = useState("");
-  const [isFinal, setIsFinal] = useState(false);
   const [saving, setSaving] = useState<"draft" | "submit" | null>(null);
 
   useEffect(() => {
     if (!userId) return;
-    Promise.all([AdminService.getUsers(), HackathonService.getHackathons()])
-      .then(([users, hackathons]) => {
-        setUser(users.find(u => String(u.id) === String(userId)) ?? null);
-        const list = Array.isArray(hackathons) ? hackathons : [];
-        setSubmissions(getMockSubmissionsForUser(userId, list));
-      })
-      .finally(() => setLoading(false));
+    AdminSubmissionService.getUserSubmissions(userId).then(setQueue);
   }, [userId]);
 
   useEffect(() => {
-    if (!userId || !hackathonId) return;
-    const existing = getReview(userId, hackathonId);
-    setScores(existing?.scores ?? zeroScores());
-    setFeedback(existing?.feedback ?? "");
-    setIsFinal(existing?.isFinal ?? false);
-    setTab("Overview");
-  }, [userId, hackathonId]);
+    if (!submissionId) return;
+    setLoading(true);
+    AdminSubmissionService.getSubmissionDetail(submissionId)
+      .then(d => {
+        setDetail(d);
+        setScores(d?.scores ?? zeroScores());
+        setFeedback(d?.feedback ?? "");
+        setTab("Overview");
+      })
+      .finally(() => setLoading(false));
+  }, [submissionId]);
 
-  const index = submissions.findIndex(s => s.hackathonId === hackathonId);
-  const current = submissions[index];
-  const totalScore = CRITERIA.reduce((sum, c) => sum + ((scores[c.key] ?? 0) * c.weight / 100), 0);
-  const reviewedCount = submissions.filter(s => getReview(userId ?? "", s.hackathonId)?.isFinal).length;
+  const isFinal = detail?.status === "EVALUATED";
+  const submissions = queue?.submissions ?? [];
+  const index = submissions.findIndex(s => s.id === submissionId);
+  const weightedScore = (scores.innovation + scores.technicalFeasibility + scores.uiUx + scores.accessibility) / 4;
 
   const goto = (i: number) => {
     if (i < 0 || i >= submissions.length) return;
-    navigate(`/admin/submissions/${userId}/${submissions[i].hackathonId}`);
+    navigate(`/admin/submissions/${userId}/${submissions[i].id}`);
   };
 
   const handleSave = async (final: boolean) => {
-    if (!userId || !hackathonId) return;
+    if (!submissionId) return;
     setSaving(final ? "submit" : "draft");
-    await new Promise(r => setTimeout(r, 500));
-    saveReview(userId, hackathonId, { scores, feedback, totalScore, reviewedAt: new Date().toISOString(), isFinal: final });
-    setIsFinal(final);
-    setSaving(null);
-    toast.success(final ? "Review submitted" : "Draft saved");
+    try {
+      if (final) {
+        const res = await AdminSubmissionService.submitReview(submissionId, { scores, feedback });
+        setDetail(prev => prev ? { ...prev, status: res.status, weightedScore: res.weightedScore, score: res.weightedScore, feedback } : prev);
+        toast.success("Review submitted");
+      } else {
+        await AdminSubmissionService.saveReviewDraft(submissionId, { scores, feedback });
+        setDetail(prev => prev ? { ...prev, status: "UNDER_REVIEW" } : prev);
+        toast.success("Draft saved");
+      }
+      setQueue(await (userId ? AdminSubmissionService.getUserSubmissions(userId) : Promise.resolve(queue)));
+    } finally {
+      setSaving(null);
+    }
   };
 
   if (loading) {
@@ -91,7 +96,7 @@ export default function AdminSubmissionReviewPage() {
     );
   }
 
-  if (!current) {
+  if (!detail) {
     return (
       <div className="max-w-5xl space-y-5">
         <button onClick={() => navigate(`/admin/submissions/${userId}`)} className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-[#4F46E5] transition-colors">
@@ -113,9 +118,9 @@ export default function AdminSubmissionReviewPage() {
 
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900">{current.team}</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900">{detail.teamName}</h1>
           <p className="text-sm font-bold text-slate-400 mt-1">
-            {user?.fullName}, {current.teammate} · {current.hackathonTitle}
+            {detail.userName} · {detail.hackathonTitle}
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0 pt-1">
@@ -148,60 +153,54 @@ export default function AdminSubmissionReviewPage() {
         <div className="space-y-4">
           {tab === "Overview" && (
             <>
-              <div className="bg-[#0F0F1A] rounded-[24px] aspect-video flex items-center justify-center relative overflow-hidden">
-                <PlayCircle size={56} className="text-white/80" />
-                <span className="absolute bottom-4 left-4 text-xs font-bold text-white/70">Project Demo Walkthrough</span>
-              </div>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="bg-white border border-slate-100 rounded-[20px] p-5">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Info size={15} className="text-[#4F46E5]" />
-                    <p className="text-sm font-extrabold text-slate-900">About Project</p>
-                  </div>
-                  <p className="text-xs font-medium text-slate-500 leading-relaxed">{current.aboutProject}</p>
+              <div className="bg-indigo-50/60 border border-indigo-100 rounded-[20px] p-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap size={15} className="text-[#4F46E5]" />
+                  <p className="text-sm font-extrabold text-slate-900">Problem Statement</p>
                 </div>
-                <div className="bg-indigo-50/60 border border-indigo-100 rounded-[20px] p-5">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Zap size={15} className="text-[#4F46E5]" />
-                    <p className="text-sm font-extrabold text-slate-900">Problem Statement</p>
-                  </div>
-                  <p className="text-xs font-medium text-slate-600 leading-relaxed">{current.problemStatement}</p>
-                </div>
+                <p className="text-xs font-medium text-slate-600 leading-relaxed">{detail.problemStatement}</p>
               </div>
               <div className="bg-white border border-slate-100 rounded-[20px] p-5">
-                <p className="text-sm font-extrabold text-slate-900 mb-3">Tech Stack</p>
-                <div className="flex flex-wrap gap-2">
-                  {current.techStack.map(t => (
-                    <span key={t} className="text-xs font-bold text-slate-600 bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-lg">
-                      {t}
-                    </span>
-                  ))}
-                </div>
+                <p className="text-sm font-extrabold text-slate-900 mb-2">About the Hackathon</p>
+                <p className="text-xs font-medium text-slate-500 leading-relaxed">{detail.hackathonDescription}</p>
               </div>
             </>
+          )}
+
+          {tab === "Code" && (
+            <div className="bg-[#1E1E2E] rounded-[20px] p-5 overflow-hidden">
+              <div className="flex items-center gap-2 mb-3">
+                <Code2 size={14} className="text-white/40" />
+                <p className="text-xs font-bold text-white/40">{detail.language}</p>
+              </div>
+              <pre className="text-[#CDD6F4] text-xs font-mono whitespace-pre-wrap leading-relaxed overflow-x-auto max-h-[480px]">
+                {detail.code || "No code available for this submission."}
+              </pre>
+            </div>
           )}
 
           {tab === "Files & Links" && (
             <div className="bg-white border border-slate-100 rounded-[20px] p-5 space-y-3">
               <p className="text-sm font-extrabold text-slate-900 mb-1">Submission Files</p>
-              {current.files.map(f => (
-                <div key={f.name} className="flex items-center gap-3 px-4 py-3 bg-slate-50 rounded-xl">
+              {detail.fileRef ? (
+                <div className="flex items-center gap-3 px-4 py-3 bg-slate-50 rounded-xl">
                   <FileText size={16} className="text-slate-400 shrink-0" />
-                  <span className="flex-1 text-sm font-bold text-slate-700 truncate">{f.name}</span>
-                  <span className="text-xs font-bold text-slate-400">{f.size}</span>
+                  <span className="flex-1 text-sm font-bold text-slate-700 truncate">{detail.fileRef}</span>
                 </div>
-              ))}
+              ) : (
+                <p className="text-xs font-medium text-slate-400">No files attached to this submission.</p>
+              )}
             </div>
           )}
 
           {tab === "Submission Info" && (
             <div className="bg-white border border-slate-100 rounded-[20px] p-5 divide-y divide-slate-50">
               {[
-                ["Team", current.team],
-                ["Contributors", `${user?.fullName}, ${current.teammate}`],
-                ["Hackathon", current.hackathonTitle],
-                ["Language", current.language],
-                ["Submitted", fmt(current.submittedAt)],
+                ["Team", detail.teamName],
+                ["Submitted by", `${detail.userName} (${detail.userEmail})`],
+                ["Hackathon", detail.hackathonTitle],
+                ["Language", detail.language],
+                ["Submitted", fmt(detail.submittedAt)],
               ].map(([label, value]) => (
                 <div key={label} className="flex items-center justify-between py-3">
                   <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">{label}</span>
@@ -221,7 +220,7 @@ export default function AdminSubmissionReviewPage() {
             </div>
             <span className="text-xs font-extrabold text-[#4F46E5] bg-indigo-50 px-3 py-1.5 rounded-xl text-center">
               <span className="block text-[9px] tracking-widest">WEIGHTED SCORE</span>
-              {totalScore.toFixed(1)}/10
+              {(isFinal ? detail.weightedScore ?? weightedScore : weightedScore).toFixed(1)}/10
             </span>
           </div>
 
@@ -294,14 +293,14 @@ export default function AdminSubmissionReviewPage() {
       <div className="sticky bottom-0 bg-white border border-slate-100 rounded-[20px] px-6 py-4 shadow-sm flex items-center justify-between gap-4 flex-wrap">
         <div>
           <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
-            Submission Review · Focus Mode: {user?.fullName}'s Queue
+            Submission Review · Focus Mode: {queue?.user.name ?? detail.userName}'s Queue
           </p>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-xs font-extrabold text-slate-500">Reviewed {reviewedCount}/{submissions.length}</span>
+            <span className="text-xs font-extrabold text-slate-500">Reviewed {queue?.reviewed ?? 0}/{queue?.total ?? submissions.length}</span>
             <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
               <div
                 className="h-full bg-[#4F46E5] rounded-full"
-                style={{ width: `${submissions.length ? (reviewedCount / submissions.length) * 100 : 0}%` }}
+                style={{ width: `${submissions.length ? ((queue?.reviewed ?? 0) / submissions.length) * 100 : 0}%` }}
               />
             </div>
           </div>

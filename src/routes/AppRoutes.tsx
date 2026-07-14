@@ -120,7 +120,7 @@ export default function AppRoutes() {
               <Route path="/admin/settings" element={<AdminSettingsPage />} />
               <Route path="/admin/submissions" element={<AdminSubmissionsPage />} />
               <Route path="/admin/submissions/:userId" element={<AdminUserSubmissionsPage />} />
-              <Route path="/admin/submissions/:userId/:hackathonId" element={<AdminSubmissionReviewPage />} />
+              <Route path="/admin/submissions/:userId/:submissionId" element={<AdminSubmissionReviewPage />} />
             </Route>
           </Route>
         </Route>

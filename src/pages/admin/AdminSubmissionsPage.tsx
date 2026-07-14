@@ -1,36 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { Search, Loader2, Users, ChevronRight, Scale } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { AdminService, AdminUser } from "@/services/admin.service";
-import { HackathonService } from "@/services/hackathon.service";
-import { getMockSubmissionsForUser } from "@/lib/mockUserSubmissions";
-
-interface SubmitterRow {
-  user: AdminUser;
-  submissionCount: number;
-}
+import { AdminSubmissionService, Submitter } from "@/services/admin-submission.service";
 
 export default function AdminSubmissionsPage() {
   const navigate = useNavigate();
-  const [rows, setRows] = useState<SubmitterRow[]>([]);
+  const [rows, setRows] = useState<Submitter[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    Promise.all([AdminService.getUsers(), HackathonService.getHackathons()])
-      .then(([users, hackathons]) => {
-        const list = Array.isArray(hackathons) ? hackathons : [];
-        const withSubmissions = users
-          .map(user => ({ user, submissionCount: getMockSubmissionsForUser(user.id, list).length }))
-          .filter(row => row.submissionCount > 0);
-        setRows(withSubmissions);
-      })
+    AdminSubmissionService.getSubmitters()
+      .then(setRows)
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = rows.filter(({ user: u }) =>
-    u.fullName.toLowerCase().includes(search.toLowerCase()) ||
-    u.email.toLowerCase().includes(search.toLowerCase())
+  const filtered = rows.filter(({ name, email }) =>
+    name.toLowerCase().includes(search.toLowerCase()) ||
+    email.toLowerCase().includes(search.toLowerCase())
   );
 
   if (loading) {
@@ -63,18 +50,18 @@ export default function AdminSubmissionsPage() {
       </div>
 
       <div className="bg-white border border-slate-100 rounded-[24px] overflow-hidden shadow-sm divide-y divide-slate-50">
-        {filtered.map(({ user: u, submissionCount }) => (
+        {filtered.map(({ userId, name, email, submissionCount }) => (
           <button
-            key={u.id}
-            onClick={() => navigate(`/admin/submissions/${u.id}`)}
+            key={userId}
+            onClick={() => navigate(`/admin/submissions/${userId}`)}
             className="w-full flex items-center gap-4 px-6 py-4 hover:bg-slate-50/50 transition-colors text-left"
           >
             <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center text-[#4F46E5] font-extrabold text-sm shrink-0">
-              {u.fullName.charAt(0).toUpperCase()}
+              {name.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-extrabold text-slate-900 text-sm">{u.fullName}</p>
-              <p className="text-xs font-bold text-slate-400">{u.email}</p>
+              <p className="font-extrabold text-slate-900 text-sm">{name}</p>
+              <p className="text-xs font-bold text-slate-400">{email}</p>
             </div>
             <span className="text-xs font-extrabold text-[#4F46E5] bg-indigo-50 px-2.5 py-1 rounded-lg hidden sm:block">
               {submissionCount} submission{submissionCount > 1 ? "s" : ""}

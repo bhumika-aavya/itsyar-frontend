@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
      navigate("/login", { replace: true });
   };
 
-  const updateUser = (patch: Partial<{ fullName: string; email: string; avatarUrl: string }>) => {
+  const updateUser = (patch: Partial<{ fullName: string; email: string; avatarUrl: string; role: string }>) => {
     setUser((prev: any) => {
       if (!prev) return prev;
       const updated = { ...prev, ...patch };

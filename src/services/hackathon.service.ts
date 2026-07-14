@@ -515,7 +515,7 @@ export const HackathonService = {
     saveProgress: async (hackathonId: string, data: SaveProgressValues): Promise<SaveProgressResponse> => {
         saveLocalProgress(hackathonId, data.language, data.code, data.teamId);
         try {
-            const response = await api.post(`/hackathons/${hackathonId}/progress`, data, getAuthHeaders());
+            const response = await api.post(`/hackathons/${hackathonId}/teams/${data.teamId}/save`, data, getAuthHeaders());
             return response.data;
         } catch {
             return { saved: true, savedAt: new Date().toISOString() };
