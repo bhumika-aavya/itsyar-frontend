@@ -1,51 +1,26 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Mail, Pencil, Loader2, CheckCircle2, Download, X, Save, Camera } from 'lucide-react';
+import { Mail, Pencil, Loader2, CheckCircle2, Download, X, Save, Camera, ShieldCheck, IdCard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { CourseService } from '@/services/course.service';
 import { MyCourse } from '@/schemas/course.schema';
 import { ProfileService } from '@/services/profile.service';
-import { getCurrentStreak, getActiveDaysThisMonth } from '@/lib/streakStore';
 import { fileToResizedDataUrl } from '@/lib/imageUtils';
 
 const roleLabel = (r: string) =>
   r.split('/').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('/');
 
-const DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-
-function StreakCalendar({ activeCalendarDays, today }: { activeCalendarDays: number[]; today: number }) {
-  const totalCells = 35;
-  const activeSet = new Set(activeCalendarDays);
+function DetailRow({ icon: Icon, label, value, valueClassName = 'text-slate-900' }: {
+  icon: React.ElementType; label: string; value: React.ReactNode; valueClassName?: string;
+}) {
   return (
-    <div>
-      {/* Header row */}
-      <div className="grid grid-cols-7 mb-2">
-        {DAYS.map((d, i) => (
-          <div key={i} className="text-center text-[10px] font-extrabold text-slate-400">{d}</div>
-        ))}
+    <div className="flex items-center gap-3 px-4 py-3 bg-slate-50/60 rounded-2xl">
+      <div className="w-9 h-9 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-[#4F46E5] shrink-0">
+        <Icon size={16} />
       </div>
-      <div className="grid grid-cols-7 gap-1">
-        {Array.from({ length: totalCells }, (_, i) => {
-          const dayNum = i + 1;
-          const isActive = activeSet.has(dayNum);
-          const isToday = dayNum === today;
-          return (
-            <div
-              key={i}
-              className={`aspect-square flex items-center justify-center rounded-full text-sm transition-all ${
-                isToday
-                  ? 'ring-2 ring-[#4F46E5] ring-offset-1'
-                  : ''
-              } ${isActive ? '' : 'opacity-30'}`}
-            >
-              {isActive ? (
-                <span className="text-base">🔥</span>
-              ) : (
-                <span className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-400" />
-              )}
-            </div>
-          );
-        })}
+      <div className="min-w-0">
+        <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{label}</p>
+        <p className={`text-sm font-extrabold truncate ${valueClassName}`}>{value}</p>
       </div>
     </div>
   );
@@ -116,9 +91,6 @@ export default function ProfilePage() {
 
   const displayName = user?.fullName || 'Student';
   const displayEmail = user?.email;
-  const streak = getCurrentStreak(user?.id);
-  const activeCalendarDays = getActiveDaysThisMonth(user?.id);
-  const today = new Date().getDate();
 
   return (
     <div className="space-y-6">
@@ -160,12 +132,8 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Streak + Edit */}
+          {/* Edit */}
           <div className="flex items-center gap-4">
-            <div className="text-center px-5 py-3 bg-amber-50 rounded-2xl">
-              <p className="text-[10px] font-extrabold text-amber-500 uppercase tracking-widest">Current Streak</p>
-              <p className="text-2xl font-extrabold text-slate-900 mt-0.5">🔥 {streak} <span className="text-sm font-extrabold text-slate-500">Days</span></p>
-            </div>
             <button
               onClick={openEditModal}
               className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors"
@@ -227,23 +195,14 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Day Streak */}
+        {/* Account Details */}
         <div className="bg-white rounded-[28px] border border-slate-100 shadow-xl shadow-slate-100/40 p-6">
-          <h2 className="text-base font-extrabold text-slate-900 mb-1">Day Streak &amp; Activity</h2>
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-xl">🔥</span>
-            <div>
-              <p className="text-[11px] font-extrabold text-amber-500 uppercase tracking-widest">Consistency &amp; login activity</p>
-              <p className="text-2xl font-extrabold text-slate-900">{streak} <span className="text-sm font-bold text-slate-400">Day Streak</span></p>
-            </div>
+          <h2 className="text-base font-extrabold text-slate-900 mb-4">Account Details</h2>
+          <div className="space-y-2.5">
+            <DetailRow icon={IdCard} label="Role" value={roleLabel(role || 'student')} />
+            {displayEmail && <DetailRow icon={Mail} label="Email" value={displayEmail} />}
+            <DetailRow icon={ShieldCheck} label="Account Status" value="Active" valueClassName="text-emerald-600" />
           </div>
-          <StreakCalendar
-            activeCalendarDays={activeCalendarDays}
-            today={today}
-          />
-          <p className="text-[11px] font-medium text-slate-400 mt-4 text-center">
-            {streak > 0 ? "Keep it up — log in daily to grow your streak." : "Log in tomorrow to start your streak."}
-          </p>
         </div>
       </div>
 

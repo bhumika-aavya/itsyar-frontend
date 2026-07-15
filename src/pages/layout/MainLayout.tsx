@@ -108,12 +108,12 @@ export default function MainLayout() {
       <main className="flex-1 flex flex-col">
         <header className="h-20 bg-white border-b border-slate-100 flex items-center justify-between px-10 sticky top-0 z-40">
           <div className="relative w-96 text-left">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+            {/* <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
             <input
               type="text"
               placeholder="Search courses..."
               className="w-full h-11 bg-[#F5F6FA] border-none rounded-xl pl-12 pr-4 text-sm focus:ring-2 focus:ring-[#3AADDD]/20 transition-all"
-            />
+            /> */}
           </div>
 
           {/* Dynamic User Section with Dropdown */}
@@ -127,7 +127,7 @@ export default function MainLayout() {
                   <img src={user.avatarUrl} alt={user?.fullName ?? "User"} className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-[#4F46E5] font-extrabold text-sm uppercase">
-                    {user?.fullName?.charAt(0) || "U"}
+                    {user?.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
                   </span>
                 )}
               </div>

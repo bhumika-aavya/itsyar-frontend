@@ -41,8 +41,8 @@ function CourseCard({ course, primary }: { course: any; primary: boolean }) {
       <button
         onClick={() => navigate(`/courses/${course.id}`)}
         className={`mt-auto w-full py-2.5 text-xs font-extrabold rounded-xl transition-colors ${primary
-            ? 'bg-slate-900 text-white hover:bg-slate-800'
-            : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+          ? 'bg-slate-900 text-white hover:bg-slate-800'
+          : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
           }`}
       >
         Resume
@@ -103,7 +103,7 @@ export default function DashboardPage() {
         <div className="absolute -right-8 -top-8 w-48 h-48 rounded-full bg-white/5" />
         <div className="absolute -right-4 -bottom-12 w-32 h-32 rounded-full bg-white/5" />
         <div className="relative z-10">
-          <h1 className="text-2xl font-extrabold text-white">Welcome back, {firstName}! 👋</h1>
+          <h1 className="text-2xl font-extrabold text-white">Welcome back, {firstName.charAt(0).toUpperCase() + firstName.slice(1)}! 👋</h1>
           <p className="text-white/80 text-sm font-medium mt-1 max-w-sm leading-relaxed">
             You're on fire! You've completed {data?.weeklyGoalPct}% of your weekly goal.{' '}
             Keep pushing to unlock the "Master Architect" badge.

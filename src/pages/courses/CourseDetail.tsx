@@ -67,7 +67,6 @@ export default function CourseDetailPage() {
             try {
                 if (courseId) {
                     const data = await CourseService.getCourseById(courseId);
-                    console.log("Fetched course data:", data);
                     setCourse(data);
                 }
             } catch (error) {
@@ -149,7 +148,7 @@ export default function CourseDetailPage() {
                         <h2 className="text-2xl font-bold text-slate-900">About this course</h2>
                         <p className="text-[15px] text-slate-500 leading-relaxed font-medium">{course?.longDescription}</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 pt-6">
-                            {course?.takeaways && JSON.parse(course?.takeaways)?.map((item, i) => (
+                            {course?.takeaways?.map((item, i) => (
                                 <div key={i} className="flex items-start gap-3">
                                     <CheckCircle2 size={18} className="text-[#4F46E5] shrink-0 mt-0.5" />
                                     <span className="text-[14px] font-semibold text-slate-600 leading-snug">{item}</span>

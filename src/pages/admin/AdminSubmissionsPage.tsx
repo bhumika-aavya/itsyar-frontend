@@ -32,7 +32,7 @@ export default function AdminSubmissionsPage() {
     <div className="space-y-5 max-w-5xl">
       <div>
         <h1 className="text-2xl font-extrabold text-slate-900 flex items-center gap-2">
-          <Scale size={22} className="text-[#4F46E5]" /> Hackathon Submissions
+          Hackathon Submissions
         </h1>
         <p className="text-sm font-medium text-slate-400 mt-0.5">
           {rows.length} users have submitted to a hackathon — pick one to review and judge

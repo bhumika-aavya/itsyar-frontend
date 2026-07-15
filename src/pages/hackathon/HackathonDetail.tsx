@@ -4,7 +4,8 @@ import {
     ChevronLeft, Calendar, Users, Globe,
     BarChart2, Loader2, Trophy,
     ChevronDown, Play, Lightbulb, CheckCircle2, Clock, Lock,
-    Target, ClipboardList, Send, Circle
+    Target, ClipboardList, Send, Circle,
+    AlertTriangle
 } from 'lucide-react';
 import { HackathonService } from '@/services/hackathon.service';
 import { HackathonDetail as HackathonDetailType } from '@/schemas/hackathon.schema';

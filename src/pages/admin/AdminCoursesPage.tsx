@@ -43,7 +43,7 @@ export default function AdminCoursesPage() {
   useEffect(() => {
     AdminService.getCourses()
       .then(setCourses)
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, []);
 

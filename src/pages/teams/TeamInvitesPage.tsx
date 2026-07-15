@@ -52,7 +52,7 @@ export default function TeamInvitesPage() {
     <div className="space-y-6 max-w-3xl">
       <div>
         <h1 className="text-3xl font-extrabold text-slate-900 flex items-center gap-3">
-          <Mail size={26} className="text-[#4F46E5]" /> Team Invites
+          Team Invites
         </h1>
         <p className="text-sm font-medium text-slate-400 mt-1">
           Invitations from teams asking you to join their hackathon squad.
