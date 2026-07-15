@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
     Trophy, Cpu, Zap, Database, Settings, Cloud, Link as LinkIcon,
-    Loader2, CheckCircle2, Lock
+    Loader2, CheckCircle2, Lock, Users, Send
 } from 'lucide-react';
 import { HackathonService } from '@/services/hackathon.service';
 import { Hackathon } from '@/schemas/hackathon.schema';
@@ -22,6 +22,38 @@ const formatDate = (dateStr: string) => {
 };
 
 const canJoinHackathon = (status: string, isRegistered: boolean) => !isRegistered && (status === 'Open' || status === 'Running');
+
+// Joined / Submitted / Result Announced mini-stepper — mirrors the tracker
+// on the hackathon detail page, condensed into a labeled table column.
+function StatusFlags({ hack, submitted }: { hack: Hackathon; submitted: boolean }) {
+    const steps = [
+        { label: 'Joined', done: !!hack.isRegistered, icon: Users },
+        { label: 'Submitted', done: submitted, icon: Send },
+        { label: 'Result', done: !!hack.isPublished, icon: Trophy },
+    ];
+    return (
+        <div className="flex items-center justify-center">
+            {steps.map((s, i) => (
+                <React.Fragment key={s.label}>
+                    <div className="flex flex-col items-center gap-1 w-14" title={s.label}>
+                        <span
+                            className={`flex items-center justify-center w-7 h-7 rounded-full border-2 transition-colors ${s.done ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-white border-slate-200 text-slate-300'
+                                }`}
+                        >
+                            <s.icon size={12} />
+                        </span>
+                        <span className={`text-[9px] font-extrabold uppercase tracking-wide ${s.done ? 'text-emerald-600' : 'text-slate-300'}`}>
+                            {s.label}
+                        </span>
+                    </div>
+                    {i < steps.length - 1 && (
+                        <div className={`w-5 h-0.5 mb-4 shrink-0 ${s.done && steps[i + 1].done ? 'bg-emerald-300' : 'bg-slate-100'}`} />
+                    )}
+                </React.Fragment>
+            ))}
+        </div>
+    );
+}
 
 export default function HackathonListing() {
     const navigate = useNavigate();
@@ -78,13 +110,14 @@ export default function HackathonListing() {
                                 <th className="px-8 py-5 text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">Hackathon</th>
                                 <th className="px-8 py-5 text-[11px] font-extrabold text-slate-400 uppercase tracking-widest">Date</th>
                                 <th className="px-8 py-5 text-[11px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Status</th>
+                                <th className="px-8 py-5 text-[11px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Progress</th>
                                 <th className="px-8 py-5 text-[11px] font-extrabold text-slate-400 uppercase tracking-widest text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {hackathons.map((hack) => {
                                 const Icon = iconMap[hack.iconType ?? ''] || Trophy;
-                                const submitted = isHackathonSubmitted(hack.id);
+                                const submitted = !!hack.isSubmit || isHackathonSubmitted(hack.id);
                                 const otherwiseJoinable = !submitted && canJoinHackathon(hack.status, hack.isRegistered ?? false);
                                 const courseLocked = isStudent && checked && !allCoursesCompleted && otherwiseJoinable;
                                 const joinable = otherwiseJoinable && !courseLocked;
@@ -113,6 +146,9 @@ export default function HackathonListing() {
                                                     {hack.status}
                                                 </span>
                                             )}
+                                        </td>
+                                        <td className="px-8 py-6">
+                                            <StatusFlags hack={hack} submitted={submitted} />
                                         </td>
                                         <td className="px-8 py-6">
                                             <div className="flex items-center justify-center gap-3">

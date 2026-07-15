@@ -31,9 +31,14 @@ export default function HackathonTeamsPanel({ hackathon }: Props) {
 
     const handleJoinTeam = async (teamId: string) => {
         setJoiningTeamId(teamId);
-        await HackathonService.joinTeamById(teamId);
-        setJoinedTeamIds(prev => new Set([...prev, teamId]));
-        setJoiningTeamId(null);
+        try {
+            await HackathonService.joinTeamById(teamId);
+            setJoinedTeamIds(prev => new Set([...prev, teamId]));
+        } catch {
+            // global axios interceptor already surfaces the error toast
+        } finally {
+            setJoiningTeamId(null);
+        }
     };
 
     if (loading) {

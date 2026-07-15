@@ -9,6 +9,9 @@ interface Props {
   onTeamCreated: () => void;
 }
 
+const TEAM_NAME_MAX = 40;
+const TEAM_DESC_MAX = 200;
+
 export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Props) {
   const [hackathons, setHackathons] = useState<HackathonOption[]>([]);
   const [selectedHackathonId, setSelectedHackathonId] = useState('');
@@ -59,7 +62,9 @@ export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Prop
     const errs: Record<string, string> = {};
     if (!selectedHackathonId) errs.hackathon = 'Please select a hackathon';
     if (!teamName.trim() || teamName.length < 2) errs.teamName = 'At least 2 characters required';
+    else if (teamName.length > TEAM_NAME_MAX) errs.teamName = `Must be ${TEAM_NAME_MAX} characters or fewer`;
     if (!teamDesc.trim() || teamDesc.length < 10) errs.teamDesc = 'At least 10 characters required';
+    else if (teamDesc.length > TEAM_DESC_MAX) errs.teamDesc = `Must be ${TEAM_DESC_MAX} characters or fewer`;
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
     setSubmitting(true);
@@ -152,12 +157,16 @@ export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Prop
 
               {/* Team Name */}
               <div>
-                <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide block mb-1.5">
-                  Team Name <span className="text-red-400">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide">
+                    Team Name <span className="text-red-400">*</span>
+                  </label>
+                  <span className="text-[11px] font-bold text-slate-400">{teamName.length}/{TEAM_NAME_MAX}</span>
+                </div>
                 <input
                   value={teamName}
-                  onChange={(e) => { setTeamName(e.target.value); setErrors((p) => ({ ...p, teamName: '' })); }}
+                  onChange={(e) => { setTeamName(e.target.value.slice(0, TEAM_NAME_MAX)); setErrors((p) => ({ ...p, teamName: '' })); }}
+                  maxLength={TEAM_NAME_MAX}
                   placeholder="e.g. Neural Ninjas"
                   className={`w-full h-12 bg-slate-50 border rounded-xl px-4 text-sm font-medium
                     outline-none transition-all
@@ -172,12 +181,16 @@ export default function CreateTeamModal({ isOpen, onClose, onTeamCreated }: Prop
 
               {/* Team Description */}
               <div>
-                <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide block mb-1.5">
-                  Team Description <span className="text-red-400">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide">
+                    Team Description <span className="text-red-400">*</span>
+                  </label>
+                  <span className="text-[11px] font-bold text-slate-400">{teamDesc.length}/{TEAM_DESC_MAX}</span>
+                </div>
                 <textarea
                   value={teamDesc}
-                  onChange={(e) => { setTeamDesc(e.target.value); setErrors((p) => ({ ...p, teamDesc: '' })); }}
+                  onChange={(e) => { setTeamDesc(e.target.value.slice(0, TEAM_DESC_MAX)); setErrors((p) => ({ ...p, teamDesc: '' })); }}
+                  maxLength={TEAM_DESC_MAX}
                   rows={3}
                   placeholder="Describe your team's focus or what skills you're looking for..."
                   className={`w-full bg-slate-50 border rounded-xl px-4 py-3 text-sm font-medium

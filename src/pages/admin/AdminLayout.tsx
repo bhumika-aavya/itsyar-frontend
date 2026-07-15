@@ -149,12 +149,6 @@ export default function AdminLayout() {
                 >
                   <User size={15} /> My Profile
                 </button>
-                <button
-                  onClick={() => { navigate('/admin/settings'); setDropdownOpen(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#4F46E5] transition-colors"
-                >
-                  <Settings size={15} /> Settings
-                </button>
                 <div className="h-px bg-slate-50 my-1 mx-2" />
                 <button
                   onClick={() => { logout(); setDropdownOpen(false); }}

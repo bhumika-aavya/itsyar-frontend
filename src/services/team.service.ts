@@ -49,6 +49,20 @@ export interface OutgoingRequest {
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
 }
 
+// An invite received BY the current user to join someone else's team —
+// the inverse of OutgoingRequest, which only tracks invites/requests the
+// current user sent out.
+export interface TeamInvite {
+  id: string;
+  teamId: string;
+  teamName: string;
+  hackathonId: string;
+  hackathonName: string;
+  invitedByName: string;
+  invitedAt: string;
+  status: 'PENDING' | 'ACCEPTED' | 'DECLINED';
+}
+
 const MOCK_MY_TEAMS: MyTeamData[] = [
   {
     id: "t1",
@@ -80,6 +94,29 @@ const MOCK_OUTGOING_REQUESTS: OutgoingRequest[] = [
   { id: "r1", type: "INVITE", targetName: "@s_jenkins_ml", hackathonEvent: "Code Sprint 2026", status: "APPROVED" },
   { id: "r2", type: "OPEN_REQUEST", targetName: "@a_rivera_codes", hackathonEvent: "Code Sprint 2026", status: "REJECTED" },
   { id: "r3", type: "OPEN_REQUEST", targetName: "@s_chen_ux", hackathonEvent: "Code Sprint 2026", status: "APPROVED" },
+];
+
+let MOCK_MY_INVITES: TeamInvite[] = [
+  {
+    id: "inv1",
+    teamId: "t5",
+    teamName: "The Sparkle Squad",
+    hackathonId: "h7",
+    hackathonName: "CodeSprint 2026",
+    invitedByName: "Priya Sharma",
+    invitedAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+    status: "PENDING",
+  },
+  {
+    id: "inv2",
+    teamId: "t6",
+    teamName: "Query Masters",
+    hackathonId: "h9",
+    hackathonName: "Data Challenge 2026",
+    invitedByName: "Charlie Davis",
+    invitedAt: new Date(Date.now() - 5 * 86400000).toISOString(),
+    status: "PENDING",
+  },
 ];
 
 export const HACKATHON_COLOR_MAP: Record<string, string> = {
@@ -260,6 +297,33 @@ export const TeamService = {
       await api.delete(`/teams/requests/${requestId}`, getAuthHeaders());
     } catch {
       // mock success
+    }
+  },
+
+  getMyInvites: async (): Promise<TeamInvite[]> => {
+    try {
+      const response = await api.get('/teams/my-invites', getAuthHeaders());
+      return response.data.invites ?? [];
+    } catch {
+      return MOCK_MY_INVITES.filter(i => i.status === 'PENDING');
+    }
+  },
+
+  acceptInvite: async (inviteId: string): Promise<void> => {
+    try {
+      await api.post(`/teams/${inviteId}/accept`, {}, getAuthHeaders());
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response) throw new Error(getApiErrorMessage(err));
+      MOCK_MY_INVITES = MOCK_MY_INVITES.map(i => i.id === inviteId ? { ...i, status: 'ACCEPTED' } : i);
+    }
+  },
+
+  declineInvite: async (inviteId: string): Promise<void> => {
+    try {
+      await api.post(`/teams/${inviteId}/decline`, {}, getAuthHeaders());
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response) throw new Error(getApiErrorMessage(err));
+      MOCK_MY_INVITES = MOCK_MY_INVITES.map(i => i.id === inviteId ? { ...i, status: 'DECLINED' } : i);
     }
   },
 

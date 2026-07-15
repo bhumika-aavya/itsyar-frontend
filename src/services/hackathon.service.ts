@@ -107,218 +107,6 @@ const USER_TEAMS = MOCK_TEAMS.filter(t => t.leadId === "current-user");
 
 let teamsStore = [...MOCK_TEAMS];
 
-const MOCK_PROBLEM: HackathonProblem = {
-    id: "P01",
-    hackathonId: "5",
-    title: "Product Revenue Calculator",
-    difficulty: "Medium",
-    points: 100,
-    description: `A retail company processes thousands of customer orders every day. Each order contains the product name, quantity purchased, and unit price. Management wants to analyze product performance by determining how much revenue each product has generated.
-
-Your task: given N orders, calculate the total revenue for each unique product. Revenue per order = quantity × unit price.
-
-Output each product and its total revenue in alphabetical order.
-
-Input format:
-  First line: N (number of orders)
-  Next N lines: <ProductName> <Quantity> <UnitPrice>
-
-Output format:
-  One line per product: <ProductName>: <TotalRevenue>  (alphabetical order)`,
-    constraints: [
-        "1 ≤ N ≤ 100,000",
-        "1 ≤ Quantity ≤ 1,000",
-        "1 ≤ Unit Price ≤ 100,000",
-        "Product names contain only English letters (case-sensitive)",
-        "Output products in ascending alphabetical order",
-    ],
-    examples: [
-        { label: "A product appears in multiple orders.", result: "Revenues from all orders are aggregated; output lists total per unique product in alphabetical order." },
-        { label: "All orders are for the same product.", result: "A single line appears in the output with the summed revenue." },
-    ],
-    supportedLanguages: ["JavaScript", "TypeScript", "Python", "Java", "C++", "Go", "Rust", "Ruby"],
-    starterCode: {
-        JavaScript: `const readline = require('readline');
-const rl = readline.createInterface({ input: process.stdin });
-const lines = [];
-rl.on('line', (line) => lines.push(line.trim()));
-rl.on('close', () => {
-    const n = parseInt(lines[0]);
-    const revenue = {};
-    for (let i = 1; i <= n; i++) {
-        const [product, qty, price] = lines[i].split(' ');
-        revenue[product] = (revenue[product] || 0) + parseInt(qty) * parseInt(price);
-    }
-    for (const [product, amount] of Object.entries(revenue).sort(([a], [b]) => a.localeCompare(b))) {
-        console.log(\`\${product}: \${amount}\`);
-    }
-});`,
-        TypeScript: `const readline = require('readline');
-const rl = readline.createInterface({ input: process.stdin });
-const lines: string[] = [];
-rl.on('line', (line: string) => lines.push(line.trim()));
-rl.on('close', () => {
-    const n = parseInt(lines[0]);
-    const revenue: Record<string, number> = {};
-    for (let i = 1; i <= n; i++) {
-        const [product, qty, price] = lines[i].split(' ');
-        revenue[product] = (revenue[product] || 0) + parseInt(qty) * parseInt(price);
-    }
-    for (const [product, amount] of Object.entries(revenue).sort(([a], [b]) => a.localeCompare(b))) {
-        console.log(\`\${product}: \${amount}\`);
-    }
-});`,
-        Python: `import sys
-from collections import defaultdict
-
-data = sys.stdin.read().split()
-idx = 0
-n = int(data[idx]); idx += 1
-revenue = defaultdict(int)
-for _ in range(n):
-    product = data[idx]; idx += 1
-    qty = int(data[idx]); idx += 1
-    price = int(data[idx]); idx += 1
-    revenue[product] += qty * price
-for product in sorted(revenue):
-    print(f"{product}: {revenue[product]}")`,
-        Java: `import java.util.*;
-
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int n = Integer.parseInt(sc.nextLine().trim());
-        Map<String, Long> revenue = new TreeMap<>();
-        for (int i = 0; i < n; i++) {
-            String[] parts = sc.nextLine().trim().split(" ");
-            String product = parts[0];
-            long qty = Long.parseLong(parts[1]);
-            long price = Long.parseLong(parts[2]);
-            revenue.merge(product, qty * price, Long::sum);
-        }
-        for (Map.Entry<String, Long> e : revenue.entrySet()) {
-            System.out.println(e.getKey() + ": " + e.getValue());
-        }
-    }
-}`,
-        'C++': `#include <iostream>
-#include <map>
-#include <string>
-using namespace std;
-
-int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(NULL);
-    int n;
-    cin >> n;
-    map<string, long long> revenue;
-    for (int i = 0; i < n; i++) {
-        string product;
-        long long qty, price;
-        cin >> product >> qty >> price;
-        revenue[product] += qty * price;
-    }
-    for (auto& [product, amount] : revenue) {
-        cout << product << ": " << amount << "\\n";
-    }
-    return 0;
-}`,
-        Go: `package main
-
-import (
-	"bufio"
-	"fmt"
-	"os"
-	"sort"
-)
-
-func main() {
-	reader := bufio.NewReader(os.Stdin)
-	var n int
-	fmt.Fscan(reader, &n)
-	revenue := make(map[string]int64)
-	for i := 0; i < n; i++ {
-		var product string
-		var qty, price int64
-		fmt.Fscan(reader, &product, &qty, &price)
-		revenue[product] += qty * price
-	}
-	keys := make([]string, 0, len(revenue))
-	for k := range revenue {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	for _, k := range keys {
-		fmt.Printf("%s: %d\\n", k, revenue[k])
-	}
-}`,
-        Rust: `use std::collections::BTreeMap;
-use std::io::{self, BufRead};
-
-fn main() {
-    let stdin = io::stdin();
-    let mut lines = stdin.lock().lines();
-    let n: usize = lines.next().unwrap().unwrap().trim().parse().unwrap();
-    let mut revenue: BTreeMap<String, i64> = BTreeMap::new();
-    for _ in 0..n {
-        let line = lines.next().unwrap().unwrap();
-        let parts: Vec<&str> = line.trim().split(' ').collect();
-        let product = parts[0].to_string();
-        let qty: i64 = parts[1].parse().unwrap();
-        let price: i64 = parts[2].parse().unwrap();
-        *revenue.entry(product).or_insert(0) += qty * price;
-    }
-    for (product, amount) in &revenue {
-        println!("{}: {}", product, amount);
-    }
-}`,
-        Ruby: `n = gets.to_i
-revenue = Hash.new(0)
-n.times do
-    parts = gets.split
-    product, qty, price = parts[0], parts[1].to_i, parts[2].to_i
-    revenue[product] += qty * price
-end
-revenue.sort.each do |product, amount|
-    puts "#{product}: #{amount}"
-end`,
-    },
-    testCases: [
-        {
-            id: 'tc1',
-            label: 'Multiple orders per product',
-            stdin: '5\nLaptop 2 50000\nMobile 3 20000\nLaptop 1 50000\nKeyboard 5 1000\nMobile 2 20000',
-            expectedOutput: 'Keyboard: 5000\nLaptop: 150000\nMobile: 100000',
-        },
-        {
-            id: 'tc2',
-            label: 'Two products, multiple orders',
-            stdin: '3\nApple 10 500\nBanana 5 200\nApple 5 500',
-            expectedOutput: 'Apple: 7500\nBanana: 1000',
-        },
-        {
-            id: 'tc3',
-            label: 'Single order',
-            stdin: '1\nWidget 100 250',
-            expectedOutput: 'Widget: 25000',
-        },
-        {
-            id: 'tc4',
-            label: 'Equal revenues (hidden)',
-            stdin: '6\nProductA 100 10\nProductB 50 20\nProductC 25 40\nProductA 200 10\nProductB 100 20\nProductC 50 40',
-            expectedOutput: 'ProductA: 3000\nProductB: 3000\nProductC: 3000',
-            isHidden: true,
-        },
-        {
-            id: 'tc5',
-            label: 'Large values (hidden)',
-            stdin: '4\nGold 1000 100000\nSilver 500 50000\nPlatinum 250 80000\nGold 500 100000',
-            expectedOutput: 'Gold: 150000000\nPlatinum: 20000000\nSilver: 25000000',
-            isHidden: true,
-        },
-    ],
-};
-
 export const HackathonService = {
     getHackathons: async (): Promise<Hackathon[]> => {
         try {
@@ -330,13 +118,13 @@ export const HackathonService = {
         }
     },
 
-    getHackathonById: async (id: string): Promise<HackathonDetail> => {
+    getHackathonById: async (id: string) => {
         try {
             const response = await api.get(`/hackathons/${id}`, getAuthHeaders());
             return response.data.hackathon;
-        } catch {
-            console.warn("Using Mock Detail for ID:", id);
-            return MOCK_DETAIL;
+        } catch (err) {
+            if (axios.isAxiosError(err) && err.response) throw new Error(getApiErrorMessage(err));
+            return { success: true };
         }
     },
 
@@ -427,8 +215,6 @@ export const HackathonService = {
             throw new Error(getApiErrorMessage(err, 'Failed to load problem'));
         }
     },
-
-    getMockProblem: (): HackathonProblem => MOCK_PROBLEM,
 
     runCode: async (language: string, code: string, stdin: string): Promise<{
         stdout: string | null;

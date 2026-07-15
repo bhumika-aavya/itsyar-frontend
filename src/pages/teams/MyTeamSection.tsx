@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import {
   Pencil, Check, X, UserPlus, RefreshCw, Loader2, Mail, FileText,
 } from 'lucide-react';
@@ -61,6 +62,8 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
   const [loadingRequests, setLoadingRequests] = useState(true);
   const [withdrawingId, setWithdrawingId] = useState<string | null>(null);
   const [resendingId, setResendingId] = useState<string | null>(null);
+  const [approvingId, setApprovingId] = useState<string | null>(null);
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
 
   useEffect(() => {
     TeamService.getMyRequests()
@@ -108,6 +111,35 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
     setResendingId(null);
   };
 
+  const handleApprove = async (member: MyTeamMember) => {
+    setApprovingId(member.id);
+    try {
+      await TeamService.approveJoinRequest(team.id, member.id);
+      setTeam((t) => ({
+        ...t,
+        members: t.members.map((m) => (m.id === member.id ? { ...m, status: 'APPROVED' } : m)),
+      }));
+      toast.success(`${member.name ?? member.username ?? 'Member'} joined the team`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not approve request');
+    } finally {
+      setApprovingId(null);
+    }
+  };
+
+  const handleReject = async (member: MyTeamMember) => {
+    setRejectingId(member.id);
+    try {
+      await TeamService.rejectJoinRequest(team.id, member.id);
+      setTeam((t) => ({ ...t, members: t.members.filter((m) => m.id !== member.id) }));
+      toast.success('Request declined');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not decline request');
+    } finally {
+      setRejectingId(null);
+    }
+  };
+
   const handleWithdraw = async (requestId: string) => {
     setWithdrawingId(requestId);
     await TeamService.withdrawRequest(requestId);
@@ -124,6 +156,7 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
 
   const filledCount = team.members.length;
   const isEmpty = filledCount < team.maxMembers;
+  const pendingJoinRequests = team.members.filter((m) => !m.isSelf && m.status === 'PENDING').length;
 
   return (
     <div className="space-y-5">
@@ -182,8 +215,13 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
         {/* Members */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-extrabold text-slate-700">
+            <span className="text-xs font-extrabold text-slate-700 flex items-center gap-2">
               Current Members (max{team.maxMembers})
+              {pendingJoinRequests > 0 && (
+                <span className="px-2 py-0.5 bg-red-500 text-white text-[10px] font-extrabold rounded-full">
+                  {pendingJoinRequests} join request{pendingJoinRequests > 1 ? 's' : ''}
+                </span>
+              )}
             </span>
             <span className="text-xs font-bold text-slate-400">
               Team limit: {team.maxMembers} (including user)
@@ -197,6 +235,10 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
                 member={member}
                 onResend={() => handleResend(member)}
                 resending={resendingId === member.id}
+                onApprove={() => handleApprove(member)}
+                onReject={() => handleReject(member)}
+                approving={approvingId === member.id}
+                rejecting={rejectingId === member.id}
               />
             ))}
 
@@ -358,23 +400,32 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
 }
 
 function MemberRow({
-  member, onResend, resending,
+  member, onResend, resending, onApprove, onReject, approving, rejecting,
 }: {
-  member: MyTeamMember; onResend: () => void; resending: boolean;
+  member: MyTeamMember;
+  onResend: () => void;
+  resending: boolean;
+  onApprove: () => void;
+  onReject: () => void;
+  approving: boolean;
+  rejecting: boolean;
 }) {
   const initials = getInitials(member.name, member.username);
   const displayName = member.isSelf
     ? `${member.name} (Me)`
     : member.username ?? member.name ?? member.email;
+  const isJoinRequest = !member.isSelf && member.status === 'PENDING';
   const statusLabel = member.isSelf
     ? 'Status: Approved'
-    : 'Status: Pending, invite sent';
+    : isJoinRequest
+      ? 'Status: Requested to join — needs your approval'
+      : 'Status: Pending, invite sent';
 
   return (
     <div className="flex items-center gap-3 px-4 py-3 bg-slate-50/50 rounded-2xl">
       <div
         className="w-9 h-9 rounded-full flex items-center justify-center text-white font-extrabold text-sm shrink-0"
-        style={{ backgroundColor: member.isSelf ? '#1e293b' : '#64748b' }}
+        style={{ backgroundColor: member.isSelf ? '#1e293b' : isJoinRequest ? '#4F46E5' : '#64748b' }}
       >
         {initials}
       </div>
@@ -386,6 +437,25 @@ function MemberRow({
         <span className="px-2.5 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-extrabold uppercase tracking-widest rounded-lg shrink-0">
           FILLED
         </span>
+      ) : isJoinRequest ? (
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={onReject}
+            disabled={approving || rejecting}
+            className="flex items-center gap-1 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-extrabold text-slate-600 hover:border-red-300 hover:text-red-500 disabled:opacity-50 transition-all"
+          >
+            {rejecting ? <Loader2 size={12} className="animate-spin" /> : <X size={12} />}
+            Reject
+          </button>
+          <button
+            onClick={onApprove}
+            disabled={approving || rejecting}
+            className="flex items-center gap-1 px-3 py-1.5 bg-[#4F46E5] text-white rounded-xl text-xs font-extrabold hover:bg-[#4338CA] disabled:opacity-60 transition-all"
+          >
+            {approving ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
+            Accept
+          </button>
+        </div>
       ) : (
         <button
           onClick={onResend}

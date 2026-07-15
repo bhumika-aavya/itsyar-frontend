@@ -11,6 +11,8 @@ export const HackathonSchema = z.object({
     iconType: z.string().optional(),
     iconBg: z.string().optional(),
     isRegistered: z.boolean().optional(),
+    isSubmit: z.boolean().optional(),
+    isPublished: z.boolean().optional(),
 });
 
 export const HackathonDetailSchema = z.object({
@@ -33,6 +35,8 @@ export const HackathonDetailSchema = z.object({
     ideationStartDate: z.string().optional(),
     ideationEndDate: z.string().optional(),
     isRegistered: z.boolean().optional(),
+    isSubmit: z.boolean().optional(),
+    isPublished: z.boolean().optional(),
 });
 
 export const HackathonRegistrationSchema = z.object({

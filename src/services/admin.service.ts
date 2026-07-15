@@ -142,7 +142,7 @@ export const AdminService = {
 
   updateUserStatus: async (userId: string, status: "active" | "inactive" | "banned"): Promise<void> => {
     try {
-      await api.put(`/admin/users/${userId}/status`, { status: toBackendStatus(status) }, getAuthHeaders());
+      await api.patch(`/admin/users/${userId}/status`, { status: toBackendStatus(status) }, getAuthHeaders());
     } catch {
       // mock: no-op
     }
@@ -150,7 +150,7 @@ export const AdminService = {
 
   updateUserRole: async (userId: string, role: string): Promise<void> => {
     try {
-      await api.put(`/admin/users/${userId}/role`, { role }, getAuthHeaders());
+      await api.patch(`/admin/users/${userId}/role`, { role }, getAuthHeaders());
     } catch {
       // mock: no-op
     }

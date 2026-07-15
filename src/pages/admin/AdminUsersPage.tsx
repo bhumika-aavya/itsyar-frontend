@@ -12,7 +12,7 @@ const roleLabel = (r: string) => r.split("/").map(p => p.charAt(0).toUpperCase()
 const statusBadge = (status: string) => {
   const map: Record<string, string> = {
     active: "bg-emerald-50 text-emerald-600",
-    inactive: "bg-slate-50 text-slate-500",
+    inactive: "bg-slate-50 text-red-500",
     banned: "bg-red-50 text-red-500",
   };
   return map[status] ?? "bg-slate-50 text-slate-500";

@@ -187,6 +187,8 @@ export default function TeamCollaborationPage() {
     try {
       await TeamService.requestToJoin(teamId);
       setJoinedIds((prev) => new Set([...prev, teamId]));
+    } catch {
+      // global axios interceptor already surfaces the error toast
     } finally {
       setRequestingId(null);
     }

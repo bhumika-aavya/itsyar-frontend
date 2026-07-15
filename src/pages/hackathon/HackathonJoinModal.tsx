@@ -4,8 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { HackathonService } from '@/services/hackathon.service';
 import { Team } from '@/schemas/hackathon.schema';
 import { getApiErrorMessage } from '@/lib/getApiErrorMessage';
+import { useAuth } from '@/context/AuthContext';
 
 type Step = 'mode-select' | 'team-select' | 'create-team' | 'team-created' | 'confirm' | 'individual-form' | 'success';
+
+const TEAM_NAME_MAX = 40;
+const TEAM_DESC_MAX = 200;
 
 interface IndividualFormValues {
     fullName: string;
@@ -34,6 +38,7 @@ const formatDate = (d: string) => {
 
 export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props) {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [step, setStep] = useState<Step>('team-select');
     const [userTeams, setUserTeams] = useState<Team[]>([]);
     const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
@@ -63,7 +68,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
             setSelectedTeamId(null);
             setJoinedTeam(null);
             resetCreateForm();
-            setIndForm({ fullName: '', email: '', agreeToRules: false });
+            setIndForm({ fullName: user?.fullName ?? '', email: user?.email ?? '', agreeToRules: false });
             setIndErrors({});
             setTeamApiError('');
         }
@@ -108,7 +113,9 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
     const handleCreateTeam = async () => {
         const errs: Record<string, string> = {};
         if (!teamName.trim() || teamName.length < 2) errs.teamName = 'At least 2 characters required';
+        else if (teamName.length > TEAM_NAME_MAX) errs.teamName = `Must be ${TEAM_NAME_MAX} characters or fewer`;
         if (!teamDesc.trim() || teamDesc.length < 10) errs.teamDesc = 'At least 10 characters required';
+        else if (teamDesc.length > TEAM_DESC_MAX) errs.teamDesc = `Must be ${TEAM_DESC_MAX} characters or fewer`;
         if (Object.keys(errs).length) { setFormErrors(errs); return; }
 
         setSubmitting(true);
@@ -156,8 +163,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
 
     const handleIndividualRegister = async () => {
         const errs: Record<string, string> = {};
-        if (!indForm.fullName.trim()) errs.fullName = 'Full name is required';
-        if (!indForm.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(indForm.email)) errs.email = 'Valid email is required';
+        if (!indForm.fullName.trim() || !indForm.email.trim()) errs.submit = 'Your account is missing profile details — update your profile before registering.';
         if (!indForm.agreeToRules) errs.agreeToRules = 'You must agree to the rules and terms of service';
         if (Object.keys(errs).length) { setIndErrors(errs); return; }
 
@@ -273,36 +279,23 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                         </div>
 
                         <div className="px-7 pb-2 space-y-4 max-h-[340px] overflow-y-auto">
-                            {/* Full Name */}
+                            {/* Account info — auto-populated from the logged-in user, not editable */}
                             <div>
                                 <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide block mb-1.5">
-                                    Full Name <span className="text-red-400">*</span>
+                                    Registering As
                                 </label>
-                                <div className="relative">
-                                    <User size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none" />
-                                    <input
-                                        value={indForm.fullName}
-                                        onChange={e => { setIndForm(p => ({ ...p, fullName: e.target.value })); setIndErrors(p => ({ ...p, fullName: '' })); }}
-                                        placeholder="John Doe"
-                                        className={`w-full h-11 bg-slate-50 border rounded-xl pl-9 pr-4 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none transition-all ${indErrors.fullName ? 'border-red-400 bg-red-50/30' : 'border-slate-100 focus:border-[#3AADDD]'}`}
-                                    />
+                                <div className="flex items-center gap-3 p-3.5 bg-slate-50 border border-slate-100 rounded-xl">
+                                    <div className="w-9 h-9 bg-indigo-100 rounded-lg flex items-center justify-center text-[#4F46E5] shrink-0">
+                                        <User size={16} />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-extrabold text-slate-900 truncate">{indForm.fullName || 'Your name'}</p>
+                                        <p className="text-xs font-bold text-slate-400 truncate">{indForm.email || 'Your email'}</p>
+                                    </div>
                                 </div>
-                                {indErrors.fullName && <p className="text-xs font-bold text-red-500 mt-1">{indErrors.fullName}</p>}
-                            </div>
-
-                            {/* Email */}
-                            <div>
-                                <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide block mb-1.5">
-                                    Email <span className="text-red-400">*</span>
-                                </label>
-                                <input
-                                    type="email"
-                                    value={indForm.email}
-                                    onChange={e => { setIndForm(p => ({ ...p, email: e.target.value })); setIndErrors(p => ({ ...p, email: '' })); }}
-                                    placeholder="john.doe@example.com"
-                                    className={`w-full h-11 bg-slate-50 border rounded-xl px-4 text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none transition-all ${indErrors.email ? 'border-red-400 bg-red-50/30' : 'border-slate-100 focus:border-[#3AADDD]'}`}
-                                />
-                                {indErrors.email && <p className="text-xs font-bold text-red-500 mt-1">{indErrors.email}</p>}
+                                <p className="text-[11px] font-bold text-slate-400 mt-1.5">
+                                    You'll be registered with your account details — this can't be changed here.
+                                </p>
                             </div>
 
                             {/* Terms & Conditions */}
@@ -452,10 +445,14 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
 
                         <div className="px-7 pb-4 space-y-4 max-h-80 overflow-y-auto">
                             <div>
-                                <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide block mb-1.5">Team Name</label>
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide">Team Name</label>
+                                    <span className="text-[11px] font-bold text-slate-400">{teamName.length}/{TEAM_NAME_MAX}</span>
+                                </div>
                                 <input
                                     value={teamName}
-                                    onChange={e => setTeamName(e.target.value)}
+                                    onChange={e => setTeamName(e.target.value.slice(0, TEAM_NAME_MAX))}
+                                    maxLength={TEAM_NAME_MAX}
                                     placeholder="e.g. Neural Ninjas"
                                     className={`w-full h-12 bg-slate-50 border rounded-xl px-4 text-sm font-medium outline-none transition-all ${formErrors.teamName ? 'border-red-400' : 'border-slate-100 focus:border-[#3AADDD]'}`}
                                 />
@@ -463,10 +460,14 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                             </div>
 
                             <div>
-                                <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide block mb-1.5">Team Description</label>
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wide">Team Description</label>
+                                    <span className="text-[11px] font-bold text-slate-400">{teamDesc.length}/{TEAM_DESC_MAX}</span>
+                                </div>
                                 <textarea
                                     value={teamDesc}
-                                    onChange={e => setTeamDesc(e.target.value)}
+                                    onChange={e => setTeamDesc(e.target.value.slice(0, TEAM_DESC_MAX))}
+                                    maxLength={TEAM_DESC_MAX}
                                     rows={3}
                                     placeholder="Briefly describe your team's focus or goals..."
                                     className={`w-full bg-slate-50 border rounded-xl px-4 py-3 text-sm font-medium outline-none transition-all resize-none ${formErrors.teamDesc ? 'border-red-400' : 'border-slate-100 focus:border-[#3AADDD]'}`}

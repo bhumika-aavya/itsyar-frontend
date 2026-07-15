@@ -41,6 +41,7 @@ const HackathonDetail = lazy(() => import("@/pages/hackathon/HackathonDetail"));
 const HackathonSandboxPage = lazy(() => import("@/pages/hackathon/HackathonSandboxPage"));
 const RegistrationSuccessPage = lazy(() => import("@/pages/hackathon/RegistrationSuccessPage"));
 const TeamCollaborationPage = lazy(() => import("@/pages/teams/TeamCollaborationPage"));
+const TeamInvitesPage = lazy(() => import("@/pages/teams/TeamInvitesPage"));
 const LeaderboardPage = lazy(() => import("@/pages/leaderboard/LeaderboardPage"));
 const ProfilePage = lazy(() => import("@/pages/profile/ProfilePage"));
 
@@ -97,6 +98,7 @@ export default function AppRoutes() {
             <Route path="/hackathons/:id" element={<HackathonDetail />} />
             <Route path="/hackathons/:id/registration-success" element={<RegistrationSuccessPage />} />
             <Route path="/teams" element={<TeamCollaborationPage />} />
+            <Route path="/team-invites" element={<TeamInvitesPage />} />
             <Route path="/results" element={<ResultsPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/profile" element={<ProfilePage />} />

@@ -208,7 +208,6 @@ export default function HackathonCodeSandbox({
     const [showWarning, setShowWarning] = useState(false);
     const [showExitConfirm, setShowExitConfirm] = useState(false);
     const [timeLeft, setTimeLeft] = useState<{ h: number; m: number; s: number } | null>(null);
-    const [fsView, setFsView] = useState<'problem' | 'split'>('problem');
     const [showScoreZeroModal, setShowScoreZeroModal] = useState(false);
     const [showTabBlockOverlay, setShowTabBlockOverlay] = useState(false);
 
@@ -427,7 +426,6 @@ export default function HackathonCodeSandbox({
     const enterFullscreen = () => {
         document.documentElement.requestFullscreen?.().catch(() => { });
         setIsFullscreen(true);
-        setFsView('problem');
         setViolations(0);
         setShowWarning(false);
         // setShowTabBlockOverlay(false);
@@ -586,6 +584,82 @@ export default function HackathonCodeSandbox({
     const fileExt = (lang: string) => FILE_EXT_MAP[lang.toLowerCase()] ?? lang.toLowerCase();
 
     // ── Sub-renders ──
+    // Shared problem-statement content — reused by the tabbed "Problem Statement"
+    // view and the fullscreen split-view sidebar, which only differ in heading
+    // size and whether the sample test cases are shown.
+    const renderProblemInfo = (opts: { compact?: boolean; showTestCases?: boolean; showHeader?: boolean } = {}) => {
+        const { compact = false, showTestCases = false, showHeader = true } = opts;
+        if (!problem) return null;
+        const sampleCases = (problem.testCases ?? []).filter(tc => !tc.isHidden);
+        const h3Cls = `${compact ? 'text-sm' : 'text-base'} font-extrabold text-slate-800`;
+        return (
+            <>
+                {showHeader && (
+                    <div>
+                        <h2 className={`${compact ? 'text-xl' : 'text-2xl'} font-extrabold text-slate-900`}>{problem.title}</h2>
+                        <div className="flex items-center gap-3 mt-2">
+                            <span className={`px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wide ${difficultyStyle(problem.difficulty)}`}>{problem.difficulty}</span>
+                            <span className="px-3 py-1 bg-indigo-50 text-[#4F46E5] rounded-lg text-xs font-extrabold">{problem.points} pts</span>
+                        </div>
+                    </div>
+                )}
+                <div>
+                    <h3 className={`${h3Cls} mb-2`}>Description</h3>
+                    <p className="text-slate-600 font-medium leading-relaxed whitespace-pre-line text-sm" style={{ userSelect: 'text' }}>{problem.description}</p>
+                </div>
+                <div>
+                    <h3 className={`${h3Cls} mb-3`}>Constraints</h3>
+                    <ul className="space-y-2">
+                        {problem.constraints?.map((c, i) => (
+                            <li key={i} className="flex items-start gap-3 text-sm font-medium text-slate-600">
+                                <span className="w-5 h-5 rounded-full bg-indigo-50 text-[#4F46E5] flex items-center justify-center text-xs font-extrabold shrink-0 mt-0.5">{i + 1}</span>
+                                <span style={{ userSelect: 'text' }}>{c}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <div>
+                    <h3 className={`${h3Cls} mb-3`}>Examples</h3>
+                    <div className="space-y-3">
+                        {problem.examples?.map((ex, i) => (
+                            <div key={i} className={`rounded-2xl p-4 space-y-1 ${compact ? 'bg-slate-50' : 'bg-slate-50'}`}>
+                                <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wide">Scenario</p>
+                                <p className="text-sm font-bold text-slate-700" style={{ userSelect: 'text' }}>{ex.label}</p>
+                                <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wide mt-2">Expected Result</p>
+                                <p className="text-sm font-bold text-emerald-600" style={{ userSelect: 'text' }}>{ex.result}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                {showTestCases && sampleCases.length > 0 && (
+                    <div>
+                        <h3 className={`${h3Cls} mb-3`}>Sample Test Cases</h3>
+                        <div className="space-y-3">
+                            {sampleCases.map((tc, i) => (
+                                <div key={tc.id} className="border border-slate-100 rounded-2xl overflow-hidden">
+                                    <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                                        <span className="text-xs font-extrabold text-slate-500">Case {i + 1}</span>
+                                        <span className="text-xs font-medium text-slate-400">{tc.label}</span>
+                                    </div>
+                                    <div className="grid grid-cols-2 divide-x divide-slate-100">
+                                        <div className="p-3">
+                                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Input</p>
+                                            <pre className="text-xs font-mono text-slate-600 whitespace-pre">{tc.stdin}</pre>
+                                        </div>
+                                        <div className="p-3">
+                                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Expected Output</p>
+                                            <pre className="text-xs font-mono text-emerald-700 whitespace-pre">{tc.expectedOutput}</pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </>
+        );
+    };
+
     const renderLangDropdown = () => (
         <div className="relative">
             <button
@@ -1082,91 +1156,7 @@ export default function HackathonCodeSandbox({
             </>
         );
 
-        // ── Problem-only fullscreen view (shown first) ──
-        if (fsView === 'problem') return (
-            <div className="fixed inset-0 z-[500] bg-[#F8F9FC] flex flex-col">
-                {fsHeader}
-                {fsOverlays}
-                <div className="flex-1 overflow-y-auto">
-                    <div className="max-w-3xl mx-auto p-8 space-y-6">
-                        {problem && (
-                            <>
-                                <div>
-                                    <h2 className="text-2xl font-extrabold text-slate-900">{problem.title}</h2>
-                                    <div className="flex items-center gap-3 mt-2">
-                                        <span className={`px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wide ${difficultyStyle(problem.difficulty)}`}>{problem.difficulty}</span>
-                                        <span className="px-3 py-1 bg-indigo-50 text-[#4F46E5] rounded-lg text-xs font-extrabold">{problem.points} pts</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <h3 className="text-base font-extrabold text-slate-800 mb-2">Description</h3>
-                                    <p className="text-slate-600 font-medium leading-relaxed whitespace-pre-line text-sm" style={{ userSelect: 'text' }}>{problem.description}</p>
-                                </div>
-                                <div>
-                                    <h3 className="text-base font-extrabold text-slate-800 mb-3">Constraints</h3>
-                                    <ul className="space-y-2">
-                                        {problem.constraints?.map((c, i) => (
-                                            <li key={i} className="flex items-start gap-3 text-sm font-medium text-slate-600">
-                                                <span className="w-5 h-5 rounded-full bg-indigo-50 text-[#4F46E5] flex items-center justify-center text-xs font-extrabold shrink-0 mt-0.5">{i + 1}</span>
-                                                <span style={{ userSelect: 'text' }}>{c}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h3 className="text-base font-extrabold text-slate-800 mb-3">Examples</h3>
-                                    <div className="space-y-3">
-                                        {problem.examples?.map((ex, i) => (
-                                            <div key={i} className="bg-white rounded-2xl p-4 border border-slate-100 space-y-1">
-                                                <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wide">Scenario</p>
-                                                <p className="text-sm font-bold text-slate-700" style={{ userSelect: 'text' }}>{ex.label}</p>
-                                                <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wide mt-2">Expected Result</p>
-                                                <p className="text-sm font-bold text-emerald-600" style={{ userSelect: 'text' }}>{ex.result}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                {(problem.testCases ?? []).filter(tc => !tc.isHidden).length > 0 && (
-                                    <div>
-                                        <h3 className="text-base font-extrabold text-slate-800 mb-3">Sample Test Cases</h3>
-                                        <div className="space-y-3">
-                                            {(problem.testCases ?? []).filter(tc => !tc.isHidden).map((tc, i) => (
-                                                <div key={tc.id} className="border border-slate-100 rounded-2xl overflow-hidden bg-white">
-                                                    <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-                                                        <span className="text-xs font-extrabold text-slate-500">Case {i + 1}</span>
-                                                        <span className="text-xs font-medium text-slate-400">{tc.label}</span>
-                                                    </div>
-                                                    <div className="grid grid-cols-2 divide-x divide-slate-100">
-                                                        <div className="p-3">
-                                                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Input</p>
-                                                            <pre className="text-xs font-mono text-slate-600 whitespace-pre">{tc.stdin}</pre>
-                                                        </div>
-                                                        <div className="p-3">
-                                                            <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Expected Output</p>
-                                                            <pre className="text-xs font-mono text-emerald-700 whitespace-pre">{tc.expectedOutput}</pre>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </>
-                        )}
-                    </div>
-                </div>
-                <div className="shrink-0 bg-white border-t border-slate-100 px-8 py-5 flex items-center justify-center">
-                    <button
-                        onClick={() => setFsView('split')}
-                        className="flex items-center gap-3 px-10 py-4 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-base shadow-lg shadow-indigo-200 hover:bg-[#4338CA] transition-all active:scale-[0.98]"
-                    >
-                        <Code2 size={18} /> Start Coding
-                    </button>
-                </div>
-            </div>
-        );
-
-        // ── Split view (problem + editor side by side) ──
+        // ── Split view (problem + editor side by side) — shown immediately on entering fullscreen ──
         return (
             <div className="fixed inset-0 z-[500] bg-[#F8F9FC] flex flex-col">
                 {fsHeader}
@@ -1176,45 +1166,7 @@ export default function HackathonCodeSandbox({
                 <div className="flex flex-1 overflow-hidden">
                     {/* Problem panel */}
                     <div className="w-[380px] shrink-0 bg-white border-r border-slate-100 overflow-y-auto p-6 space-y-5">
-                        {problem && (
-                            <>
-                                <div>
-                                    <h2 className="text-xl font-extrabold text-slate-900">{problem?.title}</h2>
-                                    <div className="flex items-center gap-3 mt-2">
-                                        <span className={`px-3 py-1 rounded-lg text-xs font-extrabold uppercase tracking-wide ${difficultyStyle(problem?.difficulty)}`}>{problem?.difficulty}</span>
-                                        <span className="px-3 py-1 bg-indigo-50 text-[#4F46E5] rounded-lg text-xs font-extrabold">{problem?.points} pts</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-extrabold text-slate-800 mb-2">Description</h3>
-                                    <p className="text-slate-600 font-medium leading-relaxed whitespace-pre-line text-sm" style={{ userSelect: 'text' }}>{problem?.description}</p>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-extrabold text-slate-800 mb-3">Constraints</h3>
-                                    <ul className="space-y-2">
-                                        {problem?.constraints?.map((c, i) => (
-                                            <li key={i} className="flex items-start gap-3 text-sm font-medium text-slate-600">
-                                                <span className="w-5 h-5 rounded-full bg-indigo-50 text-[#4F46E5] flex items-center justify-center text-xs font-extrabold shrink-0 mt-0.5">{i + 1}</span>
-                                                <span style={{ userSelect: 'text' }}>{c}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-extrabold text-slate-800 mb-3">Examples</h3>
-                                    <div className="space-y-3">
-                                        {problem?.examples?.map((ex, i) => (
-                                            <div key={i} className="bg-slate-50 rounded-2xl p-4 space-y-1">
-                                                <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wide">Scenario</p>
-                                                <p className="text-sm font-bold text-slate-700" style={{ userSelect: 'text' }}>{ex.label}</p>
-                                                <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wide mt-2">Expected Result</p>
-                                                <p className="text-sm font-bold text-emerald-600" style={{ userSelect: 'text' }}>{ex.result}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </>
-                        )}
+                        {renderProblemInfo({ compact: true })}
                     </div>
 
                     {/* Editor panel — flex column so results panel pins to bottom */}
@@ -1290,60 +1242,7 @@ export default function HackathonCodeSandbox({
                             </button>
                         </div>
                     </div>
-                    <div>
-                        <h3 className="text-base font-extrabold text-slate-800 mb-2">Description</h3>
-                        <p className="text-slate-600 font-medium leading-relaxed whitespace-pre-line text-sm">{problem.description}</p>
-                    </div>
-                    <div>
-                        <h3 className="text-base font-extrabold text-slate-800 mb-3">Constraints</h3>
-                        <ul className="space-y-2">
-                            {problem?.constraints?.map((c, i) => (
-                                <li key={i} className="flex items-start gap-3 text-sm font-medium text-slate-600">
-                                    <span className="w-5 h-5 rounded-full bg-indigo-50 text-[#4F46E5] flex items-center justify-center text-xs font-extrabold shrink-0 mt-0.5">{i + 1}</span>
-                                    {c}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 className="text-base font-extrabold text-slate-800 mb-3">Examples</h3>
-                        <div className="space-y-3">
-                            {problem?.examples?.map((ex, i) => (
-                                <div key={i} className="bg-slate-50 rounded-2xl p-4 space-y-1">
-                                    <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wide">Scenario</p>
-                                    <p className="text-sm font-bold text-slate-700">{ex.label}</p>
-                                    <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wide mt-2">Expected Result</p>
-                                    <p className="text-sm font-bold text-emerald-600">{ex.result}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    {/* Sample test case preview */}
-                    {(problem?.testCases ?? []).filter(tc => !tc.isHidden).length > 0 && (
-                        <div>
-                            <h3 className="text-base font-extrabold text-slate-800 mb-3">Sample Test Cases</h3>
-                            <div className="space-y-3">
-                                {(problem?.testCases ?? []).filter(tc => !tc.isHidden).map((tc, i) => (
-                                    <div key={tc.id} className="border border-slate-100 rounded-2xl overflow-hidden">
-                                        <div className="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-                                            <span className="text-xs font-extrabold text-slate-500">Case {i + 1}</span>
-                                            <span className="text-xs font-medium text-slate-400">{tc.label}</span>
-                                        </div>
-                                        <div className="grid grid-cols-2 divide-x divide-slate-100">
-                                            <div className="p-3">
-                                                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Input</p>
-                                                <pre className="text-xs font-mono text-slate-600 whitespace-pre">{tc.stdin}</pre>
-                                            </div>
-                                            <div className="p-3">
-                                                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1.5">Expected Output</p>
-                                                <pre className="text-xs font-mono text-emerald-700 whitespace-pre">{tc.expectedOutput}</pre>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                    {renderProblemInfo({ showTestCases: true, showHeader: false })}
                 </div>
             )}
 

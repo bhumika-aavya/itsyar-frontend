@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
     ChevronLeft, Calendar, Users, Globe,
     BarChart2, Loader2, Trophy,
-    ChevronDown, Play, Lightbulb, CheckCircle2, AlertTriangle, Clock, Lock
+    ChevronDown, Play, Lightbulb, CheckCircle2, Clock, Lock,
+    Target, ClipboardList, Send, Circle
 } from 'lucide-react';
 import { HackathonService } from '@/services/hackathon.service';
 import { HackathonDetail as HackathonDetailType } from '@/schemas/hackathon.schema';
@@ -180,21 +181,55 @@ export default function HackathonDetail() {
                                     </section>
                                     <div className="grid grid-cols-1 md:grid-cols-4 border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
                                         <StatBox label="Team Size" value={data?.teamSize} />
-                                        <StatBox label="Registration Ends" value={data?.registrationsDeadline} />
+                                        <StatBox label="Registration Ends" value={formatDate(data?.registrationsDeadline)} />
                                         <StatBox label="Mode" value={data?.mode} isBlue />
                                         <StatBox label="Participants" value={data?.participantCount} noBorder />
                                     </div>
 
                                     {/* Ideation Phase CTA */}
                                     {isIdeationLive && (
-                                        <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-100 rounded-3xl p-8 flex items-center justify-between gap-6">
-                                            <div>
-                                                <p className="text-xs font-extrabold uppercase tracking-widest text-amber-600 mb-1">Ideation Phase Active</p>
-                                                <h3 className="text-xl font-extrabold text-slate-900">Now is the time to brainstorm</h3>
-                                                <p className="text-sm font-medium text-slate-500 mt-1">Plan your approach and prepare your team before the hackathon begins.</p>
+                                        <div className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 border border-amber-100 rounded-3xl p-8">
+                                            <div className="absolute -top-8 -right-8 w-40 h-40 bg-amber-200/30 rounded-full blur-3xl pointer-events-none" />
+
+                                            <div className="relative flex items-start justify-between gap-6 flex-wrap">
+                                                <div className="flex items-start gap-4 min-w-0">
+                                                    <div className="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-200">
+                                                        <Lightbulb size={26} className="text-white" fill="white" />
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <p className="text-xs font-extrabold uppercase tracking-widest text-amber-600 mb-1">Ideation Phase Active</p>
+                                                        <h3 className="text-xl font-extrabold text-slate-900">Now is the time to brainstorm</h3>
+                                                        <p className="text-sm font-medium text-slate-500 mt-1 max-w-md">
+                                                            Plan your approach, align with your team, and prepare before the hackathon begins.
+                                                        </p>
+                                                        {(data as any)?.ideationEndDate && (
+                                                            <div className="inline-flex items-center gap-1.5 text-xs font-extrabold text-amber-700 bg-amber-100/70 px-2.5 py-1 rounded-lg mt-3">
+                                                                <Clock size={12} /> Open until {formatDate((data as any).ideationEndDate)}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => setActiveTab('Teams')}
+                                                    className="flex items-center gap-2 px-5 py-3 bg-white text-amber-700 border border-amber-200 rounded-2xl font-extrabold text-sm hover:bg-amber-50 transition-all shrink-0"
+                                                >
+                                                    <Users size={15} /> Go to Team Hub
+                                                </button>
                                             </div>
-                                            <div className="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center shrink-0">
-                                                <Lightbulb size={28} className="text-amber-600" />
+
+                                            <div className="relative grid sm:grid-cols-3 gap-3 mt-6">
+                                                <div className="flex items-start gap-2.5 bg-white/70 border border-amber-100/80 rounded-2xl p-3.5">
+                                                    <Users size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                                                    <p className="text-xs font-bold text-slate-600 leading-snug">Form or finalize your team</p>
+                                                </div>
+                                                <div className="flex items-start gap-2.5 bg-white/70 border border-amber-100/80 rounded-2xl p-3.5">
+                                                    <Target size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                                                    <p className="text-xs font-bold text-slate-600 leading-snug">Understand the problem statement</p>
+                                                </div>
+                                                <div className="flex items-start gap-2.5 bg-white/70 border border-amber-100/80 rounded-2xl p-3.5">
+                                                    <ClipboardList size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                                                    <p className="text-xs font-bold text-slate-600 leading-snug">Outline your approach &amp; assign roles</p>
+                                                </div>
                                             </div>
                                         </div>
                                     )}
@@ -366,7 +401,10 @@ export default function HackathonDetail() {
                                     </>
                                 )}
 
-                                {canJoin(data.status) && courseLocked ? (
+                                {/* Register & Join — hidden once registered, and hidden while the
+                                    hackathon is live since the CTA above already covers registering
+                                    and entering the sandbox in one button. */}
+                                {data?.isRegistered || isHackathonLive ? null : canJoin(data.status) && courseLocked ? (
                                     <div className="w-full py-4 bg-amber-50 text-amber-700 rounded-2xl font-extrabold text-sm text-center flex items-center justify-center gap-2">
                                         <Lock size={15} /> Complete all your courses to unlock joining
                                     </div>
@@ -436,7 +474,7 @@ interface StatBoxProps {
 }
 
 const StatBox = ({ label, value, noBorder, isBlue }: StatBoxProps) => (
-    <div className={`p-8 text-left ${noBorder ? '' : 'border-r border-slate-100'}`}>
+    <div className={`p-5 text-left ${noBorder ? '' : 'border-r border-slate-100'}`}>
         <p className="text-slate-400 font-bold text-sm mb-1 uppercase tracking-tight">{label}</p>
         <p className={`text-xl font-extrabold ${isBlue ? 'text-[#4F46E5]' : 'text-[#1A1C1E]'}`}>{value}</p>
     </div>

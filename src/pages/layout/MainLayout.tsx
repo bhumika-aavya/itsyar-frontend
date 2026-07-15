@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   LayoutDashboard, BookOpen, Zap, Trophy, ClipboardList,
-  User, Search, ChevronDown, LogOut, Settings, Users, Shield
+  User, Search, ChevronDown, LogOut, Settings, Users, Shield, Mail
 } from 'lucide-react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { TeamService } from '@/services/team.service';
 
-const SidebarItem = ({ icon: Icon, label, active, onClick }: any) => (
+const SidebarItem = ({ icon: Icon, label, active, onClick, badge }: any) => (
   <button
     onClick={onClick}
     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm ${active
@@ -15,7 +16,13 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }: any) => (
       }`}
   >
     <Icon size={18} strokeWidth={active ? 2.5 : 2} />
-    {label}
+    <span className="flex-1 text-left">{label}</span>
+    {!!badge && (
+      <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full min-w-[18px] text-center ${active ? "bg-white/20 text-white" : "bg-red-500 text-white"
+        }`}>
+        {badge}
+      </span>
+    )}
   </button>
 );
 
@@ -26,6 +33,7 @@ export default function MainLayout() {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [pendingInvites, setPendingInvites] = useState(0);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -40,11 +48,20 @@ export default function MainLayout() {
 
   const role = (user?.role ?? '').toLowerCase();
 
+  // Surface a pending-invite count badge for participants only.
+  useEffect(() => {
+    if (role !== 'participant') return;
+    TeamService.getMyInvites()
+      .then(invites => setPendingInvites(invites.filter(i => i.status === 'PENDING').length))
+      .catch(() => setPendingInvites(0));
+  }, [role, location.pathname]);
+
   const allMenuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
     { icon: BookOpen, label: 'Courses', path: '/courses', roles: ['student'] },
     { icon: Zap, label: 'Hackathons', path: '/hackathons' },
     { icon: Users, label: 'Team', path: '/teams', roles: ['participant'] },
+    { icon: Mail, label: 'Team Invites', path: '/team-invites', roles: ['participant'], badge: pendingInvites },
     { icon: Trophy, label: 'Leaderboard', path: '/leaderboard', roles: ['participant'] },
     { icon: ClipboardList, label: 'Result', path: '/results', roles: ['student'] },
     { icon: User, label: 'Profile', path: '/profile' },
@@ -141,13 +158,6 @@ export default function MainLayout() {
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#4F46E5] transition-colors"
                 >
                   <User size={16} /> My Profile
-                </button>
-
-                <button
-                  onClick={() => setIsDropdownOpen(false)}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 hover:text-[#4F46E5] transition-colors"
-                >
-                  <Settings size={16} /> Settings
                 </button>
 
                 <div className="h-px bg-slate-50 my-1 mx-2" />
