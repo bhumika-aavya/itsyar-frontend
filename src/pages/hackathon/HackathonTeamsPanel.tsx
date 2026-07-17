@@ -15,7 +15,7 @@ export default function HackathonTeamsPanel({ hackathon }: Props) {
     const [loading, setLoading] = useState(true);
     const [joinModalOpen, setJoinModalOpen] = useState(false);
     const [joiningTeamId, setJoiningTeamId] = useState<string | null>(null);
-    const [joinedTeamIds, setJoinedTeamIds] = useState<Set<string>>(new Set(['t1']));
+    const [joinedTeamIds, setJoinedTeamIds] = useState<Set<string>>(new Set());
 
     const canJoin = hackathon.status === 'Open' || hackathon.status === 'Running';
 
@@ -30,6 +30,7 @@ export default function HackathonTeamsPanel({ hackathon }: Props) {
     }, [hackathon.id]);
 
     const handleJoinTeam = async (teamId: string) => {
+        if (joiningTeamId) return;
         setJoiningTeamId(teamId);
         try {
             await HackathonService.joinTeamById(teamId);

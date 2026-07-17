@@ -183,6 +183,7 @@ export default function TeamCollaborationPage() {
   }, []);
 
   const handleRequestJoin = async (teamId: string) => {
+    if (requestingId) return;
     setRequestingId(teamId);
     try {
       await TeamService.requestToJoin(teamId);

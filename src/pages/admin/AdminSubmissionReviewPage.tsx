@@ -18,7 +18,7 @@ const CRITERIA: Criterion[] = [
   { key: "accessibility", label: "Accessibility", max: 10 },
 ];
 
-const TABS = ["Overview", "Code", "Files & Links", "Submission Info"] as const;
+const TABS = ["Overview", "Code", "Submission Info"] as const;
 type Tab = typeof TABS[number];
 
 const fmt = (iso: string) => {
@@ -123,14 +123,6 @@ export default function AdminSubmissionReviewPage() {
             {detail.userName} · {detail.hackathonTitle}
           </p>
         </div>
-        <div className="flex items-center gap-2 shrink-0 pt-1">
-          <button className="p-2 text-slate-400 hover:bg-slate-100 rounded-xl transition-colors">
-            <Share2 size={16} />
-          </button>
-          <button className="p-2 text-slate-400 hover:bg-slate-100 rounded-xl transition-colors">
-            <Flag size={16} />
-          </button>
-        </div>
       </div>
 
       {/* Tabs */}
@@ -139,9 +131,8 @@ export default function AdminSubmissionReviewPage() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`pb-3 text-sm font-extrabold border-b-2 transition-colors ${
-              tab === t ? "border-[#4F46E5] text-[#4F46E5]" : "border-transparent text-slate-400 hover:text-slate-600"
-            }`}
+            className={`pb-3 text-sm font-extrabold border-b-2 transition-colors ${tab === t ? "border-[#4F46E5] text-[#4F46E5]" : "border-transparent text-slate-400 hover:text-slate-600"
+              }`}
           >
             {t}
           </button>
@@ -176,20 +167,6 @@ export default function AdminSubmissionReviewPage() {
               <pre className="text-[#CDD6F4] text-xs font-mono whitespace-pre-wrap leading-relaxed overflow-x-auto max-h-[480px]">
                 {detail.code || "No code available for this submission."}
               </pre>
-            </div>
-          )}
-
-          {tab === "Files & Links" && (
-            <div className="bg-white border border-slate-100 rounded-[20px] p-5 space-y-3">
-              <p className="text-sm font-extrabold text-slate-900 mb-1">Submission Files</p>
-              {detail.fileRef ? (
-                <div className="flex items-center gap-3 px-4 py-3 bg-slate-50 rounded-xl">
-                  <FileText size={16} className="text-slate-400 shrink-0" />
-                  <span className="flex-1 text-sm font-bold text-slate-700 truncate">{detail.fileRef}</span>
-                </div>
-              ) : (
-                <p className="text-xs font-medium text-slate-400">No files attached to this submission.</p>
-              )}
             </div>
           )}
 

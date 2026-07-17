@@ -26,10 +26,30 @@ export interface PlatformHealth {
   emailService: string;
 }
 
+export interface LeaderboardRow {
+  rank: number;
+  name: string;
+  initials: string;
+  track: string;
+  score: number;
+  progress: number;
+  certs: number;
+  submissions: number;
+  status: string;
+}
+
+export interface AnalyticsPoint {
+  label: string;
+  value: number;
+}
+
 export interface AdminOverview {
   admin: { name: string; role: string };
   stats: AdminStats;
   platformHealth: PlatformHealth;
+  leaderboard: LeaderboardRow[];
+  courseCompletion: AnalyticsPoint[];
+  scoreDistribution: AnalyticsPoint[];
 }
 
 export interface AdminCourse {
@@ -82,10 +102,37 @@ export interface PlatformSettings {
   };
 }
 
+const MOCK_LEADERBOARD: LeaderboardRow[] = [
+  { rank: 1, name: "Riya Kapoor", initials: "RK", track: "Hackathon", score: 2840, progress: 96, certs: 4, submissions: 3, status: "Active" },
+  { rank: 2, name: "Arjun Sharma", initials: "AS", track: "Training", score: 2610, progress: 88, certs: 3, submissions: 1, status: "Active" },
+  { rank: 3, name: "Priya Menon", initials: "PM", track: "Hackathon", score: 2490, progress: 82, certs: 2, submissions: 4, status: "Review" },
+  { rank: 4, name: "Nikhil Kumar", initials: "NK", track: "Training", score: 2310, progress: 75, certs: 3, submissions: 2, status: "Active" },
+  { rank: 5, name: "Sara Reddy", initials: "SR", track: "Hackathon", score: 2190, progress: 70, certs: 2, submissions: 2, status: "Inactive" },
+];
+
+const MOCK_COURSE_COMPLETION: AnalyticsPoint[] = [
+  { label: "Foundry Basics", value: 91 },
+  { label: "Ontology 101", value: 78 },
+  { label: "OSDK Integration", value: 43 },
+  { label: "AI Safety", value: 65 },
+  { label: "Data Pipelines", value: 58 },
+];
+
+const MOCK_SCORE_DISTRIBUTION: AnalyticsPoint[] = [
+  { label: "<40", value: 8 },
+  { label: "40–55", value: 22 },
+  { label: "56–70", value: 48 },
+  { label: "71–85", value: 62 },
+  { label: "86–100", value: 30 },
+];
+
 const MOCK_OVERVIEW: AdminOverview = {
   admin: { name: "Admin", role: "Admin" },
   stats: { totalUsers: 2847, totalCourses: 34, activeHackathons: 5, totalSubmissions: 412 },
   platformHealth: { apiStatus: "Operational", database: "Operational", authService: "Operational", emailService: "Operational" },
+  leaderboard: MOCK_LEADERBOARD,
+  courseCompletion: MOCK_COURSE_COMPLETION,
+  scoreDistribution: MOCK_SCORE_DISTRIBUTION,
 };
 
 const MOCK_USERS: AdminUser[] = [
@@ -112,7 +159,16 @@ export const AdminService = {
   getOverview: async (): Promise<AdminOverview> => {
     try {
       const res = await api.get("/admin/overview", getAuthHeaders());
-      return { admin: res.data.admin, stats: res.data.stats, platformHealth: res.data.platformHealth };
+      return {
+        admin: res.data.admin,
+        stats: res.data.stats,
+        platformHealth: res.data.platformHealth,
+        // Leaderboard/analytics are optional on the backend response for now —
+        // fall back to mock data per-section so partial rollouts still render.
+        leaderboard: res.data.leaderboard ?? MOCK_LEADERBOARD,
+        courseCompletion: res.data.courseCompletion ?? MOCK_COURSE_COMPLETION,
+        scoreDistribution: res.data.scoreDistribution ?? MOCK_SCORE_DISTRIBUTION,
+      };
     } catch {
       return MOCK_OVERVIEW;
     }

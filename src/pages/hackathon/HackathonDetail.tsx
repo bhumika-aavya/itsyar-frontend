@@ -143,9 +143,14 @@ export default function HackathonDetail() {
                     <div className="lg:col-span-2 space-y-8">
                         <div className="space-y-6">
                             <div className="space-y-1">
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-4 flex-wrap">
                                     <h1 className="text-5xl font-extrabold text-slate-900 tracking-tight">{data.title}</h1>
                                     <span className="text-4xl">🏆</span>
+                                    {(data as any).platform === 'Foundry' && (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-xs uppercase tracking-widest shadow-sm">
+                                            ⚡ Foundry
+                                        </span>
+                                    )}
                                 </div>
                                 <p className="text-xl text-slate-500 font-medium leading-relaxed">
                                     Compete, collaborate, and code your way to the top.
@@ -186,6 +191,22 @@ export default function HackathonDetail() {
                                         <StatBox label="Mode" value={data?.mode} isBlue />
                                         <StatBox label="Participants" value={data?.participantCount} noBorder />
                                     </div>
+
+                                    {/* Foundry workspace link — replaces the problem statement for Foundry-platform hackathons */}
+                                    {(data as any).platform === 'Foundry' && (data as any).foundryLink && (
+                                        <a
+                                            href={(data as any).foundryLink}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center justify-between gap-4 bg-indigo-50/60 border border-indigo-100 rounded-3xl p-6 hover:bg-indigo-50 transition-colors"
+                                        >
+                                            <div>
+                                                <p className="text-xs font-extrabold uppercase tracking-widest text-[#4F46E5] mb-1">Foundry Workspace</p>
+                                                <p className="text-sm font-medium text-slate-500">Open the Foundry link to access this hackathon's workspace</p>
+                                            </div>
+                                            <span className="px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shrink-0">Open Link</span>
+                                        </a>
+                                    )}
 
                                     {/* Ideation Phase CTA */}
                                     {isIdeationLive && (

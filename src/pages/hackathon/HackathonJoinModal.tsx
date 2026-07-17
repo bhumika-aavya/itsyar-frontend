@@ -71,6 +71,9 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
             setIndForm({ fullName: user?.fullName ?? '', email: user?.email ?? '', agreeToRules: false });
             setIndErrors({});
             setTeamApiError('');
+            // Guard against a stale spinner if the modal is reopened while a
+            // previous join/create request never got to settle its `finally`.
+            setSubmitting(false);
         }
     }, [isOpen, hackathon.id]);
 
@@ -111,6 +114,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
     };
 
     const handleCreateTeam = async () => {
+        if (submitting) return;
         const errs: Record<string, string> = {};
         if (!teamName.trim() || teamName.length < 2) errs.teamName = 'At least 2 characters required';
         else if (teamName.length > TEAM_NAME_MAX) errs.teamName = `Must be ${TEAM_NAME_MAX} characters or fewer`;
@@ -139,6 +143,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
     };
 
     const handleConfirmJoin = async () => {
+        if (submitting) return;
         setSubmitting(true);
         setTeamApiError('');
         try {

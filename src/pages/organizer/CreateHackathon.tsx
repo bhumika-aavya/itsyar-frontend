@@ -5,7 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
     ChevronLeft, Save, Loader2, Plus, X, Code2,
     Calendar, Globe, Users, FileText, Trophy, CheckCircle2, AlertCircle,
-    ListChecks, Scale, Gift, HelpCircle, Milestone, Sparkles, Trash2
+    ListChecks, Scale, Gift, HelpCircle, Milestone, Sparkles, Trash2,
+    Cpu, Zap, Database, Settings, Cloud, Link as LinkIcon, ImagePlus,
 } from 'lucide-react';
 import {
     OrganizerCreateHackathonSchema, OrganizerCreateHackathonValues,
@@ -16,6 +17,19 @@ import { OrganizerService } from '@/services/organizer.service';
 const SUPPORTED_LANGS = ['JavaScript', 'TypeScript', 'Python', 'Java', 'C++', 'Go', 'Rust', 'Ruby'];
 const DIFFICULTY_OPTS = ['Easy', 'Medium', 'Hard'] as const;
 const HACKATHON_DIFFICULTY_OPTS = ['Beginner', 'Intermediate', 'Advanced'] as const;
+
+// Keep in sync with the `iconMap` in HackathonListing.tsx — same keys render
+// the same lucide icon everywhere a hackathon's icon shows up.
+const ICON_OPTS: { key: string; icon: React.ElementType }[] = [
+    { key: 'trophy', icon: Trophy },
+    { key: 'cpu', icon: Cpu },
+    { key: 'zap', icon: Zap },
+    { key: 'database', icon: Database },
+    { key: 'settings', icon: Settings },
+    { key: 'cloud', icon: Cloud },
+    { key: 'link', icon: LinkIcon },
+];
+const DEFAULT_ICON = 'trophy';
 
 const fieldCls = (hasErr: boolean) =>
     `w-full h-11 rounded-xl border-2 px-4 bg-slate-50 outline-none transition-all font-medium text-slate-800 text-sm ${hasErr ? 'border-red-300 focus:border-red-400' : 'border-transparent focus:border-[#3AADDD] focus:bg-white'}`;
@@ -66,6 +80,9 @@ export default function CreateHackathon() {
         resolver: zodResolver(OrganizerCreateHackathonSchema),
         defaultValues: {
             difficultyLevel: 'Intermediate',
+            platform: 'Other',
+            foundryLink: '',
+            iconType: DEFAULT_ICON,
             ideationStartDate: '',
             ideationEndDate: '',
             rulesText: '',
@@ -88,6 +105,10 @@ export default function CreateHackathon() {
     const { register: probReg, handleSubmit: probHS, formState: { errors: probErr }, setValue: probSet, watch: probWatch } = probForm;
 
     const selectedDifficulty = probWatch('difficulty');
+    const platform = hackForm.watch('platform');
+    const isFoundry = platform === 'Foundry';
+    const foundryLink = hackForm.watch('foundryLink');
+    const selectedIcon = hackForm.watch('iconType') || DEFAULT_ICON;
 
     const criteriaArray = useFieldArray({ control: hackControl, name: 'criteria' });
     const prizesArray = useFieldArray({ control: hackControl, name: 'prizes' });
@@ -106,6 +127,9 @@ export default function CreateHackathon() {
                     startDate: data.startDate,
                     endDate: data.endDate,
                     mode: data.mode,
+                    platform: (data as any).platform ?? 'Other',
+                    foundryLink: (data as any).foundryLink ?? '',
+                    iconType: data.iconType ?? DEFAULT_ICON,
                     teamSize: data.teamSize,
                     registrationDeadline: data.registrationDeadline,
                     difficultyLevel: data.difficultyLevel ?? 'Intermediate',
@@ -142,7 +166,7 @@ export default function CreateHackathon() {
                 hackathonId = created.id;
             }
 
-            if (includeProblem) {
+            if (!isFoundry && includeProblem) {
                 await probHS(async (probData) => {
                     await OrganizerService.upsertProblem(hackathonId!, {
                         ...probData,
@@ -215,7 +239,7 @@ export default function CreateHackathon() {
 
                     {/* Title */}
                     <div>
-                        <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">Title</label>
+                        <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">Title <span className="text-red-500">*</span></label>
                         <input
                             {...hackReg('title')}
                             placeholder="e.g. CodeSprint 2026"
@@ -224,9 +248,57 @@ export default function CreateHackathon() {
                         <ErrMsg msg={hackErr.title?.message} />
                     </div>
 
+                    {/* Platform */}
+                    <div>
+                        <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
+                            <span className="flex items-center gap-1.5"><Sparkles size={11} /> Platform <span className="text-red-500">*</span></span>
+                        </label>
+                        <p className="text-[11px] font-bold text-slate-400 mb-2">Selecting Foundry tags this hackathon distinctly from other-language hackathons on its detail header and swaps the problem statement for a Foundry link.</p>
+                        <div className="flex items-center gap-3">
+                            <button
+                                type="button"
+                                role="switch"
+                                aria-checked={isFoundry}
+                                onClick={() => hackForm.setValue('platform', isFoundry ? 'Other' : 'Foundry')}
+                                className={`relative w-14 h-8 rounded-full transition-colors shrink-0 ${isFoundry ? 'bg-[#4F46E5]' : 'bg-slate-200'}`}
+                            >
+                                <span
+                                    className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-white shadow-sm transition-transform ${isFoundry ? 'translate-x-6' : 'translate-x-0'}`}
+                                />
+                            </button>
+                            <span className={`font-extrabold text-sm ${isFoundry ? 'text-[#4F46E5]' : 'text-slate-500'}`}>
+                                {isFoundry ? 'Foundry' : 'Other'}
+                            </span>
+                        </div>
+                        <ErrMsg msg={(hackErr as any).platform?.message} />
+                    </div>
+
+                    {/* Icon */}
+                    <div>
+                        <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
+                            <span className="flex items-center gap-1.5"><ImagePlus size={11} /> Hackathon Icon</span>
+                        </label>
+                        <p className="text-[11px] font-bold text-slate-400 mb-2">Shown next to the title in listings. Defaults to the trophy icon if none is picked.</p>
+                        <div className="flex flex-wrap gap-2">
+                            {ICON_OPTS.map(({ key, icon: OptIcon }) => (
+                                <button
+                                    key={key}
+                                    type="button"
+                                    onClick={() => hackForm.setValue('iconType', key)}
+                                    aria-label={key}
+                                    className={`w-11 h-11 rounded-xl border-2 flex items-center justify-center transition-all ${selectedIcon === key
+                                        ? 'border-[#4F46E5] bg-indigo-50 text-[#4F46E5]'
+                                        : 'border-slate-100 text-slate-400 hover:border-slate-200'}`}
+                                >
+                                    <OptIcon size={18} />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* Description */}
                     <div>
-                        <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">Description</label>
+                        <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">Description <span className="text-red-500">*</span></label>
                         <textarea
                             {...hackReg('description')}
                             rows={4}
@@ -240,20 +312,20 @@ export default function CreateHackathon() {
                     <div className="grid md:grid-cols-3 gap-4">
                         <div>
                             <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
-                                <span className="flex items-center gap-1.5"><Calendar size={11} /> Start Date</span>
+                                <span className="flex items-center gap-1.5"><Calendar size={11} /> Start Date <span className="text-red-500">*</span></span>
                             </label>
                             <input type="date" {...hackReg('startDate')} className={fieldCls(!!hackErr.startDate)} />
                             <ErrMsg msg={hackErr.startDate?.message} />
                         </div>
                         <div>
                             <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
-                                <span className="flex items-center gap-1.5"><Calendar size={11} /> End Date</span>
+                                <span className="flex items-center gap-1.5"><Calendar size={11} /> End Date <span className="text-red-500">*</span></span>
                             </label>
                             <input type="date" {...hackReg('endDate')} className={fieldCls(!!hackErr.endDate)} />
                             <ErrMsg msg={hackErr.endDate?.message} />
                         </div>
                         <div>
-                            <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">Registration Deadline</label>
+                            <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">Registration Deadline <span className="text-red-500">*</span></label>
                             <input type="date" {...hackReg('registrationDeadline')} className={fieldCls(!!hackErr.registrationDeadline)} />
                             <ErrMsg msg={hackErr.registrationDeadline?.message} />
                         </div>
@@ -263,7 +335,7 @@ export default function CreateHackathon() {
                     <div className="grid md:grid-cols-2 gap-4">
                         <div>
                             <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
-                                <span className="flex items-center gap-1.5"><Globe size={11} /> Mode</span>
+                                <span className="flex items-center gap-1.5"><Globe size={11} /> Mode <span className="text-red-500">*</span></span>
                             </label>
                             <select {...hackReg('mode')} className={`${fieldCls(!!hackErr.mode)} cursor-pointer`}>
                                 <option value="">Select mode</option>
@@ -275,7 +347,7 @@ export default function CreateHackathon() {
                         </div>
                         <div>
                             <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
-                                <span className="flex items-center gap-1.5"><Users size={11} /> Team Size</span>
+                                <span className="flex items-center gap-1.5"><Users size={11} /> Team Size <span className="text-red-500">*</span></span>
                             </label>
                             <select {...hackReg('teamSize')} className={`${fieldCls(!!hackErr.teamSize)} cursor-pointer`}>
                                 <option value="">Select team size</option>
@@ -292,7 +364,7 @@ export default function CreateHackathon() {
                     {/* Difficulty Level */}
                     <div>
                         <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
-                            <span className="flex items-center gap-1.5"><Scale size={11} /> Difficulty Level</span>
+                            <span className="flex items-center gap-1.5"><Scale size={11} /> Difficulty Level <span className="text-red-500">*</span></span>
                         </label>
                         <div className="flex gap-2">
                             {HACKATHON_DIFFICULTY_OPTS.map(d => (
@@ -581,132 +653,160 @@ export default function CreateHackathon() {
                     )}
                 </div>
 
-                {/* ── Problem Statement Card ── */}
-                <div className="bg-white border border-slate-100 rounded-3xl p-7 space-y-6">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 bg-violet-50 rounded-xl flex items-center justify-center">
-                                <FileText size={18} className="text-violet-500" />
+                {isFoundry ? (
+                    /* ── Foundry Link Card ── */
+                    <div className="bg-white border border-slate-100 rounded-3xl p-7 space-y-4">
+                        <div className="flex items-center gap-3 pb-2 border-b border-slate-50">
+                            <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center">
+                                <LinkIcon size={18} className="text-[#4F46E5]" />
                             </div>
                             <div>
-                                <h2 className="font-extrabold text-slate-900">Problem Statement</h2>
-                                <p className="text-xs font-bold text-slate-400">The challenge participants must solve</p>
+                                <h2 className="font-extrabold text-slate-900">Foundry Link</h2>
+                                <p className="text-xs font-bold text-slate-400">Where participants access the Foundry workspace for this hackathon</p>
                             </div>
                         </div>
-                        <button
-                            type="button"
-                            onClick={() => setIncludeProblem(p => !p)}
-                            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl font-extrabold text-xs transition-all ${includeProblem
-                                ? 'bg-red-50 text-red-500 hover:bg-red-100'
-                                : 'bg-indigo-50 text-[#4F46E5] hover:bg-indigo-100'}`}
-                        >
-                            {includeProblem ? <><X size={13} /> Remove</> : <><Plus size={13} /> Add Problem</>}
-                        </button>
-                    </div>
-
-                    {!includeProblem ? (
-                        <div className="flex items-center gap-3 p-5 bg-slate-50 rounded-2xl">
-                            <AlertCircle size={18} className="text-slate-400 shrink-0" />
-                            <p className="text-sm font-bold text-slate-500">
-                                No problem statement added yet. Click "Add Problem" to define the challenge for participants.
-                            </p>
+                        <div>
+                            <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
+                                Foundry Link <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                {...hackReg('foundryLink')}
+                                placeholder="https://foundry.example.com/workspace/..."
+                                className={fieldCls(isFoundry && !foundryLink?.trim())}
+                            />
+                            {isFoundry && !foundryLink?.trim() && (
+                                <p className="text-xs font-bold text-red-500 mt-1">Foundry link is required</p>
+                            )}
                         </div>
-                    ) : (
-                        <div className="space-y-5">
-                            {/* Problem Title + Difficulty + Points */}
-                            <div className="grid md:grid-cols-3 gap-4">
-                                <div className="md:col-span-1">
-                                    <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">Problem Title</label>
-                                    <input
-                                        {...probReg('title')}
-                                        placeholder="e.g. Build a Rate Limiter"
-                                        className={fieldCls(!!probErr.title)}
-                                    />
-                                    <ErrMsg msg={probErr.title?.message} />
+                    </div>
+                ) : (
+                    /* ── Problem Statement Card ── */
+                    <div className="bg-white border border-slate-100 rounded-3xl p-7 space-y-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 bg-violet-50 rounded-xl flex items-center justify-center">
+                                    <FileText size={18} className="text-violet-500" />
                                 </div>
                                 <div>
-                                    <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">Difficulty</label>
-                                    <div className="flex gap-2">
-                                        {DIFFICULTY_OPTS.map(d => (
+                                    <h2 className="font-extrabold text-slate-900">Problem Statement</h2>
+                                    <p className="text-xs font-bold text-slate-400">The challenge participants must solve</p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setIncludeProblem(p => !p)}
+                                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl font-extrabold text-xs transition-all ${includeProblem
+                                    ? 'bg-red-50 text-red-500 hover:bg-red-100'
+                                    : 'bg-indigo-50 text-[#4F46E5] hover:bg-indigo-100'}`}
+                            >
+                                {includeProblem ? <><X size={13} /> Remove</> : <><Plus size={13} /> Add Problem</>}
+                            </button>
+                        </div>
+
+                        {!includeProblem ? (
+                            <div className="flex items-center gap-3 p-5 bg-slate-50 rounded-2xl">
+                                <AlertCircle size={18} className="text-slate-400 shrink-0" />
+                                <p className="text-sm font-bold text-slate-500">
+                                    No problem statement added yet. Click "Add Problem" to define the challenge for participants.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="space-y-5">
+                                {/* Problem Title + Difficulty + Points */}
+                                <div className="grid md:grid-cols-3 gap-4">
+                                    <div className="md:col-span-1">
+                                        <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">Problem Title <span className="text-red-500">*</span></label>
+                                        <input
+                                            {...probReg('title')}
+                                            placeholder="e.g. Build a Rate Limiter"
+                                            className={fieldCls(!!probErr.title)}
+                                        />
+                                        <ErrMsg msg={probErr.title?.message} />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">Difficulty</label>
+                                        <div className="flex gap-2">
+                                            {DIFFICULTY_OPTS.map(d => (
+                                                <button
+                                                    key={d}
+                                                    type="button"
+                                                    onClick={() => probSet('difficulty', d)}
+                                                    className={`flex-1 py-2.5 rounded-xl font-extrabold text-xs border-2 transition-all ${selectedDifficulty === d
+                                                        ? d === 'Easy' ? 'border-emerald-400 bg-emerald-50 text-emerald-600'
+                                                            : d === 'Medium' ? 'border-amber-400 bg-amber-50 text-amber-600'
+                                                                : 'border-red-400 bg-red-50 text-red-500'
+                                                        : 'border-slate-100 text-slate-400 hover:border-slate-200'}`}
+                                                >
+                                                    {d}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">Points</label>
+                                        <input
+                                            {...probReg('points')}
+                                            type="number"
+                                            min={1}
+                                            placeholder="100"
+                                            className={fieldCls(!!probErr.points)}
+                                        />
+                                        <ErrMsg msg={probErr.points?.message} />
+                                    </div>
+                                </div>
+
+                                {/* Problem Description */}
+                                <div>
+                                    <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">Problem Description <span className="text-red-500">*</span></label>
+                                    <textarea
+                                        {...probReg('description')}
+                                        rows={6}
+                                        placeholder="Describe the problem clearly. Include context, what to build, expected behavior, and any edge cases..."
+                                        className={textareaCls(!!probErr.description)}
+                                    />
+                                    <ErrMsg msg={probErr.description?.message} />
+                                </div>
+
+                                {/* Constraints */}
+                                <div>
+                                    <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
+                                        Constraints <span className="font-bold text-slate-400 normal-case tracking-normal">(one per line)</span>
+                                    </label>
+                                    <textarea
+                                        {...probReg('constraintsText')}
+                                        rows={4}
+                                        placeholder={"Solution must handle at least 100 concurrent requests\nMaximum response time: 200ms\nNo external databases allowed"}
+                                        className={textareaCls(false)}
+                                    />
+                                </div>
+
+                                {/* Supported Languages */}
+                                <div>
+                                    <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-3">
+                                        <span className="flex items-center gap-1.5"><Code2 size={11} /> Supported Languages</span>
+                                    </label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {SUPPORTED_LANGS.map(lang => (
                                             <button
-                                                key={d}
+                                                key={lang}
                                                 type="button"
-                                                onClick={() => probSet('difficulty', d)}
-                                                className={`flex-1 py-2.5 rounded-xl font-extrabold text-xs border-2 transition-all ${selectedDifficulty === d
-                                                    ? d === 'Easy' ? 'border-emerald-400 bg-emerald-50 text-emerald-600'
-                                                    : d === 'Medium' ? 'border-amber-400 bg-amber-50 text-amber-600'
-                                                    : 'border-red-400 bg-red-50 text-red-500'
+                                                onClick={() => toggleLang(lang)}
+                                                className={`px-4 py-2 rounded-xl font-extrabold text-xs border-2 transition-all ${selectedLangs.includes(lang)
+                                                    ? 'border-[#4F46E5] bg-indigo-50 text-[#4F46E5]'
                                                     : 'border-slate-100 text-slate-400 hover:border-slate-200'}`}
                                             >
-                                                {d}
+                                                {lang}
                                             </button>
                                         ))}
                                     </div>
-                                </div>
-                                <div>
-                                    <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">Points</label>
-                                    <input
-                                        {...probReg('points')}
-                                        type="number"
-                                        min={1}
-                                        placeholder="100"
-                                        className={fieldCls(!!probErr.points)}
-                                    />
-                                    <ErrMsg msg={probErr.points?.message} />
+                                    {selectedLangs.length === 0 && (
+                                        <p className="text-xs font-bold text-red-500 mt-1">Select at least one language</p>
+                                    )}
                                 </div>
                             </div>
-
-                            {/* Problem Description */}
-                            <div>
-                                <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">Problem Description</label>
-                                <textarea
-                                    {...probReg('description')}
-                                    rows={6}
-                                    placeholder="Describe the problem clearly. Include context, what to build, expected behavior, and any edge cases..."
-                                    className={textareaCls(!!probErr.description)}
-                                />
-                                <ErrMsg msg={probErr.description?.message} />
-                            </div>
-
-                            {/* Constraints */}
-                            <div>
-                                <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
-                                    Constraints <span className="font-bold text-slate-400 normal-case tracking-normal">(one per line)</span>
-                                </label>
-                                <textarea
-                                    {...probReg('constraintsText')}
-                                    rows={4}
-                                    placeholder={"Solution must handle at least 100 concurrent requests\nMaximum response time: 200ms\nNo external databases allowed"}
-                                    className={textareaCls(false)}
-                                />
-                            </div>
-
-                            {/* Supported Languages */}
-                            <div>
-                                <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-3">
-                                    <span className="flex items-center gap-1.5"><Code2 size={11} /> Supported Languages</span>
-                                </label>
-                                <div className="flex flex-wrap gap-2">
-                                    {SUPPORTED_LANGS.map(lang => (
-                                        <button
-                                            key={lang}
-                                            type="button"
-                                            onClick={() => toggleLang(lang)}
-                                            className={`px-4 py-2 rounded-xl font-extrabold text-xs border-2 transition-all ${selectedLangs.includes(lang)
-                                                ? 'border-[#4F46E5] bg-indigo-50 text-[#4F46E5]'
-                                                : 'border-slate-100 text-slate-400 hover:border-slate-200'}`}
-                                        >
-                                            {lang}
-                                        </button>
-                                    ))}
-                                </div>
-                                {selectedLangs.length === 0 && (
-                                    <p className="text-xs font-bold text-red-500 mt-1">Select at least one language</p>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Submit */}
                 <div className="flex items-center justify-end gap-3 pb-8">
@@ -719,7 +819,7 @@ export default function CreateHackathon() {
                     </button>
                     <button
                         type="submit"
-                        disabled={saving || (includeProblem && selectedLangs.length === 0)}
+                        disabled={saving || (!isFoundry && includeProblem && selectedLangs.length === 0) || (isFoundry && !foundryLink?.trim())}
                         className="flex items-center gap-2 px-8 py-3 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95"
                     >
                         {saving

@@ -39,9 +39,11 @@ export default function LoginForm() {
   const navigate = useNavigate();
   const { login } = useAuth(); // Using the auth context we built earlier
 
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<LoginFormValues>({
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   });
+
+  const passwordValue = watch("password");
 
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
@@ -100,7 +102,7 @@ export default function LoginForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Email Address */}
           <div className="flex flex-col space-y-1.5 items-start">
-            <label className="text-[13px] font-bold text-slate-800 ml-1">Email Address</label>
+            <label className="text-[13px] font-bold text-slate-800 ml-1">Email Address <span className="text-red-400">*</span></label>
             <div className="relative w-full">
               <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.email ? 'text-red-400' : 'text-slate-400'}`} size={18} />
               <input
@@ -117,7 +119,7 @@ export default function LoginForm() {
           {/* Password */}
           <div className="flex flex-col space-y-1.5 items-start">
             <div className="flex justify-between items-center w-full px-1">
-              <label className="text-[13px] font-bold text-slate-800">Password</label>
+              <label className="text-[13px] font-bold text-slate-800">Password <span className="text-red-400">*</span></label>
               <button
                 type="button"
                 onClick={() => navigate('/forgot-password')}
@@ -135,20 +137,22 @@ export default function LoginForm() {
                 className={`h-14 w-full rounded-xl border-2 pl-12 pr-12 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 ${errors.password ? "border-red-400" : "border-transparent focus:border-[#3AADDD] focus:bg-white"
                   }`}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+              {passwordValue && (
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              )}
             </div>
             <ErrorMsg message={errors.password?.message} />
           </div>
 
           {/* Role Dropdown */}
           <div className="flex flex-col space-y-1.5 items-start pb-2">
-            <label className="text-[13px] font-bold text-slate-800 ml-1">Sign in as</label>
+            <label className="text-[13px] font-bold text-slate-800 ml-1">Sign in as <span className="text-red-400">*</span></label>
             <div className="relative w-full">
               <UserCog className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.role ? 'text-red-400' : 'text-slate-400'}`} size={18} />
               <select

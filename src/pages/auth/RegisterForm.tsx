@@ -42,6 +42,9 @@ export default function RegisterForm() {
     },
   });
 
+  const passwordValue = watch("password");
+  const confirmPasswordValue = watch("confirmPassword");
+
   // Landing page CTAs deep-link here with ?role=student / ?role=participant
   useEffect(() => {
     const roleParam = (searchParams.get("role") ?? "").toLowerCase();
@@ -103,7 +106,7 @@ export default function RegisterForm() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Full Name */}
             <div className="flex flex-col space-y-1.5 items-start">
-              <label className="text-[13px] font-bold text-slate-800 ml-1">Full Name</label>
+              <label className="text-[13px] font-bold text-slate-800 ml-1">Full Name <span className="text-red-400">*</span></label>
               <div className="relative w-full">
                 <User className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.fullName ? 'text-red-400' : 'text-slate-400'}`} size={18} />
                 <input
@@ -118,7 +121,7 @@ export default function RegisterForm() {
 
             {/* Email */}
             <div className="flex flex-col space-y-1.5 items-start">
-              <label className="text-[13px] font-bold text-slate-800 ml-1">Email Address</label>
+              <label className="text-[13px] font-bold text-slate-800 ml-1">Email Address <span className="text-red-400">*</span></label>
               <div className="relative w-full">
                 <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.email ? 'text-red-400' : 'text-slate-400'}`} size={18} />
                 <input
@@ -135,7 +138,7 @@ export default function RegisterForm() {
             {/* Passwords Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col space-y-1.5 items-start">
-                <label className="text-[13px] font-bold text-slate-800 ml-1">Password</label>
+                <label className="text-[13px] font-bold text-slate-800 ml-1">Password <span className="text-red-400">*</span></label>
                 <div className="relative w-full">
                   <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.password ? 'text-red-400' : 'text-slate-400'}`} size={18} />
                   <input
@@ -145,14 +148,16 @@ export default function RegisterForm() {
                     className={`h-14 w-full rounded-xl border-2 pl-11 pr-10 outline-none transition-all font-medium text-slate-900 text-sm ${errors.password ? "border-red-400" : "border-transparent bg-[#F8F6FC] focus:border-[#3AADDD] focus:bg-white"
                       }`}
                   />
-                  <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
-                    {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
+                  {passwordValue && (
+                    <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                      {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  )}
                 </div>
               </div>
 
               <div className="flex flex-col space-y-1.5 items-start">
-                <label className="text-[13px] font-bold text-slate-800 ml-1">Confirm Password</label>
+                <label className="text-[13px] font-bold text-slate-800 ml-1">Confirm Password <span className="text-red-400">*</span></label>
                 <div className="relative w-full">
                   <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.confirmPassword ? 'text-red-400' : 'text-slate-400'}`} size={18} />
                   <input
@@ -162,9 +167,11 @@ export default function RegisterForm() {
                     className={`h-14 w-full rounded-xl border-2 pl-11 pr-10 outline-none transition-all font-medium text-slate-900 text-sm ${errors.confirmPassword ? "border-red-400" : "border-transparent bg-[#F8F6FC] focus:border-[#3AADDD] focus:bg-white"
                       }`}
                   />
-                  <button type="button" onClick={() => setShowConfirmPass(!showConfirmPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
-                    {showConfirmPass ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
+                  {confirmPasswordValue && (
+                    <button type="button" onClick={() => setShowConfirmPass(!showConfirmPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                      {showConfirmPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -194,7 +201,7 @@ export default function RegisterForm() {
 
             {/* User Type Radio */}
             <div className="space-y-3 pt-2">
-              <label className="text-[13px] font-bold text-slate-800 ml-1 block">I am a</label>
+              <label className="text-[13px] font-bold text-slate-800 ml-1 block">I am a <span className="text-red-400">*</span></label>
               <div className="flex flex-wrap gap-6 ml-1">
                 {ROLE_OPTIONS.map((type) => (
                   <label key={type} className="flex items-center gap-3 cursor-pointer group">

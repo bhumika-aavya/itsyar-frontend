@@ -18,6 +18,9 @@ export type OrganizerHackathon = {
     teamSize: string;
     registrationDeadline: string;
     mode: string;
+    platform?: string;
+    foundryLink?: string;
+    iconType?: string;
     participantCount: string;
     problemCount: number;
     difficultyLevel?: string;
@@ -137,6 +140,9 @@ function buildHackathonPayload(data: OrganizerCreateHackathonValues) {
         title: data.title,
         description: data.description,
         mode: data.mode,
+        platform: data.platform,
+        foundryLink: data.foundryLink,
+        iconType: data.iconType,
         startDate: data.startDate,
         endDate: data.endDate,
         teamSize: data.teamSize,
@@ -162,6 +168,9 @@ function buildLocalHackathonFields(data: OrganizerCreateHackathonValues) {
         title: data.title,
         description: data.description,
         mode: data.mode,
+        platform: data.platform,
+        foundryLink: data.foundryLink,
+        iconType: data.iconType,
         startDate: data.startDate,
         endDate: data.endDate,
         teamSize: data.teamSize,

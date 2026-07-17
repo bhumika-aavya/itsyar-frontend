@@ -76,7 +76,7 @@ export default function ResetPassword() {
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="flex flex-col space-y-1.5 items-start">
-                  <label className="text-[13px] font-bold text-slate-800 ml-1">New Password</label>
+                  <label className="text-[13px] font-bold text-slate-800 ml-1">New Password <span className="text-red-400">*</span></label>
                   <div className="relative w-full">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input
@@ -86,14 +86,16 @@ export default function ResetPassword() {
                       placeholder="At least 8 characters"
                       className="h-14 w-full rounded-xl border-2 border-transparent pl-12 pr-12 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 focus:border-[#3AADDD] focus:bg-white"
                     />
-                    <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
-                      {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
+                    {password && (
+                      <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+                        {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    )}
                   </div>
                 </div>
 
                 <div className="flex flex-col space-y-1.5 items-start">
-                  <label className="text-[13px] font-bold text-slate-800 ml-1">Confirm Password</label>
+                  <label className="text-[13px] font-bold text-slate-800 ml-1">Confirm Password <span className="text-red-400">*</span></label>
                   <div className="relative w-full">
                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input
@@ -103,9 +105,11 @@ export default function ResetPassword() {
                       placeholder="Repeat your password"
                       className="h-14 w-full rounded-xl border-2 border-transparent pl-12 pr-12 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 focus:border-[#3AADDD] focus:bg-white"
                     />
-                    <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
-                      {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
+                    {confirm && (
+                      <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+                        {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    )}
                   </div>
                 </div>
 
