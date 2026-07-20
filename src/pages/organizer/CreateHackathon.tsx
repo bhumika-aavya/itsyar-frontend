@@ -13,6 +13,8 @@ import {
     OrganizerCreateProblemSchema, OrganizerCreateProblemValues
 } from '@/schemas/hackathon.schema';
 import { OrganizerService } from '@/services/organizer.service';
+import { AdminService } from '@/services/admin.service';
+import { useAuth } from '@/context/AuthContext';
 
 const SUPPORTED_LANGS = ['JavaScript', 'TypeScript', 'Python', 'Java', 'C++', 'Go', 'Rust', 'Ruby'];
 const DIFFICULTY_OPTS = ['Easy', 'Medium', 'Hard'] as const;
@@ -65,10 +67,17 @@ export default function CreateHackathon() {
     const { id } = useParams<{ id?: string }>();
     const navigate = useNavigate();
     const location = useLocation();
+    const { user } = useAuth();
     const isEdit = !!id;
     // Shared between the Organizer and Admin flows — return to whichever portal launched this page.
     const basePath = location.pathname.startsWith('/admin') ? '/admin' : '/organizer';
     const portalLabel = basePath === '/admin' ? 'Admin Portal' : 'Organizer Portal';
+    // Role-based API routing: admins manage hackathons via /admin/hackathons
+    // (their own, higher-privilege endpoint); organizers via /admin/organizer/hackathons.
+    // Driven by the authenticated user's actual role, not just the URL, so this
+    // stays correct even if the two flows ever share a route.
+    const isAdmin = ['admin'].includes((user?.role ?? '').toLowerCase());
+    const hackathonService = isAdmin ? AdminService : OrganizerService;
 
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
@@ -119,7 +128,7 @@ export default function CreateHackathon() {
     useEffect(() => {
         if (!isEdit || !id) return;
         const load = async () => {
-            const data = await OrganizerService.getHackathonById(id);
+            const data = await hackathonService.getHackathonById(id);
             if (data) {
                 hackReset({
                     title: data.title,
@@ -146,7 +155,7 @@ export default function CreateHackathon() {
             setLoadingEdit(false);
         };
         load();
-    }, [id, isEdit, hackReset]);
+    }, [id, isEdit, hackReset, hackathonService]);
 
     const toggleLang = (lang: string) => {
         setSelectedLangs(prev =>
@@ -160,9 +169,9 @@ export default function CreateHackathon() {
             let hackathonId = id;
 
             if (isEdit && hackathonId) {
-                await OrganizerService.updateHackathon(hackathonId, hackData);
+                await hackathonService.updateHackathon(hackathonId, hackData);
             } else {
-                const created = await OrganizerService.createHackathon(hackData);
+                const created = await hackathonService.createHackathon(hackData);
                 hackathonId = created.id;
             }
 

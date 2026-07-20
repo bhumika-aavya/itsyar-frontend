@@ -1,5 +1,7 @@
 import api from "@/lib/axios";
 import { getAuthHeaders } from "./auth";
+import { OrganizerCreateHackathonValues } from "@/schemas/hackathon.schema";
+import type { OrganizerHackathon } from "./organizer.service";
 
 export interface AdminUser {
   id: string;
@@ -145,6 +147,44 @@ const MOCK_SETTINGS: PlatformSettings = {
   platform: { platformName: "ForgeInsight", supportEmail: "support@forgeinsight.com", platformTagline: "Build. Learn. Compete.", defaultMaxTeamSize: 4 },
   accessControl: { maintenanceMode: false, allowNewRegistrations: true },
 };
+
+// Admin manages hackathons directly under /admin/hackathons — a distinct,
+// higher-privilege endpoint from the organizer's own /admin/organizer/hackathons.
+// Keep a small local store so create/edit still works if the backend route
+// isn't live yet, matching the fallback pattern used elsewhere in this file.
+let adminHackathonsStore: OrganizerHackathon[] = [];
+
+function buildAdminHackathonPayload(data: OrganizerCreateHackathonValues) {
+  const rules = data.rulesText
+    ?.split('\n')
+    .map(s => s.trim())
+    .filter(Boolean) ?? [];
+
+  return {
+    title: data.title,
+    description: data.description,
+    mode: data.mode,
+    platform: data.platform,
+    foundryLink: data.foundryLink,
+    iconType: data.iconType,
+    startDate: data.startDate,
+    endDate: data.endDate,
+    teamSize: data.teamSize,
+    registrationsDeadline: data.registrationDeadline,
+    difficultyLevel: data.difficultyLevel,
+    ideationStartDate: data.ideationStartDate,
+    ideationEndDate: data.ideationEndDate,
+    rules,
+    criteria: data.criteria,
+    prizes: data.prizes,
+    faqs: data.faqs,
+    timeline: data.timeline,
+  };
+}
+
+function buildLocalAdminHackathonFields(data: OrganizerCreateHackathonValues) {
+  return { ...buildAdminHackathonPayload(data), registrationDeadline: data.registrationDeadline };
+}
 
 // Backend User.status is stored capitalized ("Active"/"Inactive"/"Banned"); the
 // frontend UI works in lowercase throughout — normalize at the service boundary.
@@ -293,12 +333,50 @@ export const AdminService = {
     }
   },
 
+  getHackathonById: async (id: string): Promise<OrganizerHackathon | null> => {
+    try {
+      const res = await api.get(`/admin/hackathons/${id}`, getAuthHeaders());
+      return res.data.hackathon;
+    } catch {
+      return adminHackathonsStore.find(h => h.id === id) ?? null;
+    }
+  },
+
+  createHackathon: async (data: OrganizerCreateHackathonValues): Promise<OrganizerHackathon> => {
+    try {
+      const res = await api.post("/admin/hackathons", buildAdminHackathonPayload(data), getAuthHeaders());
+      return res.data.hackathon;
+    } catch {
+      const newHackathon: OrganizerHackathon = {
+        id: `h${Date.now()}`,
+        ...buildLocalAdminHackathonFields(data),
+        status: "UpComing",
+        participantCount: "0",
+        problemCount: 0,
+      };
+      adminHackathonsStore = [newHackathon, ...adminHackathonsStore];
+      return newHackathon;
+    }
+  },
+
+  updateHackathon: async (id: string, data: OrganizerCreateHackathonValues): Promise<OrganizerHackathon> => {
+    try {
+      await api.put(`/admin/hackathons/${id}`, buildAdminHackathonPayload(data), getAuthHeaders());
+    } catch {
+      // fall through to local store update below
+    }
+    const idx = adminHackathonsStore.findIndex(h => h.id === id);
+    if (idx !== -1) adminHackathonsStore[idx] = { ...adminHackathonsStore[idx], ...buildLocalAdminHackathonFields(data) };
+    return adminHackathonsStore[idx] ?? { id, ...buildLocalAdminHackathonFields(data), status: "UpComing", participantCount: "0", problemCount: 0 };
+  },
+
   deleteHackathon: async (id: string): Promise<void> => {
     try {
       await api.delete(`/admin/hackathons/${id}`, getAuthHeaders());
     } catch {
       // mock no-op
     }
+    adminHackathonsStore = adminHackathonsStore.filter(h => h.id !== id);
   },
 
   getTeams: async (params?: { search?: string; hackathonId?: string }): Promise<AdminTeamsResponse> => {
