@@ -15,9 +15,9 @@ export type OrganizerHackathon = {
     endDate: string;
     status: string;
     description: string;
-    teamSize: string;
+    teamSize?: string;
     registrationDeadline: string;
-    mode: string;
+    mode?: string;
     platform?: string;
     foundryLink?: string;
     iconType?: string;
@@ -26,6 +26,8 @@ export type OrganizerHackathon = {
     difficultyLevel?: string;
     ideationStartDate?: string;
     ideationEndDate?: string;
+    pricing: string;
+    judges?: { id: string; name: string; email: string }[];
     rules?: string[];
     criteria?: HackathonCriteriaValues[];
     prizes?: HackathonPrizeValues[];
@@ -71,38 +73,19 @@ export type OrganizerTeam = {
     status: string;
 };
 
-const MOCK_ORG_HACKATHONS: OrganizerHackathon[] = [
-    {
-        id: "h7",
-        title: "CodeSprint 2026",
-        startDate: "2026-05-21",
-        endDate: "2026-05-30",
-        status: "Open",
-        description: "CodeSprint 2026 is an elite coding competition designed for developers to showcase their creative problem-solving skills.",
-        teamSize: "1-4 Members",
-        registrationDeadline: "2026-05-20",
-        mode: "Online",
-        participantCount: "1250+",
-        problemCount: 1,
-    },
-    {
-        id: "h8",
-        title: "CloudNative Summit",
-        startDate: "2026-09-01",
-        endDate: "2026-09-03",
-        status: "UpComing",
-        description: "Cloud-native development and Kubernetes challenge for platform engineers.",
-        teamSize: "1-3 Members",
-        registrationDeadline: "2026-08-31",
-        mode: "Hybrid",
-        participantCount: "320",
-        problemCount: 0,
-    },
-];
 
-let orgHackathonsStore: OrganizerHackathon[] = [...MOCK_ORG_HACKATHONS];
+
+let orgHackathonsStore: OrganizerHackathon[] = [];
 const orgProblemsStore: Record<string, HackathonProblem[]> = {};
 const orgJudgesStore: Record<string, OrganizerJudge[]> = {};
+
+const MOCK_AVAILABLE_JUDGES: { id: string; name: string; email: string }[] = [
+    { id: "judge1", name: "Alice Johnson", email: "alice@example.com" },
+    { id: "judge2", name: "Bob Smith", email: "bob@example.com" },
+    { id: "judge3", name: "Carol White", email: "carol@example.com" },
+    { id: "judge4", name: "David Brown", email: "david@example.com" },
+    { id: "judge5", name: "Eve Davis", email: "eve@example.com" },
+];
 
 const STARTER_CODE_TEMPLATES: Record<string, string> = {
     JavaScript: `// Write your solution here\n\nfunction solution() {\n  // TODO: Implement\n}\n\nmodule.exports = solution;`,
@@ -139,17 +122,15 @@ function buildHackathonPayload(data: OrganizerCreateHackathonValues) {
     return {
         title: data.title,
         description: data.description,
-        mode: data.mode,
         platform: data.platform,
         foundryLink: data.foundryLink,
         iconType: data.iconType,
         startDate: data.startDate,
         endDate: data.endDate,
-        teamSize: data.teamSize,
         registrationsDeadline: data.registrationDeadline,
         difficultyLevel: data.difficultyLevel,
-        ideationStartDate: data.ideationStartDate,
-        ideationEndDate: data.ideationEndDate,
+        pricing: data.pricing,
+        judges: data.judges,
         rules,
         criteria: data.criteria,
         prizes: data.prizes,
@@ -167,17 +148,15 @@ function buildLocalHackathonFields(data: OrganizerCreateHackathonValues) {
     return {
         title: data.title,
         description: data.description,
-        mode: data.mode,
         platform: data.platform,
         foundryLink: data.foundryLink,
         iconType: data.iconType,
         startDate: data.startDate,
         endDate: data.endDate,
-        teamSize: data.teamSize,
         registrationDeadline: data.registrationDeadline,
         difficultyLevel: data.difficultyLevel,
-        ideationStartDate: data.ideationStartDate,
-        ideationEndDate: data.ideationEndDate,
+        pricing: data.pricing,
+        judges: data.judges,
         rules,
         criteria: data.criteria,
         prizes: data.prizes,
@@ -275,6 +254,15 @@ export const OrganizerService = {
         }
         const idx = orgHackathonsStore.findIndex(h => h.id === id);
         if (idx !== -1) orgHackathonsStore[idx] = { ...orgHackathonsStore[idx], status };
+    },
+
+    getAvailableJudges: async (): Promise<{ id: string; name: string; email: string }[]> => {
+        try {
+            const response = await api.get(`${BASE}/judges`, getAuthHeaders());
+            return response.data.judges;
+        } catch {
+            return MOCK_AVAILABLE_JUDGES;
+        }
     },
 
     getJudges: async (hackathonId: string): Promise<OrganizerJudge[]> => {
@@ -398,3 +386,4 @@ export const OrganizerService = {
         }
     },
 };
+

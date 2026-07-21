@@ -4,9 +4,9 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     ChevronLeft, Save, Loader2, Plus, X, Code2,
-    Calendar, Globe, Users, FileText, Trophy, CheckCircle2, AlertCircle,
+    Calendar, FileText, Trophy, AlertCircle,
     ListChecks, Scale, Gift, HelpCircle, Milestone, Sparkles, Trash2,
-    Cpu, Zap, Database, Settings, Cloud, Link as LinkIcon, ImagePlus,
+    Cpu, Zap, Database, Settings, Cloud, Link as LinkIcon, ImagePlus, Users,
 } from 'lucide-react';
 import {
     OrganizerCreateHackathonSchema, OrganizerCreateHackathonValues,
@@ -15,6 +15,7 @@ import {
 import { OrganizerService } from '@/services/organizer.service';
 import { AdminService } from '@/services/admin.service';
 import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 
 const SUPPORTED_LANGS = ['JavaScript', 'TypeScript', 'Python', 'Java', 'C++', 'Go', 'Rust', 'Ruby'];
 const DIFFICULTY_OPTS = ['Easy', 'Medium', 'Hard'] as const;
@@ -80,10 +81,10 @@ export default function CreateHackathon() {
     const hackathonService = isAdmin ? AdminService : OrganizerService;
 
     const [saving, setSaving] = useState(false);
-    const [saved, setSaved] = useState(false);
     const [includeProblem, setIncludeProblem] = useState(false);
     const [selectedLangs, setSelectedLangs] = useState<string[]>(['JavaScript', 'Python']);
     const [loadingEdit, setLoadingEdit] = useState(isEdit);
+    const [availableJudges, setAvailableJudges] = useState<{ id: string; name: string; email: string }[]>([]);
 
     const hackForm = useForm<OrganizerCreateHackathonValues>({
         resolver: zodResolver(OrganizerCreateHackathonSchema),
@@ -92,8 +93,8 @@ export default function CreateHackathon() {
             platform: 'Other',
             foundryLink: '',
             iconType: DEFAULT_ICON,
-            ideationStartDate: '',
-            ideationEndDate: '',
+            pricing: '',
+            judges: [],
             rulesText: '',
             criteria: [],
             prizes: [],
@@ -109,20 +110,30 @@ export default function CreateHackathon() {
 
     const {
         register: hackReg, handleSubmit: hackHS, formState: { errors: hackErr },
-        reset: hackReset, control: hackControl,
+        reset: hackReset, control: hackControl, watch: hackWatch, setValue: hackSetValue,
     } = hackForm;
     const { register: probReg, handleSubmit: probHS, formState: { errors: probErr }, setValue: probSet, watch: probWatch } = probForm;
 
     const selectedDifficulty = probWatch('difficulty');
-    const platform = hackForm.watch('platform');
+    const platform = hackWatch('platform');
     const isFoundry = platform === 'Foundry';
-    const foundryLink = hackForm.watch('foundryLink');
-    const selectedIcon = hackForm.watch('iconType') || DEFAULT_ICON;
+    const foundryLink = hackWatch('foundryLink');
+    const selectedIcon = hackWatch('iconType') || DEFAULT_ICON;
+    const selectedJudges = hackWatch('judges') || [];
 
     const criteriaArray = useFieldArray({ control: hackControl, name: 'criteria' });
     const prizesArray = useFieldArray({ control: hackControl, name: 'prizes' });
     const faqsArray = useFieldArray({ control: hackControl, name: 'faqs' });
     const timelineArray = useFieldArray({ control: hackControl, name: 'timeline' });
+
+    // Load available judges
+    useEffect(() => {
+        const loadJudges = async () => {
+            const judges = await OrganizerService.getAvailableJudges();
+            setAvailableJudges(judges);
+        };
+        loadJudges();
+    }, []);
 
     // Load existing data in edit mode
     useEffect(() => {
@@ -135,15 +146,13 @@ export default function CreateHackathon() {
                     description: data.description,
                     startDate: data.startDate,
                     endDate: data.endDate,
-                    mode: data.mode,
                     platform: (data as any).platform ?? 'Other',
                     foundryLink: (data as any).foundryLink ?? '',
                     iconType: data.iconType ?? DEFAULT_ICON,
-                    teamSize: data.teamSize,
                     registrationDeadline: data.registrationDeadline,
                     difficultyLevel: data.difficultyLevel ?? 'Intermediate',
-                    ideationStartDate: data.ideationStartDate ?? '',
-                    ideationEndDate: data.ideationEndDate ?? '',
+                    pricing: (data as any).pricing ?? '',
+                    judges: (data as any).judges ?? [],
                     rulesText: (data.rules ?? []).join('\n'),
                     criteria: data.criteria ?? [],
                     prizes: data.prizes ?? [],
@@ -161,6 +170,16 @@ export default function CreateHackathon() {
         setSelectedLangs(prev =>
             prev.includes(lang) ? prev.filter(l => l !== lang) : [...prev, lang]
         );
+    };
+
+    const toggleJudge = (judge: { id: string; name: string; email: string }) => {
+        const current = hackWatch('judges') || [];
+        const exists = current.some(j => j.id === judge.id);
+        if (exists) {
+            hackSetValue('judges', current.filter(j => j.id !== judge.id));
+        } else {
+            hackSetValue('judges', [...current, judge]);
+        }
     };
 
     const onSave = async (hackData: OrganizerCreateHackathonValues) => {
@@ -184,7 +203,13 @@ export default function CreateHackathon() {
                 })();
             }
 
-            setSaved(true);
+            toast.success(isEdit ? 'Hackathon updated successfully!' : 'Hackathon created successfully!');
+            // Navigate to the hackathons listing page on success
+            navigate(isAdmin ? '/admin/hackathons' : '/organizer/hackathons');
+        } catch (err) {
+            const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+            toast.error(message);
+            // Stay on the same page — do not navigate on error
         } finally {
             setSaving(false);
         }
@@ -193,26 +218,6 @@ export default function CreateHackathon() {
     if (loadingEdit) return (
         <div className="h-screen flex items-center justify-center">
             <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
-        </div>
-    );
-
-    if (saved) return (
-        <div className="max-w-xl mx-auto py-32 text-center space-y-6 px-6">
-            <div className="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center mx-auto">
-                <CheckCircle2 size={40} className="text-emerald-500" />
-            </div>
-            <div>
-                <h2 className="text-2xl font-extrabold text-slate-900">{isEdit ? 'Changes Saved' : 'Hackathon Created'}</h2>
-                <p className="text-slate-500 font-medium mt-2">
-                    {isEdit ? 'Your hackathon has been updated successfully.' : 'Your new hackathon is live in the system.'}
-                </p>
-            </div>
-            <button
-                onClick={() => navigate(basePath)}
-                className="px-8 py-3 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all"
-            >
-                Back to Dashboard
-            </button>
         </div>
     );
 
@@ -268,7 +273,7 @@ export default function CreateHackathon() {
                                 type="button"
                                 role="switch"
                                 aria-checked={isFoundry}
-                                onClick={() => hackForm.setValue('platform', isFoundry ? 'Other' : 'Foundry')}
+                                onClick={() => hackSetValue('platform', isFoundry ? 'Other' : 'Foundry')}
                                 className={`relative w-14 h-8 rounded-full transition-colors shrink-0 ${isFoundry ? 'bg-[#4F46E5]' : 'bg-slate-200'}`}
                             >
                                 <span
@@ -293,7 +298,7 @@ export default function CreateHackathon() {
                                 <button
                                     key={key}
                                     type="button"
-                                    onClick={() => hackForm.setValue('iconType', key)}
+                                    onClick={() => hackSetValue('iconType', key)}
                                     aria-label={key}
                                     className={`w-11 h-11 rounded-xl border-2 flex items-center justify-center transition-all ${selectedIcon === key
                                         ? 'border-[#4F46E5] bg-indigo-50 text-[#4F46E5]'
@@ -340,34 +345,62 @@ export default function CreateHackathon() {
                         </div>
                     </div>
 
-                    {/* Mode + Team Size */}
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
-                                <span className="flex items-center gap-1.5"><Globe size={11} /> Mode <span className="text-red-500">*</span></span>
-                            </label>
-                            <select {...hackReg('mode')} className={`${fieldCls(!!hackErr.mode)} cursor-pointer`}>
-                                <option value="">Select mode</option>
-                                <option value="Online">Online</option>
-                                <option value="In-Person">In-Person</option>
-                                <option value="Hybrid">Hybrid</option>
-                            </select>
-                            <ErrMsg msg={hackErr.mode?.message} />
+                    {/* Pricing */}
+                    <div>
+                        <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
+                            <span className="flex items-center gap-1.5"><Sparkles size={11} /> Pricing <span className="text-red-500">*</span></span>
+                        </label>
+                        <ErrMsg msg={hackErr.pricing?.message} />
+                        <input
+                            {...hackReg('pricing')}
+                            placeholder="e.g. $5,000 total prize pool, $1,000 for 1st place"
+                            className={fieldCls(false)}
+                        />
+                        <p className="text-[11px] font-bold text-slate-400 mt-1">Set the prize money or pricing details for the hackathon</p>
+                    </div>
+
+                    {/* Judges Multi-Select Dropdown */}
+                    <div>
+                        <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
+                            <span className="flex items-center gap-1.5"><Users size={11} /> Select Judges</span>
+                        </label>
+                        <p className="text-[11px] font-bold text-slate-400 mb-2">Choose the judges who will evaluate submissions for this hackathon.</p>
+                        <div className="flex flex-wrap gap-2">
+                            {availableJudges.map(judge => {
+                                const isSelected = selectedJudges.some(j => j.id === judge.id);
+                                return (
+                                    <button
+                                        key={judge.id}
+                                        type="button"
+                                        onClick={() => toggleJudge(judge)}
+                                        className={`px-4 py-2 rounded-xl font-extrabold text-xs border-2 transition-all ${isSelected
+                                            ? 'border-[#4F46E5] bg-indigo-50 text-[#4F46E5]'
+                                            : 'border-slate-100 text-slate-400 hover:border-slate-200'}`}
+                                    >
+                                        {judge.name}
+                                    </button>
+                                );
+                            })}
                         </div>
-                        <div>
-                            <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
-                                <span className="flex items-center gap-1.5"><Users size={11} /> Team Size <span className="text-red-500">*</span></span>
-                            </label>
-                            <select {...hackReg('teamSize')} className={`${fieldCls(!!hackErr.teamSize)} cursor-pointer`}>
-                                <option value="">Select team size</option>
-                                <option value="Solo (1)">Solo (1)</option>
-                                <option value="1-2 Members">1-2 Members</option>
-                                <option value="1-3 Members">1-3 Members</option>
-                                <option value="1-4 Members">1-4 Members</option>
-                                <option value="1-5 Members">1-5 Members</option>
-                            </select>
-                            <ErrMsg msg={hackErr.teamSize?.message} />
-                        </div>
+                        {selectedJudges.length > 0 && (
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                {selectedJudges.map(judge => (
+                                    <span
+                                        key={judge.id}
+                                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-[#4F46E5] rounded-lg font-extrabold text-xs"
+                                    >
+                                        {judge.name}
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleJudge(judge)}
+                                            className="hover:text-red-500 transition-colors"
+                                        >
+                                            <X size={12} />
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Difficulty Level */}
@@ -380,8 +413,8 @@ export default function CreateHackathon() {
                                 <button
                                     key={d}
                                     type="button"
-                                    onClick={() => hackForm.setValue('difficultyLevel', d)}
-                                    className={`flex-1 py-2.5 rounded-xl font-extrabold text-xs border-2 transition-all ${hackForm.watch('difficultyLevel') === d
+                                    onClick={() => hackSetValue('difficultyLevel', d)}
+                                    className={`flex-1 py-2.5 rounded-xl font-extrabold text-xs border-2 transition-all ${hackWatch('difficultyLevel') === d
                                         ? 'border-[#4F46E5] bg-indigo-50 text-[#4F46E5]'
                                         : 'border-slate-100 text-slate-400 hover:border-slate-200'}`}
                                 >
@@ -390,23 +423,6 @@ export default function CreateHackathon() {
                             ))}
                         </div>
                         <ErrMsg msg={hackErr.difficultyLevel?.message} />
-                    </div>
-
-                    {/* Ideation phase (optional) */}
-                    <div>
-                        <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
-                            <span className="flex items-center gap-1.5"><Sparkles size={11} /> Ideation Phase <span className="font-bold text-slate-400 normal-case tracking-normal">(optional)</span></span>
-                        </label>
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <input type="date" {...hackReg('ideationStartDate')} className={fieldCls(false)} />
-                                <p className="text-[11px] font-bold text-slate-400 mt-1">Ideation start</p>
-                            </div>
-                            <div>
-                                <input type="date" {...hackReg('ideationEndDate')} className={fieldCls(false)} />
-                                <p className="text-[11px] font-bold text-slate-400 mt-1">Ideation end</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -612,7 +628,7 @@ export default function CreateHackathon() {
                                 <p className="text-xs font-bold text-slate-400">Key events and phases participants should track</p>
                             </div>
                         </div>
-                        <AddRowBtn label="Add Milestone" onClick={() => timelineArray.append({ label: '', date: '', type: 'event', description: '' })} />
+                        <AddRowBtn label="Add Milestone" onClick={() => timelineArray.append({ date: '', description: '' })} />
                     </div>
 
                     {timelineArray.fields.length === 0 ? (
@@ -640,12 +656,6 @@ export default function CreateHackathon() {
                                                 className={fieldCls(!!hackErr.timeline?.[i]?.date)}
                                             />
                                             <ErrMsg msg={hackErr.timeline?.[i]?.date?.message} />
-                                        </div>
-                                        <div>
-                                            <select {...hackReg(`timeline.${i}.type`)} className={`${fieldCls(false)} cursor-pointer`}>
-                                                <option value="event">Event</option>
-                                                <option value="phase">Phase</option>
-                                            </select>
                                         </div>
                                         <div className="md:col-span-3">
                                             <input

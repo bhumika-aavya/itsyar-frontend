@@ -109,6 +109,9 @@ export default function HackathonDetail() {
     const isIdeationLive = !!(data as any).ideationStartDate && isDateBetween((data as any).ideationStartDate, (data as any).ideationEndDate);
     const openSandbox = () => {
         if (!isRegistered) { setIsJoinModalOpen(true); return; }
+        if (data.platform === 'foundry' && data.foundryLink) {
+            window.open(data.foundryLink, '_blank');
+        }
         navigate(`/hackathons/${id}/sandbox`, {
             state: { hackathonStatus: data.status, hackathonEndDate: data.endDate },
         });

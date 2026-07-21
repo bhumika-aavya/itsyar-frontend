@@ -182,9 +182,7 @@ export const HackathonPrizeSchema = z.object({
 });
 
 export const HackathonTimelineItemSchema = z.object({
-    label: z.string().min(1, 'Label is required'),
     date: z.string().min(1, 'Date is required'),
-    type: z.enum(['event', 'phase']).optional(),
     description: z.string().optional(),
 });
 
@@ -193,21 +191,27 @@ export type HackathonFaqValues = z.infer<typeof HackathonFaqSchema>;
 export type HackathonPrizeValues = z.infer<typeof HackathonPrizeSchema>;
 export type HackathonTimelineItemValues = z.infer<typeof HackathonTimelineItemSchema>;
 
+export const OrganizerJudgeSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    email: z.string(),
+});
+
+export type OrganizerJudgeValues = z.infer<typeof OrganizerJudgeSchema>;
+
 export const OrganizerCreateHackathonSchema = z.object({
     title: z.string().min(3, 'Title must be at least 3 characters'),
     description: z.string().min(20, 'Description must be at least 20 characters'),
     startDate: z.string().min(1, 'Start date is required'),
     endDate: z.string().min(1, 'End date is required'),
-    mode: z.string().min(1, 'Mode is required'),
     platform: z.enum(['Foundry', 'Other']),
     foundryLink: z.string().optional(),
     iconType: z.string().optional(),
-    teamSize: z.string().min(1, 'Team size is required'),
     registrationDeadline: z.string().min(1, 'Registration deadline is required'),
     difficultyLevel: z.string().min(1, 'Difficulty level is required'),
-    ideationStartDate: z.string().optional(),
-    ideationEndDate: z.string().optional(),
     rulesText: z.string().optional(),
+    pricing: z.string().min(1, 'Pricing is required'),
+    judges: z.array(OrganizerJudgeSchema).default([]),
     criteria: z.array(HackathonCriteriaSchema).default([]),
     prizes: z.array(HackathonPrizeSchema).default([]),
     faqs: z.array(HackathonFaqSchema).default([]),
