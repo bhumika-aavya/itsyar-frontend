@@ -168,7 +168,7 @@ function buildAdminHackathonPayload(data: OrganizerCreateHackathonValues) {
     iconType: data.iconType,
     startDate: data.startDate,
     endDate: data.endDate,
-    registrationsDeadline: data.registrationDeadline,
+    registrationsDeadline: data.registrationsDeadline,
     difficultyLevel: data.difficultyLevel,
     pricing: data.pricing,
     judges: data.judges,
@@ -181,7 +181,7 @@ function buildAdminHackathonPayload(data: OrganizerCreateHackathonValues) {
 }
 
 function buildLocalAdminHackathonFields(data: OrganizerCreateHackathonValues) {
-  return { ...buildAdminHackathonPayload(data), registrationDeadline: data.registrationDeadline };
+  return { ...buildAdminHackathonPayload(data), registrationsDeadline: data.registrationsDeadline };
 }
 
 // Backend User.status is stored capitalized ("Active"/"Inactive"/"Banned"); the

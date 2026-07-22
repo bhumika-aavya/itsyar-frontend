@@ -16,7 +16,7 @@ export type OrganizerHackathon = {
     status: string;
     description: string;
     teamSize?: string;
-    registrationDeadline: string;
+    registrationsDeadline: string;
     mode?: string;
     platform?: string;
     foundryLink?: string;
@@ -111,7 +111,7 @@ function problemToSummary(p: HackathonProblem): OrganizerProblemSummary {
 }
 
 // The Organizer API doc names this field "registrationsDeadline" and expects
-// rules as a plain string array — the form collects them as `registrationDeadline`
+// rules as a plain string array — the form collects them as `registrationsDeadline`
 // and a newline-per-rule textarea, so translate before hitting the wire.
 function buildHackathonPayload(data: OrganizerCreateHackathonValues) {
     const rules = data.rulesText
@@ -127,7 +127,7 @@ function buildHackathonPayload(data: OrganizerCreateHackathonValues) {
         iconType: data.iconType,
         startDate: data.startDate,
         endDate: data.endDate,
-        registrationsDeadline: data.registrationDeadline,
+        registrationsDeadline: data.registrationsDeadline,
         difficultyLevel: data.difficultyLevel,
         pricing: data.pricing,
         judges: data.judges,
@@ -153,7 +153,7 @@ function buildLocalHackathonFields(data: OrganizerCreateHackathonValues) {
         iconType: data.iconType,
         startDate: data.startDate,
         endDate: data.endDate,
-        registrationDeadline: data.registrationDeadline,
+        registrationsDeadline: data.registrationsDeadline,
         difficultyLevel: data.difficultyLevel,
         pricing: data.pricing,
         judges: data.judges,

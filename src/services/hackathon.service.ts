@@ -1,6 +1,6 @@
 import axios from "axios";
 import api from "@/lib/axios";
-import { Hackathon, HackathonDetail, Team, CreateTeamValues, HackathonProblem, SubmitSolutionValues, SubmitSolutionResponse, SaveProgressValues, SaveProgressResponse } from "@/schemas/hackathon.schema";
+import { Hackathon, HackathonDetail, Team, CreateTeamValues, HackathonProblem, SubmitSolutionValues, SubmitSolutionResponse, SaveProgressValues, SaveProgressResponse, MentorSubmission, MentorReviewValues } from "@/schemas/hackathon.schema";
 import { getAuthHeaders } from "./auth";
 import { getApiErrorMessage } from "@/lib/getApiErrorMessage";
 import { getLocalProgress, saveLocalProgress, clearLocalProgress } from "@/lib/progressStore";
@@ -15,52 +15,6 @@ const MOCK_HACKATHONS: Hackathon[] = [
     { id: "h7", title: "CodeSprint 2026", startDate: "2026-05-21", endDate: "2026-05-30", status: "Open", iconType: "trophy", iconBg: "bg-indigo-50 text-indigo-500" },
     { id: "h8", title: "CloudNative Summit", startDate: "2026-09-01", endDate: "2026-09-03", status: "UpComing", iconType: "cloud", iconBg: "bg-sky-50 text-sky-500" },
 ];
-
-const MOCK_DETAIL: HackathonDetail & { rules: string[]; prices: any[]; faqs: any[]; criteria: any[] } = {
-    id: "h7",
-    title: "Code Sprint 2026",
-    startDate: "2026-05-21",
-    endDate: "2026-05-30",
-    status: "Open",
-    description: "CodeSprint 2026 is an elite coding competition designed for developers to showcase their creative problem-solving skills and technical expertise. Join a global community of innovators to build functional prototypes in under 48 hours.",
-    teamSize: "1-4 Members",
-    registrationsDeadline: "20 May 2026",
-    mode: "Online",
-    participantCount: "1250+",
-    rules: [
-        "Teams must consist of 1-4 members.",
-        "All code must be written during the hackathon period.",
-        "Use of open-source libraries is permitted but must be disclosed.",
-        "Plagiarism will lead to immediate disqualification."
-    ],
-    prices: [
-        { rank: "1st Place", amount: "$5,000", perk: "Internship Interview at ForgeInsight" },
-        { rank: "2nd Place", amount: "$2,500", perk: "Foundry Certification Voucher" },
-        { rank: "3rd Place", amount: "$1,000", perk: "Premium Swag Kit" }
-    ],
-    faqs: [
-        { q: "Is there a registration fee?", a: "No, participation in Code Sprint 2026 is completely free." },
-        { q: "Can I participate alone?", a: "Yes, you can join as a solo participant or in a team of up to 4." },
-        { q: "What tech stack should I use?", a: "You are free to use any stack as long as it solves the problem statement." }
-    ],
-    criteria: [
-        { category: 'Innovation', weight: 30, description: 'Originality and creativity of the solution' },
-        { category: 'Technical Execution', weight: 25, description: 'Code quality, architecture, and scalability' },
-        { category: 'Impact', weight: 20, description: 'Real-world usefulness and potential for scale' },
-        { category: 'Presentation', weight: 15, description: 'Demo clarity, slide deck, and documentation quality' },
-        { category: 'Completeness', weight: 10, description: 'How fully the solution addresses the problem statement' },
-    ],
-    ideationStartDate: "2026-05-05",
-    ideationEndDate: "2026-05-15",
-    timeline: [
-        { label: "Registration Starts", date: "01 May 2026", type: "event" as const },
-        { label: "Registration Ends", date: "20 May 2026", type: "event" as const },
-        { label: "Ideation Phase", date: "05 May – 15 May 2026", type: "phase" as const, description: "Brainstorm ideas, form strategies, and prepare your approach before the hack begins." },
-        { label: "Hackathon Starts", date: "21 May 2026", type: "event" as const },
-        { label: "Hackathon Ends", date: "30 May 2026", type: "event" as const },
-        { label: "Winner Announcement", date: "02 June 2026", type: "event" as const },
-    ]
-};
 
 const MOCK_TEAMS: Team[] = [
     {
@@ -106,6 +60,143 @@ const MOCK_TEAMS: Team[] = [
 const USER_TEAMS = MOCK_TEAMS.filter(t => t.leadId === "current-user");
 
 let teamsStore = [...MOCK_TEAMS];
+
+// ── Mentor / Judge submission mock data ──────────────────────────────────────────
+const MOCK_MENTOR_SUBMISSIONS: MentorSubmission[] = [
+    {
+        submissionId: "ms1",
+        hackathonId: "h7",
+        hackathonTitle: "CodeSprint 2026",
+        participantName: "Riya Sharma",
+        participantEmail: "riya.sharma@example.com",
+        language: "Python",
+        code: `def solve(arr):\n    \"\"\"Find the maximum sum of a contiguous subarray.\"\"\"\n    max_ending_here = max_so_far = arr[0]\n    for x in arr[1:]:\n        max_ending_here = max(x, max_ending_here + x)\n        max_so_far = max(max_so_far, max_ending_here)\n    return max_so_far\n\n# Test case\nprint(solve([-2, 1, -3, 4, -1, 2, 1, -5, 4]))  # Expected: 6`,
+        notes: "Used Kadane's algorithm. Handles edge cases with negative numbers.",
+        status: "PENDING",
+        submittedAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+    },
+    {
+        submissionId: "ms2",
+        hackathonId: "h7",
+        hackathonTitle: "CodeSprint 2026",
+        participantName: "Arjun Mehta",
+        participantEmail: "arjun.mehta@example.com",
+        language: "JavaScript",
+        code: `function twoSum(nums, target) {\n    const map = new Map();\n    for (let i = 0; i < nums.length; i++) {\n        const complement = target - nums[i];\n        if (map.has(complement)) {\n            return [map.get(complement), i];\n        }\n        map.set(nums[i], i);\n    }\n    return [];\n}\n\nconsole.log(twoSum([2, 7, 11, 15], 9)); // Expected: [0, 1]`,
+        notes: "Efficient O(n) solution using hash map.",
+        status: "ACCEPTED",
+        submittedAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+        reviewNotes: "Clean code with optimal time complexity. Well done!",
+        reviewedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+    },
+    {
+        submissionId: "ms3",
+        hackathonId: "h7",
+        hackathonTitle: "CodeSprint 2026",
+        participantName: "Priya Nair",
+        participantEmail: "priya.nair@example.com",
+        language: "TypeScript",
+        code: `interface TreeNode {\n    val: number;\n    left: TreeNode | null;\n    right: TreeNode | null;\n}\n\nfunction invertTree(root: TreeNode | null): TreeNode | null {\n    if (!root) return null;\n    const temp = root.left;\n    root.left = invertTree(root.right);\n    root.right = invertTree(temp);\n    return root;\n}`,
+        notes: "Recursive solution for binary tree inversion.",
+        status: "PENDING",
+        submittedAt: new Date(Date.now() - 3600000 * 5).toISOString(),
+    },
+    {
+        submissionId: "ms4",
+        hackathonId: "h3",
+        hackathonTitle: "Web Wizards Challenge",
+        participantName: "Karan Patel",
+        participantEmail: "karan.patel@example.com",
+        language: "JavaScript",
+        code: `// React custom hook for debounced search\nimport { useState, useEffect } from 'react';\n\nexport function useDebounce<T>(value: T, delay: number): T {\n    const [debouncedValue, setDebouncedValue] = useState(value);\n\n    useEffect(() => {\n        const handler = setTimeout(() => {\n            setDebouncedValue(value);\n        }, delay);\n\n        return () => clearTimeout(handler);\n    }, [value, delay]);\n\n    return debouncedValue;\n}`,
+        notes: "Implements a generic debounce hook for React with cleanup.",
+        status: "REJECTED",
+        submittedAt: new Date(Date.now() - 86400000 * 7).toISOString(),
+        reviewNotes: "Missing error handling and TypeScript generics could be improved. Also consider adding AbortController for async operations.",
+        reviewedAt: new Date(Date.now() - 86400000 * 5).toISOString(),
+    },
+    {
+        submissionId: "ms5",
+        hackathonId: "h3",
+        hackathonTitle: "Web Wizards Challenge",
+        participantName: "Anika Roy",
+        participantEmail: "anika.roy@example.com",
+        language: "Python",
+        code: `from fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\nclass Item(BaseModel):\n    name: str\n    price: float\n    quantity: int = 1\n\nitems_db = {}\n\n@app.post("/items/")\nasync def create_item(item: Item):\n    if item.name in items_db:\n        raise HTTPException(status_code=400, detail="Item already exists")\n    items_db[item.name] = item\n    return {"message": "Item created", "item": item}`,
+        notes: "FastAPI CRUD endpoint with input validation.",
+        status: "PENDING",
+        submittedAt: new Date(Date.now() - 3600000 * 12).toISOString(),
+    },
+    {
+        submissionId: "ms6",
+        hackathonId: "h2",
+        hackathonTitle: "AI Innovate Hack",
+        participantName: "Dev Joshi",
+        participantEmail: "dev.joshi@example.com",
+        language: "Python",
+        code: `import tensorflow as tf\nfrom tensorflow import keras\n\nmodel = keras.Sequential([\n    keras.layers.Dense(128, activation='relu', input_shape=(784,)),\n    keras.layers.Dropout(0.2),\n    keras.layers.Dense(64, activation='relu'),\n    keras.layers.Dropout(0.2),\n    keras.layers.Dense(10, activation='softmax')\n])\n\nmodel.compile(\n    optimizer='adam',\n    loss='categorical_crossentropy',\n    metrics=['accuracy']\n)`,
+        notes: "Neural network for MNIST classification with dropout regularization.",
+        status: "ACCEPTED",
+        submittedAt: new Date(Date.now() - 86400000 * 14).toISOString(),
+        reviewNotes: "Excellent model architecture with proper regularization. Good use of dropout layers to prevent overfitting.",
+        reviewedAt: new Date(Date.now() - 86400000 * 10).toISOString(),
+    },
+    {
+        submissionId: "ms7",
+        hackathonId: "h5",
+        hackathonTitle: "InnovateX",
+        participantName: "Maya Singh",
+        participantEmail: "maya.singh@example.com",
+        language: "Go",
+        code: `package main\n\nimport (\n    "fmt"\n    "net/http"\n    "sync"\n)\n\nvar (\n    counter int\n    mu      sync.Mutex\n)\n\nfunc handler(w http.ResponseWriter, r *http.Request) {\n    mu.Lock()\n    counter++\n    count := counter\n    mu.Unlock()\n    fmt.Fprintf(w, "Request count: %d", count)\n}\n\nfunc main() {\n    http.HandleFunc("/", handler)\n    http.ListenAndServe(":8080", nil)\n}`,
+        notes: "Concurrent-safe request counter using mutex.",
+        status: "PENDING",
+        submittedAt: new Date(Date.now() - 3600000 * 8).toISOString(),
+    },
+    {
+        submissionId: "ms8",
+        hackathonId: "h5",
+        hackathonTitle: "InnovateX",
+        participantName: "Rohit Verma",
+        participantEmail: "rohit.verma@example.com",
+        language: "Rust",
+        code: `fn fibonacci(n: u32) -> u64 {\n    match n {\n        0 => 0,\n        1 => 1,\n        _ => fibonacci(n - 1) + fibonacci(n - 2),\n    }\n}\n\nfn fibonacci_memo(n: u32) -> u64 {\n    let mut memo = vec![0u64; (n + 1) as usize];\n    memo[1] = 1;\n    for i in 2..=n as usize {\n        memo[i] = memo[i - 1] + memo[i - 2];\n    }\n    memo[n as usize]\n}\n\nfn main() {\n    println!("{}", fibonacci_memo(40));\n}`,
+        notes: "Both recursive and memoized Fibonacci implementations.",
+        status: "REJECTED",
+        submittedAt: new Date(Date.now() - 86400000 * 4).toISOString(),
+        reviewNotes: "Recursive solution has O(2^n) complexity. Memoized version is good but lacks input validation and error handling for edge cases like overflow.",
+        reviewedAt: new Date(Date.now() - 86400000 * 3).toISOString(),
+    },
+    {
+        submissionId: "ms9",
+        hackathonId: "h1",
+        hackathonTitle: "CodeSprint 2024",
+        participantName: "Neha Gupta",
+        participantEmail: "neha.gupta@example.com",
+        language: "Java",
+        code: `import java.util.*;\n\npublic class LRUCache {\n    private final int capacity;\n    private final LinkedHashMap<Integer, Integer> cache;\n\n    public LRUCache(int capacity) {\n        this.capacity = capacity;\n        this.cache = new LinkedHashMap<>(capacity, 0.75f, true) {\n            protected boolean removeEldestEntry(Map.Entry eldest) {\n                return size() > capacity;\n            }\n        };\n    }\n\n    public int get(int key) {\n        return cache.getOrDefault(key, -1);\n    }\n\n    public void put(int key, int value) {\n        cache.put(key, value);\n    }\n}`,
+        notes: "LRU Cache implementation using LinkedHashMap with access-order ordering.",
+        status: "PENDING",
+        submittedAt: new Date(Date.now() - 3600000 * 48).toISOString(),
+    },
+    {
+        submissionId: "ms10",
+        hackathonId: "h1",
+        hackathonTitle: "CodeSprint 2024",
+        participantName: "Amit Bose",
+        participantEmail: "amit.bose@example.com",
+        language: "C++",
+        code: `#include <vector>\n#include <algorithm>\n\nclass Solution {\npublic:\n    int lengthOfLIS(std::vector<int>& nums) {\n        std::vector<int> tails;\n        for (int num : nums) {\n            auto it = std::lower_bound(tails.begin(), tails.end(), num);\n            if (it == tails.end()) {\n                tails.push_back(num);\n            } else {\n                *it = num;\n            }\n        }\n        return tails.size();\n    }\n};`,
+        notes: "Longest Increasing Subsequence using patience sorting O(n log n).",
+        status: "ACCEPTED",
+        submittedAt: new Date(Date.now() - 86400000 * 30).toISOString(),
+        reviewNotes: "Elegant O(n log n) solution. Code is clean and well-structured.",
+        reviewedAt: new Date(Date.now() - 86400000 * 25).toISOString(),
+    },
+];
+
+// In-memory mutable store so reviews persist during the session
+let mentorSubmissionsStore = [...MOCK_MENTOR_SUBMISSIONS];
 
 export const HackathonService = {
     getHackathons: async (): Promise<Hackathon[]> => {
@@ -342,6 +433,52 @@ export const HackathonService = {
             return response.data?.message ?? null;
         } catch {
             return null;
+        }
+    },
+
+    // ── Mentor / Judge submission endpoints ──────────────────────────────────
+
+    /** Get all submissions assigned to this mentor/judge for review. */
+    getMentorSubmissions: async (): Promise<MentorSubmission[]> => {
+        try {
+            const response = await api.get("/mentor/submissions", getAuthHeaders());
+            return response.data.submissions;
+        } catch {
+            console.warn("API Error: Falling back to mock mentor submissions");
+            return mentorSubmissionsStore;
+        }
+    },
+
+    /** Get a single submission by its ID for detailed review. */
+    getSubmissionById: async (submissionId: string): Promise<MentorSubmission> => {
+        try {
+            const response = await api.get(`/mentor/submissions/${submissionId}`, getAuthHeaders());
+            return response.data.submission;
+        } catch {
+            console.warn("API Error: Falling back to mock submission lookup");
+            const submission = mentorSubmissionsStore.find(s => s.submissionId === submissionId);
+            if (!submission) throw new Error("Submission not found");
+            return submission;
+        }
+    },
+
+    /** Submit a mentor review (accept/reject with feedback). */
+    reviewSubmission: async (submissionId: string, data: MentorReviewValues): Promise<{ success: boolean }> => {
+        try {
+            const response = await api.post(`/mentor/submissions/${submissionId}/review`, data, getAuthHeaders());
+            return response.data;
+        } catch {
+            console.warn("API Error: Simulating mentor review submission");
+            const index = mentorSubmissionsStore.findIndex(s => s.submissionId === submissionId);
+            if (index !== -1) {
+                mentorSubmissionsStore[index] = {
+                    ...mentorSubmissionsStore[index],
+                    status: data.status,
+                    reviewNotes: data.reviewNotes,
+                    reviewedAt: new Date().toISOString(),
+                };
+            }
+            return { success: true };
         }
     },
 };

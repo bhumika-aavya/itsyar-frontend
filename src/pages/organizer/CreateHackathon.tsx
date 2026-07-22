@@ -90,7 +90,7 @@ export default function CreateHackathon() {
         resolver: zodResolver(OrganizerCreateHackathonSchema),
         defaultValues: {
             difficultyLevel: 'Intermediate',
-            platform: 'Other',
+            platform: 'standard',
             foundryLink: '',
             iconType: DEFAULT_ICON,
             pricing: '',
@@ -116,7 +116,7 @@ export default function CreateHackathon() {
 
     const selectedDifficulty = probWatch('difficulty');
     const platform = hackWatch('platform');
-    const isFoundry = platform === 'Foundry';
+    const isFoundry = platform === 'foundry';
     const foundryLink = hackWatch('foundryLink');
     const selectedIcon = hackWatch('iconType') || DEFAULT_ICON;
     const selectedJudges = hackWatch('judges') || [];
@@ -146,10 +146,10 @@ export default function CreateHackathon() {
                     description: data.description,
                     startDate: data.startDate,
                     endDate: data.endDate,
-                    platform: (data as any).platform ?? 'Other',
+                    platform: (data as any).platform ?? 'standard',
                     foundryLink: (data as any).foundryLink ?? '',
                     iconType: data.iconType ?? DEFAULT_ICON,
-                    registrationDeadline: data.registrationDeadline,
+                    registrationsDeadline: data.registrationsDeadline,
                     difficultyLevel: data.difficultyLevel ?? 'Intermediate',
                     pricing: (data as any).pricing ?? '',
                     judges: (data as any).judges ?? [],
@@ -273,7 +273,7 @@ export default function CreateHackathon() {
                                 type="button"
                                 role="switch"
                                 aria-checked={isFoundry}
-                                onClick={() => hackSetValue('platform', isFoundry ? 'Other' : 'Foundry')}
+                                onClick={() => hackSetValue('platform', isFoundry ? 'standard' : 'foundry')}
                                 className={`relative w-14 h-8 rounded-full transition-colors shrink-0 ${isFoundry ? 'bg-[#4F46E5]' : 'bg-slate-200'}`}
                             >
                                 <span
@@ -340,8 +340,8 @@ export default function CreateHackathon() {
                         </div>
                         <div>
                             <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">Registration Deadline <span className="text-red-500">*</span></label>
-                            <input type="date" {...hackReg('registrationDeadline')} className={fieldCls(!!hackErr.registrationDeadline)} />
-                            <ErrMsg msg={hackErr.registrationDeadline?.message} />
+                            <input type="date" {...hackReg('registrationsDeadline')} className={fieldCls(!!hackErr.registrationsDeadline)} />
+                            <ErrMsg msg={hackErr.registrationsDeadline?.message} />
                         </div>
                     </div>
 

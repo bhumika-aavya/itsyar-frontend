@@ -13,7 +13,7 @@ import { useCourseCompletionGate } from '@/hooks/useCourseCompletionGate';
 import Timeline from './HackathonTimeline';
 import HackathonJoinModal from './HackathonJoinModal';
 import HackathonTeamsPanel from './HackathonTeamsPanel';
-type Tab = 'Overview' | 'Rules' | 'Timeline' | 'Judging' | 'Prices' | 'FAQs' | 'Teams';
+type Tab = 'Overview' | 'Rules' | 'Timeline' | 'Judging' | 'Prizes' | 'FAQs' | 'Teams';
 
 const canJoin = (status: string) => status === 'Open' || status === 'Running';
 
@@ -129,7 +129,7 @@ export default function HackathonDetail() {
         status: data.status,
     };
 
-    const tabs: Tab[] = ['Overview', 'Rules', 'Timeline', 'Judging', 'Prices', 'FAQs', 'Teams'];
+    const tabs: Tab[] = ['Overview', 'Rules', 'Timeline', 'Judging', 'Prizes', 'FAQs', 'Teams'];
 
     return (
         <>
@@ -334,7 +334,7 @@ export default function HackathonDetail() {
                                 </div>
                             )}
 
-                            {activeTab === 'Prices' && (
+                            {activeTab === 'Prizes' && (
                                 <div className="grid md:grid-cols-3 gap-6 animate-in slide-in-from-bottom-2 duration-300">
                                     {(data as any)?.prizes?.map((price: any, i: number) => (
                                         <div key={i} className="p-8 bg-white border border-slate-100 rounded-[32px] shadow-lg text-center relative overflow-hidden group">
