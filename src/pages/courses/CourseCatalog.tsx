@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Book, Code, Layout, Database, Loader2 } from 'lucide-react';
+import { Book, Code, Layout, Database, Loader2, Lock, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { CourseService } from '@/services/course.service';
 import { Course, MyCourse } from '@/schemas/course.schema';
+import { PaymentService } from '@/services/payment.service';
 
 // 1. Icon Mapper for "Continue Learning" section
 const iconMap: Record<string, React.ElementType> = {
@@ -23,7 +24,7 @@ const ContinueCard = ({ data }: { data: MyCourse }) => {
   const navigate = useNavigate();
 
   return (
-    <div onClick={() => navigate(`/courses/${data.id}/lessons/${data.moduleId}`)} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow group cursor-pointer text-left">
+    <div onClick={() => navigate(`/courses/${data.id}`)} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow group cursor-pointer text-left">
       <div className={`${colors} w-12 h-12 rounded-2xl flex items-center justify-center mb-6`}>
         <Icon size={24} />
       </div>
@@ -47,11 +48,12 @@ const ContinueCard = ({ data }: { data: MyCourse }) => {
 
 const CourseGridCard = ({ data }: { data: Course }) => {
   const navigate = useNavigate();
+  const isPurchased = PaymentService.isCoursePurchased(data.id);
 
   return (
     <div
       onClick={() => navigate(`/courses/${data.id}`)}
-      className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden hover:shadow-lg transition-all group flex flex-col cursor-pointer text-left"
+      className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden hover:shadow-lg transition-all group flex flex-col cursor-pointer text-left relative"
     >
       <div className="h-48 overflow-hidden relative">
         {data.badge && (
@@ -59,6 +61,14 @@ const CourseGridCard = ({ data }: { data: Course }) => {
             {data.badge}
           </span>
         )}
+        {/* Lock indicator for unpaid courses */}
+        {isPurchased ? (
+          <div className="absolute top-4 right-4 bg-emerald-500 text-white px-2.5 py-1 text-[10px] font-extrabold rounded-lg z-10 flex items-center gap-1 shadow-md">
+            <CheckCircle size={10} /> Lifetime Access
+          </div>
+        ) : <div className="absolute top-4 right-4 bg-slate-900/60 backdrop-blur-sm text-white p-2 rounded-xl z-10 flex items-center justify-center">
+          <Lock size={14} className="text-white" />
+        </div>}
         <img src={`${import.meta.env.VITE_IMAGE_URL}${data?.image}`} alt={data.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
       </div>
       <div className="p-6 flex flex-col flex-1">
@@ -76,7 +86,9 @@ const CourseGridCard = ({ data }: { data: Course }) => {
             </div>
             <span className="text-[11px] font-bold text-slate-500">by {data.instructor}</span>
           </div>
-          <button className="text-[11px] font-bold text-[#4F46E5] hover:underline">View Details →</button>
+          <button className="text-[11px] font-extrabold text-[#4F46E5] hover:underline">
+            {isPurchased ? "Continue Learning →" : "Unlock Course →"}
+          </button>
         </div>
       </div>
     </div>

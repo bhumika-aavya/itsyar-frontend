@@ -45,6 +45,13 @@ const TeamInvitesPage = lazy(() => import("@/pages/teams/TeamInvitesPage"));
 const LeaderboardPage = lazy(() => import("@/pages/leaderboard/LeaderboardPage"));
 const ProfilePage = lazy(() => import("@/pages/profile/ProfilePage"));
 
+// Payment pages
+const HackathonPaymentPage = lazy(() => import("@/pages/payments/HackathonPaymentPage"));
+const CourseCheckoutPage = lazy(() => import("@/pages/payments/CourseCheckoutPage"));
+const PaymentSuccessPage = lazy(() => import("@/pages/payments/PaymentSuccessPage"));
+const PaymentFailedPage = lazy(() => import("@/pages/payments/PaymentFailedPage"));
+const PaymentHistoryPage = lazy(() => import("@/pages/payments/PaymentHistoryPage"));
+
 // Organizer pages (CreateHackathon is shared with the Admin hackathon-create/edit flow)
 const OrganizerDashboard = lazy(() => import("@/pages/organizer/OrganizerDashboard"));
 const CreateHackathon = lazy(() => import("@/pages/organizer/CreateHackathon"));
@@ -103,6 +110,12 @@ export default function AppRoutes() {
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/change-password" element={<ChangePasswordPage />} />
+            {/* Payment routes */}
+            <Route path="/payments/hackathon/:id" element={<HackathonPaymentPage />} />
+            <Route path="/payments/course/:courseId" element={<CourseCheckoutPage />} />
+            <Route path="/payments/success" element={<PaymentSuccessPage />} />
+            <Route path="/payments/failed" element={<PaymentFailedPage />} />
+            <Route path="/payments/history" element={<PaymentHistoryPage />} />
           </Route>
         </Route>
 

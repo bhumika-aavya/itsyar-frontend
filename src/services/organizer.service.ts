@@ -75,7 +75,56 @@ export type OrganizerTeam = {
 
 
 
-let orgHackathonsStore: OrganizerHackathon[] = [];
+const LS_KEY_HACKATHONS = 'forge_hackathons';
+
+const DEFAULT_HACKATHONS: OrganizerHackathon[] = [
+    { id: "h1", title: "CodeSprint 2024", startDate: "2024-05-21", endDate: "2024-05-23", status: "COMPLETED", iconType: "trophy", participantCount: "128", problemCount: 3, description: "Annual coding championship.", registrationsDeadline: "2024-05-20", pricing: "0" },
+    { id: "h2", title: "AI Innovate Hack", startDate: "2025-06-16", endDate: "2025-06-18", status: "COMPLETED", iconType: "cpu", participantCount: "64", problemCount: 2, description: "Build state-of-the-art AI applications.", registrationsDeadline: "2025-06-15", pricing: "0" },
+    { id: "h3", title: "Web Wizards Challenge", startDate: "2025-07-21", endDate: "2025-07-23", status: "Running", iconType: "zap", participantCount: "256", problemCount: 4, description: "Fast-paced web design hackathon.", registrationsDeadline: "2025-07-20", pricing: "0" },
+    { id: "h4", title: "BlockBuilders", startDate: "2025-08-25", endDate: "2025-08-27", status: "Open", iconType: "database", participantCount: "42", problemCount: 1, description: "Web3 and smart contract building.", registrationsDeadline: "2025-08-24", pricing: "0" },
+    { id: "h5", title: "InnovateX", startDate: "2025-11-06", endDate: "2025-11-08", status: "Running", iconType: "settings", participantCount: "95", problemCount: 3, description: "Hardware and software integration.", registrationsDeadline: "2025-11-05", pricing: "0" },
+    { id: "h6", title: "AI Innova Challenge", startDate: "2026-01-10", endDate: "2026-01-12", status: "COMPLETED", iconType: "cpu", participantCount: "110", problemCount: 5, description: "Solve real-world challenges using NLP.", registrationsDeadline: "2026-01-09", pricing: "0" },
+    { id: "h7", title: "CodeSprint 2026", startDate: "2026-05-21", endDate: "2026-05-30", status: "Open", iconType: "trophy", participantCount: "87", problemCount: 2, description: "The premier competitive coding event.", registrationsDeadline: "2026-05-20", pricing: "49.99" },
+    { id: "h8", title: "CloudNative Summit", startDate: "2026-09-01", endDate: "2026-09-03", status: "UpComing", iconType: "cloud", participantCount: "0", problemCount: 0, description: "Kubernetes and serverless architectures.", registrationsDeadline: "2026-08-30", pricing: "49.99" },
+    { id: "h9", title: "NextGen Fintech Hackathon", startDate: "2026-10-15", endDate: "2026-10-20", status: "Draft", iconType: "zap", participantCount: "0", problemCount: 0, description: "Build the future of digital banking and Web3 payments. Review this hackathon to approve it and set a listing price.", registrationsDeadline: "2026-10-10", pricing: "0" },
+    { id: "h10", title: "Web3 Security Hackathon", startDate: "2026-11-01", endDate: "2026-11-05", status: "Approved", iconType: "database", participantCount: "0", problemCount: 0, description: "Identify and exploit smart contract vulnerabilities in a sandboxed testnet environment.", registrationsDeadline: "2026-10-28", pricing: "49.99" },
+    { id: "h11", title: "AI Agents Challenge", startDate: "2026-12-05", endDate: "2026-12-10", status: "Paid", iconType: "cpu", participantCount: "0", problemCount: 0, description: "Build autonomous LLM agents capable of coordinating and negotiating over payments.", registrationsDeadline: "2026-12-01", pricing: "79.99" },
+];
+
+export function loadHackathons(): OrganizerHackathon[] {
+    try {
+        const raw = localStorage.getItem(LS_KEY_HACKATHONS);
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            let updated = false;
+            const pendingIds = ["h9", "h10", "h11"];
+            pendingIds.forEach(id => {
+                if (!parsed.some((h: any) => h.id === id)) {
+                    const item = DEFAULT_HACKATHONS.find(h => h.id === id);
+                    if (item) {
+                        parsed.push(item);
+                        updated = true;
+                    }
+                }
+            });
+            if (updated) {
+                localStorage.setItem(LS_KEY_HACKATHONS, JSON.stringify(parsed));
+            }
+            return parsed;
+        }
+    } catch { }
+    try {
+        localStorage.setItem(LS_KEY_HACKATHONS, JSON.stringify(DEFAULT_HACKATHONS));
+    } catch { }
+    return DEFAULT_HACKATHONS;
+}
+
+export function saveHackathons(list: OrganizerHackathon[]) {
+    try {
+        localStorage.setItem(LS_KEY_HACKATHONS, JSON.stringify(list));
+    } catch { }
+}
+
 const orgProblemsStore: Record<string, HackathonProblem[]> = {};
 const orgJudgesStore: Record<string, OrganizerJudge[]> = {};
 
@@ -194,9 +243,19 @@ export const OrganizerService = {
     getMyHackathons: async (): Promise<OrganizerHackathon[]> => {
         try {
             const response = await api.get(`${BASE}/hackathons`, getAuthHeaders());
-            return response.data.hackathons;
+            const apiData = response.data.hackathons ?? [];
+            const localData = loadHackathons();
+            const apiIds = new Set(apiData.map((h: any) => h.id));
+
+            // Filter local storage to only keep drafts, payment-required, or paid hackathons
+            const localPendingOrSpecial = localData.filter(
+                h => !apiIds.has(h.id) || h.status === "Draft" || h.status === "Approved" || h.status === "Paid"
+            );
+
+            // Merge lists putting the special/pending ones first
+            return [...localPendingOrSpecial, ...apiData.filter((h: any) => !localPendingOrSpecial.some(lh => lh.id === h.id))];
         } catch {
-            return orgHackathonsStore;
+            return loadHackathons();
         }
     },
 
@@ -205,7 +264,7 @@ export const OrganizerService = {
             const response = await api.get(`${BASE}/hackathons/${id}`, getAuthHeaders());
             return response.data.hackathon;
         } catch {
-            return orgHackathonsStore.find(h => h.id === id) ?? null;
+            return loadHackathons().find(h => h.id === id) ?? null;
         }
     },
 
@@ -217,11 +276,12 @@ export const OrganizerService = {
             const newHackathon: OrganizerHackathon = {
                 id: `h${Date.now()}`,
                 ...buildLocalHackathonFields(data),
-                status: "UpComing",
+                status: "Draft",
                 participantCount: "0",
                 problemCount: 0,
             };
-            orgHackathonsStore = [newHackathon, ...orgHackathonsStore];
+            const list = loadHackathons();
+            saveHackathons([newHackathon, ...list]);
             return newHackathon;
         }
     },
@@ -232,9 +292,14 @@ export const OrganizerService = {
         } catch {
             // fall through to local store update below
         }
-        const idx = orgHackathonsStore.findIndex(h => h.id === id);
-        if (idx !== -1) orgHackathonsStore[idx] = { ...orgHackathonsStore[idx], ...buildLocalHackathonFields(data) };
-        return orgHackathonsStore[idx];
+        const list = loadHackathons();
+        const idx = list.findIndex(h => h.id === id);
+        if (idx !== -1) {
+            list[idx] = { ...list[idx], ...buildLocalHackathonFields(data), status: "Draft" };
+            saveHackathons(list);
+            return list[idx];
+        }
+        return list[idx];
     },
 
     deleteHackathon: async (id: string): Promise<void> => {
@@ -243,7 +308,8 @@ export const OrganizerService = {
         } catch {
             // fall through to local store update below
         }
-        orgHackathonsStore = orgHackathonsStore.filter(h => h.id !== id);
+        const list = loadHackathons();
+        saveHackathons(list.filter(h => h.id !== id));
     },
 
     updateHackathonStatus: async (id: string, status: HackathonLifecycleStatus): Promise<void> => {
@@ -252,8 +318,12 @@ export const OrganizerService = {
         } catch {
             // fall through to local store update below
         }
-        const idx = orgHackathonsStore.findIndex(h => h.id === id);
-        if (idx !== -1) orgHackathonsStore[idx] = { ...orgHackathonsStore[idx], status };
+        const list = loadHackathons();
+        const idx = list.findIndex(h => h.id === id);
+        if (idx !== -1) {
+            list[idx] = { ...list[idx], status };
+            saveHackathons(list);
+        }
     },
 
     getAvailableJudges: async (): Promise<{ id: string; name: string; email: string }[]> => {
@@ -325,8 +395,12 @@ export const OrganizerService = {
         } catch {
             const problem = buildProblemFromForm(hackathonId, `p${Date.now()}`, data);
             orgProblemsStore[hackathonId] = [...(orgProblemsStore[hackathonId] ?? []), problem];
-            const idx = orgHackathonsStore.findIndex(h => h.id === hackathonId);
-            if (idx !== -1) orgHackathonsStore[idx].problemCount = orgProblemsStore[hackathonId].length;
+            const list = loadHackathons();
+            const idx = list.findIndex(h => h.id === hackathonId);
+            if (idx !== -1) {
+                list[idx].problemCount = orgProblemsStore[hackathonId].length;
+                saveHackathons(list);
+            }
             return problem;
         }
     },

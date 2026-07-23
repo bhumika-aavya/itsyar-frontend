@@ -1,7 +1,7 @@
 import api from "@/lib/axios";
 import { getAuthHeaders } from "./auth";
 import { OrganizerCreateHackathonValues } from "@/schemas/hackathon.schema";
-import type { OrganizerHackathon } from "./organizer.service";
+import { OrganizerHackathon, loadHackathons, saveHackathons } from "./organizer.service";
 
 export interface AdminUser {
   id: string;
@@ -152,7 +152,7 @@ const MOCK_SETTINGS: PlatformSettings = {
 // higher-privilege endpoint from the organizer's own /admin/organizer/hackathons.
 // Keep a small local store so create/edit still works if the backend route
 // isn't live yet, matching the fallback pattern used elsewhere in this file.
-let adminHackathonsStore: OrganizerHackathon[] = [];
+// Shared mock storage is loaded dynamically using loadHackathons/saveHackathons
 
 function buildAdminHackathonPayload(data: OrganizerCreateHackathonValues) {
   const rules = data.rulesText
@@ -327,7 +327,16 @@ export const AdminService = {
       const res = await api.get("/admin/hackathons", { ...getAuthHeaders(), params });
       return res.data?.hackathons ?? [];
     } catch {
-      return [];
+      const list = loadHackathons();
+      return list.map(h => ({
+        id: h.id,
+        title: h.title,
+        mode: h.mode ?? "standard",
+        startDate: h.startDate,
+        endDate: h.endDate,
+        status: h.status,
+        participants: h.participantCount,
+      })) as any;
     }
   },
 
@@ -336,7 +345,7 @@ export const AdminService = {
       const res = await api.get(`/admin/hackathons/${id}`, getAuthHeaders());
       return res.data.hackathon;
     } catch {
-      return adminHackathonsStore.find(h => h.id === id) ?? null;
+      return loadHackathons().find(h => h.id === id) ?? null;
     }
   },
 
@@ -348,11 +357,12 @@ export const AdminService = {
       const newHackathon: OrganizerHackathon = {
         id: `h${Date.now()}`,
         ...buildLocalAdminHackathonFields(data),
-        status: "UpComing",
+        status: "Open", // Admin can create and publish directly
         participantCount: "0",
         problemCount: 0,
       };
-      adminHackathonsStore = [newHackathon, ...adminHackathonsStore];
+      const list = loadHackathons();
+      saveHackathons([newHackathon, ...list]);
       return newHackathon;
     }
   },
@@ -363,9 +373,15 @@ export const AdminService = {
     } catch {
       // fall through to local store update below
     }
-    const idx = adminHackathonsStore.findIndex(h => h.id === id);
-    if (idx !== -1) adminHackathonsStore[idx] = { ...adminHackathonsStore[idx], ...buildLocalAdminHackathonFields(data) };
-    return adminHackathonsStore[idx] ?? { id, ...buildLocalAdminHackathonFields(data), status: "UpComing", participantCount: "0", problemCount: 0 };
+    const list = loadHackathons();
+    const idx = list.findIndex(h => h.id === id);
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], ...buildLocalAdminHackathonFields(data) };
+      saveHackathons(list);
+      return list[idx];
+    }
+    const fallback = { id, ...buildLocalAdminHackathonFields(data), status: "Open", participantCount: "0", problemCount: 0 };
+    return fallback;
   },
 
   deleteHackathon: async (id: string): Promise<void> => {
@@ -374,7 +390,8 @@ export const AdminService = {
     } catch {
       // mock no-op
     }
-    adminHackathonsStore = adminHackathonsStore.filter(h => h.id !== id);
+    const list = loadHackathons();
+    saveHackathons(list.filter(h => h.id !== id));
   },
 
   getTeams: async (params?: { search?: string; hackathonId?: string }): Promise<AdminTeamsResponse> => {
@@ -411,6 +428,36 @@ export const AdminService = {
       await api.put("/admin/settings", settings, getAuthHeaders());
     } catch {
       // mock: no-op
+    }
+  },
+
+  approveHackathon: async (id: string, pricing: string): Promise<void> => {
+    try {
+      await api.post(`/admin/hackathons/${id}/approve`, { pricing }, getAuthHeaders());
+    } catch {
+      console.warn("API Error: Falling back to mock hackathon approval");
+    }
+    // Update local storage status
+    const list = loadHackathons();
+    const idx = list.findIndex(h => h.id === id);
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], status: "Approved", pricing };
+      saveHackathons(list);
+    }
+  },
+
+  rejectHackathon: async (id: string): Promise<void> => {
+    try {
+      await api.post(`/admin/hackathons/${id}/reject`, {}, getAuthHeaders());
+    } catch {
+      console.warn("API Error: Falling back to mock hackathon rejection");
+    }
+    // Update local storage status
+    const list = loadHackathons();
+    const idx = list.findIndex(h => h.id === id);
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], status: "Draft" };
+      saveHackathons(list);
     }
   },
 };

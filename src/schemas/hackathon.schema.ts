@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const HackathonStatusSchema = z.enum(["Open", "Running", "COMPLETED", "UpComing"]);
+export const HackathonStatusSchema = z.string();
 
 export const HackathonSchema = z.object({
     id: z.string(),

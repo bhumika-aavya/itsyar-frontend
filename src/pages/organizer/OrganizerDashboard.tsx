@@ -2,30 +2,58 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Plus, Edit2, Eye, Trash2, Loader2, Calendar, Users,
-    Globe, ChevronRight, Trophy, Clock, CheckCircle2, Zap
+    Globe, ChevronRight, Trophy, Clock, CheckCircle2, Zap,
+    DollarSign, Send
 } from 'lucide-react';
 import { OrganizerService, OrganizerHackathon } from '@/services/organizer.service';
+import { PaymentService } from '@/services/payment.service';
+import SubscriptionStatus from '@/components/payments/SubscriptionStatus';
+import { PaymentStatus } from '@/types/payment.types';
+import { toast } from 'sonner';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; dot: string }> = {
-    Open:      { label: 'Open',      color: 'bg-emerald-50 text-emerald-600', dot: 'bg-emerald-400' },
-    Running:   { label: 'Running',   color: 'bg-blue-50 text-blue-600',       dot: 'bg-blue-400' },
-    UpComing:  { label: 'Upcoming',  color: 'bg-amber-50 text-amber-600',     dot: 'bg-amber-400' },
-    COMPLETED: { label: 'Completed', color: 'bg-slate-100 text-slate-500',    dot: 'bg-slate-400' },
+    Open: { label: 'Open', color: 'bg-emerald-50 text-emerald-600', dot: 'bg-emerald-400' },
+    Running: { label: 'Running', color: 'bg-blue-50 text-blue-600', dot: 'bg-blue-400' },
+    UpComing: { label: 'Upcoming', color: 'bg-amber-50 text-amber-600', dot: 'bg-amber-400' },
+    COMPLETED: { label: 'Completed', color: 'bg-slate-100 text-slate-500', dot: 'bg-slate-400' },
+    Draft: { label: 'Draft', color: 'bg-slate-100 text-slate-500', dot: 'bg-slate-400' },
+    'Approved': { label: 'Payment Required', color: 'bg-red-50 text-red-600', dot: 'bg-red-400' },
+    Paid: { label: 'Paid', color: 'bg-indigo-50 text-[#4F46E5]', dot: 'bg-indigo-400' },
 };
 
 const formatDate = (d: string) =>
     new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
+/** Extended hackathon type with payment info for the dashboard display. */
+interface HackathonWithPayment extends OrganizerHackathon {
+    paymentStatus?: PaymentStatus;
+    isPublished?: boolean;
+    publishLoading?: boolean;
+    purchaseLoading?: boolean;
+}
+
 export default function OrganizerDashboard() {
     const navigate = useNavigate();
-    const [hackathons, setHackathons] = useState<OrganizerHackathon[]>([]);
+    const [hackathons, setHackathons] = useState<HackathonWithPayment[]>([]);
     const [loading, setLoading] = useState(true);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [publishingId, setPublishingId] = useState<string | null>(null);
 
     const load = async () => {
         setLoading(true);
         const data = await OrganizerService.getMyHackathons();
-        setHackathons(data);
+
+        // Enrich with payment info from the PaymentService
+        const enriched: HackathonWithPayment[] = data.map((h) => {
+            const isPaid = PaymentService.isHackathonPaid(h.id) || h.status === 'Paid' || h.status === 'Open' || h.status === 'Running' || h.status === 'UpComing' || h.status === 'COMPLETED';
+            return {
+                ...h,
+                paymentStatus: isPaid ? 'completed' : undefined,
+                isPublished: h.status === 'Open' || h.status === 'Running' || h.status === 'UpComing' || h.status === 'COMPLETED',
+            };
+        });
+
+        setHackathons(enriched);
         setLoading(false);
     };
 
@@ -39,6 +67,31 @@ export default function OrganizerDashboard() {
         setDeletingId(null);
     };
 
+    const handlePurchase = (hackathonId: string) => {
+        navigate(`/payments/hackathon/${hackathonId}`);
+    };
+
+    const handlePublish = async (hackathonId: string) => {
+        setPublishingId(hackathonId);
+        try {
+            const success = await PaymentService.publishHackathon(hackathonId);
+            if (success) {
+                setHackathons(prev =>
+                    prev.map(h =>
+                        h.id === hackathonId
+                            ? { ...h, isPublished: true, paymentStatus: 'completed', status: 'Open' }
+                            : h
+                    )
+                );
+                toast.success("Hackathon published successfully!");
+            }
+        } catch (err) {
+            console.error('Failed to publish hackathon', err);
+        } finally {
+            setPublishingId(null);
+        }
+    };
+
     const counts = {
         total: hackathons.length,
         active: hackathons.filter(h => h.status === 'Running' || h.status === 'Open').length,
@@ -47,10 +100,10 @@ export default function OrganizerDashboard() {
     };
 
     const stats = [
-        { label: 'Total',     value: counts.total,     Icon: Trophy,        bg: 'bg-indigo-50',  color: 'text-[#4F46E5]' },
-        { label: 'Active',    value: counts.active,    Icon: Zap,           bg: 'bg-emerald-50', color: 'text-emerald-600' },
-        { label: 'Upcoming',  value: counts.upcoming,  Icon: Clock,         bg: 'bg-amber-50',   color: 'text-amber-600' },
-        { label: 'Completed', value: counts.completed, Icon: CheckCircle2,  bg: 'bg-slate-50',   color: 'text-slate-500' },
+        { label: 'Total', value: counts.total, Icon: Trophy, bg: 'bg-indigo-50', color: 'text-[#4F46E5]' },
+        { label: 'Active', value: counts.active, Icon: Zap, bg: 'bg-emerald-50', color: 'text-emerald-600' },
+        { label: 'Upcoming', value: counts.upcoming, Icon: Clock, bg: 'bg-amber-50', color: 'text-amber-600' },
+        { label: 'Completed', value: counts.completed, Icon: CheckCircle2, bg: 'bg-slate-50', color: 'text-slate-500' },
     ];
 
     return (
@@ -62,12 +115,14 @@ export default function OrganizerDashboard() {
                     <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Manage Hackathons</h1>
                     <p className="text-slate-500 font-medium mt-1">Create, edit, and oversee all your hackathon events.</p>
                 </div>
-                <button
-                    onClick={() => navigate('/organizer/hackathons/create')}
-                    className="flex items-center gap-2 px-6 py-3 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 hover:bg-[#4338CA] transition-all active:scale-95"
-                >
-                    <Plus size={16} /> Create Hackathon
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => navigate('/organizer/hackathons/create')}
+                        className="flex items-center gap-2 px-6 py-3 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 hover:bg-[#4338CA] transition-all active:scale-95"
+                    >
+                        <Plus size={16} /> Create Hackathon
+                    </button>
+                </div>
             </div>
 
             {/* Stats */}
@@ -107,6 +162,9 @@ export default function OrganizerDashboard() {
                     {hackathons.map(h => {
                         const cfg = STATUS_CONFIG[h.status] ?? STATUS_CONFIG['Open'];
                         const isDeleting = deletingId === h.id;
+                        const isPublishing = publishingId === h.id;
+                        const canPublish = (h.status === 'Paid' || h.paymentStatus === 'completed') && !h.isPublished;
+                        const needsPayment = h.status === 'Approved';
                         return (
                             <div
                                 key={h.id}
@@ -125,6 +183,12 @@ export default function OrganizerDashboard() {
                                             <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
                                             {cfg.label}
                                         </span>
+                                        {/* Payment status badge */}
+                                        {/* <SubscriptionStatus
+                                            paymentStatus={h.paymentStatus}
+                                            isPublished={h.isPublished}
+                                            isDraft={h.status === 'Draft' || h.status === 'Draft'}
+                                        /> */}
                                     </div>
                                     <p className="text-sm font-medium text-slate-500 line-clamp-1 mb-3">{h.description}</p>
                                     <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-400">
@@ -137,6 +201,11 @@ export default function OrganizerDashboard() {
                                         <span className="flex items-center gap-1.5">
                                             <Globe size={13} /> {h.mode}
                                         </span>
+                                        {h.pricing && h.pricing !== '0' && (
+                                            <span className="bg-amber-50 text-amber-700 px-2 py-0.5 rounded-md font-extrabold">
+                                                Price: ${h.pricing}
+                                            </span>
+                                        )}
                                         <span className={`px-2 py-0.5 rounded-md font-extrabold ${h.problemCount > 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'}`}>
                                             {h.problemCount > 0 ? `${h.problemCount} Problem` : 'No Problem Set'}
                                         </span>
@@ -151,12 +220,43 @@ export default function OrganizerDashboard() {
                                     >
                                         <Eye size={13} /> View
                                     </button>
-                                    <button
-                                        onClick={() => navigate(`/organizer/hackathons/${h.id}/edit`)}
-                                        className="flex items-center gap-1.5 px-4 py-2.5 bg-indigo-50 border border-indigo-100 rounded-xl font-bold text-xs text-[#4F46E5] hover:bg-indigo-100 transition-all"
-                                    >
-                                        <Edit2 size={13} /> Edit
-                                    </button>
+
+                                    {(h.status === 'Draft' || h.status === 'Draft') && (
+                                        <button
+                                            onClick={() => navigate(`/organizer/hackathons/${h.id}/edit`)}
+                                            className="flex items-center gap-1.5 px-4 py-2.5 bg-indigo-50 border border-indigo-100 rounded-xl font-bold text-xs text-[#4F46E5] hover:bg-indigo-100 transition-all"
+                                        >
+                                            <Edit2 size={13} /> Edit
+                                        </button>
+                                    )}
+
+                                    {/* Purchase Subscription — shown when hackathon is approved and needs payment */}
+                                    {needsPayment && (
+                                        <button
+                                            onClick={() => handlePurchase(h.id)}
+                                            className="flex items-center gap-1.5 px-4 py-2.5 bg-amber-50 border border-amber-100 rounded-xl font-bold text-xs text-amber-700 hover:bg-amber-100 transition-all shadow-sm"
+                                        >
+                                            <DollarSign size={13} />
+                                            Pay & Publish
+                                        </button>
+                                    )}
+
+                                    {/* Publish — shown only when payment is completed but not yet published */}
+                                    {canPublish && (
+                                        <button
+                                            onClick={() => handlePublish(h.id)}
+                                            disabled={isPublishing}
+                                            className="flex items-center gap-1.5 px-4 py-2.5 bg-emerald-50 border border-emerald-100 rounded-xl font-bold text-xs text-emerald-700 hover:bg-emerald-100 transition-all disabled:opacity-50"
+                                        >
+                                            {isPublishing ? (
+                                                <Loader2 size={13} className="animate-spin" />
+                                            ) : (
+                                                <Send size={13} />
+                                            )}
+                                            Publish Live
+                                        </button>
+                                    )}
+
                                     <button
                                         onClick={() => handleDelete(h.id, h.title)}
                                         disabled={isDeleting}

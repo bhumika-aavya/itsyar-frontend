@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {
-  Search, Plus, Edit2, Trash2, Loader2, Zap, ExternalLink,
+  Search, Plus, Edit2, Trash2, Loader2, Zap, ExternalLink, Check, X, ShieldAlert,
 } from "lucide-react";
 import { AdminService } from "@/services/admin.service";
 import { HackathonService } from "@/services/hackathon.service";
+import { loadHackathons, saveHackathons } from "@/services/organizer.service";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const statusBadge = (status: string) => {
   const map: Record<string, string> = {
@@ -12,6 +14,10 @@ const statusBadge = (status: string) => {
     Running: "bg-blue-50 text-blue-600",
     COMPLETED: "bg-slate-50 text-slate-500",
     UpComing: "bg-indigo-50 text-indigo-600",
+    "Draft": "bg-amber-50 text-amber-600",
+    "Approved": "bg-indigo-50 text-indigo-600",
+    Paid: "bg-emerald-50 text-emerald-600",
+    // Draft: "bg-slate-100 text-slate-500",
   };
   return map[status] ?? "bg-slate-50 text-slate-500";
 };
@@ -30,10 +36,29 @@ export default function AdminHackathonsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  // Review flow states
+  const [reviewingHackathon, setReviewingHackathon] = useState<any | null>(null);
+  const [priceInput, setPriceInput] = useState("49.99");
+
   useEffect(() => {
     HackathonService.getHackathons()
-      .then(data => setHackathons(Array.isArray(data) ? data : []))
-      .catch(() => {})
+      .then(apiData => {
+        // Load the local data fallback containing organizer drafts & pending approvals
+        const localData = loadHackathons();
+
+        // Find which local hackathons have special review/draft statuses
+        const apiIds = new Set(apiData.map(h => h.id));
+        const localPendingOrSpecial = localData.filter(
+          h => !apiIds.has(h.id) || h.status === "Draft" || h.status === "Approved" || h.status === "Paid"
+        );
+
+        // Merge lists putting the special/pending ones first so the admin sees them at the top
+        const merged = [...localPendingOrSpecial, ...apiData.filter(h => !localPendingOrSpecial.some(lh => lh.id === h.id))];
+        setHackathons(merged);
+      })
+      .catch(() => {
+        setHackathons(loadHackathons());
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -93,9 +118,8 @@ export default function AdminHackathonsPage() {
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`px-3 py-1.5 text-xs font-extrabold rounded-xl transition-all ${
-                statusFilter === s ? "bg-[#4F46E5] text-white" : "bg-white border border-slate-200 text-slate-500 hover:border-slate-300"
-              }`}
+              className={`px-3 py-1.5 text-xs font-extrabold rounded-xl transition-all ${statusFilter === s ? "bg-[#4F46E5] text-white" : "bg-white border border-slate-200 text-slate-500 hover:border-slate-300"
+                }`}
             >
               {s === "all" ? "All" : s}
             </button>
@@ -141,6 +165,11 @@ export default function AdminHackathonsPage() {
                     <span className={`text-[11px] font-extrabold px-2.5 py-1 rounded-lg ${statusBadge(h.status)}`}>
                       {h.status ?? "—"}
                     </span>
+                    {h.pricing && h.pricing !== "0" && (
+                      <span className="text-[10px] font-bold text-slate-400 block mt-1">
+                        Price: ${h.pricing}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-4 hidden lg:table-cell">
                     <span className="text-xs font-bold text-slate-400">
@@ -149,6 +178,17 @@ export default function AdminHackathonsPage() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-1.5">
+                      {h.status === "Draft" && (
+                        <button
+                          onClick={() => {
+                            setReviewingHackathon(h);
+                            setPriceInput(h.pricing || "49.99");
+                          }}
+                          className="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-extrabold transition-colors mr-1.5"
+                        >
+                          Review
+                        </button>
+                      )}
                       <button
                         onClick={() => navigate(`/hackathons/${h.id}`)}
                         title="View"
@@ -187,6 +227,79 @@ export default function AdminHackathonsPage() {
           )}
         </div>
       </div>
+
+      {/* Review Modal */}
+      {reviewingHackathon && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 space-y-6 text-left">
+            <div className="flex items-center gap-3 pb-3 border-b border-slate-50">
+              <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500">
+                <ShieldAlert size={20} />
+              </div>
+              <div>
+                <h3 className="text-lg font-extrabold text-slate-900">Review Hackathon</h3>
+                <p className="text-xs font-bold text-slate-400">Review submitted request and set listing price</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-sm font-extrabold text-slate-700">Event Title</p>
+              <p className="text-sm font-semibold text-slate-800 bg-slate-50 p-3.5 rounded-2xl border border-slate-100">{reviewingHackathon.title}</p>
+
+              <p className="text-sm font-extrabold text-slate-700">Description</p>
+              <p className="text-xs font-medium text-slate-500 bg-slate-50 p-3.5 rounded-2xl border border-slate-100 max-h-32 overflow-y-auto leading-relaxed">{reviewingHackathon.description}</p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block">Set Listing Price (USD)</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={priceInput}
+                onChange={e => setPriceInput(e.target.value)}
+                placeholder="e.g. 49.99"
+                className="w-full h-11 rounded-xl border-2 border-slate-200 px-4 outline-none focus:border-[#4F46E5] font-extrabold text-sm"
+              />
+              <p className="text-[10px] font-bold text-slate-400">The amount the organizer must pay to publish this hackathon.</p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setReviewingHackathon(null)}
+                className="px-4 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-600 font-extrabold text-xs rounded-xl transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  await AdminService.rejectHackathon(reviewingHackathon.id);
+                  setHackathons(prev => prev.map(h => h.id === reviewingHackathon.id ? { ...h, status: "Draft" } : h));
+                  toast.success("Hackathon rejected and moved back to Draft.");
+                  setReviewingHackathon(null);
+                }}
+                className="px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 font-extrabold text-xs rounded-xl transition-all"
+              >
+                Reject
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  await AdminService.approveHackathon(reviewingHackathon.id, priceInput);
+                  setHackathons(prev => prev.map(h => h.id === reviewingHackathon.id ? { ...h, status: "Approved", pricing: priceInput } : h));
+                  toast.success(`Hackathon approved! Price set to $${priceInput}`);
+                  setReviewingHackathon(null);
+                }}
+                className="px-4 py-2.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white font-extrabold text-xs rounded-xl transition-all shadow-md shadow-indigo-100"
+              >
+                Approve & Set Price
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

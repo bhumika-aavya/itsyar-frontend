@@ -14,6 +14,7 @@ import {
 } from '@/schemas/hackathon.schema';
 import { OrganizerService } from '@/services/organizer.service';
 import { AdminService } from '@/services/admin.service';
+import { HackathonService } from '@/services/hackathon.service';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
 
@@ -93,7 +94,7 @@ export default function CreateHackathon() {
             platform: 'standard',
             foundryLink: '',
             iconType: DEFAULT_ICON,
-            pricing: '',
+            pricing: '0',
             judges: [],
             rulesText: '',
             criteria: [],
@@ -126,6 +127,17 @@ export default function CreateHackathon() {
     const faqsArray = useFieldArray({ control: hackControl, name: 'faqs' });
     const timelineArray = useFieldArray({ control: hackControl, name: 'timeline' });
 
+    // Show toast message on validation failures
+    useEffect(() => {
+        if (Object.keys(hackErr).length > 0) {
+            const firstErrorField = Object.keys(hackErr)[0];
+            const errMsg = (hackErr as any)[firstErrorField]?.message;
+            if (errMsg) {
+                toast.error(`Validation failed: ${errMsg}`);
+            }
+        }
+    }, [hackErr]);
+
     // Load available judges
     useEffect(() => {
         const loadJudges = async () => {
@@ -151,7 +163,7 @@ export default function CreateHackathon() {
                     iconType: data.iconType ?? DEFAULT_ICON,
                     registrationsDeadline: data.registrationsDeadline,
                     difficultyLevel: data.difficultyLevel ?? 'Intermediate',
-                    pricing: (data as any).pricing ?? '',
+                    pricing: (data as any).pricing ?? '0',
                     judges: (data as any).judges ?? [],
                     rulesText: (data.rules ?? []).join('\n'),
                     criteria: data.criteria ?? [],
@@ -159,12 +171,33 @@ export default function CreateHackathon() {
                     faqs: data.faqs ?? [],
                     timeline: data.timeline ?? [],
                 });
-                if (data.problemCount > 0) setIncludeProblem(true);
+                
+                // Fetch and populate problem statement details in edit mode
+                if (data.problemCount > 0) {
+                    try {
+                        const problems = await HackathonService.getProblem(id);
+                        const firstProb = problems[0];
+                        if (firstProb) {
+                            setIncludeProblem(true);
+                            probForm.reset({
+                                title: firstProb.title,
+                                difficulty: firstProb.difficulty,
+                                points: firstProb.points,
+                                description: firstProb.description,
+                                constraintsText: (firstProb.constraints ?? []).join('\n'),
+                                supportedLanguages: firstProb.supportedLanguages ?? [],
+                            });
+                            setSelectedLangs(firstProb.supportedLanguages ?? []);
+                        }
+                    } catch (err) {
+                        console.error('Failed to load problem statement details', err);
+                    }
+                }
             }
             setLoadingEdit(false);
         };
         load();
-    }, [id, isEdit, hackReset, hackathonService]);
+    }, [id, isEdit, hackReset, hackathonService, probForm]);
 
     const toggleLang = (lang: string) => {
         setSelectedLangs(prev =>
@@ -183,6 +216,20 @@ export default function CreateHackathon() {
     };
 
     const onSave = async (hackData: OrganizerCreateHackathonValues) => {
+        // Validate the problem statement form first if included
+        if (!isFoundry && includeProblem) {
+            const isProblemValid = await probForm.trigger();
+            if (!isProblemValid) {
+                const probErrors = probForm.formState.errors;
+                const firstErrorField = Object.keys(probErrors)[0];
+                const errMsg = (probErrors as any)[firstErrorField]?.message;
+                if (errMsg) {
+                    toast.error(`Problem Statement validation failed: ${errMsg}`);
+                }
+                return;
+            }
+        }
+
         setSaving(true);
         try {
             let hackathonId = id;
@@ -195,17 +242,16 @@ export default function CreateHackathon() {
             }
 
             if (!isFoundry && includeProblem) {
-                await probHS(async (probData) => {
-                    await OrganizerService.upsertProblem(hackathonId!, {
-                        ...probData,
-                        supportedLanguages: selectedLangs,
-                    });
-                })();
+                const probData = probForm.getValues();
+                await OrganizerService.upsertProblem(hackathonId!, {
+                    ...probData,
+                    supportedLanguages: selectedLangs,
+                });
             }
 
             toast.success(isEdit ? 'Hackathon updated successfully!' : 'Hackathon created successfully!');
-            // Navigate to the hackathons listing page on success
-            navigate(isAdmin ? '/admin/hackathons' : '/organizer/hackathons');
+            // Navigate to the dashboard on success
+            navigate(basePath);
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
             toast.error(message);
@@ -345,19 +391,6 @@ export default function CreateHackathon() {
                         </div>
                     </div>
 
-                    {/* Pricing */}
-                    <div>
-                        <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
-                            <span className="flex items-center gap-1.5"><Sparkles size={11} /> Pricing <span className="text-red-500">*</span></span>
-                        </label>
-                        <ErrMsg msg={hackErr.pricing?.message} />
-                        <input
-                            {...hackReg('pricing')}
-                            placeholder="e.g. $5,000 total prize pool, $1,000 for 1st place"
-                            className={fieldCls(false)}
-                        />
-                        <p className="text-[11px] font-bold text-slate-400 mt-1">Set the prize money or pricing details for the hackathon</p>
-                    </div>
 
                     {/* Judges Multi-Select Dropdown */}
                     <div>

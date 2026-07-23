@@ -4,6 +4,7 @@ import { Hackathon, HackathonDetail, Team, CreateTeamValues, HackathonProblem, S
 import { getAuthHeaders } from "./auth";
 import { getApiErrorMessage } from "@/lib/getApiErrorMessage";
 import { getLocalProgress, saveLocalProgress, clearLocalProgress } from "@/lib/progressStore";
+import { loadHackathons } from "./organizer.service";
 
 const MOCK_HACKATHONS: Hackathon[] = [
     { id: "h1", title: "CodeSprint 2024", startDate: "2024-05-21", endDate: "2024-05-23", status: "COMPLETED", iconType: "trophy", iconBg: "bg-yellow-50 text-yellow-500" },
@@ -14,6 +15,7 @@ const MOCK_HACKATHONS: Hackathon[] = [
     { id: "h6", title: "AI Innova Challenge", startDate: "2026-01-10", endDate: "2026-01-12", status: "COMPLETED", iconType: "cpu", iconBg: "bg-pink-50 text-pink-500" },
     { id: "h7", title: "CodeSprint 2026", startDate: "2026-05-21", endDate: "2026-05-30", status: "Open", iconType: "trophy", iconBg: "bg-indigo-50 text-indigo-500" },
     { id: "h8", title: "CloudNative Summit", startDate: "2026-09-01", endDate: "2026-09-03", status: "UpComing", iconType: "cloud", iconBg: "bg-sky-50 text-sky-500" },
+    { id: "h_pending_1", title: "NextGen Fintech Hackathon", startDate: "2026-10-15", endDate: "2026-10-20", status: "Draft", iconType: "zap", iconBg: "bg-amber-50 text-amber-500" },
 ];
 
 const MOCK_TEAMS: Team[] = [
@@ -205,7 +207,9 @@ export const HackathonService = {
             return response.data.hackathons;
         } catch {
             console.warn("API Error: Falling back to mock Hackathon data");
-            return MOCK_HACKATHONS;
+            const list = loadHackathons();
+            // Filter out Draft, Approved, and Paid hackathons from participant catalog
+            return list.filter(h => h.status !== 'Draft' && h.status !== 'Approved' && h.status !== 'Paid') as any;
         }
     },
 
@@ -214,6 +218,8 @@ export const HackathonService = {
             const response = await api.get(`/hackathons/${id}`, getAuthHeaders());
             return response.data.hackathon;
         } catch (err) {
+            const found = loadHackathons().find(h => h.id === id);
+            if (found) return found;
             if (axios.isAxiosError(err) && err.response) throw new Error(getApiErrorMessage(err));
             return { success: true };
         }
