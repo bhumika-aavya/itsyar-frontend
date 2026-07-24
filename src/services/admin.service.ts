@@ -28,30 +28,38 @@ export interface PlatformHealth {
   emailService: string;
 }
 
-export interface LeaderboardRow {
-  rank: number;
-  name: string;
-  initials: string;
+export interface LeaderboardUser {
+  userId: string;
+  participant: {
+    name: string;
+    initials: string;
+    email: string;
+    avatarUrl: string | null;
+  };
   track: string;
   score: number;
   progress: number;
   certs: number;
-  submissions: number;
+  subm: number;
   status: string;
+  rank: number;
 }
 
-export interface AnalyticsPoint {
-  label: string;
-  value: number;
+export interface CourseCompletionRate {
+  courseId: string;
+  courseTitle: string;
+  completionPercentage: number;
+}
+
+export interface ScoreDistributionPoint {
+  range: string;
+  count: number;
 }
 
 export interface AdminOverview {
   admin: { name: string; role: string };
   stats: AdminStats;
   platformHealth: PlatformHealth;
-  leaderboard: LeaderboardRow[];
-  courseCompletion: AnalyticsPoint[];
-  scoreDistribution: AnalyticsPoint[];
 }
 
 export interface AdminCourse {
@@ -104,55 +112,6 @@ export interface PlatformSettings {
   };
 }
 
-const MOCK_LEADERBOARD: LeaderboardRow[] = [
-  { rank: 1, name: "Riya Kapoor", initials: "RK", track: "Hackathon", score: 2840, progress: 96, certs: 4, submissions: 3, status: "Active" },
-  { rank: 2, name: "Arjun Sharma", initials: "AS", track: "Training", score: 2610, progress: 88, certs: 3, submissions: 1, status: "Active" },
-  { rank: 3, name: "Priya Menon", initials: "PM", track: "Hackathon", score: 2490, progress: 82, certs: 2, submissions: 4, status: "Review" },
-  { rank: 4, name: "Nikhil Kumar", initials: "NK", track: "Training", score: 2310, progress: 75, certs: 3, submissions: 2, status: "Active" },
-  { rank: 5, name: "Sara Reddy", initials: "SR", track: "Hackathon", score: 2190, progress: 70, certs: 2, submissions: 2, status: "Inactive" },
-];
-
-const MOCK_COURSE_COMPLETION: AnalyticsPoint[] = [
-  { label: "Foundry Basics", value: 91 },
-  { label: "Ontology 101", value: 78 },
-  { label: "OSDK Integration", value: 43 },
-  { label: "AI Safety", value: 65 },
-  { label: "Data Pipelines", value: 58 },
-];
-
-const MOCK_SCORE_DISTRIBUTION: AnalyticsPoint[] = [
-  { label: "<40", value: 8 },
-  { label: "40–55", value: 22 },
-  { label: "56–70", value: 48 },
-  { label: "71–85", value: 62 },
-  { label: "86–100", value: 30 },
-];
-
-const MOCK_OVERVIEW: AdminOverview = {
-  admin: { name: "Admin", role: "Admin" },
-  stats: { totalUsers: 2847, totalCourses: 34, activeHackathons: 5, totalSubmissions: 412 },
-  platformHealth: { apiStatus: "Operational", database: "Operational", authService: "Operational", emailService: "Operational" },
-  leaderboard: MOCK_LEADERBOARD,
-  courseCompletion: MOCK_COURSE_COMPLETION,
-  scoreDistribution: MOCK_SCORE_DISTRIBUTION,
-};
-
-const MOCK_USERS: AdminUser[] = [
-  { id: "u1", fullName: "Alice Johnson", email: "alice@example.com", role: "student", status: "active", createdAt: "2025-01-15", coursesEnrolled: 3, hackathonsJoined: 2 },
-  { id: "u2", fullName: "Bob Smith", email: "bob@example.com", role: "mentor", status: "active", createdAt: "2025-02-10", coursesEnrolled: 0, hackathonsJoined: 0 },
-  { id: "u3", fullName: "Carol White", email: "carol@example.com", role: "student", status: "active", createdAt: "2025-03-05", coursesEnrolled: 5, hackathonsJoined: 1 },
-];
-
-const MOCK_SETTINGS: PlatformSettings = {
-  platform: { platformName: "ForgeInsight", supportEmail: "support@forgeinsight.com", platformTagline: "Build. Learn. Compete.", defaultMaxTeamSize: 4 },
-  accessControl: { maintenanceMode: false, allowNewRegistrations: true },
-};
-
-// Admin manages hackathons directly under /admin/hackathons — a distinct,
-// higher-privilege endpoint from the organizer's own /admin/organizer/hackathons.
-// Keep a small local store so create/edit still works if the backend route
-// isn't live yet, matching the fallback pattern used elsewhere in this file.
-// Shared mock storage is loaded dynamically using loadHackathons/saveHackathons
 
 function buildAdminHackathonPayload(data: OrganizerCreateHackathonValues) {
   const rules = data.rulesText
@@ -184,32 +143,101 @@ function buildLocalAdminHackathonFields(data: OrganizerCreateHackathonValues) {
   return { ...buildAdminHackathonPayload(data), registrationsDeadline: data.registrationsDeadline };
 }
 
-// Backend User.status is stored capitalized ("Active"/"Inactive"/"Banned"); the
-// frontend UI works in lowercase throughout — normalize at the service boundary.
 const toLowerStatus = (s: string): AdminUser["status"] => {
   const v = (s ?? "").toLowerCase();
   return v === "banned" || v === "inactive" ? v : "active";
 };
+
 const toBackendStatus = (s: "active" | "inactive" | "banned") =>
   s === "banned" ? "Banned" : s === "inactive" ? "Inactive" : "Active";
 
 export const AdminService = {
+  /** 1. GET /overview */
   getOverview: async (): Promise<AdminOverview> => {
     try {
       const res = await api.get("/admin/overview", getAuthHeaders());
+      const rawStats = res.data.stats || {};
+      const rawHealth = res.data.platform_health || res.data.platformHealth || {};
+
       return {
-        admin: res.data.admin,
-        stats: res.data.stats,
-        platformHealth: res.data.platformHealth,
-        // Leaderboard/analytics are optional on the backend response for now —
-        // fall back to mock data per-section so partial rollouts still render.
-        leaderboard: res.data.leaderboard ?? MOCK_LEADERBOARD,
-        courseCompletion: res.data.courseCompletion ?? MOCK_COURSE_COMPLETION,
-        scoreDistribution: res.data.scoreDistribution ?? MOCK_SCORE_DISTRIBUTION,
+        admin: res.data.admin || { name: "Emma James", role: "Admin" },
+        stats: {
+          totalUsers: rawStats.total_users ?? rawStats.totalUsers ?? 0,
+          totalCourses: rawStats.total_courses ?? rawStats.totalCourses ?? 0,
+          activeHackathons: rawStats.active_hackathons ?? rawStats.activeHackathons ?? 0,
+          totalSubmissions: rawStats.total_submissions ?? rawStats.totalSubmissions ?? 0,
+        },
+        platformHealth: {
+          apiStatus: rawHealth.api_status ?? rawHealth.apiStatus ?? "Operational",
+          database: rawHealth.database ?? "Operational",
+          authService: rawHealth.auth_service ?? rawHealth.authService ?? "Operational",
+          emailService: rawHealth.email_service ?? rawHealth.emailService ?? "Operational",
+        },
+      };
+    } catch (err) {
+      console.error("Failed to load overview data", err);
+      throw err;
+    }
+  },
+
+  /** 2. GET /charts */
+  getCharts: async (params?: { limit?: number; hackathon_id?: string }): Promise<{
+    courseCompletionRates: CourseCompletionRate[];
+    scoreDistribution: ScoreDistributionPoint[];
+  }> => {
+    try {
+      const res = await api.get("/admin/charts", { ...getAuthHeaders(), params });
+      const chartData = res.data.data || {};
+      return {
+        courseCompletionRates: chartData.courseCompletionRates || [],
+        scoreDistribution: chartData.scoreDistribution || [],
       };
     } catch {
-      return MOCK_OVERVIEW;
+      return {
+        courseCompletionRates: [],
+        scoreDistribution: []
+      };
     }
+  },
+
+  /** 3. GET /leaderboard */
+  getLeaderboard: async (params?: {
+    track?: string;
+    cohort?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    leaderboard: LeaderboardUser[];
+    pagination: { page: number; limit: number; totalRecords: number; totalPages: number };
+  }> => {
+    try {
+      const res = await api.get("/admin/leaderboard", { ...getAuthHeaders(), params });
+      return {
+        leaderboard: res.data.leaderboard || [],
+        pagination: res.data.pagination || { page: 1, limit: 10, totalRecords: 0, totalPages: 1 }
+      };
+    } catch {
+      return {
+        leaderboard: [],
+        pagination: {
+          page: params?.page ?? 1,
+          limit: params?.limit ?? 10,
+          totalRecords: 0,
+          totalPages: 1
+        }
+      };
+    }
+  },
+
+  /** 4. GET /export (secure download) */
+  exportLeaderboard: async (track: string, cohort: string): Promise<Blob> => {
+    const res = await api.get(`/admin/export`, {
+      ...getAuthHeaders(),
+      params: { track, cohort },
+      responseType: 'blob'
+    });
+    return res.data;
   },
 
   // Kept for backwards compatibility with existing callers expecting just stats.
@@ -230,7 +258,7 @@ export const AdminService = {
         hackathonsJoined: u.activity?.hackathons ?? 0,
       }));
     } catch {
-      return MOCK_USERS;
+      return [];
     }
   },
 
@@ -418,8 +446,9 @@ export const AdminService = {
     try {
       const res = await api.get("/admin/settings", getAuthHeaders());
       return res.data.settings;
-    } catch {
-      return MOCK_SETTINGS;
+    } catch (err) {
+      console.error("Failed to load settings data", err);
+      throw err;
     }
   },
 

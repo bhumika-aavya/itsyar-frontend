@@ -447,7 +447,7 @@ export const HackathonService = {
     /** Get all submissions assigned to this mentor/judge for review. */
     getMentorSubmissions: async (): Promise<MentorSubmission[]> => {
         try {
-            const response = await api.get("/mentor/submissions", getAuthHeaders());
+            const response = await api.get("judge/submissions", getAuthHeaders());
             return response.data.submissions;
         } catch {
             console.warn("API Error: Falling back to mock mentor submissions");
@@ -458,7 +458,7 @@ export const HackathonService = {
     /** Get a single submission by its ID for detailed review. */
     getSubmissionById: async (submissionId: string): Promise<MentorSubmission> => {
         try {
-            const response = await api.get(`/mentor/submissions/${submissionId}`, getAuthHeaders());
+            const response = await api.get(`judge/submissions/${submissionId}`, getAuthHeaders());
             return response.data.submission;
         } catch {
             console.warn("API Error: Falling back to mock submission lookup");
@@ -471,7 +471,7 @@ export const HackathonService = {
     /** Submit a mentor review (accept/reject with feedback). */
     reviewSubmission: async (submissionId: string, data: MentorReviewValues): Promise<{ success: boolean }> => {
         try {
-            const response = await api.post(`/mentor/submissions/${submissionId}/review`, data, getAuthHeaders());
+            const response = await api.post(`judge/submissions/${submissionId}/review`, data, getAuthHeaders());
             return response.data;
         } catch {
             console.warn("API Error: Simulating mentor review submission");

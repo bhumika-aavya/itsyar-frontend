@@ -8,9 +8,9 @@ import { HackathonService } from '@/services/hackathon.service';
 import { MentorSubmission } from '@/schemas/hackathon.schema';
 
 const STATUS_CONFIG = {
-    PENDING:  { label: 'Pending Review', color: 'bg-amber-50 text-amber-600',  icon: Clock,         dot: 'bg-amber-400' },
-    ACCEPTED: { label: 'Accepted',       color: 'bg-emerald-50 text-emerald-600', icon: CheckCircle2, dot: 'bg-emerald-400' },
-    REJECTED: { label: 'Rejected',       color: 'bg-red-50 text-red-500',       icon: XCircle,      dot: 'bg-red-400' },
+    PENDING: { label: 'Pending Review', color: 'bg-amber-50 text-amber-600', icon: Clock, dot: 'bg-amber-400' },
+    ACCEPTED: { label: 'Accepted', color: 'bg-emerald-50 text-emerald-600', icon: CheckCircle2, dot: 'bg-emerald-400' },
+    REJECTED: { label: 'Rejected', color: 'bg-red-50 text-red-500', icon: XCircle, dot: 'bg-red-400' },
 };
 
 const timeAgo = (iso: string) => {
@@ -38,8 +38,8 @@ export default function MentorDashboard() {
         };
         load();
     }, []);
-
-    const filtered = submissions.filter(s => {
+    console.log('submissions', submissions)
+    const filtered = submissions?.filter(s => {
         const matchFilter = filter === 'ALL' || s.status === filter;
         const q = search.toLowerCase();
         const matchSearch = !q ||
@@ -50,10 +50,10 @@ export default function MentorDashboard() {
     });
 
     const counts = {
-        ALL: submissions.length,
-        PENDING: submissions.filter(s => s.status === 'PENDING').length,
-        ACCEPTED: submissions.filter(s => s.status === 'ACCEPTED').length,
-        REJECTED: submissions.filter(s => s.status === 'REJECTED').length,
+        ALL: submissions?.length,
+        PENDING: submissions?.filter(s => s.status === 'PENDING').length,
+        ACCEPTED: submissions?.filter(s => s.status === 'ACCEPTED').length,
+        REJECTED: submissions?.filter(s => s.status === 'REJECTED').length,
     };
 
     return (
