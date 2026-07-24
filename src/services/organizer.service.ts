@@ -326,12 +326,12 @@ export const OrganizerService = {
         }
     },
 
-    getAvailableJudges: async (): Promise<{ id: string; name: string; email: string }[]> => {
+    getAvailableJudges: async (): Promise<{ userId: string; name: string; email: string }[]> => {
         try {
             const response = await api.get(`${BASE}/judges`, getAuthHeaders());
             return response.data.judges;
         } catch {
-            return MOCK_AVAILABLE_JUDGES;
+            return MOCK_AVAILABLE_JUDGES.map(j => ({ userId: j.id, name: j.name, email: j.email }));
         }
     },
 

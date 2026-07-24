@@ -2,6 +2,74 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Select, { StylesConfig } from 'react-select';
+
+const customSelectStyles: StylesConfig<any, true> = {
+    control: (provided, state) => ({
+        ...provided,
+        backgroundColor: '#f8fafc',
+        borderColor: state.isFocused ? '#4F46E5' : '#f1f5f9',
+        borderWidth: '2px',
+        borderRadius: '12px',
+        minHeight: '44px',
+        boxShadow: 'none',
+        transition: 'all 0.2s',
+        '&:hover': {
+            borderColor: state.isFocused ? '#4F46E5' : '#cbd5e1',
+        }
+    }),
+    valueContainer: (provided) => ({
+        ...provided,
+        padding: '2px 12px',
+    }),
+    multiValue: (provided) => ({
+        ...provided,
+        backgroundColor: '#e0e7ff',
+        borderRadius: '8px',
+        padding: '2px 4px',
+    }),
+    multiValueLabel: (provided) => ({
+        ...provided,
+        color: '#4F46E5',
+        fontWeight: '700',
+        fontSize: '12px',
+    }),
+    multiValueRemove: (provided) => ({
+        ...provided,
+        color: '#4F46E5',
+        borderRadius: '6px',
+        '&:hover': {
+            backgroundColor: '#c7d2fe',
+            color: '#4338ca',
+        }
+    }),
+    placeholder: (provided) => ({
+        ...provided,
+        color: '#94a3b8',
+        fontSize: '14px',
+        fontWeight: '500',
+    }),
+    menu: (provided) => ({
+        ...provided,
+        borderRadius: '16px',
+        border: '1px solid #f1f5f9',
+        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        overflow: 'hidden',
+        zIndex: 50,
+    }),
+    option: (provided, state) => ({
+        ...provided,
+        backgroundColor: state.isSelected ? '#4F46E5' : state.isFocused ? '#f1f5f9' : 'white',
+        color: state.isSelected ? 'white' : '#334155',
+        fontSize: '13px',
+        fontWeight: '600',
+        padding: '10px 14px',
+        cursor: 'pointer',
+        '&:active': {
+            backgroundColor: '#4338ca',
+        }
+    })
+};
 import {
     ChevronLeft, Save, Loader2, Plus, X, Code2,
     Calendar, FileText, Trophy, AlertCircle,
@@ -85,7 +153,7 @@ export default function CreateHackathon() {
     const [includeProblem, setIncludeProblem] = useState(false);
     const [selectedLangs, setSelectedLangs] = useState<string[]>(['JavaScript', 'Python']);
     const [loadingEdit, setLoadingEdit] = useState(isEdit);
-    const [availableJudges, setAvailableJudges] = useState<{ id: string; name: string; email: string }[]>([]);
+    const [availableJudges, setAvailableJudges] = useState<{ userId: string; name: string; email: string }[]>([]);
 
     const hackForm = useForm<OrganizerCreateHackathonValues>({
         resolver: zodResolver(OrganizerCreateHackathonSchema),
@@ -171,7 +239,7 @@ export default function CreateHackathon() {
                     faqs: data.faqs ?? [],
                     timeline: data.timeline ?? [],
                 });
-                
+
                 // Fetch and populate problem statement details in edit mode
                 if (data.problemCount > 0) {
                     try {
@@ -395,45 +463,26 @@ export default function CreateHackathon() {
                     {/* Judges Multi-Select Dropdown */}
                     <div>
                         <label className="text-xs font-extrabold uppercase tracking-wide text-slate-600 block mb-1.5">
-                            <span className="flex items-center gap-1.5"><Users size={11} /> Select Judges</span>
+                            <span className="flex items-center gap-1.5"><Users size={11} /> Select Judges <span className="text-red-500">*</span></span>
                         </label>
                         <p className="text-[11px] font-bold text-slate-400 mb-2">Choose the judges who will evaluate submissions for this hackathon.</p>
-                        <div className="flex flex-wrap gap-2">
-                            {availableJudges.map(judge => {
-                                const isSelected = selectedJudges.some(j => j.id === judge.id);
-                                return (
-                                    <button
-                                        key={judge.id}
-                                        type="button"
-                                        onClick={() => toggleJudge(judge)}
-                                        className={`px-4 py-2 rounded-xl font-extrabold text-xs border-2 transition-all ${isSelected
-                                            ? 'border-[#4F46E5] bg-indigo-50 text-[#4F46E5]'
-                                            : 'border-slate-100 text-slate-400 hover:border-slate-200'}`}
-                                    >
-                                        {judge.name}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                        {selectedJudges.length > 0 && (
-                            <div className="mt-3 flex flex-wrap gap-2">
-                                {selectedJudges.map(judge => (
-                                    <span
-                                        key={judge.id}
-                                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-50 text-[#4F46E5] rounded-lg font-extrabold text-xs"
-                                    >
-                                        {judge.name}
-                                        <button
-                                            type="button"
-                                            onClick={() => toggleJudge(judge)}
-                                            className="hover:text-red-500 transition-colors"
-                                        >
-                                            <X size={12} />
-                                        </button>
-                                    </span>
-                                ))}
-                            </div>
-                        )}
+                        <Select
+                            isMulti
+                            options={availableJudges.map(j => ({ value: j.userId, label: j.name, email: j.email }))}
+                            value={(selectedJudges || []).map(j => ({ value: j.id, label: j.name, email: j.email }))}
+                            onChange={(newValue) => {
+                                const mapped = (newValue || []).map((val: any) => ({
+                                    id: val.value,
+                                    name: val.label,
+                                    email: val.email
+                                }));
+                                hackSetValue('judges', mapped, { shouldValidate: true });
+                            }}
+                            styles={customSelectStyles}
+                            placeholder="Select judges..."
+                            noOptionsMessage={() => "No judges available"}
+                        />
+                        <ErrMsg msg={hackErr.judges?.message} />
                     </div>
 
                     {/* Difficulty Level */}

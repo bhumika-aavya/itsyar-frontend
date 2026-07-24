@@ -223,7 +223,7 @@ export const OrganizerCreateHackathonSchema = z.object({
     difficultyLevel: z.string().min(1, 'Difficulty level is required'),
     rulesText: z.string().optional(),
     pricing: z.string().min(1, 'Pricing is required'),
-    judges: z.array(OrganizerJudgeSchema).default([]),
+    judges: z.array(OrganizerJudgeSchema).min(1, 'Please select at least one judge'),
     criteria: z.array(HackathonCriteriaSchema).default([]),
     prizes: z.array(HackathonPrizeSchema).default([]),
     faqs: z.array(HackathonFaqSchema).default([]),
