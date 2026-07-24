@@ -1,21 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    ClipboardList, CheckCircle2, XCircle, Clock,
+    ClipboardList, CheckCircle2, Clock,
     Loader2, Code2, ChevronRight, Filter, Search
 } from 'lucide-react';
 import { HackathonService } from '@/services/hackathon.service';
 import { MentorSubmission } from '@/schemas/hackathon.schema';
 
-const STATUS_CONFIG = {
-    PENDING: { label: 'Pending Review', color: 'bg-amber-50 text-amber-600', icon: Clock, dot: 'bg-amber-400' },
-    ACCEPTED: { label: 'Accepted', color: 'bg-emerald-50 text-emerald-600', icon: CheckCircle2, dot: 'bg-emerald-400' },
-    REJECTED: { label: 'Rejected', color: 'bg-red-50 text-red-500', icon: XCircle, dot: 'bg-red-400' },
+const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any; dot: string }> = {
+    SUBMITTED: { label: 'In Queue', color: 'bg-indigo-50 text-[#4F46E5]', icon: Clock, dot: 'bg-[#4F46E5]' },
+    UNDER_REVIEW: { label: 'In Progress', color: 'bg-amber-50 text-amber-600', icon: Clock, dot: 'bg-amber-400' },
+    EVALUATED: { label: 'Reviewed', color: 'bg-emerald-50 text-emerald-600', icon: CheckCircle2, dot: 'bg-emerald-400' },
+    // backwards compatibility mapping
+    PENDING: { label: 'In Queue', color: 'bg-indigo-50 text-[#4F46E5]', icon: Clock, dot: 'bg-[#4F46E5]' },
+    ACCEPTED: { label: 'Reviewed', color: 'bg-emerald-50 text-emerald-600', icon: CheckCircle2, dot: 'bg-emerald-400' },
+    REJECTED: { label: 'Reviewed', color: 'bg-emerald-50 text-emerald-600', icon: CheckCircle2, dot: 'bg-emerald-400' },
 };
 
 const timeAgo = (iso: string) => {
     const diff = Date.now() - new Date(iso).getTime();
     const m = Math.floor(diff / 60000);
+    if (isNaN(m)) return "";
     if (m < 60) return `${m}m ago`;
     const h = Math.floor(m / 60);
     if (h < 24) return `${h}h ago`;
@@ -26,34 +31,44 @@ export default function MentorDashboard() {
     const navigate = useNavigate();
     const [submissions, setSubmissions] = useState<MentorSubmission[]>([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState<'ALL' | 'PENDING' | 'ACCEPTED' | 'REJECTED'>('ALL');
+    const [filter, setFilter] = useState<'ALL' | 'SUBMITTED' | 'UNDER_REVIEW' | 'EVALUATED'>('ALL');
     const [search, setSearch] = useState('');
 
     useEffect(() => {
         const load = async () => {
             setLoading(true);
-            const data = await HackathonService.getMentorSubmissions();
-            setSubmissions(data);
-            setLoading(false);
+            try {
+                const data = await HackathonService.getMentorSubmissions();
+                setSubmissions(data || []);
+            } catch (err) {
+                console.error("Failed to load mentor submissions", err);
+            } finally {
+                setLoading(false);
+            }
         };
         load();
     }, []);
-    console.log('submissions', submissions)
+
     const filtered = submissions?.filter(s => {
-        const matchFilter = filter === 'ALL' || s.status === filter;
+        let matchFilter = filter === 'ALL';
+        if (!matchFilter) {
+            if (filter === 'SUBMITTED') matchFilter = s.status === 'SUBMITTED' || s.status === 'PENDING';
+            if (filter === 'UNDER_REVIEW') matchFilter = s.status === 'UNDER_REVIEW';
+            if (filter === 'EVALUATED') matchFilter = s.status === 'EVALUATED' || s.status === 'ACCEPTED' || s.status === 'REJECTED';
+        }
         const q = search.toLowerCase();
         const matchSearch = !q ||
             s.participantName.toLowerCase().includes(q) ||
             s.hackathonTitle.toLowerCase().includes(q) ||
             s.language.toLowerCase().includes(q);
         return matchFilter && matchSearch;
-    });
+    }) || [];
 
     const counts = {
-        ALL: submissions?.length,
-        PENDING: submissions?.filter(s => s.status === 'PENDING').length,
-        ACCEPTED: submissions?.filter(s => s.status === 'ACCEPTED').length,
-        REJECTED: submissions?.filter(s => s.status === 'REJECTED').length,
+        ALL: submissions?.length ?? 0,
+        SUBMITTED: submissions?.filter(s => s.status === 'SUBMITTED' || s.status === 'PENDING').length ?? 0,
+        UNDER_REVIEW: submissions?.filter(s => s.status === 'UNDER_REVIEW').length ?? 0,
+        EVALUATED: submissions?.filter(s => s.status === 'EVALUATED' || s.status === 'ACCEPTED' || s.status === 'REJECTED').length ?? 0,
     };
 
     return (
@@ -66,8 +81,9 @@ export default function MentorDashboard() {
                     <p className="text-slate-500 font-medium mt-1">Review and evaluate hackathon submissions from participants.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <div className="px-4 py-2 bg-amber-50 text-amber-600 rounded-xl text-sm font-extrabold">
-                        {counts.PENDING} Pending
+                    <div className="px-4 py-2 bg-indigo-50 text-[#4F46E5] rounded-xl text-sm font-extrabold flex items-center gap-1.5">
+                        <Clock size={14} />
+                        {counts.SUBMITTED} In Queue
                     </div>
                 </div>
             </div>
@@ -77,7 +93,7 @@ export default function MentorDashboard() {
                 {(Object.entries(counts) as [typeof filter, number][]).map(([key, count]) => {
                     const cfg = key === 'ALL'
                         ? { label: 'Total', color: 'text-slate-700', bg: 'bg-slate-50', Icon: ClipboardList }
-                        : { label: STATUS_CONFIG[key].label, color: key === 'PENDING' ? 'text-amber-600' : key === 'ACCEPTED' ? 'text-emerald-600' : 'text-red-500', bg: STATUS_CONFIG[key].color.split(' ')[0], Icon: STATUS_CONFIG[key].icon };
+                        : { label: STATUS_CONFIG[key].label, color: key === 'SUBMITTED' ? 'text-[#4F46E5]' : key === 'UNDER_REVIEW' ? 'text-amber-600' : 'text-emerald-600', bg: STATUS_CONFIG[key].color.split(' ')[0], Icon: STATUS_CONFIG[key].icon };
                     return (
                         <button
                             key={key}
@@ -102,12 +118,12 @@ export default function MentorDashboard() {
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         placeholder="Search by name, hackathon, language..."
-                        className="w-full h-11 pl-10 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none focus:border-[#3AADDD] transition-all"
+                        className="w-full h-11 pl-10 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 outline-none focus:border-[#4F46E5] transition-all"
                     />
                 </div>
                 <div className="flex items-center gap-2">
                     <Filter size={14} className="text-slate-400" />
-                    {(['ALL', 'PENDING', 'ACCEPTED', 'REJECTED'] as const).map(f => (
+                    {(['ALL', 'SUBMITTED', 'UNDER_REVIEW', 'EVALUATED'] as const).map(f => (
                         <button
                             key={f}
                             onClick={() => setFilter(f)}
@@ -135,12 +151,12 @@ export default function MentorDashboard() {
             ) : (
                 <div className="space-y-3">
                     {filtered.map(sub => {
-                        const cfg = STATUS_CONFIG[sub.status];
+                        const cfg = STATUS_CONFIG[sub.status] || STATUS_CONFIG.SUBMITTED;
                         return (
                             <button
                                 key={sub.submissionId}
                                 onClick={() => navigate(`/mentor/submissions/${sub.submissionId}`)}
-                                className="w-full bg-white border border-slate-100 rounded-2xl p-5 flex items-center gap-5 hover:border-[#3AADDD]/30 hover:shadow-md hover:shadow-indigo-50/50 transition-all text-left group"
+                                className="w-full bg-white border border-slate-100 rounded-2xl p-5 flex items-center gap-5 hover:border-[#4F46E5]/30 hover:shadow-md hover:shadow-indigo-50/50 transition-all text-left group"
                             >
                                 {/* Language badge */}
                                 <div className="w-12 h-12 bg-[#1E1E2E] rounded-xl flex items-center justify-center shrink-0">

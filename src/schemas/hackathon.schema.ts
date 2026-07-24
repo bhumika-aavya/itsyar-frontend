@@ -144,10 +144,22 @@ export const MentorSubmissionSchema = z.object({
     language: z.string(),
     code: z.string(),
     notes: z.string().optional(),
-    status: z.enum(['PENDING', 'ACCEPTED', 'REJECTED']),
+    status: z.enum(['PENDING', 'ACCEPTED', 'REJECTED', 'SUBMITTED', 'UNDER_REVIEW', 'EVALUATED']),
     submittedAt: z.string(),
     reviewNotes: z.string().optional(),
     reviewedAt: z.string().optional(),
+    scores: z.object({
+        innovation: z.number(),
+        technicalFeasibility: z.number(),
+        uiUx: z.number(),
+        accessibility: z.number()
+    }).optional(),
+    weightedScore: z.number().optional(),
+    problemStatement: z.string().optional(),
+    hackathonDescription: z.string().optional(),
+    teamName: z.string().optional(),
+    userName: z.string().optional(),
+    userEmail: z.string().optional(),
 });
 
 export const MentorReviewSchema = z.object({

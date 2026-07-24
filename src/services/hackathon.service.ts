@@ -447,7 +447,7 @@ export const HackathonService = {
     /** Get all submissions assigned to this mentor/judge for review. */
     getMentorSubmissions: async (): Promise<MentorSubmission[]> => {
         try {
-            const response = await api.get("judge/submissions", getAuthHeaders());
+            const response = await api.get("/mentor/submissions", getAuthHeaders());
             return response.data.submissions;
         } catch {
             console.warn("API Error: Falling back to mock mentor submissions");
@@ -458,29 +458,69 @@ export const HackathonService = {
     /** Get a single submission by its ID for detailed review. */
     getSubmissionById: async (submissionId: string): Promise<MentorSubmission> => {
         try {
-            const response = await api.get(`judge/submissions/${submissionId}`, getAuthHeaders());
+            const response = await api.get(`/mentor/submissions/${submissionId}`, getAuthHeaders());
             return response.data.submission;
         } catch {
             console.warn("API Error: Falling back to mock submission lookup");
             const submission = mentorSubmissionsStore.find(s => s.submissionId === submissionId);
             if (!submission) throw new Error("Submission not found");
-            return submission;
+            return {
+                ...submission,
+                problemStatement: submission.problemStatement || "Evaluate this algorithmic implementation for efficiency, design, and correctness.",
+                hackathonDescription: submission.hackathonDescription || "Focus challenge: build concurrent, modular, or robust systems under constraints.",
+                teamName: submission.teamName || "Team Alpha",
+                userName: submission.participantName,
+                userEmail: submission.participantEmail,
+                scores: submission.scores || {
+                    innovation: 0,
+                    technicalFeasibility: 0,
+                    uiUx: 0,
+                    accessibility: 0
+                },
+                weightedScore: submission.weightedScore ?? 0,
+            };
         }
     },
 
     /** Submit a mentor review (accept/reject with feedback). */
-    reviewSubmission: async (submissionId: string, data: MentorReviewValues): Promise<{ success: boolean }> => {
+    reviewSubmission: async (submissionId: string, data: { scores: { innovation: number; technicalFeasibility: number; uiUx: number; accessibility: number }; feedback: string }): Promise<{ success: boolean }> => {
         try {
-            const response = await api.post(`judge/submissions/${submissionId}/review`, data, getAuthHeaders());
+            const response = await api.post(`/mentor/submissions/${submissionId}/review`, data, getAuthHeaders());
             return response.data;
         } catch {
             console.warn("API Error: Simulating mentor review submission");
             const index = mentorSubmissionsStore.findIndex(s => s.submissionId === submissionId);
             if (index !== -1) {
+                const weighted = (data.scores.innovation + data.scores.technicalFeasibility + data.scores.uiUx + data.scores.accessibility) / 4;
                 mentorSubmissionsStore[index] = {
                     ...mentorSubmissionsStore[index],
-                    status: data.status,
-                    reviewNotes: data.reviewNotes,
+                    status: "EVALUATED",
+                    scores: data.scores,
+                    weightedScore: weighted,
+                    reviewNotes: data.feedback,
+                    reviewedAt: new Date().toISOString(),
+                };
+            }
+            return { success: true };
+        }
+    },
+
+    /** Save a mentor review draft. */
+    saveReviewDraft: async (submissionId: string, data: { scores: { innovation: number; technicalFeasibility: number; uiUx: number; accessibility: number }; feedback: string }): Promise<{ success: boolean }> => {
+        try {
+            const response = await api.post(`/mentor/submissions/${submissionId}/review/draft`, data, getAuthHeaders());
+            return response.data;
+        } catch {
+            console.warn("API Error: Simulating mentor review draft save");
+            const index = mentorSubmissionsStore.findIndex(s => s.submissionId === submissionId);
+            if (index !== -1) {
+                const weighted = (data.scores.innovation + data.scores.technicalFeasibility + data.scores.uiUx + data.scores.accessibility) / 4;
+                mentorSubmissionsStore[index] = {
+                    ...mentorSubmissionsStore[index],
+                    status: "UNDER_REVIEW",
+                    scores: data.scores,
+                    weightedScore: weighted,
+                    reviewNotes: data.feedback,
                     reviewedAt: new Date().toISOString(),
                 };
             }
