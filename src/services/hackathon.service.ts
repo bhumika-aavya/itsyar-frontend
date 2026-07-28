@@ -204,24 +204,19 @@ export const HackathonService = {
     getHackathons: async (): Promise<Hackathon[]> => {
         try {
             const response = await api.get("/hackathons", getAuthHeaders());
-            return response.data.hackathons;
+            return response.data.hackathons ?? (Array.isArray(response.data) ? response.data : []);
         } catch {
-            console.warn("API Error: Falling back to mock Hackathon data");
-            const list = loadHackathons();
-            // Filter out Draft, Approved, and Paid hackathons from participant catalog
-            return list.filter(h => h.status !== 'Draft' && h.status !== 'Approved' && h.status !== 'Paid') as any;
+            return [];
         }
     },
 
     getHackathonById: async (id: string) => {
         try {
             const response = await api.get(`/hackathons/${id}`, getAuthHeaders());
-            return response.data.hackathon;
+            return response.data.hackathon ?? response.data;
         } catch (err) {
-            const found = loadHackathons().find(h => h.id === id);
-            if (found) return found;
             if (axios.isAxiosError(err) && err.response) throw new Error(getApiErrorMessage(err));
-            return { success: true };
+            return null;
         }
     },
 

@@ -1,25 +1,40 @@
 import React, { useEffect, useState } from "react";
 import {
-  Search, Plus, Edit2, Trash2, Loader2, Zap, ExternalLink, Check, X, ShieldAlert,
+  Search, Plus, Edit2, Trash2, Loader2, Zap, ExternalLink, ShieldAlert,
 } from "lucide-react";
 import { AdminService } from "@/services/admin.service";
-import { HackathonService } from "@/services/hackathon.service";
-import { loadHackathons, saveHackathons } from "@/services/organizer.service";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 const statusBadge = (status: string) => {
+  const norm = (status ?? "").toLowerCase();
   const map: Record<string, string> = {
-    Open: "bg-emerald-50 text-emerald-600",
-    Running: "bg-blue-50 text-blue-600",
-    COMPLETED: "bg-slate-50 text-slate-500",
-    UpComing: "bg-indigo-50 text-indigo-600",
-    "Draft": "bg-amber-50 text-amber-600",
-    "Approved": "bg-indigo-50 text-indigo-600",
-    Paid: "bg-emerald-50 text-emerald-600",
-    // Draft: "bg-slate-100 text-slate-500",
+    open: "bg-emerald-50 text-emerald-600",
+    running: "bg-blue-50 text-blue-600",
+    completed: "bg-slate-50 text-slate-500",
+    upcoming: "bg-indigo-50 text-indigo-600",
+    draft: "bg-amber-50 text-amber-600",
+    approved: "bg-indigo-50 text-indigo-600",
+    paid: "bg-emerald-50 text-emerald-600",
   };
-  return map[status] ?? "bg-slate-50 text-slate-500";
+  return map[norm] ?? "bg-slate-50 text-slate-500";
+};
+
+const formatStatusLabel = (status: string) => {
+  if (!status) return "—";
+  const s = status.trim();
+  if (s.toLowerCase() === "all") return "All";
+  if (s.toLowerCase() === "upcoming") return "Upcoming";
+  if (s.toLowerCase() === "completed") return "Completed";
+  return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+};
+
+const capitalizeWords = (str: string) => {
+  if (!str || str === "—") return "—";
+  return str
+    .split(" ")
+    .map(w => (w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : ""))
+    .join(" ");
 };
 
 const fmt = (d: string) => {
@@ -30,10 +45,12 @@ const fmt = (d: string) => {
 
 export default function AdminHackathonsPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const statusFilter = searchParams.get("status") || "all";
+
   const [hackathons, setHackathons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Review flow states
@@ -46,16 +63,30 @@ export default function AdminHackathonsPage() {
         setHackathons(apiData);
       })
       .catch(() => {
-        setHackathons(loadHackathons());
+        setHackathons([]);
       })
       .finally(() => setLoading(false));
   }, []);
+
+  const handleStatusChange = (status: string) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      if (status === "all") {
+        next.delete("status");
+      } else {
+        next.set("status", status);
+      }
+      return next;
+    });
+  };
 
   const filtered = hackathons.filter(h => {
     const matchSearch =
       (h.title ?? "").toLowerCase().includes(search.toLowerCase()) ||
       (h.organizerName ?? h.createdBy ?? "").toLowerCase().includes(search.toLowerCase());
-    const matchStatus = statusFilter === "all" || h.status === statusFilter;
+    const matchStatus =
+      statusFilter === "all" ||
+      (h.status ?? "").toLowerCase() === statusFilter.toLowerCase();
     return matchSearch && matchStatus;
   });
 
@@ -67,7 +98,16 @@ export default function AdminHackathonsPage() {
     setDeletingId(null);
   };
 
-  const statuses = ["all", ...Array.from(new Set(hackathons.map(h => h.status).filter(Boolean)))];
+  const uniqueStatusesMap = new Map<string, string>();
+  hackathons.forEach(h => {
+    if (h.status) {
+      const key = h.status.trim().toLowerCase();
+      if (!uniqueStatusesMap.has(key)) {
+        uniqueStatusesMap.set(key, h.status.trim());
+      }
+    }
+  });
+  const statuses = ["all", ...Array.from(uniqueStatusesMap.values())];
 
   if (loading) {
     return (
@@ -104,17 +144,22 @@ export default function AdminHackathonsPage() {
             className="h-10 pl-9 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#3AADDD] w-64"
           />
         </div>
-        <div className="flex gap-2">
-          {statuses.map(s => (
-            <button
-              key={s}
-              onClick={() => setStatusFilter(s)}
-              className={`px-3 py-1.5 text-xs font-extrabold rounded-xl transition-all ${statusFilter === s ? "bg-[#4F46E5] text-white" : "bg-white border border-slate-200 text-slate-500 hover:border-slate-300"
-                }`}
-            >
-              {s === "all" ? "All" : s}
-            </button>
-          ))}
+        <div className="flex gap-2 flex-wrap">
+          {statuses.map(s => {
+            const isActive = statusFilter.toLowerCase() === s.toLowerCase();
+            return (
+              <button
+                key={s}
+                onClick={() => handleStatusChange(s)}
+                className={`px-3 py-1.5 text-xs font-extrabold rounded-xl transition-all ${isActive
+                    ? "bg-[#4F46E5] text-white"
+                    : "bg-white border border-slate-200 text-slate-500 hover:border-slate-300"
+                  }`}
+              >
+                {formatStatusLabel(s)}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -143,13 +188,12 @@ export default function AdminHackathonsPage() {
                       </div>
                       <div>
                         <p className="font-extrabold text-slate-900">{h.title}</p>
-                        {h.mode && <p className="text-xs font-bold text-slate-400">{h.mode}</p>}
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-4 hidden sm:table-cell">
                     <span className="text-xs font-extrabold text-slate-700">
-                      {h.organizerName ?? h.createdBy ?? h.organizer ?? h.creator ?? "—"}
+                      {capitalizeWords(h.organizerName ?? h.createdBy ?? h.organizer ?? h.creator ?? "—")}
                     </span>
                   </td>
                   <td className="px-4 py-4 hidden md:table-cell">
@@ -160,7 +204,7 @@ export default function AdminHackathonsPage() {
                   </td>
                   <td className="px-4 py-4">
                     <span className={`text-[11px] font-extrabold px-2.5 py-1 rounded-lg ${statusBadge(h.status)}`}>
-                      {h.status ?? "—"}
+                      {formatStatusLabel(h.status)}
                     </span>
                     {h.pricing && h.pricing !== "0" && (
                       <span className="text-[10px] font-bold text-slate-400 block mt-1">
@@ -170,12 +214,12 @@ export default function AdminHackathonsPage() {
                   </td>
                   <td className="px-4 py-4 hidden lg:table-cell">
                     <span className="text-xs font-bold text-slate-400">
-                      {h.registeredCount ?? h.participantCount ?? "—"}
+                      {h.participantCount ?? "0"}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-1.5">
-                      {h.status === "Draft" && (
+                      {(h.status?.toLowerCase() === "draft") && (
                         <button
                           onClick={() => {
                             setReviewingHackathon(h);

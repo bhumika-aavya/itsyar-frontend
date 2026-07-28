@@ -8,7 +8,6 @@ import {
     PaymentStatus,
     PurchaseType,
 } from "@/types/payment.types";
-import { loadHackathons, saveHackathons } from "./organizer.service";
 
 // ── Persistence Helpers ───────────────────────────────────────────────────────
 // Persist payment data to localStorage so state survives page refreshes.
@@ -295,14 +294,6 @@ export const PaymentService = {
                 if (purchase.type === "hackathon_subscription") {
                     paidHackathonsStore[purchase.productId] = purchase.id;
                     savePaidHackathons(paidHackathonsStore);
-                    
-                    // Update status in shared store
-                    const list = loadHackathons();
-                    const hIdx = list.findIndex(h => h.id === purchase.productId);
-                    if (hIdx !== -1) {
-                        list[hIdx].status = "Paid";
-                        saveHackathons(list);
-                    }
                 } else if (purchase.type === "course") {
                     purchasedCoursesStore[purchase.productId] = purchase.id;
                     savePurchasedCourses(purchasedCoursesStore);
@@ -345,19 +336,8 @@ export const PaymentService = {
             return true;
         } catch (error) {
             console.warn("API Error: Simulating hackathon publication");
-            const list = loadHackathons();
-            const hackathon = list.find(h => h.id === hackathonId);
-            const isPaid = PaymentService.isHackathonPaid(hackathonId) || hackathon?.status === "Paid";
-            if (isPaid) {
-                // Update status in shared store
-                const hIdx = list.findIndex(h => h.id === hackathonId);
-                if (hIdx !== -1) {
-                    list[hIdx].status = "Open"; // becomes public
-                    saveHackathons(list);
-                }
-                return true;
-            }
-            return false;
+            const isPaid = PaymentService.isHackathonPaid(hackathonId);
+            return isPaid;
         }
     },
 

@@ -377,20 +377,7 @@ export const AdminService = {
         createdBy: h.createdBy ?? h.organizerName ?? h.organizer ?? h.creator ?? "—",
       }));
     } catch {
-      const list = loadHackathons();
-      return list.map(h => ({
-        id: h.id,
-        title: h.title,
-        mode: h.mode ?? "Online",
-        startDate: h.startDate,
-        endDate: h.endDate,
-        status: h.status,
-        participants: h.participantCount,
-        description: h.description,
-        pricing: h.pricing,
-        organizerName: h.createdBy ?? h.organizerName ?? h.organizer ?? "—",
-        createdBy: h.createdBy ?? h.organizerName ?? h.organizer ?? "—",
-      })) as any;
+      return [];
     }
   },
 
@@ -403,7 +390,7 @@ export const AdminService = {
         res = await api.get(`/hackathons/${id}`, getAuthHeaders());
       }
       const h = res.data?.hackathon ?? res.data;
-      if (!h || !h.id) return loadHackathons().find(item => item.id === id) ?? null;
+      if (!h || !h.id) return null;
       return {
         id: String(h.id),
         title: h.title ?? "",
@@ -431,60 +418,36 @@ export const AdminService = {
         timeline: h.timeline ?? [],
       };
     } catch {
-      return loadHackathons().find(h => h.id === id) ?? null;
+      return null;
     }
   },
 
   createHackathon: async (data: OrganizerCreateHackathonValues): Promise<OrganizerHackathon> => {
-    try {
-      const res = await api.post("/admin/hackathons", buildAdminHackathonPayload(data), getAuthHeaders());
-      const h = res.data?.hackathon ?? res.data;
-      return {
-        id: String(h?.id ?? `h${Date.now()}`),
-        ...buildLocalAdminHackathonFields(data),
-        status: h?.status ?? "Open",
-        participantCount: String(h?.participantCount ?? "0"),
-        problemCount: h?.problemCount ?? 0,
-      };
-    } catch {
-      const newHackathon: OrganizerHackathon = {
-        id: `h${Date.now()}`,
-        ...buildLocalAdminHackathonFields(data),
-        status: "Open", // Admin can create and publish directly
-        participantCount: "0",
-        problemCount: 0,
-      };
-      const list = loadHackathons();
-      saveHackathons([newHackathon, ...list]);
-      return newHackathon;
-    }
+    const res = await api.post("/admin/hackathons", buildAdminHackathonPayload(data), getAuthHeaders());
+    const h = res.data?.hackathon ?? res.data;
+    return {
+      id: String(h?.id ?? `h${Date.now()}`),
+      ...buildLocalAdminHackathonFields(data),
+      status: h?.status ?? "Open",
+      participantCount: String(h?.participantCount ?? "0"),
+      problemCount: h?.problemCount ?? 0,
+    };
   },
 
   updateHackathon: async (id: string, data: OrganizerCreateHackathonValues): Promise<OrganizerHackathon> => {
-    try {
-      await api.put(`/admin/hackathons/${id}`, buildAdminHackathonPayload(data), getAuthHeaders());
-    } catch {
-      // fall through to local store update below
-    }
-    const list = loadHackathons();
-    const idx = list.findIndex(h => h.id === id);
-    if (idx !== -1) {
-      list[idx] = { ...list[idx], ...buildLocalAdminHackathonFields(data) };
-      saveHackathons(list);
-      return list[idx];
-    }
-    const fallback = { id, ...buildLocalAdminHackathonFields(data), status: "Open", participantCount: "0", problemCount: 0 };
-    return fallback;
+    const res = await api.put(`/admin/hackathons/${id}`, buildAdminHackathonPayload(data), getAuthHeaders());
+    const h = res.data?.hackathon ?? res.data;
+    return {
+      id: String(id),
+      ...buildLocalAdminHackathonFields(data),
+      status: h?.status ?? "Open",
+      participantCount: String(h?.participantCount ?? "0"),
+      problemCount: h?.problemCount ?? 0,
+    };
   },
 
   deleteHackathon: async (id: string): Promise<void> => {
-    try {
-      await api.delete(`/admin/hackathons/${id}`, getAuthHeaders());
-    } catch {
-      // mock no-op
-    }
-    const list = loadHackathons();
-    saveHackathons(list.filter(h => h.id !== id));
+    await api.delete(`/admin/hackathons/${id}`, getAuthHeaders());
   },
 
   getTeams: async (params?: { search?: string; hackathonId?: string }): Promise<AdminTeamsResponse> => {
@@ -526,32 +489,10 @@ export const AdminService = {
   },
 
   approveHackathon: async (id: string, pricing: string): Promise<void> => {
-    try {
-      await api.post(`/admin/hackathons/${id}/approve`, { pricing }, getAuthHeaders());
-    } catch {
-      console.warn("API Error: Falling back to mock hackathon approval");
-    }
-    // Update local storage status
-    const list = loadHackathons();
-    const idx = list.findIndex(h => h.id === id);
-    if (idx !== -1) {
-      list[idx] = { ...list[idx], status: "Approved", pricing };
-      saveHackathons(list);
-    }
+    await api.post(`/admin/hackathons/${id}/approve`, { pricing }, getAuthHeaders());
   },
 
   rejectHackathon: async (id: string): Promise<void> => {
-    try {
-      await api.post(`/admin/hackathons/${id}/reject`, {}, getAuthHeaders());
-    } catch {
-      console.warn("API Error: Falling back to mock hackathon rejection");
-    }
-    // Update local storage status
-    const list = loadHackathons();
-    const idx = list.findIndex(h => h.id === id);
-    if (idx !== -1) {
-      list[idx] = { ...list[idx], status: "Draft" };
-      saveHackathons(list);
-    }
+    await api.post(`/admin/hackathons/${id}/reject`, {}, getAuthHeaders());
   },
 };

@@ -77,33 +77,15 @@ export type OrganizerTeam = {
 
 
 
-const LS_KEY_HACKATHONS = 'forge_hackathons';
-
-const STATIC_MOCK_IDS = new Set(["h1", "h2", "h3", "h4", "h5", "h6", "h7", "h8", "h9", "h10", "h11", "h_pending_1"]);
-
 export function loadHackathons(): OrganizerHackathon[] {
-    try {
-        const raw = localStorage.getItem(LS_KEY_HACKATHONS);
-        if (raw) {
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed)) {
-                // Filter out legacy static mock hackathons so data is strictly dynamic
-                const cleaned = parsed.filter((h: any) => h && h.id && !STATIC_MOCK_IDS.has(h.id));
-                if (cleaned.length !== parsed.length) {
-                    localStorage.setItem(LS_KEY_HACKATHONS, JSON.stringify(cleaned));
-                }
-                return cleaned;
-            }
-        }
-    } catch { }
+    if (typeof window !== "undefined") {
+        try { localStorage.removeItem("forge_hackathons"); } catch { }
+    }
     return [];
 }
 
-export function saveHackathons(list: OrganizerHackathon[]) {
-    try {
-        const cleaned = list.filter(h => h && h.id && !STATIC_MOCK_IDS.has(h.id));
-        localStorage.setItem(LS_KEY_HACKATHONS, JSON.stringify(cleaned));
-    } catch { }
+export function saveHackathons(_list: OrganizerHackathon[]) {
+    // No-op: Data is strictly managed by the backend API
 }
 
 const orgProblemsStore: Record<string, HackathonProblem[]> = {};
@@ -225,7 +207,7 @@ export const OrganizerService = {
         try {
             const response = await api.get(`${BASE}/hackathons`, getAuthHeaders());
             const apiData: any[] = response.data.hackathons ?? (Array.isArray(response.data) ? response.data : []);
-            const mappedApiData: OrganizerHackathon[] = apiData.map(h => ({
+            return apiData.map(h => ({
                 id: String(h.id),
                 title: h.title ?? "",
                 startDate: h.startDate ?? "",
@@ -253,14 +235,8 @@ export const OrganizerService = {
                 faqs: h.faqs ?? [],
                 timeline: h.timeline ?? [],
             }));
-
-            const localData = loadHackathons();
-            const apiIds = new Set(mappedApiData.map(h => h.id));
-            const unsyncedLocal = localData.filter(h => !apiIds.has(h.id));
-
-            return [...unsyncedLocal, ...mappedApiData];
         } catch {
-            return loadHackathons();
+            return [];
         }
     },
 
@@ -268,7 +244,7 @@ export const OrganizerService = {
         try {
             const response = await api.get(`${BASE}/hackathons/${id}`, getAuthHeaders());
             const h = response.data.hackathon ?? response.data;
-            if (!h || !h.id) return loadHackathons().find(item => item.id === id) ?? null;
+            if (!h || !h.id) return null;
             return {
                 id: String(h.id),
                 title: h.title ?? "",
@@ -296,66 +272,42 @@ export const OrganizerService = {
                 timeline: h.timeline ?? [],
             };
         } catch {
-            return loadHackathons().find(h => h.id === id) ?? null;
+            return null;
         }
     },
 
     createHackathon: async (data: OrganizerCreateHackathonValues): Promise<OrganizerHackathon> => {
-        try {
-            const response = await api.post(`${BASE}/hackathons`, buildHackathonPayload(data), getAuthHeaders());
-            return response.data.hackathon;
-        } catch {
-            const newHackathon: OrganizerHackathon = {
-                id: `h${Date.now()}`,
-                ...buildLocalHackathonFields(data),
-                status: "Draft",
-                participantCount: "0",
-                problemCount: 0,
-            };
-            const list = loadHackathons();
-            saveHackathons([newHackathon, ...list]);
-            return newHackathon;
-        }
+        const response = await api.post(`${BASE}/hackathons`, buildHackathonPayload(data), getAuthHeaders());
+        const h = response.data.hackathon ?? response.data;
+        return {
+            id: String(h?.id ?? ""),
+            ...buildLocalHackathonFields(data),
+            status: h?.status ?? "Draft",
+            participantCount: String(h?.participantCount ?? "0"),
+            problemCount: h?.problemCount ?? 0,
+            pricing: data.pricing ?? "0",
+        };
     },
 
     updateHackathon: async (id: string, data: OrganizerCreateHackathonValues): Promise<OrganizerHackathon> => {
-        try {
-            await api.put(`${BASE}/hackathons/${id}`, buildHackathonPayload(data), getAuthHeaders());
-        } catch {
-            // fall through to local store update below
-        }
-        const list = loadHackathons();
-        const idx = list.findIndex(h => h.id === id);
-        if (idx !== -1) {
-            list[idx] = { ...list[idx], ...buildLocalHackathonFields(data), status: "Draft" };
-            saveHackathons(list);
-            return list[idx];
-        }
-        return list[idx];
+        const response = await api.put(`${BASE}/hackathons/${id}`, buildHackathonPayload(data), getAuthHeaders());
+        const h = response.data?.hackathon ?? response.data;
+        return {
+            id: String(id),
+            ...buildLocalHackathonFields(data),
+            status: h?.status ?? "Draft",
+            participantCount: String(h?.participantCount ?? "0"),
+            problemCount: h?.problemCount ?? 0,
+            pricing: data.pricing ?? "0",
+        };
     },
 
     deleteHackathon: async (id: string): Promise<void> => {
-        try {
-            await api.delete(`${BASE}/hackathons/${id}`, getAuthHeaders());
-        } catch {
-            // fall through to local store update below
-        }
-        const list = loadHackathons();
-        saveHackathons(list.filter(h => h.id !== id));
+        await api.delete(`${BASE}/hackathons/${id}`, getAuthHeaders());
     },
 
     updateHackathonStatus: async (id: string, status: HackathonLifecycleStatus): Promise<void> => {
-        try {
-            await api.put(`${BASE}/hackathons/${id}/status`, { status }, getAuthHeaders());
-        } catch {
-            // fall through to local store update below
-        }
-        const list = loadHackathons();
-        const idx = list.findIndex(h => h.id === id);
-        if (idx !== -1) {
-            list[idx] = { ...list[idx], status };
-            saveHackathons(list);
-        }
+        await api.put(`${BASE}/hackathons/${id}/status`, { status }, getAuthHeaders());
     },
 
     getAvailableJudges: async (): Promise<{ userId: string; name: string; email: string }[]> => {
@@ -427,12 +379,6 @@ export const OrganizerService = {
         } catch {
             const problem = buildProblemFromForm(hackathonId, `p${Date.now()}`, data);
             orgProblemsStore[hackathonId] = [...(orgProblemsStore[hackathonId] ?? []), problem];
-            const list = loadHackathons();
-            const idx = list.findIndex(h => h.id === hackathonId);
-            if (idx !== -1) {
-                list[idx].problemCount = orgProblemsStore[hackathonId].length;
-                saveHackathons(list);
-            }
             return problem;
         }
     },
