@@ -41,20 +41,9 @@ export default function AdminHackathonsPage() {
   const [priceInput, setPriceInput] = useState("49.99");
 
   useEffect(() => {
-    HackathonService.getHackathons()
+    AdminService.getHackathons()
       .then(apiData => {
-        // Load the local data fallback containing organizer drafts & pending approvals
-        const localData = loadHackathons();
-
-        // Find which local hackathons have special review/draft statuses
-        const apiIds = new Set(apiData.map(h => h.id));
-        const localPendingOrSpecial = localData.filter(
-          h => !apiIds.has(h.id) || h.status === "Draft" || h.status === "Approved" || h.status === "Paid"
-        );
-
-        // Merge lists putting the special/pending ones first so the admin sees them at the top
-        const merged = [...localPendingOrSpecial, ...apiData.filter(h => !localPendingOrSpecial.some(lh => lh.id === h.id))];
-        setHackathons(merged);
+        setHackathons(apiData);
       })
       .catch(() => {
         setHackathons(loadHackathons());
@@ -63,7 +52,9 @@ export default function AdminHackathonsPage() {
   }, []);
 
   const filtered = hackathons.filter(h => {
-    const matchSearch = (h.title ?? "").toLowerCase().includes(search.toLowerCase());
+    const matchSearch =
+      (h.title ?? "").toLowerCase().includes(search.toLowerCase()) ||
+      (h.organizerName ?? h.createdBy ?? "").toLowerCase().includes(search.toLowerCase());
     const matchStatus = statusFilter === "all" || h.status === statusFilter;
     return matchSearch && matchStatus;
   });
@@ -109,8 +100,8 @@ export default function AdminHackathonsPage() {
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search hackathons..."
-            className="h-10 pl-9 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#3AADDD] w-56"
+            placeholder="Search hackathons or organizer..."
+            className="h-10 pl-9 pr-4 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none focus:border-[#3AADDD] w-64"
           />
         </div>
         <div className="flex gap-2">
@@ -134,6 +125,7 @@ export default function AdminHackathonsPage() {
             <thead>
               <tr className="border-b border-slate-50 bg-slate-50/50">
                 <th className="text-left px-6 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Hackathon</th>
+                <th className="text-left px-4 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hidden sm:table-cell">Organizer</th>
                 <th className="text-left px-4 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hidden md:table-cell">Start Date</th>
                 <th className="text-left px-4 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider hidden md:table-cell">End Date</th>
                 <th className="text-left px-4 py-4 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Status</th>
@@ -154,6 +146,11 @@ export default function AdminHackathonsPage() {
                         {h.mode && <p className="text-xs font-bold text-slate-400">{h.mode}</p>}
                       </div>
                     </div>
+                  </td>
+                  <td className="px-4 py-4 hidden sm:table-cell">
+                    <span className="text-xs font-extrabold text-slate-700">
+                      {h.organizerName ?? h.createdBy ?? h.organizer ?? h.creator ?? "—"}
+                    </span>
                   </td>
                   <td className="px-4 py-4 hidden md:table-cell">
                     <span className="text-xs font-bold text-slate-500">{h.startDate ? fmt(h.startDate) : "—"}</span>

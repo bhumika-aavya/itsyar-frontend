@@ -27,6 +27,8 @@ export type OrganizerHackathon = {
     ideationStartDate?: string;
     ideationEndDate?: string;
     pricing: string;
+    createdBy?: string;
+    organizerName?: string;
     judges?: { id: string; name: string; email: string }[];
     rules?: string[];
     criteria?: HackathonCriteriaValues[];
@@ -77,51 +79,30 @@ export type OrganizerTeam = {
 
 const LS_KEY_HACKATHONS = 'forge_hackathons';
 
-const DEFAULT_HACKATHONS: OrganizerHackathon[] = [
-    { id: "h1", title: "CodeSprint 2024", startDate: "2024-05-21", endDate: "2024-05-23", status: "COMPLETED", iconType: "trophy", participantCount: "128", problemCount: 3, description: "Annual coding championship.", registrationsDeadline: "2024-05-20", pricing: "0" },
-    { id: "h2", title: "AI Innovate Hack", startDate: "2025-06-16", endDate: "2025-06-18", status: "COMPLETED", iconType: "cpu", participantCount: "64", problemCount: 2, description: "Build state-of-the-art AI applications.", registrationsDeadline: "2025-06-15", pricing: "0" },
-    { id: "h3", title: "Web Wizards Challenge", startDate: "2025-07-21", endDate: "2025-07-23", status: "Running", iconType: "zap", participantCount: "256", problemCount: 4, description: "Fast-paced web design hackathon.", registrationsDeadline: "2025-07-20", pricing: "0" },
-    { id: "h4", title: "BlockBuilders", startDate: "2025-08-25", endDate: "2025-08-27", status: "Open", iconType: "database", participantCount: "42", problemCount: 1, description: "Web3 and smart contract building.", registrationsDeadline: "2025-08-24", pricing: "0" },
-    { id: "h5", title: "InnovateX", startDate: "2025-11-06", endDate: "2025-11-08", status: "Running", iconType: "settings", participantCount: "95", problemCount: 3, description: "Hardware and software integration.", registrationsDeadline: "2025-11-05", pricing: "0" },
-    { id: "h6", title: "AI Innova Challenge", startDate: "2026-01-10", endDate: "2026-01-12", status: "COMPLETED", iconType: "cpu", participantCount: "110", problemCount: 5, description: "Solve real-world challenges using NLP.", registrationsDeadline: "2026-01-09", pricing: "0" },
-    { id: "h7", title: "CodeSprint 2026", startDate: "2026-05-21", endDate: "2026-05-30", status: "Open", iconType: "trophy", participantCount: "87", problemCount: 2, description: "The premier competitive coding event.", registrationsDeadline: "2026-05-20", pricing: "49.99" },
-    { id: "h8", title: "CloudNative Summit", startDate: "2026-09-01", endDate: "2026-09-03", status: "UpComing", iconType: "cloud", participantCount: "0", problemCount: 0, description: "Kubernetes and serverless architectures.", registrationsDeadline: "2026-08-30", pricing: "49.99" },
-    { id: "h9", title: "NextGen Fintech Hackathon", startDate: "2026-10-15", endDate: "2026-10-20", status: "Draft", iconType: "zap", participantCount: "0", problemCount: 0, description: "Build the future of digital banking and Web3 payments. Review this hackathon to approve it and set a listing price.", registrationsDeadline: "2026-10-10", pricing: "0" },
-    { id: "h10", title: "Web3 Security Hackathon", startDate: "2026-11-01", endDate: "2026-11-05", status: "Approved", iconType: "database", participantCount: "0", problemCount: 0, description: "Identify and exploit smart contract vulnerabilities in a sandboxed testnet environment.", registrationsDeadline: "2026-10-28", pricing: "49.99" },
-    { id: "h11", title: "AI Agents Challenge", startDate: "2026-12-05", endDate: "2026-12-10", status: "Paid", iconType: "cpu", participantCount: "0", problemCount: 0, description: "Build autonomous LLM agents capable of coordinating and negotiating over payments.", registrationsDeadline: "2026-12-01", pricing: "79.99" },
-];
+const STATIC_MOCK_IDS = new Set(["h1", "h2", "h3", "h4", "h5", "h6", "h7", "h8", "h9", "h10", "h11", "h_pending_1"]);
 
 export function loadHackathons(): OrganizerHackathon[] {
     try {
         const raw = localStorage.getItem(LS_KEY_HACKATHONS);
         if (raw) {
             const parsed = JSON.parse(raw);
-            let updated = false;
-            const pendingIds = ["h9", "h10", "h11"];
-            pendingIds.forEach(id => {
-                if (!parsed.some((h: any) => h.id === id)) {
-                    const item = DEFAULT_HACKATHONS.find(h => h.id === id);
-                    if (item) {
-                        parsed.push(item);
-                        updated = true;
-                    }
+            if (Array.isArray(parsed)) {
+                // Filter out legacy static mock hackathons so data is strictly dynamic
+                const cleaned = parsed.filter((h: any) => h && h.id && !STATIC_MOCK_IDS.has(h.id));
+                if (cleaned.length !== parsed.length) {
+                    localStorage.setItem(LS_KEY_HACKATHONS, JSON.stringify(cleaned));
                 }
-            });
-            if (updated) {
-                localStorage.setItem(LS_KEY_HACKATHONS, JSON.stringify(parsed));
+                return cleaned;
             }
-            return parsed;
         }
     } catch { }
-    try {
-        localStorage.setItem(LS_KEY_HACKATHONS, JSON.stringify(DEFAULT_HACKATHONS));
-    } catch { }
-    return DEFAULT_HACKATHONS;
+    return [];
 }
 
 export function saveHackathons(list: OrganizerHackathon[]) {
     try {
-        localStorage.setItem(LS_KEY_HACKATHONS, JSON.stringify(list));
+        const cleaned = list.filter(h => h && h.id && !STATIC_MOCK_IDS.has(h.id));
+        localStorage.setItem(LS_KEY_HACKATHONS, JSON.stringify(cleaned));
     } catch { }
 }
 
@@ -243,17 +224,41 @@ export const OrganizerService = {
     getMyHackathons: async (): Promise<OrganizerHackathon[]> => {
         try {
             const response = await api.get(`${BASE}/hackathons`, getAuthHeaders());
-            const apiData = response.data.hackathons ?? [];
+            const apiData: any[] = response.data.hackathons ?? (Array.isArray(response.data) ? response.data : []);
+            const mappedApiData: OrganizerHackathon[] = apiData.map(h => ({
+                id: String(h.id),
+                title: h.title ?? "",
+                startDate: h.startDate ?? "",
+                endDate: h.endDate ?? "",
+                status: h.status ?? "Open",
+                description: h.description ?? "",
+                teamSize: h.teamSize,
+                registrationsDeadline: h.registrationsDeadline ?? "",
+                mode: h.mode ?? "Online",
+                platform: h.platform ?? "standard",
+                foundryLink: h.foundryLink,
+                iconType: h.iconType ?? "trophy",
+                participantCount: String(h.participantCount ?? "0"),
+                problemCount: h.problemCount ?? 0,
+                difficultyLevel: h.difficultyLevel,
+                ideationStartDate: h.ideationStartDate,
+                ideationEndDate: h.ideationEndDate,
+                pricing: h.pricing ?? "0",
+                createdBy: h.createdBy ?? h.organizerName ?? h.organizer ?? h.creator,
+                organizerName: h.organizerName ?? h.createdBy ?? h.organizer ?? h.creator,
+                judges: h.judges ?? [],
+                rules: Array.isArray(h.rules) ? h.rules : [],
+                criteria: h.criteria ?? [],
+                prizes: h.prizes ?? [],
+                faqs: h.faqs ?? [],
+                timeline: h.timeline ?? [],
+            }));
+
             const localData = loadHackathons();
-            const apiIds = new Set(apiData.map((h: any) => h.id));
+            const apiIds = new Set(mappedApiData.map(h => h.id));
+            const unsyncedLocal = localData.filter(h => !apiIds.has(h.id));
 
-            // Filter local storage to only keep drafts, payment-required, or paid hackathons
-            const localPendingOrSpecial = localData.filter(
-                h => !apiIds.has(h.id) || h.status === "Draft" || h.status === "Approved" || h.status === "Paid"
-            );
-
-            // Merge lists putting the special/pending ones first
-            return [...localPendingOrSpecial, ...apiData.filter((h: any) => !localPendingOrSpecial.some(lh => lh.id === h.id))];
+            return [...unsyncedLocal, ...mappedApiData];
         } catch {
             return loadHackathons();
         }
@@ -262,7 +267,34 @@ export const OrganizerService = {
     getHackathonById: async (id: string): Promise<OrganizerHackathon | null> => {
         try {
             const response = await api.get(`${BASE}/hackathons/${id}`, getAuthHeaders());
-            return response.data.hackathon;
+            const h = response.data.hackathon ?? response.data;
+            if (!h || !h.id) return loadHackathons().find(item => item.id === id) ?? null;
+            return {
+                id: String(h.id),
+                title: h.title ?? "",
+                startDate: h.startDate ?? "",
+                endDate: h.endDate ?? "",
+                status: h.status ?? "Open",
+                description: h.description ?? "",
+                teamSize: h.teamSize,
+                registrationsDeadline: h.registrationsDeadline ?? "",
+                mode: h.mode ?? "Online",
+                platform: h.platform ?? "standard",
+                foundryLink: h.foundryLink,
+                iconType: h.iconType ?? "trophy",
+                participantCount: String(h.participantCount ?? "0"),
+                problemCount: h.problemCount ?? 0,
+                difficultyLevel: h.difficultyLevel,
+                ideationStartDate: h.ideationStartDate,
+                ideationEndDate: h.ideationEndDate,
+                pricing: h.pricing ?? "0",
+                judges: h.judges ?? [],
+                rules: Array.isArray(h.rules) ? h.rules : [],
+                criteria: h.criteria ?? [],
+                prizes: h.prizes ?? [],
+                faqs: h.faqs ?? [],
+                timeline: h.timeline ?? [],
+            };
         } catch {
             return loadHackathons().find(h => h.id === id) ?? null;
         }

@@ -80,6 +80,10 @@ export interface AdminHackathon {
   endDate: string;
   status: string;
   participants: string;
+  description?: string;
+  pricing?: string;
+  organizerName?: string;
+  createdBy?: string;
 }
 
 export interface AdminTeam {
@@ -352,26 +356,80 @@ export const AdminService = {
 
   getHackathons: async (params?: { search?: string; status?: string }): Promise<AdminHackathon[]> => {
     try {
-      const res = await api.get("/admin/hackathons", { ...getAuthHeaders(), params });
-      return res.data?.hackathons ?? [];
+      let res;
+      try {
+        res = await api.get("/admin/hackathons", { ...getAuthHeaders(), params });
+      } catch {
+        res = await api.get("/hackathons", { ...getAuthHeaders(), params });
+      }
+      const rawList: any[] = res.data?.hackathons ?? (Array.isArray(res.data) ? res.data : []);
+      return rawList.map((h: any) => ({
+        id: String(h.id),
+        title: h.title ?? "",
+        mode: h.mode ?? "Online",
+        startDate: h.startDate ?? "",
+        endDate: h.endDate ?? "",
+        status: h.status ?? "Open",
+        participants: String(h.participantCount ?? "0"),
+        description: h.description ?? "",
+        pricing: h.pricing ?? "0",
+        organizerName: h.createdBy ?? h.organizerName ?? h.organizer ?? h.creator ?? "—",
+        createdBy: h.createdBy ?? h.organizerName ?? h.organizer ?? h.creator ?? "—",
+      }));
     } catch {
       const list = loadHackathons();
       return list.map(h => ({
         id: h.id,
         title: h.title,
-        mode: h.mode ?? "standard",
+        mode: h.mode ?? "Online",
         startDate: h.startDate,
         endDate: h.endDate,
         status: h.status,
         participants: h.participantCount,
+        description: h.description,
+        pricing: h.pricing,
+        organizerName: h.createdBy ?? h.organizerName ?? h.organizer ?? "—",
+        createdBy: h.createdBy ?? h.organizerName ?? h.organizer ?? "—",
       })) as any;
     }
   },
 
   getHackathonById: async (id: string): Promise<OrganizerHackathon | null> => {
     try {
-      const res = await api.get(`/admin/hackathons/${id}`, getAuthHeaders());
-      return res.data.hackathon;
+      let res;
+      try {
+        res = await api.get(`/admin/hackathons/${id}`, getAuthHeaders());
+      } catch {
+        res = await api.get(`/hackathons/${id}`, getAuthHeaders());
+      }
+      const h = res.data?.hackathon ?? res.data;
+      if (!h || !h.id) return loadHackathons().find(item => item.id === id) ?? null;
+      return {
+        id: String(h.id),
+        title: h.title ?? "",
+        startDate: h.startDate ?? "",
+        endDate: h.endDate ?? "",
+        status: h.status ?? "Open",
+        description: h.description ?? "",
+        teamSize: h.teamSize,
+        registrationsDeadline: h.registrationsDeadline ?? "",
+        mode: h.mode ?? "Online",
+        platform: h.platform ?? "standard",
+        foundryLink: h.foundryLink,
+        iconType: h.iconType ?? "trophy",
+        participantCount: String(h.participantCount ?? "0"),
+        problemCount: h.problemCount ?? 0,
+        difficultyLevel: h.difficultyLevel,
+        ideationStartDate: h.ideationStartDate,
+        ideationEndDate: h.ideationEndDate,
+        pricing: h.pricing ?? "0",
+        judges: h.judges ?? [],
+        rules: Array.isArray(h.rules) ? h.rules : [],
+        criteria: h.criteria ?? [],
+        prizes: h.prizes ?? [],
+        faqs: h.faqs ?? [],
+        timeline: h.timeline ?? [],
+      };
     } catch {
       return loadHackathons().find(h => h.id === id) ?? null;
     }
@@ -380,7 +438,14 @@ export const AdminService = {
   createHackathon: async (data: OrganizerCreateHackathonValues): Promise<OrganizerHackathon> => {
     try {
       const res = await api.post("/admin/hackathons", buildAdminHackathonPayload(data), getAuthHeaders());
-      return res.data.hackathon;
+      const h = res.data?.hackathon ?? res.data;
+      return {
+        id: String(h?.id ?? `h${Date.now()}`),
+        ...buildLocalAdminHackathonFields(data),
+        status: h?.status ?? "Open",
+        participantCount: String(h?.participantCount ?? "0"),
+        problemCount: h?.problemCount ?? 0,
+      };
     } catch {
       const newHackathon: OrganizerHackathon = {
         id: `h${Date.now()}`,
