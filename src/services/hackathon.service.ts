@@ -1,5 +1,6 @@
 import axios from "axios";
 import api from "@/lib/axios";
+import { capitalizeTitle } from "@/lib/utils";
 import { Hackathon, HackathonDetail, Team, CreateTeamValues, HackathonProblem, SubmitSolutionValues, SubmitSolutionResponse, SaveProgressValues, SaveProgressResponse, MentorSubmission, MentorReviewValues } from "@/schemas/hackathon.schema";
 import { getAuthHeaders } from "./auth";
 import { getApiErrorMessage } from "@/lib/getApiErrorMessage";
@@ -204,7 +205,11 @@ export const HackathonService = {
     getHackathons: async (): Promise<Hackathon[]> => {
         try {
             const response = await api.get("/hackathons", getAuthHeaders());
-            return response.data.hackathons ?? (Array.isArray(response.data) ? response.data : []);
+            const list: any[] = response.data.hackathons ?? (Array.isArray(response.data) ? response.data : []);
+            return list.map(h => ({
+                ...h,
+                title: capitalizeTitle(h.title ?? ""),
+            }));
         } catch {
             return [];
         }
@@ -213,7 +218,11 @@ export const HackathonService = {
     getHackathonById: async (id: string) => {
         try {
             const response = await api.get(`/hackathons/${id}`, getAuthHeaders());
-            return response.data.hackathon ?? response.data;
+            const data = response.data.hackathon ?? response.data;
+            if (data && data.title) {
+                data.title = capitalizeTitle(data.title);
+            }
+            return data;
         } catch (err) {
             if (axios.isAxiosError(err) && err.response) throw new Error(getApiErrorMessage(err));
             return null;

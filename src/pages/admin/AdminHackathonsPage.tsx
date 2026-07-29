@@ -5,6 +5,7 @@ import {
 import { AdminService } from "@/services/admin.service";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { capitalizeTitle } from "@/lib/utils";
 
 const statusBadge = (status: string) => {
   const norm = (status ?? "").toLowerCase();
@@ -27,14 +28,6 @@ const formatStatusLabel = (status: string) => {
   if (s.toLowerCase() === "upcoming") return "Upcoming";
   if (s.toLowerCase() === "completed") return "Completed";
   return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
-};
-
-const capitalizeWords = (str: string) => {
-  if (!str || str === "—") return "—";
-  return str
-    .split(" ")
-    .map(w => (w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : ""))
-    .join(" ");
 };
 
 const fmt = (d: string) => {
@@ -187,13 +180,13 @@ export default function AdminHackathonsPage() {
                         <Zap size={16} />
                       </div>
                       <div>
-                        <p className="font-extrabold text-slate-900">{h.title}</p>
+                        <p className="font-extrabold text-slate-900">{capitalizeTitle(h.title)}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-4 hidden sm:table-cell">
                     <span className="text-xs font-extrabold text-slate-700">
-                      {capitalizeWords(h.organizerName ?? h.createdBy ?? h.organizer ?? h.creator ?? "—")}
+                      {capitalizeTitle(h.organizerName ?? h.createdBy ?? h.organizer ?? h.creator ?? "—")}
                     </span>
                   </td>
                   <td className="px-4 py-4 hidden md:table-cell">

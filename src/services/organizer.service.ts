@@ -1,5 +1,6 @@
 import api from "@/lib/axios";
 import { getAuthHeaders } from "./auth";
+import { capitalizeTitle } from "@/lib/utils";
 import {
     HackathonProblem, OrganizerCreateHackathonValues, OrganizerCreateProblemValues,
     HackathonCriteriaValues, HackathonFaqValues, HackathonPrizeValues, HackathonTimelineItemValues,
@@ -209,7 +210,7 @@ export const OrganizerService = {
             const apiData: any[] = response.data.hackathons ?? (Array.isArray(response.data) ? response.data : []);
             return apiData.map(h => ({
                 id: String(h.id),
-                title: h.title ?? "",
+                title: capitalizeTitle(h.title ?? ""),
                 startDate: h.startDate ?? "",
                 endDate: h.endDate ?? "",
                 status: h.status ?? "Draft",
@@ -226,8 +227,8 @@ export const OrganizerService = {
                 ideationStartDate: h.ideationStartDate,
                 ideationEndDate: h.ideationEndDate,
                 pricing: h.pricing ?? "0",
-                createdBy: h.createdBy ?? h.organizerName ?? h.organizer ?? h.creator,
-                organizerName: h.organizerName ?? h.createdBy ?? h.organizer ?? h.creator,
+                createdBy: capitalizeTitle(h.createdBy ?? h.organizerName ?? h.organizer ?? h.creator ?? ""),
+                organizerName: capitalizeTitle(h.organizerName ?? h.createdBy ?? h.organizer ?? h.creator ?? ""),
                 judges: h.judges ?? [],
                 rules: Array.isArray(h.rules) ? h.rules : [],
                 criteria: h.criteria ?? [],
@@ -247,7 +248,7 @@ export const OrganizerService = {
             if (!h || !h.id) return null;
             return {
                 id: String(h.id),
-                title: h.title ?? "",
+                title: capitalizeTitle(h.title ?? ""),
                 startDate: h.startDate ?? "",
                 endDate: h.endDate ?? "",
                 status: h.status ?? "Draft",

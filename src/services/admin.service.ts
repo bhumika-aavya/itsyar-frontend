@@ -1,5 +1,6 @@
 import api from "@/lib/axios";
 import { getAuthHeaders } from "./auth";
+import { capitalizeTitle } from "@/lib/utils";
 import { OrganizerCreateHackathonValues } from "@/schemas/hackathon.schema";
 import { OrganizerHackathon, loadHackathons, saveHackathons } from "./organizer.service";
 
@@ -365,16 +366,16 @@ export const AdminService = {
       const rawList: any[] = res.data?.hackathons ?? (Array.isArray(res.data) ? res.data : []);
       return rawList.map((h: any) => ({
         id: String(h.id),
-        title: h.title ?? "",
+        title: capitalizeTitle(h.title ?? ""),
         mode: h.mode ?? "Online",
         startDate: h.startDate ?? "",
         endDate: h.endDate ?? "",
-        status: h.status ?? "Open",
+        status: h.status ?? "Draft",
         participants: String(h.participantCount ?? "0"),
         description: h.description ?? "",
         pricing: h.pricing ?? "0",
-        organizerName: h.createdBy ?? h.organizerName ?? h.organizer ?? h.creator ?? "—",
-        createdBy: h.createdBy ?? h.organizerName ?? h.organizer ?? h.creator ?? "—",
+        organizerName: capitalizeTitle(h.createdBy ?? h.organizerName ?? h.organizer ?? h.creator ?? "—"),
+        createdBy: capitalizeTitle(h.createdBy ?? h.organizerName ?? h.organizer ?? h.creator ?? "—"),
       }));
     } catch {
       return [];
@@ -393,7 +394,7 @@ export const AdminService = {
       if (!h || !h.id) return null;
       return {
         id: String(h.id),
-        title: h.title ?? "",
+        title: capitalizeTitle(h.title ?? ""),
         startDate: h.startDate ?? "",
         endDate: h.endDate ?? "",
         status: h.status ?? "Open",

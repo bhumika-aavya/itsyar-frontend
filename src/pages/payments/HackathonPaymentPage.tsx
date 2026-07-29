@@ -6,10 +6,11 @@ import CheckoutButton from '@/components/payments/CheckoutButton';
 import { PaymentService } from '@/services/payment.service';
 import { OrganizerService, OrganizerHackathon } from '@/services/organizer.service';
 import {
-    HACKATHON_SUBSCRIPTION_PRICE,
     CURRENCY,
 } from '@/types/payment.types';
 import StripeCheckoutModal from '@/components/payments/StripeCheckoutModal';
+
+import { capitalizeTitle } from '@/lib/utils';
 
 /**
  * HackathonPaymentPage — Displays the hackathon details, subscription price,
@@ -43,7 +44,7 @@ export default function HackathonPaymentPage() {
         load();
     }, [id]);
 
-    const subscriptionPrice = parseFloat(hackathon?.pricing || "0") || 49.99;
+    const subscriptionPrice = parseFloat(hackathon?.pricing || "0");
 
     const handleCheckout = async () => {
         if (!id || !hackathon) return;
@@ -51,20 +52,15 @@ export default function HackathonPaymentPage() {
         setCheckoutError(null);
 
         try {
-            const session = await PaymentService.purchaseHackathonSubscription(
-                id,
-                hackathon.title,
-                subscriptionPrice
-            );
+            const session = await PaymentService.createCheckoutSession({
+                productId: id,
+                productType: 'hackathon_subscription',
+                amount: subscriptionPrice,
+                currency: CURRENCY,
+            });
 
-            // In production the sessionUrl points to Stripe Checkout.
-            // In dev/fallback mode, redirect to the success page directly.
-            if (session.sessionUrl.startsWith('http')) {
-                window.location.href = session.sessionUrl;
-            } else {
-                setPendingSession(session);
-                setIsModalOpen(true);
-            }
+            setPendingSession(session);
+            setIsModalOpen(true);
         } catch (err) {
             setCheckoutError(
                 'Failed to create checkout session. Please try again.'
@@ -79,7 +75,7 @@ export default function HackathonPaymentPage() {
         if (pendingSession && hackathon) {
             navigate(
                 `/payments/success?session_id=${pendingSession.sessionId}&product_id=${id}&product_type=hackathon_subscription&product_title=${encodeURIComponent(
-                    hackathon.title
+                    capitalizeTitle(hackathon.title)
                 )}&amount=${subscriptionPrice}`
             );
         }
@@ -123,7 +119,7 @@ export default function HackathonPaymentPage() {
     const totalPrice = formatPrice(subscriptionPrice);
 
     return (
-        <div className="max-w-5xl mx-auto px-6 md:px-10 py-12 text-left animate-in fade-in duration-500">
+        <div className="max-w-6xl mx-auto px-6 md:px-10 text-left animate-in fade-in duration-500">
             {/* Back button */}
             <button
                 onClick={() => navigate(-1)}
@@ -146,7 +142,7 @@ export default function HackathonPaymentPage() {
                                     Purchase Subscription
                                 </p>
                                 <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-                                    {hackathon.title}
+                                    {capitalizeTitle(hackathon.title)}
                                 </h1>
                             </div>
                         </div>
@@ -209,15 +205,14 @@ export default function HackathonPaymentPage() {
                         title={`${hackathon.title} — Subscription`}
                         items={[
                             { label: 'Subscription', value: totalPrice },
-                            { label: 'Platform fee', value: '$0.00' },
-                            { label: 'Tax', value: 'Calculated at checkout' },
                         ]}
                         total={totalPrice}
                     >
                         <CheckoutButton
                             label="Purchase Subscription"
+                            amount={subscriptionPrice}
                             isLoading={checkoutLoading}
-                            disabled={checkoutLoading}
+                            disabled={checkoutLoading || subscriptionPrice <= 0}
                             error={checkoutError}
                             onClick={handleCheckout}
                         />

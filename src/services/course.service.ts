@@ -1,4 +1,5 @@
 import api from "@/lib/axios";
+import { capitalizeTitle } from "@/lib/utils";
 import { CertificateData, Course, MyCourse } from "@/schemas/course.schema";
 import { CourseDetail } from "./course-detail.schema";
 import { getAuthHeaders } from "./auth";
@@ -8,7 +9,11 @@ export const CourseService = {
         try {
             // Passing the auth headers in the request config
             const response = await api.get("/courses", getAuthHeaders());
-            return response.data.courses;
+            const courses: Course[] = response.data.courses ?? [];
+            return courses.map(c => ({
+                ...c,
+                title: capitalizeTitle(c.title ?? ""),
+            }));
         } catch (error) {
             console.warn("API Error: Falling back to mock data for Catalog");
             throw new Error("Course not found"); // Let the component handle the error state
@@ -18,7 +23,11 @@ export const CourseService = {
     getMyCourses: async (): Promise<MyCourse[]> => {
         try {
             const response = await api.get("/courses/my-learnings", getAuthHeaders());
-            return response.data.courses;
+            const courses: MyCourse[] = response.data.courses ?? [];
+            return courses.map(c => ({
+                ...c,
+                title: capitalizeTitle(c.title ?? ""),
+            }));
         } catch (error) {
             console.warn("API Error: Falling back to mock data for My Learning");
             throw new Error("Course not found"); // Let the component handle the error state
@@ -29,7 +38,11 @@ export const CourseService = {
     getCourseById: async (id: string): Promise<CourseDetail> => {
         try {
             const response = await api.get(`/courses/${id}`, getAuthHeaders());
-            return response.data.data;
+            const data: CourseDetail = response.data.data;
+            if (data && data.title) {
+                data.title = capitalizeTitle(data.title);
+            }
+            return data;
         } catch (error) {
             console.warn(`API Error: Falling back to mock data for course ${id}`);
             throw new Error("Course not found"); // Let the component handle the error state

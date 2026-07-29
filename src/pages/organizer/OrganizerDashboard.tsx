@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import { OrganizerService, OrganizerHackathon } from '@/services/organizer.service';
 import { PaymentService } from '@/services/payment.service';
-import SubscriptionStatus from '@/components/payments/SubscriptionStatus';
 import { PaymentStatus } from '@/types/payment.types';
 import { toast } from 'sonner';
 
@@ -17,7 +16,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; dot: string 
     upcoming: { label: 'Upcoming', color: 'bg-amber-50 text-amber-600', dot: 'bg-amber-400' },
     completed: { label: 'Completed', color: 'bg-slate-100 text-slate-500', dot: 'bg-slate-400' },
     draft: { label: 'Draft', color: 'bg-slate-100 text-slate-500', dot: 'bg-slate-400' },
-    approved: { label: 'Payment Required', color: 'bg-red-50 text-red-600', dot: 'bg-red-400' },
+    approve: { label: 'Payment Required', color: 'bg-red-50 text-red-600', dot: 'bg-red-400' },
     paid: { label: 'Paid', color: 'bg-indigo-50 text-[#4F46E5]', dot: 'bg-indigo-400' },
 };
 
@@ -174,7 +173,7 @@ export default function OrganizerDashboard() {
                         const isDeleting = deletingId === h.id;
                         const isPublishing = publishingId === h.id;
                         const canPublish = (sNorm === 'paid' || h.paymentStatus === 'completed') && !h.isPublished;
-                        const needsPayment = sNorm === 'approved';
+                        const needsPayment = sNorm === 'approve';
                         return (
                             <div
                                 key={h.id}
@@ -225,7 +224,7 @@ export default function OrganizerDashboard() {
                                         <Eye size={13} /> View
                                     </button>
 
-                                    {(sNorm === 'draft' || sNorm === 'approved') && (
+                                    {(sNorm === 'draft' || sNorm === 'approve') && (
                                         <button
                                             onClick={() => navigate(`/organizer/hackathons/${h.id}/edit`)}
                                             className="flex items-center gap-1.5 px-4 py-2.5 bg-indigo-50 border border-indigo-100 rounded-xl font-bold text-xs text-[#4F46E5] hover:bg-indigo-100 transition-all"
@@ -238,7 +237,9 @@ export default function OrganizerDashboard() {
                                     {needsPayment && (
                                         <button
                                             onClick={() => handlePurchase(h.id)}
-                                            className="flex items-center gap-1.5 px-4 py-2.5 bg-amber-50 border border-amber-100 rounded-xl font-bold text-xs text-amber-700 hover:bg-amber-100 transition-all shadow-sm"
+                                            disabled={!h.pricing || parseFloat(h.pricing) <= 0}
+                                            title={!h.pricing || parseFloat(h.pricing) <= 0 ? "Payment amount is $0.00" : "Pay & Publish"}
+                                            className="flex items-center gap-1.5 px-4 py-2.5 bg-amber-50 border border-amber-100 rounded-xl font-bold text-xs text-amber-700 hover:bg-amber-100 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             <DollarSign size={13} />
                                             Pay & Publish
