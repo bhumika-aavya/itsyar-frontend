@@ -12,13 +12,13 @@ import { PaymentStatus } from '@/types/payment.types';
 import { toast } from 'sonner';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; dot: string }> = {
-    Open: { label: 'Open', color: 'bg-emerald-50 text-emerald-600', dot: 'bg-emerald-400' },
-    Running: { label: 'Running', color: 'bg-blue-50 text-blue-600', dot: 'bg-blue-400' },
-    UpComing: { label: 'Upcoming', color: 'bg-amber-50 text-amber-600', dot: 'bg-amber-400' },
-    COMPLETED: { label: 'Completed', color: 'bg-slate-100 text-slate-500', dot: 'bg-slate-400' },
-    Draft: { label: 'Draft', color: 'bg-slate-100 text-slate-500', dot: 'bg-slate-400' },
-    'Approved': { label: 'Payment Required', color: 'bg-red-50 text-red-600', dot: 'bg-red-400' },
-    Paid: { label: 'Paid', color: 'bg-indigo-50 text-[#4F46E5]', dot: 'bg-indigo-400' },
+    open: { label: 'Open', color: 'bg-emerald-50 text-emerald-600', dot: 'bg-emerald-400' },
+    running: { label: 'Running', color: 'bg-blue-50 text-blue-600', dot: 'bg-blue-400' },
+    upcoming: { label: 'Upcoming', color: 'bg-amber-50 text-amber-600', dot: 'bg-amber-400' },
+    completed: { label: 'Completed', color: 'bg-slate-100 text-slate-500', dot: 'bg-slate-400' },
+    draft: { label: 'Draft', color: 'bg-slate-100 text-slate-500', dot: 'bg-slate-400' },
+    approved: { label: 'Payment Required', color: 'bg-red-50 text-red-600', dot: 'bg-red-400' },
+    paid: { label: 'Paid', color: 'bg-indigo-50 text-[#4F46E5]', dot: 'bg-indigo-400' },
 };
 
 const formatDate = (d: string) =>
@@ -45,11 +45,13 @@ export default function OrganizerDashboard() {
 
         // Enrich with payment info from the PaymentService
         const enriched: HackathonWithPayment[] = data.map((h) => {
-            const isPaid = PaymentService.isHackathonPaid(h.id) || h.status === 'Paid' || h.status === 'Open' || h.status === 'Running' || h.status === 'UpComing' || h.status === 'COMPLETED';
+            const sNorm = (h.status ?? 'draft').toLowerCase();
+            const isPublished = ['open', 'running', 'upcoming', 'completed'].includes(sNorm);
+            const isPaid = PaymentService.isHackathonPaid(h.id) || sNorm === 'paid' || isPublished;
             return {
                 ...h,
                 paymentStatus: isPaid ? 'completed' : undefined,
-                isPublished: h.status === 'Open' || h.status === 'Running' || h.status === 'UpComing' || h.status === 'COMPLETED',
+                isPublished,
             };
         });
 
@@ -94,9 +96,12 @@ export default function OrganizerDashboard() {
 
     const counts = {
         total: hackathons.length,
-        active: hackathons.filter(h => h.status === 'Running' || h.status === 'Open').length,
-        upcoming: hackathons.filter(h => h.status === 'UpComing').length,
-        completed: hackathons.filter(h => h.status === 'COMPLETED').length,
+        active: hackathons.filter(h => {
+            const s = (h.status ?? '').toLowerCase();
+            return s === 'running' || s === 'open';
+        }).length,
+        upcoming: hackathons.filter(h => (h.status ?? '').toLowerCase() === 'upcoming').length,
+        completed: hackathons.filter(h => (h.status ?? '').toLowerCase() === 'completed').length,
     };
 
     const stats = [
@@ -160,11 +165,16 @@ export default function OrganizerDashboard() {
             ) : (
                 <div className="space-y-4">
                     {hackathons.map(h => {
-                        const cfg = STATUS_CONFIG[h.status] ?? STATUS_CONFIG['Open'];
+                        const sNorm = (h.status ?? 'draft').toLowerCase();
+                        const cfg = STATUS_CONFIG[sNorm] ?? {
+                            label: h.status ? h.status.charAt(0).toUpperCase() + h.status.slice(1).toLowerCase() : 'Draft',
+                            color: 'bg-slate-100 text-slate-500',
+                            dot: 'bg-slate-400'
+                        };
                         const isDeleting = deletingId === h.id;
                         const isPublishing = publishingId === h.id;
-                        const canPublish = (h.status === 'Paid' || h.paymentStatus === 'completed') && !h.isPublished;
-                        const needsPayment = h.status === 'Approved';
+                        const canPublish = (sNorm === 'paid' || h.paymentStatus === 'completed') && !h.isPublished;
+                        const needsPayment = sNorm === 'approved';
                         return (
                             <div
                                 key={h.id}
@@ -183,12 +193,6 @@ export default function OrganizerDashboard() {
                                             <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
                                             {cfg.label}
                                         </span>
-                                        {/* Payment status badge */}
-                                        {/* <SubscriptionStatus
-                                            paymentStatus={h.paymentStatus}
-                                            isPublished={h.isPublished}
-                                            isDraft={h.status === 'Draft' || h.status === 'Draft'}
-                                        /> */}
                                     </div>
                                     <p className="text-sm font-medium text-slate-500 line-clamp-1 mb-3">{h.description}</p>
                                     <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-400">
@@ -221,7 +225,7 @@ export default function OrganizerDashboard() {
                                         <Eye size={13} /> View
                                     </button>
 
-                                    {(h.status === 'Draft' || h.status === 'Draft') && (
+                                    {(sNorm === 'draft' || sNorm === 'approved') && (
                                         <button
                                             onClick={() => navigate(`/organizer/hackathons/${h.id}/edit`)}
                                             className="flex items-center gap-1.5 px-4 py-2.5 bg-indigo-50 border border-indigo-100 rounded-xl font-bold text-xs text-[#4F46E5] hover:bg-indigo-100 transition-all"
