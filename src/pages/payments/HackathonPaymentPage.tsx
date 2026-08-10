@@ -55,8 +55,6 @@ export default function HackathonPaymentPage() {
             const session = await PaymentService.createCheckoutSession({
                 productId: id,
                 productType: 'hackathon_subscription',
-                amount: subscriptionPrice,
-                currency: CURRENCY,
             });
 
             setPendingSession(session);
@@ -70,11 +68,12 @@ export default function HackathonPaymentPage() {
         }
     };
 
-    const handlePaymentSuccess = () => {
+    const handlePaymentSuccess = (paymentIntentId?: string) => {
         setIsModalOpen(false);
-        if (pendingSession && hackathon) {
+        const resolvedId = paymentIntentId || pendingSession?.paymentIntentId || pendingSession?.sessionId || id;
+        if (hackathon) {
             navigate(
-                `/payments/success?session_id=${pendingSession.sessionId}&product_id=${id}&product_type=hackathon_subscription&product_title=${encodeURIComponent(
+                `/payments/success?session_id=${resolvedId}&product_id=${id}&product_type=hackathon_subscription&product_title=${encodeURIComponent(
                     capitalizeTitle(hackathon.title)
                 )}&amount=${subscriptionPrice}`
             );
@@ -227,6 +226,8 @@ export default function HackathonPaymentPage() {
                     onSuccess={handlePaymentSuccess}
                     amount={subscriptionPrice}
                     productTitle={`${hackathon.title} — Subscription`}
+                    clientSecret={pendingSession?.clientSecret}
+                    paymentIntentId={pendingSession?.paymentIntentId}
                 />
             )}
         </div>

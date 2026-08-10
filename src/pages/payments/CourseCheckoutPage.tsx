@@ -262,6 +262,8 @@ export default function CourseCheckoutPage() {
                     onSuccess={handlePaymentSuccess}
                     amount={COURSE_LIFETIME_PRICE}
                     productTitle={course.title}
+                    clientSecret={pendingSession?.clientSecret}
+                    paymentIntentId={pendingSession?.paymentIntentId}
                 />
             )}
         </div>

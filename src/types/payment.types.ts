@@ -23,9 +23,11 @@ export interface Purchase {
 /** Stripe Checkout session data sent to / returned from the API. */
 export interface PaymentSession {
     sessionId: string;
-    sessionUrl: string;
-    successUrl: string;
-    cancelUrl: string;
+    clientSecret?: string;
+    paymentIntentId?: string;
+    sessionUrl?: string;
+    successUrl?: string;
+    cancelUrl?: string;
 }
 
 /** Line item for the payment summary UI. */
@@ -54,8 +56,8 @@ export interface PaymentFailedData {
 export interface CreateCheckoutSessionPayload {
     productId: string;
     productType: PurchaseType;
-    successUrl: string;
-    cancelUrl: string;
+    successUrl?: string;
+    cancelUrl?: string;
     metadata?: Record<string, string>;
 }
 
