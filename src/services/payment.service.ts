@@ -374,13 +374,14 @@ export const PaymentService = {
             try {
                 const res = await PaymentService.confirmPayment(paymentIntentId);
                 const paymentStatus =
+                    res?.paymentStatus ||
                     res?.payment_status ||
                     res?.status ||
                     (res?.purchase?.status === "completed" ? "paid" : "pending");
 
                 if (onProgress) onProgress(paymentStatus);
 
-                if (paymentStatus === "paid" || paymentStatus === "completed") {
+                if (paymentStatus === "paid" || paymentStatus === "completed" || res?.success === true) {
                     return { success: true, payment_status: "paid", purchase: res?.purchase || res };
                 }
             } catch (err) {
