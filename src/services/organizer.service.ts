@@ -132,6 +132,27 @@ function buildHackathonPayload(data: OrganizerCreateHackathonValues) {
         .map(s => s.trim())
         .filter(Boolean) ?? [];
 
+    const timeline = (data.timeline ?? []).map(t => ({
+        label: t.label || t.title || '',
+        title: t.title || t.label || '',
+        date: t.date,
+        description: t.description || '',
+    }));
+
+    const faqs = (data.faqs ?? []).map(f => ({
+        q: f.q,
+        a: f.a,
+        question: f.q,
+        answer: f.a,
+    }));
+
+    const judges = (data.judges ?? []).map(j => ({
+        id: j.id,
+        userId: j.id,
+        name: j.name,
+        email: j.email,
+    }));
+
     return {
         title: data.title,
         description: data.description,
@@ -143,39 +164,19 @@ function buildHackathonPayload(data: OrganizerCreateHackathonValues) {
         registrationsDeadline: data.registrationsDeadline,
         difficultyLevel: data.difficultyLevel,
         pricing: data.pricing,
-        judges: data.judges,
+        judges,
         rules,
         criteria: data.criteria,
+        judgingCriteria: data.criteria,
         prizes: data.prizes,
-        faqs: data.faqs,
-        timeline: data.timeline,
+        faqs,
+        faq: faqs,
+        timeline,
     };
 }
 
 function buildLocalHackathonFields(data: OrganizerCreateHackathonValues) {
-    const rules = data.rulesText
-        ?.split('\n')
-        .map(s => s.trim())
-        .filter(Boolean) ?? [];
-
-    return {
-        title: data.title,
-        description: data.description,
-        platform: data.platform,
-        foundryLink: data.foundryLink,
-        iconType: data.iconType,
-        startDate: data.startDate,
-        endDate: data.endDate,
-        registrationsDeadline: data.registrationsDeadline,
-        difficultyLevel: data.difficultyLevel,
-        pricing: data.pricing,
-        judges: data.judges,
-        rules,
-        criteria: data.criteria,
-        prizes: data.prizes,
-        faqs: data.faqs,
-        timeline: data.timeline,
-    };
+    return buildHackathonPayload(data);
 }
 
 function buildProblemFromForm(hackathonId: string, id: string, data: OrganizerCreateProblemValues): HackathonProblem {
@@ -229,12 +230,35 @@ export const OrganizerService = {
                 pricing: h.pricing ?? "0",
                 createdBy: capitalizeTitle(h.createdBy ?? h.organizerName ?? h.organizer ?? h.creator ?? ""),
                 organizerName: capitalizeTitle(h.organizerName ?? h.createdBy ?? h.organizer ?? h.creator ?? ""),
-                judges: h.judges ?? [],
-                rules: Array.isArray(h.rules) ? h.rules : [],
-                criteria: h.criteria ?? [],
-                prizes: h.prizes ?? [],
-                faqs: h.faqs ?? [],
-                timeline: h.timeline ?? [],
+                judges: Array.isArray(h.judges) ? h.judges.map((j: any) => ({
+                    id: String(j.id || j.userId || j),
+                    name: j.name || j.fullName || j.email || 'Judge',
+                    email: j.email || '',
+                })) : [],
+                rules: Array.isArray(h.rules)
+                    ? h.rules
+                    : typeof h.rules === 'string'
+                        ? h.rules.split('\n').map((s: string) => s.trim()).filter(Boolean)
+                        : (h.rulesText ? String(h.rulesText).split('\n').map((s: string) => s.trim()).filter(Boolean) : []),
+                criteria: Array.isArray(h.criteria) && h.criteria.length > 0
+                    ? h.criteria
+                    : Array.isArray(h.judgingCriteria) ? h.judgingCriteria : [],
+                prizes: Array.isArray(h.prizes) ? h.prizes : [],
+                faqs: Array.isArray(h.faqs) && h.faqs.length > 0
+                    ? h.faqs.map((f: any) => ({ q: f.q || f.question || '', a: f.a || f.answer || '' }))
+                    : Array.isArray(h.faq)
+                        ? h.faq.map((f: any) => ({ q: f.q || f.question || '', a: f.a || f.answer || '' }))
+                        : [],
+                timeline: Array.isArray(h.timeline)
+                    ? h.timeline.map((t: any) => ({
+                        label: t.label || t.title || t.name || '',
+                        title: t.title || t.label || t.name || '',
+                        date: t.date || '',
+                        description: t.description || '',
+                        type: t.type,
+                        isActive: t.isActive,
+                    }))
+                    : [],
             }));
         } catch {
             return [];
@@ -265,12 +289,35 @@ export const OrganizerService = {
                 ideationStartDate: h.ideationStartDate,
                 ideationEndDate: h.ideationEndDate,
                 pricing: h.pricing ?? "0",
-                judges: h.judges ?? [],
-                rules: Array.isArray(h.rules) ? h.rules : [],
-                criteria: h.criteria ?? [],
-                prizes: h.prizes ?? [],
-                faqs: h.faqs ?? [],
-                timeline: h.timeline ?? [],
+                judges: Array.isArray(h.judges) ? h.judges.map((j: any) => ({
+                    id: String(j.id || j.userId || j),
+                    name: j.name || j.fullName || j.email || 'Judge',
+                    email: j.email || '',
+                })) : [],
+                rules: Array.isArray(h.rules)
+                    ? h.rules
+                    : typeof h.rules === 'string'
+                        ? h.rules.split('\n').map((s: string) => s.trim()).filter(Boolean)
+                        : (h.rulesText ? String(h.rulesText).split('\n').map((s: string) => s.trim()).filter(Boolean) : []),
+                criteria: Array.isArray(h.criteria) && h.criteria.length > 0
+                    ? h.criteria
+                    : Array.isArray(h.judgingCriteria) ? h.judgingCriteria : [],
+                prizes: Array.isArray(h.prizes) ? h.prizes : [],
+                faqs: Array.isArray(h.faqs) && h.faqs.length > 0
+                    ? h.faqs.map((f: any) => ({ q: f.q || f.question || '', a: f.a || f.answer || '' }))
+                    : Array.isArray(h.faq)
+                        ? h.faq.map((f: any) => ({ q: f.q || f.question || '', a: f.a || f.answer || '' }))
+                        : [],
+                timeline: Array.isArray(h.timeline)
+                    ? h.timeline.map((t: any) => ({
+                        label: t.label || t.title || t.name || '',
+                        title: t.title || t.label || t.name || '',
+                        date: t.date || '',
+                        description: t.description || '',
+                        type: t.type,
+                        isActive: t.isActive,
+                    }))
+                    : [],
             };
         } catch {
             return null;

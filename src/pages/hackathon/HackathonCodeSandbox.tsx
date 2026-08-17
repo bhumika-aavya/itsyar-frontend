@@ -176,14 +176,21 @@ const formatTimeLeft = (tl: { h: number; m: number; s: number }) => {
     return days > 0 ? `${days}d ${hh}:${mm}:${ss}` : `${hh}:${mm}:${ss}`;
 };
 
-const STATUS_CFG: Record<CaseStatus, { label: string; pill: string; dot: string; bar: string }> = {
-    idle: { label: 'Not Run', pill: 'bg-slate-50 border-slate-200 text-slate-500', dot: 'bg-slate-300', bar: 'bg-slate-100 text-slate-500 border-slate-200' },
-    running: { label: 'Running…', pill: 'bg-blue-50 border-blue-200 text-blue-600', dot: 'bg-blue-500 animate-pulse', bar: 'bg-blue-50 text-blue-600 border-blue-200' },
-    accepted: { label: 'Accepted', pill: 'bg-emerald-50 border-emerald-200 text-emerald-600', dot: 'bg-emerald-500', bar: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-    wrong: { label: 'Wrong Answer', pill: 'bg-red-50 border-red-200 text-red-600', dot: 'bg-red-500', bar: 'bg-red-50 text-red-700 border-red-200' },
-    error: { label: 'Runtime Error', pill: 'bg-orange-50 border-orange-200 text-orange-600', dot: 'bg-orange-500', bar: 'bg-orange-50 text-orange-700 border-orange-200' },
-    tle: { label: 'Time Limit', pill: 'bg-yellow-50 border-yellow-200 text-yellow-600', dot: 'bg-yellow-500', bar: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
+const DEFAULT_STARTER_TEMPLATES: Record<string, string> = {
+    JavaScript: `// Write your JavaScript solution here\n\nfunction solution() {\n  // TODO: Implement solution\n}\n\nmodule.exports = solution;\n`,
+    TypeScript: `// Write your TypeScript solution here\n\nfunction solution(): void {\n  // TODO: Implement solution\n}\n\nexport default solution;\n`,
+    Python: `# Write your Python solution here\n\ndef solution():\n    # TODO: Implement solution\n    pass\n`,
+    Java: `// Write your Java solution here\n\npublic class Solution {\n    public static void main(String[] args) {\n        // TODO: Implement solution\n    }\n}\n`,
+    'C++': `// Write your C++ solution here\n\n#include <iostream>\nusing namespace std;\n\nint main() {\n    // TODO: Implement solution\n    return 0;\n}\n`,
+    Go: `// Write your Go solution here\n\npackage main\nimport "fmt"\n\nfunc main() {\n    // TODO: Implement solution\n}\n`,
+    Rust: `// Write your Rust solution here\n\nfn main() {\n    // TODO: Implement solution\n}\n`,
+    Ruby: `# Write your Ruby solution here\n\ndef solution\n  # TODO: Implement solution\nend\n`,
 };
+
+function getStarterCodeForLang(p: HackathonProblem | null, lang: string): string {
+    const raw = p?.starterCode?.[lang] || DEFAULT_STARTER_TEMPLATES[lang] || `// Write your ${lang} solution here\n`;
+    return autoFormatCode(raw, lang);
+}
 
 export default function HackathonCodeSandbox({
     hackathonId, hackathonStatus: _hackathonStatus, hackathonEndDate, initialFullscreen = false, onClose,
@@ -266,7 +273,7 @@ export default function HackathonCodeSandbox({
                     setCode(saved.code);
                 } else {
                     setLanguage(defaultLang);
-                    setCode(autoFormatCode(p.starterCode?.[defaultLang] ?? '', defaultLang));
+                    setCode(getStarterCodeForLang(p, defaultLang));
                 }
             } catch {
                 setLoadError(true);
@@ -440,14 +447,14 @@ export default function HackathonCodeSandbox({
 
     const handleLangChange = useCallback((lang: string) => {
         setLanguage(lang);
-        setCode(autoFormatCode(problem?.starterCode?.[lang] ?? `// ${lang} starter code\n// Write your solution here\n`, lang));
+        setCode(getStarterCodeForLang(problem, lang));
         setLangOpen(false);
         setCaseResults([]);
         setCustomResult(null);
     }, [problem]);
 
     const handleReset = useCallback(() => {
-        setCode(autoFormatCode(problem?.starterCode?.[language] ?? '', language));
+        setCode(getStarterCodeForLang(problem, language));
         setCaseResults([]);
         setCustomResult(null);
     }, [problem, language]);

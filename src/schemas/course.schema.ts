@@ -10,6 +10,8 @@ export const CourseSchema = z.object({
   image: z.string().url(),
   badge: z.string().optional(),
   enrolled: z.boolean().default(false),
+  price: z.number().optional(),
+  pricing: z.union([z.string(), z.number()]).optional(),
 });
 
 export const MyCourseSchema = z.object({

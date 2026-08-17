@@ -271,7 +271,8 @@ export const PaymentService = {
      */
     purchaseCourse: async (
         courseId: string,
-        courseTitle: string
+        courseTitle: string,
+        amount: number
     ): Promise<PaymentSession> => {
         const successUrl = `${window.location.origin}/payments/success?type=course&product_id=${courseId}`;
         const cancelUrl = `${window.location.origin}/payments/failed`;
@@ -281,7 +282,7 @@ export const PaymentService = {
             productType: "course",
             successUrl,
             cancelUrl,
-            metadata: { courseTitle },
+            metadata: { courseTitle, amount: amount.toString() },
         });
 
         // On fallback, simulate a local purchase record
@@ -291,7 +292,7 @@ export const PaymentService = {
                 productId: courseId,
                 productTitle: courseTitle,
                 type: "course",
-                amount: 29.99,
+                amount: amount,
                 currency: "usd",
                 status: "pending",
                 sessionId: session.sessionId,
@@ -433,20 +434,23 @@ export const PaymentService = {
     getPurchaseByProduct: async (
         productId: string,
         type: PurchaseType
-    ): Promise<Purchase | null> => {
+    ): Promise<{ purchase: Purchase | null, price?: number }> => {
         try {
             const response = await api.get(
                 `/payments/product/${productId}`,
                 getAuthHeaders()
             );
-            return response.data.purchase;
+            return {
+                purchase: response.data.purchase,
+                price: response.data.price ?? response.data.pricing
+            };
         } catch (error) {
             console.warn("API Error: Falling back to mock purchase lookup");
-            return (
-                mockPurchasesStore.find(
+            return {
+                purchase: mockPurchasesStore.find(
                     (p) => p.productId === productId && p.type === type
                 ) ?? null
-            );
+            };
         }
     },
 

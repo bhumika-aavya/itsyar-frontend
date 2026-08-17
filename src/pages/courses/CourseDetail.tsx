@@ -73,8 +73,11 @@ export default function CourseDetailPage() {
                     setCourse(data);
 
                     // Check if course has been purchased
-                    const purchased = await PaymentService.getPurchaseByProduct(courseId, 'course');
-                    setIsPurchased(purchased?.status === 'completed');
+                    const productData = await PaymentService.getPurchaseByProduct(courseId, 'course');
+                    setIsPurchased(productData.purchase?.status === 'completed');
+                    if (productData.price !== undefined) {
+                        setCourse(prev => prev ? { ...prev, price: productData.price } : prev);
+                    }
                 }
             } catch (error) {
                 console.error("Error loading course", error);
@@ -86,14 +89,33 @@ export default function CourseDetailPage() {
         fetchCourse();
     }, [courseId, navigate]);
 
+    const hasAccess = isPurchased || course?.hasPaid;
+
     const handleEnroll = async () => {
         if (!courseId) return;
-        // If purchased, go directly to lessons
-        if (isPurchased) {
+        
+        // Scenario 1: Already paid and enrolled
+        if (hasAccess && course?.isEnrolled) {
             navigate(`/courses/${courseId}/lessons/${course?.moduleId}`);
             return;
         }
-        // If not purchased, redirect to checkout
+        
+        // Scenario 2: Paid but not yet enrolled
+        if (hasAccess && !course?.isEnrolled) {
+            setIsEnrolling(true);
+            try {
+                await CourseService.enrollInCourse(courseId);
+                setCourse(prev => prev ? { ...prev, isEnrolled: true } : prev);
+                navigate(`/courses/${courseId}/lessons/${course?.moduleId}`);
+            } catch (error) {
+                console.error("Failed to enroll in course", error);
+            } finally {
+                setIsEnrolling(false);
+            }
+            return;
+        }
+        
+        // Scenario 3: Not paid
         navigate(`/payments/course/${courseId}`);
     };
 
@@ -112,11 +134,21 @@ export default function CourseDetailPage() {
         );
     }
 
-    if (!isPurchased) {
+    const shouldShowPayment = !hasAccess;
+
+    const getPriceVal = (c: any) => {
+        if (!c) return COURSE_LIFETIME_PRICE;
+        if (c.price !== undefined && c.price !== null) return Number(c.price);
+        if (c.pricing !== undefined && c.pricing !== null) return Number(c.pricing);
+        return COURSE_LIFETIME_PRICE;
+    };
+
+    if (shouldShowPayment) {
+        const price = getPriceVal(course);
         const formattedPrice = new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: CURRENCY.toUpperCase(),
-        }).format(COURSE_LIFETIME_PRICE);
+        }).format(price);
 
         return (
             <div className="max-w-5xl mx-auto px-6 md:px-10 py-12 text-left animate-in fade-in duration-500">
@@ -196,7 +228,7 @@ export default function CourseDetailPage() {
                                 <h3 className="font-extrabold text-slate-900 text-lg">Payment Summary</h3>
                                 <p className="text-xs font-bold text-slate-400 mt-1">Review your order details</p>
                             </div>
-                            
+
                             <div className="space-y-3">
                                 <div className="flex justify-between text-sm font-bold text-slate-600">
                                     <span>Lifetime Access License</span>
@@ -266,7 +298,11 @@ export default function CourseDetailPage() {
                         onClick={handleEnroll}
                         className="bg-[#4F46E5] text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-indigo-100 hover:bg-[#4338CA] transition-all transform active:scale-95 flex items-center gap-2"
                     >
-                        {isPurchased ? "Continue Learning" : "Buy Lifetime Access →"}
+                        {hasAccess && course?.isEnrolled 
+                            ? "Continue Learning" 
+                            : hasAccess && !course?.isEnrolled 
+                                ? (isEnrolling ? "Enrolling..." : "Enroll Now")
+                                : "Buy Lifetime Access →"}
                     </button>
                 </div>
 
@@ -329,7 +365,7 @@ export default function CourseDetailPage() {
 
 
                         {/* Purchase Status & CTA */}
-                        {isPurchased ? (
+                        {hasAccess ? (
                             <div className="flex items-center gap-2 px-4 py-3 bg-emerald-50 border border-emerald-100 rounded-2xl">
                                 <CheckCircle2 size={18} className="text-emerald-500 shrink-0" />
                                 <div>
@@ -353,7 +389,7 @@ export default function CourseDetailPage() {
                                     ) : (
                                         <ShoppingCart size={16} />
                                     )}
-                                    Buy Lifetime Access — ${COURSE_LIFETIME_PRICE}
+                                    Buy Lifetime Access — ${getPriceVal(course)}
                                 </button>
                             </div>
                         )}

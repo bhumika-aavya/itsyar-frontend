@@ -298,14 +298,30 @@ export default function HackathonDetail() {
                             {activeTab === 'Rules' && (
                                 <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-300">
                                     <h2 className="text-2xl font-extrabold text-slate-800 mb-4">Hackathon Rules</h2>
-                                    <ul className="space-y-4">
-                                        {(data as any)?.rules?.map((rule: string, i: number) => (
-                                            <li key={i} className="flex items-start gap-4 p-5 bg-white border border-slate-100 rounded-2xl shadow-sm">
-                                                <div className="w-6 h-6 rounded-full bg-indigo-50 text-[#4F46E5] flex items-center justify-center text-xs font-extrabold shrink-0">{i + 1}</div>
-                                                <p className="text-slate-600 font-bold text-[15px]">{rule}</p>
-                                            </li>
-                                        ))}
-                                    </ul>
+                                    {(() => {
+                                        const rulesList = Array.isArray(data?.rules)
+                                            ? data.rules
+                                            : typeof data?.rules === 'string'
+                                                ? (data.rules as string).split('\n').map((s: string) => s.trim()).filter(Boolean)
+                                                : (data as any)?.rulesText
+                                                    ? String((data as any).rulesText).split('\n').map((s: string) => s.trim()).filter(Boolean)
+                                                    : [];
+
+                                        if (rulesList.length === 0) {
+                                            return <p className="text-slate-400 font-bold text-sm">No rules specified for this hackathon.</p>;
+                                        }
+
+                                        return (
+                                            <ul className="space-y-4">
+                                                {rulesList.map((rule: string, i: number) => (
+                                                    <li key={i} className="flex items-start gap-4 p-5 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                                                        <div className="w-6 h-6 rounded-full bg-indigo-50 text-[#4F46E5] flex items-center justify-center text-xs font-extrabold shrink-0">{i + 1}</div>
+                                                        <p className="text-slate-600 font-bold text-[15px]">{rule}</p>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        );
+                                    })()}
                                 </div>
                             )}
 
@@ -315,50 +331,89 @@ export default function HackathonDetail() {
                                 <div className="space-y-4 animate-in slide-in-from-bottom-2 duration-300">
                                     <h2 className="text-2xl font-extrabold text-slate-800 mb-2">Judging Criteria</h2>
                                     <p className="text-sm font-medium text-slate-400 mb-6">Projects are evaluated across the following dimensions. Each criterion carries a specific weight toward the final score.</p>
-                                    {(data as any)?.criteria?.map((c: any, i: number) => (
-                                        <div key={i} className="flex items-start gap-5 p-5 bg-white border border-slate-100 rounded-2xl shadow-sm">
-                                            <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex flex-col items-center justify-center shrink-0">
-                                                <span className="text-lg font-extrabold text-[#4F46E5]">{c.weight}%</span>
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-base font-extrabold text-slate-900">{c.category}</p>
-                                                <p className="text-sm font-medium text-slate-500 mt-0.5">{c.description}</p>
-                                            </div>
-                                            <div className="w-32 shrink-0 pt-1">
-                                                <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                                    <div className="h-full bg-[#4F46E5] rounded-full" style={{ width: `${c.weight}%` }} />
+                                    {(() => {
+                                        const criteriaList = Array.isArray((data as any)?.criteria) && (data as any).criteria.length > 0
+                                            ? (data as any).criteria
+                                            : Array.isArray((data as any)?.judgingCriteria) ? (data as any).judgingCriteria : [];
+
+                                        if (criteriaList.length === 0) {
+                                            return <p className="text-slate-400 font-bold text-sm">No judging criteria specified yet.</p>;
+                                        }
+
+                                        return criteriaList.map((c: any, i: number) => (
+                                            <div key={i} className="flex items-start gap-5 p-5 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                                                <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex flex-col items-center justify-center shrink-0">
+                                                    <span className="text-lg font-extrabold text-[#4F46E5]">{c.weight}%</span>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-base font-extrabold text-slate-900">{c.category}</p>
+                                                    <p className="text-sm font-medium text-slate-500 mt-0.5">{c.description}</p>
+                                                </div>
+                                                <div className="w-32 shrink-0 pt-1">
+                                                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                                        <div className="h-full bg-[#4F46E5] rounded-full" style={{ width: `${c.weight}%` }} />
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ));
+                                    })()}
                                 </div>
                             )}
 
                             {activeTab === 'Prizes' && (
                                 <div className="grid md:grid-cols-3 gap-6 animate-in slide-in-from-bottom-2 duration-300">
-                                    {(data as any)?.prizes?.map((price: any, i: number) => (
-                                        <div key={i} className="p-8 bg-white border border-slate-100 rounded-[32px] shadow-lg text-center relative overflow-hidden group">
-                                            <div className="absolute top-0 left-0 w-full h-2 bg-[#4F46E5]" />
-                                            <Trophy size={48} className={`mx-auto mb-6 ${i === 0 ? 'text-yellow-400' : 'text-slate-300'}`} />
-                                            <h3 className="text-slate-400 font-bold uppercase tracking-widest text-xs mb-2">{price.rank}</h3>
-                                            <p className="text-4xl font-extrabold text-slate-900 mb-4">{price.amount}</p>
-                                            <p className="text-sm font-bold text-slate-500">{price.perk}</p>
-                                        </div>
-                                    ))}
+                                    {(() => {
+                                        const rawPrizes = Array.isArray((data as any)?.prizes) ? (data as any).prizes : [];
+                                        const seenPrizes = new Set<string>();
+                                        const prizesList = rawPrizes.filter((p: any) => {
+                                            const key = `${p.rank || ''}_${p.amount || ''}`.toLowerCase().trim();
+                                            if (!key || seenPrizes.has(key)) return false;
+                                            seenPrizes.add(key);
+                                            return true;
+                                        });
+
+                                        if (prizesList.length === 0) {
+                                            return <p className="text-slate-400 font-bold text-sm md:col-span-3">No prizes specified yet.</p>;
+                                        }
+
+                                        return prizesList.map((price: any, i: number) => (
+                                            <div key={i} className="p-8 bg-white border border-slate-100 rounded-[32px] shadow-lg text-center relative overflow-hidden group">
+                                                <div className="absolute top-0 left-0 w-full h-2 bg-[#4F46E5]" />
+                                                <Trophy size={48} className={`mx-auto mb-6 ${i === 0 ? 'text-yellow-400' : 'text-slate-300'}`} />
+                                                <h3 className="text-slate-400 font-bold uppercase tracking-widest text-xs mb-2">{price.rank}</h3>
+                                                <p className="text-4xl font-extrabold text-slate-900 mb-4">{price.amount}</p>
+                                                <p className="text-sm font-bold text-slate-500">{price.perk}</p>
+                                            </div>
+                                        ));
+                                    })()}
                                 </div>
                             )}
 
                             {activeTab === 'FAQs' && (
                                 <div className="space-y-4 animate-in slide-in-from-bottom-2 duration-300">
-                                    {(data as any)?.faqs?.map((faq: any, i: number) => (
-                                        <details key={i} className="group bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
-                                            <summary className="flex items-center justify-between p-6 cursor-pointer list-none hover:bg-slate-50 transition-colors">
-                                                <span className="font-extrabold text-slate-800">{faq.q}</span>
-                                                <ChevronDown className="text-slate-400 group-open:rotate-180 transition-transform" />
-                                            </summary>
-                                            <div className="px-6 pb-6 text-slate-500 font-medium leading-relaxed border-t border-slate-50 pt-4">{faq.a}</div>
-                                        </details>
-                                    ))}
+                                    {(() => {
+                                        const faqsList = Array.isArray((data as any)?.faqs) && (data as any).faqs.length > 0
+                                            ? (data as any).faqs
+                                            : Array.isArray((data as any)?.faq)
+                                                ? (data as any).faq
+                                                : Array.isArray((data as any)?.frequentlyAskedQuestions)
+                                                    ? (data as any).frequentlyAskedQuestions
+                                                    : [];
+
+                                        if (faqsList.length === 0) {
+                                            return <p className="text-slate-400 font-bold text-sm">No FAQs added yet.</p>;
+                                        }
+
+                                        return faqsList.map((faq: any, i: number) => (
+                                            <details key={i} className="group bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                                                <summary className="flex items-center justify-between p-6 cursor-pointer list-none hover:bg-slate-50 transition-colors">
+                                                    <span className="font-extrabold text-slate-800">{faq.q || faq.question}</span>
+                                                    <ChevronDown className="text-slate-400 group-open:rotate-180 transition-transform" />
+                                                </summary>
+                                                <div className="px-6 pb-6 text-slate-500 font-medium leading-relaxed border-t border-slate-50 pt-4">{faq.a || faq.answer}</div>
+                                            </details>
+                                        ));
+                                    })()}
                                 </div>
                             )}
 

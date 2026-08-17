@@ -3,7 +3,7 @@ import { X, Lock, Loader2, ShieldCheck, AlertCircle } from 'lucide-react';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import {
     Elements,
-    PaymentElement,
+    CardElement,
     useStripe,
     useElements,
 } from '@stripe/react-stripe-js';
@@ -100,12 +100,13 @@ function StripePaymentForm({
         try {
             const returnUrl = `${window.location.origin}/payments/success`;
 
-            const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
-                elements,
-                confirmParams: {
-                    return_url: returnUrl,
-                },
-                redirect: 'if_required',
+            const cardElement = elements.getElement(CardElement);
+            if (!cardElement) throw new Error("Card element not found");
+
+            const { error: stripeError, paymentIntent } = await stripe.confirmCardPayment(clientSecret || "", {
+                payment_method: {
+                    card: cardElement,
+                }
             });
 
             if (stripeError) {
@@ -173,11 +174,24 @@ function StripePaymentForm({
             )}
 
             <div className="bg-slate-50 p-4 border border-slate-200/80 rounded-2xl min-h-[140px]">
-                <PaymentElement
-                    options={{
-                        layout: 'tabs',
-                    }}
-                />
+                <div className="pt-2">
+                    <CardElement 
+                        options={{
+                            style: {
+                                base: {
+                                    fontSize: '16px',
+                                    color: '#424770',
+                                    '::placeholder': {
+                                        color: '#aab7c4',
+                                    },
+                                },
+                                invalid: {
+                                    color: '#9e2146',
+                                },
+                            },
+                        }}
+                    />
+                </div>
             </div>
 
             <div className="pt-2">

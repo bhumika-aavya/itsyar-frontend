@@ -2,7 +2,9 @@ import React from 'react';
 import { Lightbulb } from 'lucide-react';
 
 interface TimelineEvent {
-    label: string;
+    label?: string;
+    title?: string;
+    name?: string;
     date: string;
     isActive?: boolean;
     type?: 'event' | 'phase';
@@ -10,6 +12,15 @@ interface TimelineEvent {
 }
 
 export default function Timeline({ timeline }: { timeline: TimelineEvent[] }) {
+    if (!timeline || timeline.length === 0) {
+        return (
+            <div className="text-left py-4 animate-in slide-in-from-bottom-2 duration-300">
+                <h2 className="text-2xl font-bold text-[#3215B1] mb-4">Timeline</h2>
+                <p className="text-slate-400 font-bold text-sm">No timeline milestones specified yet.</p>
+            </div>
+        );
+    }
+
     return (
         <div className="text-left py-4 animate-in slide-in-from-bottom-2 duration-300">
             <h2 className="text-2xl font-bold text-[#3215B1] mb-10">Timeline</h2>
@@ -18,6 +29,7 @@ export default function Timeline({ timeline }: { timeline: TimelineEvent[] }) {
                 {timeline?.map((item, idx) => {
                     const isPhase = item.type === 'phase';
                     const isLast = idx === timeline.length - 1;
+                    const eventTitle = item.label || item.title || item.name || 'Milestone';
 
                     if (isPhase) {
                         return (
@@ -36,7 +48,7 @@ export default function Timeline({ timeline }: { timeline: TimelineEvent[] }) {
                                 <div className="flex-1 bg-indigo-50/60 border border-indigo-100 rounded-2xl px-5 py-4 space-y-1">
                                     <div className="flex items-center gap-2">
                                         <Lightbulb size={15} className="text-[#4F46E5]" />
-                                        <span className="text-[13px] font-extrabold text-[#4F46E5] uppercase tracking-wide">{item.label}</span>
+                                        <span className="text-[13px] font-extrabold text-[#4F46E5] uppercase tracking-wide">{eventTitle}</span>
                                     </div>
                                     <p className="text-[13px] font-bold text-slate-500">{item.date}</p>
                                     {item.description && (
@@ -66,7 +78,7 @@ export default function Timeline({ timeline }: { timeline: TimelineEvent[] }) {
                             {/* Text */}
                             <div className="flex flex-col">
                                 <span className={`text-[15px] font-bold leading-none ${item.isActive ? "text-slate-900" : "text-slate-800"}`}>
-                                    {item.label}
+                                    {eventTitle}
                                 </span>
                                 <span className="text-[14px] font-bold text-slate-400 mt-2">{item.date}</span>
                                 {item.description && (

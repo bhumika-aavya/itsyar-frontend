@@ -37,6 +37,8 @@ export const CourseDetailSchema = z.object({
   })),
   curriculum: z.array(ModuleSchema),
   isEnrolled: z.boolean().default(false),
+  hasPaid: z.boolean().default(false),
+  price: z.number().optional(),
   courseCompletionPercentage: z.number().min(0).max(100).optional(),
 });
 

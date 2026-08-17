@@ -194,8 +194,12 @@ export const HackathonPrizeSchema = z.object({
 });
 
 export const HackathonTimelineItemSchema = z.object({
+    label: z.string().optional(),
+    title: z.string().optional(),
     date: z.string().min(1, 'Date is required'),
     description: z.string().optional(),
+    type: z.enum(['event', 'phase']).optional(),
+    isActive: z.boolean().optional(),
 });
 
 export type HackathonCriteriaValues = z.infer<typeof HackathonCriteriaSchema>;

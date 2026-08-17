@@ -232,12 +232,16 @@ export default function CreateHackathon() {
                     registrationsDeadline: data.registrationsDeadline,
                     difficultyLevel: data.difficultyLevel ?? 'Intermediate',
                     pricing: (data as any).pricing ?? '0',
-                    judges: (data as any).judges ?? [],
-                    rulesText: (data.rules ?? []).join('\n'),
-                    criteria: data.criteria ?? [],
+                    judges: Array.isArray(data.judges) ? data.judges.map((j: any) => ({
+                        id: String(j.id || j.userId || j),
+                        name: j.name || j.fullName || j.email || 'Judge',
+                        email: j.email || '',
+                    })) : [],
+                    rulesText: Array.isArray(data.rules) ? data.rules.join('\n') : typeof data.rules === 'string' ? data.rules : (data as any).rulesText ?? '',
+                    criteria: (data.criteria && data.criteria.length > 0) ? data.criteria : (data as any).judgingCriteria ?? [],
                     prizes: data.prizes ?? [],
-                    faqs: data.faqs ?? [],
-                    timeline: data.timeline ?? [],
+                    faqs: ((data.faqs || (data as any).faq || []) as any[]).map((f: any) => ({ q: f.q || f.question || '', a: f.a || f.answer || '' })),
+                    timeline: ((data.timeline || []) as any[]).map((t: any) => ({ label: t.label || t.title || t.name || '', date: t.date || '', description: t.description || '' })),
                 });
 
                 // Fetch and populate problem statement details in edit mode
@@ -468,11 +472,12 @@ export default function CreateHackathon() {
                         <p className="text-[11px] font-bold text-slate-400 mb-2">Choose the judges who will evaluate submissions for this hackathon.</p>
                         <Select
                             isMulti
-                            options={availableJudges.map(j => ({ value: j.userId, label: j.name, email: j.email }))}
-                            value={(selectedJudges || []).map(j => ({ value: j.id, label: j.name, email: j.email }))}
+                            options={availableJudges.map(j => ({ value: j.userId || j.id, label: j.name, email: j.email }))}
+                            value={(selectedJudges || []).map(j => ({ value: j.id || (j as any).userId, label: j.name, email: j.email }))}
                             onChange={(newValue) => {
                                 const mapped = (newValue || []).map((val: any) => ({
                                     id: val.value,
+                                    userId: val.value,
                                     name: val.label,
                                     email: val.email
                                 }));
@@ -710,7 +715,7 @@ export default function CreateHackathon() {
                                 <p className="text-xs font-bold text-slate-400">Key events and phases participants should track</p>
                             </div>
                         </div>
-                        <AddRowBtn label="Add Milestone" onClick={() => timelineArray.append({ date: '', description: '' })} />
+                        <AddRowBtn label="Add Milestone" onClick={() => timelineArray.append({ label: '', date: '', description: '' })} />
                     </div>
 
                     {timelineArray.fields.length === 0 ? (

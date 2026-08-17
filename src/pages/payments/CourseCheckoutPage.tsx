@@ -37,11 +37,21 @@ export default function CourseCheckoutPage() {
                 setCourse(found ?? null);
 
                 // Check if already purchased
-                const purchased = await PaymentService.getPurchaseByProduct(
+                const productData = await PaymentService.getPurchaseByProduct(
                     courseId,
                     'course'
                 );
-                setIsPurchased(purchased?.status === 'completed');
+                setIsPurchased(productData.purchase?.status === 'completed');
+                
+                if (found) {
+                    const finalCourse = { ...found };
+                    if (productData.price !== undefined) {
+                        finalCourse.price = productData.price;
+                    }
+                    setCourse(finalCourse);
+                } else {
+                    setCourse(null);
+                }
             } catch (err) {
                 console.error('Failed to load course', err);
             } finally {
@@ -57,9 +67,16 @@ export default function CourseCheckoutPage() {
         setCheckoutError(null);
 
         try {
+            const getPriceVal = (c: any) => {
+                if (c.price !== undefined && c.price !== null) return Number(c.price);
+                if (c.pricing !== undefined && c.pricing !== null) return Number(c.pricing);
+                return COURSE_LIFETIME_PRICE;
+            };
+            const amount = getPriceVal(course);
             const session = await PaymentService.purchaseCourse(
                 courseId,
-                course.title
+                course.title,
+                amount
             );
 
             if (session.sessionUrl.startsWith('http')) {
@@ -80,10 +97,16 @@ export default function CourseCheckoutPage() {
     const handlePaymentSuccess = () => {
         setIsModalOpen(false);
         if (pendingSession && course) {
+            const getPriceVal = (c: any) => {
+                if (c.price !== undefined && c.price !== null) return Number(c.price);
+                if (c.pricing !== undefined && c.pricing !== null) return Number(c.pricing);
+                return COURSE_LIFETIME_PRICE;
+            };
+            const amount = getPriceVal(course);
             navigate(
                 `/payments/success?session_id=${pendingSession.sessionId}&product_id=${courseId}&product_type=course&product_title=${encodeURIComponent(
                     course.title
-                )}&amount=${COURSE_LIFETIME_PRICE}`
+                )}&amount=${amount}`
             );
         }
     };
@@ -116,7 +139,15 @@ export default function CourseCheckoutPage() {
         );
     }
 
-    const totalPrice = formatPrice(COURSE_LIFETIME_PRICE);
+    const getPrice = (c: any) => {
+        console.log('course details', c)
+        if (c.price !== undefined && c.price !== null) return Number(c.price);
+        if (c.pricing !== undefined && c.pricing !== null) return Number(c.pricing);
+        return COURSE_LIFETIME_PRICE;
+    };
+
+    const price = getPrice(course);
+    const totalPrice = formatPrice(price);
 
     return (
         <div className="max-w-5xl mx-auto px-6 md:px-10 py-12 text-left animate-in fade-in duration-500">
@@ -239,7 +270,6 @@ export default function CourseCheckoutPage() {
                         title={course.title}
                         items={[
                             { label: 'Course Access', value: totalPrice },
-                            { label: 'Lifetime Updates', value: '$0.00' },
                             { label: 'Tax', value: 'Calculated at checkout' },
                         ]}
                         total={totalPrice}
@@ -260,7 +290,7 @@ export default function CourseCheckoutPage() {
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
                     onSuccess={handlePaymentSuccess}
-                    amount={COURSE_LIFETIME_PRICE}
+                    amount={price}
                     productTitle={course.title}
                     clientSecret={pendingSession?.clientSecret}
                     paymentIntentId={pendingSession?.paymentIntentId}
