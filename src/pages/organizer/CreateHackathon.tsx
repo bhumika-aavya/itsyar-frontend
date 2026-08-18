@@ -339,8 +339,8 @@ export default function CreateHackathon() {
             }
 
             toast.success(isEdit ? 'Hackathon updated successfully!' : 'Hackathon created successfully!');
-            // Navigate to the hackathons list on success
-            navigate(`${basePath}/hackathons`);
+            // Navigate back to the previous path on success
+            navigate(-1);
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
             toast.error(message);
@@ -359,10 +359,10 @@ export default function CreateHackathon() {
     return (
         <div className="max-w-4xl mx-auto p-6 md:px-10 md:py-8 animate-in fade-in duration-500">
             <button
-                onClick={() => navigate(`${basePath}/hackathons`)}
+                onClick={() => navigate(-1)}
                 className="flex items-center gap-2 text-[#4F46E5] font-bold text-sm mb-6 hover:opacity-80 transition-all"
             >
-                <ChevronLeft size={18} /> Back to Hackathons
+                <ChevronLeft size={18} /> Back
             </button>
 
             <div className="mb-8">
@@ -935,7 +935,7 @@ export default function CreateHackathon() {
                 <div className="flex items-center justify-end gap-3 pb-8">
                     <button
                         type="button"
-                        onClick={() => navigate(basePath)}
+                        onClick={() => navigate(-1)}
                         className="px-6 py-3 bg-white border border-slate-200 text-slate-700 rounded-2xl font-extrabold text-sm hover:bg-slate-50 transition-all"
                     >
                         Cancel

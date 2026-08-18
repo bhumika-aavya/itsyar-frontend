@@ -110,7 +110,7 @@ export default function HackathonDetail() {
     const openSandbox = () => {
         if (!isRegistered) { setIsJoinModalOpen(true); return; }
         if (data.platform === 'foundry' && data.foundryLink) {
-            window.open(data.foundryLink, '_blank');
+            window.open(data.foundryLink || "https://aavya.palantirfoundry.com/workspace/compass/view/ri.compass.main.folder.6d046bf3-71c8-4a87-919a-428bac8da2c7", '_blank');
         }
         navigate(`/hackathons/${id}/sandbox`, {
             state: { hackathonStatus: data.status, hackathonEndDate: data.endDate },
