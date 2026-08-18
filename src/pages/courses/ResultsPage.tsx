@@ -72,7 +72,9 @@ export default function ResultsPage() {
                       <p className="text-sm font-bold text-slate-900">{r.title}</p>
                       <p className="text-[11px] font-bold text-[#4F46E5] mt-0.5">{r.category}</p>
                     </td>
-                    <td className="py-5 text-sm font-medium text-slate-500">{r.completionDate}</td>
+                    <td className="py-5 text-sm font-medium text-slate-500">
+                      {new Date(r.completionDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </td>
                     <td className="py-5">
                       <span className="flex items-center gap-2 text-sm font-bold text-emerald-600">
                         <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />

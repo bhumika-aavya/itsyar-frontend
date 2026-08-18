@@ -69,7 +69,12 @@ const CourseGridCard = ({ data }: { data: Course }) => {
         ) : <div className="absolute top-4 right-4 bg-slate-900/60 backdrop-blur-sm text-white p-2 rounded-xl z-10 flex items-center justify-center">
           <Lock size={14} className="text-white" />
         </div>}
-        <img src={`${import.meta.env.VITE_IMAGE_URL}${data?.image}`} alt={data.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        <img 
+          src={data?.image ? `${import.meta.env.VITE_IMAGE_URL}${data.image}` : 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop'} 
+          alt={data.title} 
+          onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop'; }}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+        />
       </div>
       <div className="p-6 flex flex-col flex-1">
         <div className="flex gap-2 mb-4">

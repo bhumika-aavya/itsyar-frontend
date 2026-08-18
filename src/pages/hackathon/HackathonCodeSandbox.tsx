@@ -728,7 +728,7 @@ export default function HackathonCodeSandbox({
         <div className="flex items-center justify-between gap-4 pt-2">
             <label className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-50 transition-all cursor-pointer">
                 <Upload size={15} className="text-slate-400" /> Upload File
-                <input type="file" accept=".js,.ts,.py,.java,.cpp,.go,.rs,.rb,.txt" className="hidden" onChange={handleFileUpload} />
+                <input type="file" accept=".js,.ts,.py,.java,.cpp,.go,.rs,.rb,.txt" className="hidden" onClick={() => { fileDialogOpenRef.current = true; }} onChange={handleFileUpload} />
             </label>
             <div className="flex items-center gap-2">
                 <button

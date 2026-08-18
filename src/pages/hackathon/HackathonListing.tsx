@@ -62,6 +62,8 @@ export default function HackathonListing() {
     const [hackathons, setHackathons] = useState<Hackathon[]>([]);
     const [loading, setLoading] = useState(true);
     const [joiningHackathon, setJoiningHackathon] = useState<Hackathon | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     useEffect(() => {
         const load = async () => {
@@ -87,6 +89,9 @@ export default function HackathonListing() {
             <Loader2 className="animate-spin text-[#4F46E5]" size={40} />
         </div>
     );
+
+    const totalPages = Math.ceil(hackathons.length / itemsPerPage);
+    const paginatedHackathons = hackathons.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
@@ -115,7 +120,7 @@ export default function HackathonListing() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                            {hackathons.map((hack) => {
+                            {paginatedHackathons.map((hack) => {
                                 const Icon = iconMap[hack.iconType ?? ''] || Trophy;
                                 const submitted = !!hack.isSubmit || isHackathonSubmitted(hack.id);
                                 const otherwiseJoinable = !submitted && canJoinHackathon(hack.status, hack.isRegistered ?? false);
@@ -191,6 +196,29 @@ export default function HackathonListing() {
                         </tbody>
                     </table>
                 </div>
+                {totalPages > 1 && (
+                    <div className="px-8 py-5 border-t border-slate-50 flex items-center justify-between">
+                        <span className="text-xs font-medium text-slate-500">
+                            Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, hackathons.length)} of {hackathons.length}
+                        </span>
+                        <div className="flex gap-1.5">
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            >
+                                Prev
+                            </button>
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {joiningHackathon && (

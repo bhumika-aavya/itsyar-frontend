@@ -45,6 +45,8 @@ export default function AdminHackathonsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Review flow states
   const [reviewingHackathon, setReviewingHackathon] = useState<any | null>(null);
@@ -82,6 +84,13 @@ export default function AdminHackathonsPage() {
       (h.status ?? "").toLowerCase() === statusFilter.toLowerCase();
     return matchSearch && matchStatus;
   });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter]);
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginatedHackathons = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
@@ -172,7 +181,7 @@ export default function AdminHackathonsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {filtered.map((h: any) => (
+              {paginatedHackathons.map((h: any) => (
                 <tr key={h.id} className="hover:bg-slate-50/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -260,6 +269,29 @@ export default function AdminHackathonsPage() {
             </div>
           )}
         </div>
+        {totalPages > 1 && (
+          <div className="px-6 py-4 border-t border-slate-50 flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">
+              Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filtered.length)} of {filtered.length}
+            </span>
+            <div className="flex gap-1.5">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Prev
+              </button>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Review Modal */}

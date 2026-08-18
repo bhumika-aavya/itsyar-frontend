@@ -231,35 +231,52 @@ export default function CreateHackathon() {
                     iconType: data.iconType ?? DEFAULT_ICON,
                     registrationsDeadline: data.registrationsDeadline,
                     difficultyLevel: data.difficultyLevel ?? 'Intermediate',
-                    pricing: (data as any).pricing ?? '0',
+                    pricing: String((data as any).pricing ?? '0'),
                     judges: Array.isArray(data.judges) ? data.judges.map((j: any) => ({
                         id: String(j.id || j.userId || j),
                         name: j.name || j.fullName || j.email || 'Judge',
                         email: j.email || '',
                     })) : [],
                     rulesText: Array.isArray(data.rules) ? data.rules.join('\n') : typeof data.rules === 'string' ? data.rules : (data as any).rulesText ?? '',
-                    criteria: (data.criteria && data.criteria.length > 0) ? data.criteria : (data as any).judgingCriteria ?? [],
+                    criteria: ((data.criteria && data.criteria.length > 0) ? data.criteria : (data as any).judgingCriteria ?? []).map((c: any) => ({
+                        ...c,
+                        weight: c.weight || 1
+                    })),
                     prizes: data.prizes ?? [],
                     faqs: ((data.faqs || (data as any).faq || []) as any[]).map((f: any) => ({ q: f.q || f.question || '', a: f.a || f.answer || '' })),
                     timeline: ((data.timeline || []) as any[]).map((t: any) => ({ label: t.label || t.title || t.name || '', date: t.date || '', description: t.description || '' })),
                 });
 
                 // Fetch and populate problem statement details in edit mode
-                if (data.problemCount > 0) {
+                const probData = (data as any).problem;
+                if (probData) {
+                    setIncludeProblem(true);
+                    const langs = (probData.supportedLanguages ?? []).map((l: string) => l.trim());
+                    probForm.reset({
+                        title: probData.title,
+                        difficulty: probData.difficulty,
+                        points: probData.points,
+                        description: probData.description,
+                        constraintsText: (probData.constraints ?? []).join('\n'),
+                        supportedLanguages: langs,
+                    });
+                    setSelectedLangs(langs);
+                } else if ((data as any).problemCount > 0) {
                     try {
                         const problems = await HackathonService.getProblem(id);
                         const firstProb = problems[0];
                         if (firstProb) {
                             setIncludeProblem(true);
+                            const langs = (firstProb.supportedLanguages ?? []).map(l => l.trim());
                             probForm.reset({
                                 title: firstProb.title,
                                 difficulty: firstProb.difficulty,
                                 points: firstProb.points,
                                 description: firstProb.description,
                                 constraintsText: (firstProb.constraints ?? []).join('\n'),
-                                supportedLanguages: firstProb.supportedLanguages ?? [],
+                                supportedLanguages: langs,
                             });
-                            setSelectedLangs(firstProb.supportedLanguages ?? []);
+                            setSelectedLangs(langs);
                         }
                     } catch (err) {
                         console.error('Failed to load problem statement details', err);

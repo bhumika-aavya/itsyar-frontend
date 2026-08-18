@@ -8,11 +8,10 @@ const NavItem = ({
 }: { icon: React.ElementType; label: string; active: boolean; onClick: () => void }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm ${
-      active
+    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm ${active
         ? 'bg-[#4F46E5] text-white shadow-lg shadow-indigo-100'
         : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-    }`}
+      }`}
   >
     <Icon size={18} strokeWidth={active ? 2.5 : 2} />
     {label}
@@ -78,12 +77,12 @@ export default function JudgeLayout() {
         </nav>
 
         <div className="pt-4 border-t border-slate-100 space-y-1">
-          <button
+          {/* <button
             onClick={() => navigate('/dashboard')}
             className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all"
           >
             <LayoutDashboard size={16} /> Student Dashboard
-          </button>
+          </button> */}
           <button
             onClick={logout}
             className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-red-400 hover:bg-red-50 transition-all"
