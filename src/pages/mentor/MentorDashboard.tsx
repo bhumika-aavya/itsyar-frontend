@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { HackathonService } from '@/services/hackathon.service';
 import { MentorSubmission } from '@/schemas/hackathon.schema';
+import { useAuth } from '@/context/AuthContext';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any; dot: string }> = {
     SUBMITTED: { label: 'In Queue', color: 'bg-indigo-50 text-[#4F46E5]', icon: Clock, dot: 'bg-[#4F46E5]' },
@@ -29,6 +30,7 @@ const timeAgo = (iso: string) => {
 
 export default function MentorDashboard() {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [submissions, setSubmissions] = useState<MentorSubmission[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<'ALL' | 'SUBMITTED' | 'UNDER_REVIEW' | 'EVALUATED'>('ALL');
@@ -36,9 +38,10 @@ export default function MentorDashboard() {
 
     useEffect(() => {
         const load = async () => {
+            if (!user?.id) return;
             setLoading(true);
             try {
-                const data = await HackathonService.getMentorSubmissions();
+                const data = await HackathonService.getMentorSubmissions(user.id);
                 setSubmissions(data || []);
             } catch (err) {
                 console.error("Failed to load mentor submissions", err);
@@ -46,8 +49,10 @@ export default function MentorDashboard() {
                 setLoading(false);
             }
         };
-        load();
-    }, []);
+        if (user?.id) {
+            load();
+        }
+    }, [user?.id]);
 
     const filtered = submissions?.filter(s => {
         let matchFilter = filter === 'ALL';

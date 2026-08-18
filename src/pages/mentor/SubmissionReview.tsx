@@ -8,6 +8,7 @@ import {
 import { HackathonService } from "@/services/hackathon.service";
 import { MentorSubmission } from "@/schemas/hackathon.schema";
 import { SubmissionScores } from "@/services/admin-submission.service";
+import { useAuth } from "@/context/AuthContext";
 
 interface Criterion { key: keyof SubmissionScores; label: string; max: number }
 
@@ -37,6 +38,7 @@ const zeroScores = (): Record<string, number> => ({
 export default function SubmissionReview() {
   const { submissionId } = useParams<{ submissionId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [detail, setDetail] = useState<MentorSubmission | null>(null);
   const [submissions, setSubmissions] = useState<MentorSubmission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -68,8 +70,8 @@ export default function SubmissionReview() {
       }
 
       // Fetch the sibling submissions for focus mode footer
-      if (data.hackathonId) {
-        const list = await HackathonService.getMentorSubmissions();
+      if (data.hackathonId && user?.id) {
+        const list = await HackathonService.getMentorSubmissions(user.id);
         const siblings = list.filter(item => item.hackathonId === data.hackathonId);
         setSubmissions(siblings);
       }
@@ -79,7 +81,7 @@ export default function SubmissionReview() {
     } finally {
       setLoading(false);
     }
-  }, [submissionId]);
+  }, [submissionId, user?.id]);
 
   useEffect(() => {
     loadDetail();
