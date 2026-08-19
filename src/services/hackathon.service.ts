@@ -451,8 +451,8 @@ export const HackathonService = {
     /** Get all submissions assigned to this mentor/judge for review. */
     getMentorSubmissions: async (mentorId: string): Promise<MentorSubmission[]> => {
         try {
-            const response = await api.get(`/mentor/submissions/${mentorId}`, getAuthHeaders());
-            return response.data.submissions;
+            const response = await api.get(`/mentor/submissions`, getAuthHeaders());
+            return response.data.users;
         } catch {
             console.warn("API Error: Falling back to mock mentor submissions");
             return mentorSubmissionsStore;

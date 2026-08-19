@@ -171,14 +171,14 @@ export default function MentorDashboard() {
                                 {/* Info */}
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-0.5">
-                                        <p className="font-extrabold text-slate-900 truncate">{sub.participantName}</p>
+                                        <p className="font-extrabold text-slate-900 truncate">{sub.name}</p>
                                         <span className="text-slate-300 font-bold">·</span>
                                         <p className="text-sm font-bold text-slate-500 truncate">{sub.hackathonTitle}</p>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <span className="text-xs font-bold text-slate-400">{sub.language}</span>
-                                        <span className="text-slate-200 font-bold">|</span>
-                                        <span className="text-xs font-bold text-slate-400">{sub.participantEmail}</span>
+                                        {/* <span className="text-xs font-bold text-slate-400">{sub.language}</span> */}
+                                        {/* <span className="text-slate-200 font-bold">|</span> */}
+                                        <span className="text-xs font-bold text-slate-400">{sub.email}</span>
                                     </div>
                                 </div>
 
