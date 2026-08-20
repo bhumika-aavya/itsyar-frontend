@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { ArrowLeft, Scale, Loader2, Code2, ChevronRight } from "lucide-react";
 import { AdminSubmissionService, UserSubmissionsResult, SubmissionStatus } from "@/services/admin-submission.service";
 
@@ -24,15 +24,18 @@ const statusBadge: Record<SubmissionStatus, string> = {
 export default function AdminUserSubmissionsPage() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isMentor = pathname.startsWith("/mentor");
+  const basePath = isMentor ? "/mentor" : "/admin";
   const [data, setData] = useState<UserSubmissionsResult | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!userId) return;
-    AdminSubmissionService.getUserSubmissions(userId)
+    AdminSubmissionService.getUserSubmissions(userId, isMentor)
       .then(setData)
       .finally(() => setLoading(false));
-  }, [userId]);
+  }, [userId, isMentor]);
 
   if (loading) {
     return (
@@ -47,7 +50,7 @@ export default function AdminUserSubmissionsPage() {
   return (
     <div className="space-y-5 max-w-4xl">
       <button
-        onClick={() => navigate("/admin/submissions")}
+        onClick={() => navigate(-1)}
         className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-[#4F46E5] transition-colors"
       >
         <ArrowLeft size={15} /> Back to Submissions
@@ -72,7 +75,7 @@ export default function AdminUserSubmissionsPage() {
         {submissions.map(sub => (
           <button
             key={sub.id}
-            onClick={() => navigate(`/admin/submissions/${userId}/${sub.id}`)}
+            onClick={() => navigate(`${basePath}/submissions/${userId}/${sub.id}`)}
             className="w-full flex items-center gap-4 px-6 py-4 hover:bg-slate-50/50 transition-colors text-left"
           >
             <div className="w-10 h-10 bg-[#1E1E2E] rounded-xl flex items-center justify-center shrink-0">

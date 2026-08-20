@@ -159,8 +159,8 @@ export default function MentorDashboard() {
                         const cfg = STATUS_CONFIG[sub.status] || STATUS_CONFIG.SUBMITTED;
                         return (
                             <button
-                                key={sub.submissionId}
-                                onClick={() => navigate(`/mentor/submissions/${sub.submissionId}`)}
+                                key={sub.userId}
+                                onClick={() => navigate(`/mentor/submissions/${sub.userId}`)}
                                 className="w-full bg-white border border-slate-100 rounded-2xl p-5 flex items-center gap-5 hover:border-[#4F46E5]/30 hover:shadow-md hover:shadow-indigo-50/50 transition-all text-left group"
                             >
                                 {/* Language badge */}

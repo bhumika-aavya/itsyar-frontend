@@ -183,27 +183,30 @@ export const AdminSubmissionService = {
         }
     },
 
-    getUserSubmissions: async (userId: string): Promise<UserSubmissionsResult> => {
+    getUserSubmissions: async (userId: string, isMentor?: boolean): Promise<UserSubmissionsResult> => {
+        const base = isMentor ? `/mentor/submissions/${userId}` : `${BASE}/users/${userId}`;
         try {
-            const response = await api.get(`${BASE}/users/${userId}`, getAuthHeaders());
+            const response = await api.get(`${base}`, getAuthHeaders());
             return response.data;
         } catch {
             return mockUserSubmissions(userId);
         }
     },
 
-    getSubmissionDetail: async (submissionId: string): Promise<SubmissionDetail | null> => {
+    getSubmissionDetail: async (submissionId: string, isMentor?: boolean): Promise<SubmissionDetail | null> => {
+        const base = isMentor ? "/mentor/submissions" : BASE;
         try {
-            const response = await api.get(`${BASE}/${submissionId}/detail`, getAuthHeaders());
+            const response = await api.get(`${base}/${submissionId}/detail`, getAuthHeaders());
             return response.data.submission;
         } catch {
             return mockSubmissionDetail(submissionId);
         }
     },
 
-    submitReview: async (submissionId: string, data: ReviewPayload): Promise<SubmitReviewResponse> => {
+    submitReview: async (submissionId: string, data: ReviewPayload, isMentor?: boolean): Promise<SubmitReviewResponse> => {
+        const base = isMentor ? "/mentor/submissions" : BASE;
         try {
-            const response = await api.post(`${BASE}/${submissionId}/review`, data, getAuthHeaders());
+            const response = await api.post(`${base}/${submissionId}/review`, data, getAuthHeaders());
             return response.data;
         } catch {
             const weightedScore = weightedScoreOf(data.scores);
@@ -222,9 +225,10 @@ export const AdminSubmissionService = {
         }
     },
 
-    saveReviewDraft: async (submissionId: string, data: ReviewPayload): Promise<SaveDraftResponse> => {
+    saveReviewDraft: async (submissionId: string, data: ReviewPayload, isMentor?: boolean): Promise<SaveDraftResponse> => {
+        const base = isMentor ? "/mentor/submissions" : BASE;
         try {
-            const response = await api.post(`${BASE}/${submissionId}/review/draft`, data, getAuthHeaders());
+            const response = await api.post(`${base}/${submissionId}/review/draft`, data, getAuthHeaders());
             return response.data;
         } catch {
             const decoded = decodeId(submissionId);

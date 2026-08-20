@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import {
   ArrowLeft, ChevronLeft, ChevronRight, Save, Send, Loader2,
@@ -32,6 +32,9 @@ const zeroScores = (): SubmissionScores => ({ innovation: 0, technicalFeasibilit
 export default function AdminSubmissionReviewPage() {
   const { userId, submissionId } = useParams<{ userId: string; submissionId: string }>();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isMentor = pathname.startsWith("/mentor");
+  const basePath = isMentor ? "/mentor" : "/admin";
   const [queue, setQueue] = useState<UserSubmissionsResult | null>(null);
   const [detail, setDetail] = useState<SubmissionDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -43,13 +46,13 @@ export default function AdminSubmissionReviewPage() {
 
   useEffect(() => {
     if (!userId) return;
-    AdminSubmissionService.getUserSubmissions(userId).then(setQueue);
-  }, [userId]);
+    AdminSubmissionService.getUserSubmissions(userId, isMentor).then(setQueue);
+  }, [userId, isMentor]);
 
   useEffect(() => {
     if (!submissionId) return;
     setLoading(true);
-    AdminSubmissionService.getSubmissionDetail(submissionId)
+    AdminSubmissionService.getSubmissionDetail(submissionId, isMentor)
       .then(d => {
         setDetail(d);
         setScores(d?.scores ?? zeroScores());
@@ -66,7 +69,7 @@ export default function AdminSubmissionReviewPage() {
 
   const goto = (i: number) => {
     if (i < 0 || i >= submissions.length) return;
-    navigate(`/admin/submissions/${userId}/${submissions[i].id}`);
+    navigate(`${basePath}/submissions/${userId}/${submissions[i].id}`);
   };
 
   const handleSave = async (final: boolean) => {
@@ -74,15 +77,15 @@ export default function AdminSubmissionReviewPage() {
     setSaving(final ? "submit" : "draft");
     try {
       if (final) {
-        const res = await AdminSubmissionService.submitReview(submissionId, { scores, feedback });
+        const res = await AdminSubmissionService.submitReview(submissionId, { scores, feedback }, isMentor);
         setDetail(prev => prev ? { ...prev, status: res.status, weightedScore: res.weightedScore, score: res.weightedScore, feedback } : prev);
         toast.success("Review submitted");
       } else {
-        await AdminSubmissionService.saveReviewDraft(submissionId, { scores, feedback });
+        await AdminSubmissionService.saveReviewDraft(submissionId, { scores, feedback }, isMentor);
         setDetail(prev => prev ? { ...prev, status: "UNDER_REVIEW" } : prev);
         toast.success("Draft saved");
       }
-      setQueue(await (userId ? AdminSubmissionService.getUserSubmissions(userId) : Promise.resolve(queue)));
+      setQueue(await (userId ? AdminSubmissionService.getUserSubmissions(userId, isMentor) : Promise.resolve(queue)));
     } finally {
       setSaving(null);
     }
@@ -99,7 +102,7 @@ export default function AdminSubmissionReviewPage() {
   if (!detail) {
     return (
       <div className="max-w-5xl space-y-5">
-        <button onClick={() => navigate(`/admin/submissions/${userId}`)} className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-[#4F46E5] transition-colors">
+        <button onClick={() => navigate(`${basePath}/submissions/${userId}`)} className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-[#4F46E5] transition-colors">
           <ArrowLeft size={15} /> Back to Queue
         </button>
         <p className="text-sm font-bold text-slate-400">Submission not found.</p>
@@ -110,7 +113,7 @@ export default function AdminSubmissionReviewPage() {
   return (
     <div className="max-w-5xl space-y-5 pb-4">
       <button
-        onClick={() => navigate(`/admin/submissions/${userId}`)}
+        onClick={() => navigate(`${basePath}/submissions/${userId}`)}
         className="flex items-center gap-2 text-sm font-bold text-[#4F46E5] hover:underline"
       >
         <ArrowLeft size={15} /> Back to Judging Queue

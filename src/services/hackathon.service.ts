@@ -463,7 +463,7 @@ export const HackathonService = {
     getSubmissionById: async (submissionId: string): Promise<MentorSubmission> => {
         try {
             const response = await api.get(`/mentor/submissions/${submissionId}`, getAuthHeaders());
-            return response.data.submission;
+            return response.data.submissions;
         } catch {
             console.warn("API Error: Falling back to mock submission lookup");
             const submission = mentorSubmissionsStore.find(s => s.submissionId === submissionId);

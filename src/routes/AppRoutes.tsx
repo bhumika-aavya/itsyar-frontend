@@ -157,7 +157,8 @@ export default function AppRoutes() {
           <Route element={<RoleRoute roles={["mentor/judge"]} />}>
             <Route element={<MentorLayout />}>
               <Route path="/mentor" element={<MentorDashboard />} />
-              <Route path="/mentor/submissions/:submissionId" element={<SubmissionReview />} />
+              <Route path="/mentor/submissions/:userId" element={<AdminUserSubmissionsPage />} />
+              <Route path="/mentor/submissions/:userId/:submissionId" element={<AdminSubmissionReviewPage />} />
               <Route path="/mentor/courses" element={<MentorCoursesPage />} />
               <Route path="/mentor/profile" element={<ProfilePage />} />
             </Route>
