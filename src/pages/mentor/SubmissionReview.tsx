@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import {
-  ArrowLeft, ChevronLeft, ChevronRight, Save, Send, Loader2,
+  ArrowLeft, Save, Send, Loader2,
   CheckCircle2, Code2, Lock, Zap
 } from "lucide-react";
 import { HackathonService } from "@/services/hackathon.service";

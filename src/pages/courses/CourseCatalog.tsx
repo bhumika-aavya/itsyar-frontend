@@ -61,14 +61,12 @@ const CourseGridCard = ({ data }: { data: Course }) => {
             {data.badge}
           </span>
         )}
-        {/* Lock indicator for unpaid courses */}
-        {isPurchased ? (
+        {/* Lifetime Access indicator for paid courses */}
+        {isPurchased && (
           <div className="absolute top-4 right-4 bg-emerald-500 text-white px-2.5 py-1 text-[10px] font-extrabold rounded-lg z-10 flex items-center gap-1 shadow-md">
             <CheckCircle size={10} /> Lifetime Access
           </div>
-        ) : <div className="absolute top-4 right-4 bg-slate-900/60 backdrop-blur-sm text-white p-2 rounded-xl z-10 flex items-center justify-center">
-          <Lock size={14} className="text-white" />
-        </div>}
+        )}
         <img 
           src={data?.image ? `${import.meta.env.VITE_IMAGE_URL}${data.image}` : 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop'} 
           alt={data.title} 
@@ -91,9 +89,11 @@ const CourseGridCard = ({ data }: { data: Course }) => {
             </div>
             <span className="text-[11px] font-bold text-slate-500">by {data.instructor}</span>
           </div>
-          <button className="text-[11px] font-extrabold text-[#4F46E5] hover:underline">
-            {isPurchased ? "Continue Learning →" : "Unlock Course →"}
-          </button>
+          {isPurchased && (
+            <button className="text-[11px] font-extrabold text-[#4F46E5] hover:underline">
+              Continue Learning →
+            </button>
+          )}
         </div>
       </div>
     </div>

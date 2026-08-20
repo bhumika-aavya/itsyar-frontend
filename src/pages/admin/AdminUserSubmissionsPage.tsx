@@ -59,11 +59,11 @@ export default function AdminUserSubmissionsPage() {
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-[#4F46E5] font-extrabold shrink-0">
-            {(data?.user.name ?? "?").charAt(0).toUpperCase()}
+            {(data?.user?.name ?? "?").charAt(0).toUpperCase()}
           </div>
           <div>
-            <h1 className="text-2xl font-extrabold text-slate-900">{data?.user.name ?? "Unknown user"}</h1>
-            <p className="text-sm font-medium text-slate-400 mt-0.5">{data?.user.email}</p>
+            <h1 className="text-2xl font-extrabold text-slate-900">{data?.user?.name ?? "Unknown user"}</h1>
+            <p className="text-sm font-medium text-slate-400 mt-0.5">{data?.user?.email}</p>
           </div>
         </div>
         <span className="text-xs font-extrabold text-slate-400 shrink-0">
@@ -84,11 +84,18 @@ export default function AdminUserSubmissionsPage() {
             <div className="flex-1 min-w-0">
               <p className="font-extrabold text-slate-900 text-sm">{sub.teamName}</p>
               <div className="flex items-center gap-3 text-xs font-bold text-slate-400 mt-0.5">
-                <span>{sub.hackathonTitle}</span>
-                <span className="text-slate-200">|</span>
-                <span>{sub.language}</span>
-                <span className="text-slate-200">|</span>
-                <span>Submitted {fmt(sub.submittedAt)}</span>
+                {[
+                  sub.hackathonTitle ? <span>{sub.hackathonTitle}</span> : null,
+                  sub.language && sub.language !== "Unknown" ? <span>{sub.language}</span> : null,
+                  sub.submittedAt ? <span>Submitted {fmt(sub.submittedAt)}</span> : null,
+                ]
+                  .filter(Boolean)
+                  .map((item, i, arr) => (
+                    <React.Fragment key={i}>
+                      {item}
+                      {i < arr.length - 1 && <span className="text-slate-200">|</span>}
+                    </React.Fragment>
+                  ))}
               </div>
             </div>
             <span className={`text-[11px] font-extrabold px-2.5 py-1.5 rounded-lg shrink-0 ${statusBadge[sub.status]}`}>

@@ -1,23 +1,26 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   LayoutDashboard, BookOpen, Zap, Trophy, ClipboardList,
-  User, Search, ChevronDown, LogOut, Settings, Users, Shield, Mail
+  User, Search, ChevronDown, LogOut, Settings, Users, Shield, Mail,
+  ChevronRight,
+  ChevronLeft
 } from 'lucide-react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { TeamService } from '@/services/team.service';
 
-const SidebarItem = ({ icon: Icon, label, active, onClick, badge }: any) => (
+const SidebarItem = ({ icon: Icon, label, active, onClick, badge, collapsed }: any) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm ${active
+    title={collapsed ? label : undefined}
+    className={`w-full flex items-center gap-3 py-3 rounded-xl transition-all font-semibold text-sm cursor-pointer ${collapsed ? 'justify-center px-0' : 'px-4'} ${active
       ? "bg-[#4F46E5] text-white shadow-lg shadow-indigo-100"
       : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
       }`}
   >
-    <Icon size={18} strokeWidth={active ? 2.5 : 2} />
-    <span className="flex-1 text-left">{label}</span>
-    {!!badge && (
+    <Icon size={18} strokeWidth={active ? 2.5 : 2} className="shrink-0" />
+    {!collapsed && <span className="flex-1 text-left truncate">{label}</span>}
+    {!!badge && !collapsed && (
       <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full min-w-[18px] text-center ${active ? "bg-white/20 text-white" : "bg-red-500 text-white"
         }`}>
         {badge}
@@ -34,6 +37,7 @@ export default function MainLayout() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [pendingInvites, setPendingInvites] = useState(0);
+  const [collapsed, setCollapsed] = useState(false);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -72,12 +76,20 @@ export default function MainLayout() {
   return (
     <div className="flex min-h-screen bg-[#F9FAFD]">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-slate-100 p-6 flex flex-col sticky top-0 h-screen">
-        <div className="flex items-center gap-2 mb-10 px-2 cursor-pointer" onClick={() => navigate('/dashboard')}>
-          <div className="bg-[#4F46E5] p-1.5 rounded-lg">
+      <aside className={`${collapsed ? 'w-[88px] px-4 py-6' : 'w-64 p-6'} bg-white border-r border-slate-100 flex flex-col sticky top-0 h-screen transition-all duration-300 relative z-50`}>
+        <button
+          onClick={() => setCollapsed(v => !v)}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className="absolute -right-3 top-8 w-6 h-6 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 hover:text-[#4F46E5] hover:border-[#4F46E5] shadow-sm transition-all z-50 cursor-pointer"
+        >
+          {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
+        </button>
+
+        <div className={`flex items-center gap-2 mb-10 cursor-pointer ${collapsed ? 'justify-center' : 'px-2'}`} onClick={() => navigate('/dashboard')}>
+          <div className="bg-[#4F46E5] p-1.5 rounded-lg shrink-0">
             <Zap className="text-white fill-white" size={20} />
           </div>
-          <span className="text-xl font-bold tracking-tight">ForgeInsight</span>
+          {!collapsed && <span className="text-xl font-bold tracking-tight truncate">ForgeInsight</span>}
         </div>
 
         <nav className="flex-1 space-y-2">
@@ -85,6 +97,7 @@ export default function MainLayout() {
             <SidebarItem
               key={item.label}
               {...item}
+              collapsed={collapsed}
               active={location.pathname === item.path || location.pathname.startsWith(item.path + '/')}
               onClick={() => navigate(item.path)}
             />
@@ -95,10 +108,11 @@ export default function MainLayout() {
           <div className="pt-4 border-t border-slate-100">
             <button
               onClick={() => navigate('/admin')}
-              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-[#4F46E5] hover:bg-indigo-50 transition-all"
+              title={collapsed ? 'Admin Panel' : undefined}
+              className={`w-full flex items-center gap-3 py-2.5 rounded-xl text-sm font-semibold text-[#4F46E5] hover:bg-indigo-50 transition-all cursor-pointer ${collapsed ? 'justify-center px-0' : 'px-4'}`}
             >
-              <Shield size={16} />
-              Admin Panel
+              <Shield size={16} className="shrink-0" />
+              {!collapsed && <span className="truncate">Admin Panel</span>}
             </button>
           </div>
         )}

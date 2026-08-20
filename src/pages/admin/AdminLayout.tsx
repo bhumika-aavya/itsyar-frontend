@@ -12,13 +12,13 @@ const NavItem = ({
   <button
     onClick={onClick}
     title={collapsed ? label : undefined}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm ${collapsed ? 'justify-center' : ''} ${active
+    className={`w-full flex items-center gap-3 py-3 rounded-xl transition-all font-semibold text-sm cursor-pointer ${collapsed ? 'justify-center px-0' : 'px-4'} ${active
       ? 'bg-[#4F46E5] text-white shadow-lg shadow-indigo-100'
       : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
       }`}
   >
-    <Icon size={18} strokeWidth={active ? 2.5 : 2} />
-    {!collapsed && label}
+    <Icon size={18} strokeWidth={active ? 2.5 : 2} className="shrink-0" />
+    {!collapsed && <span className="flex-1 text-left truncate">{label}</span>}
   </button>
 );
 
@@ -59,31 +59,31 @@ export default function AdminLayout() {
   return (
     <div className="flex min-h-screen bg-[#F9FAFD]">
       {/* Sidebar */}
-      <aside className={`${collapsed ? 'w-20' : 'w-64'} bg-white border-r border-slate-100 p-6 flex flex-col sticky top-0 h-screen transition-all duration-200 relative`}>
+      <aside className={`${collapsed ? 'w-[88px] px-4 py-6' : 'w-64 p-6'} bg-white border-r border-slate-100 flex flex-col sticky top-0 h-screen transition-all duration-300 relative z-50`}>
         <button
           onClick={() => setCollapsed(v => !v)}
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          className="absolute -right-3 top-8 w-6 h-6 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 hover:text-[#4F46E5] hover:border-[#4F46E5] shadow-sm transition-all z-10"
+          className="absolute -right-3 top-8 w-6 h-6 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 hover:text-[#4F46E5] hover:border-[#4F46E5] shadow-sm transition-all z-50 cursor-pointer"
         >
           {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
         </button>
 
         {/* Brand */}
         <div
-          className={`flex items-center gap-2 mb-2 px-2 cursor-pointer ${collapsed ? 'justify-center' : ''}`}
+          className={`flex items-center gap-2 mb-2 cursor-pointer ${collapsed ? 'justify-center' : 'px-2'}`}
           onClick={() => navigate('/admin')}
         >
           <div className="bg-[#4F46E5] p-1.5 rounded-lg shrink-0">
             <Zap className="text-white fill-white" size={20} />
           </div>
-          {!collapsed && <span className="text-xl font-bold tracking-tight">ForgeInsight</span>}
+          {!collapsed && <span className="text-xl font-bold tracking-tight truncate">ForgeInsight</span>}
         </div>
 
         {/* Admin badge */}
-        <div className={`mx-2 mb-8 ${collapsed ? 'flex justify-center' : ''}`}>
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#4F46E5]/10 rounded-lg ${collapsed ? 'px-2' : ''}`}>
-            <Shield size={11} className="text-[#4F46E5]" />
-            {!collapsed && <span className="text-[11px] font-extrabold text-[#4F46E5] uppercase tracking-widest">Admin Panel</span>}
+        <div className={`mb-8 ${collapsed ? 'flex justify-center' : 'mx-2'}`}>
+          <span className={`inline-flex items-center gap-1.5 py-1 bg-[#4F46E5]/10 rounded-lg ${collapsed ? 'px-2' : 'px-2.5'}`}>
+            <Shield size={11} className="text-[#4F46E5] shrink-0" />
+            {!collapsed && <span className="text-[11px] font-extrabold text-[#4F46E5] uppercase tracking-widest truncate">Admin Panel</span>}
           </span>
         </div>
 

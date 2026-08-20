@@ -157,7 +157,7 @@ export default function LessonView() {
   return (
     <div className="min-h-screen bg-[#F9FAFD] flex flex-col text-left font-sans">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-slate-100 px-8 py-5">
+      <header className="sticky top-0 z-30 bg-white border-b border-slate-100 px-8 py-5">
         <div className="max-w-[1440px] mx-auto flex justify-between items-center">
           <div className="flex items-center gap-4">
             <button onClick={() => navigate(`/courses/${courseId}`)} className="p-2 hover:bg-slate-50 rounded-xl text-slate-400">

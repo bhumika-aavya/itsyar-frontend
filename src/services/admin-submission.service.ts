@@ -187,6 +187,28 @@ export const AdminSubmissionService = {
         const base = isMentor ? `/mentor/submissions/${userId}` : `${BASE}/users/${userId}`;
         try {
             const response = await api.get(`${base}`, getAuthHeaders());
+            
+            if (!response.data.user) {
+                const subs = response.data.submissions ? (Array.isArray(response.data.submissions) ? response.data.submissions : [response.data.submissions]) : [];
+                const first = subs[0];
+                return {
+                    user: {
+                        name: first?.participantName || first?.userName || first?.name || "Unknown user",
+                        email: first?.participantEmail || first?.userEmail || first?.email || ""
+                    },
+                    reviewed: subs.filter((s: any) => ["EVALUATED", "ACCEPTED", "REJECTED"].includes(s.status)).length,
+                    total: subs.length,
+                    submissions: subs.map((s: any) => ({
+                        id: s.submissionId || s.id,
+                        teamName: s.teamName || s.name || "Team",
+                        hackathonTitle: s.hackathonTitle || "",
+                        hackathonId: s.hackathonId || "",
+                        language: s.language || "Unknown",
+                        submittedAt: s.submittedAt || new Date().toISOString(),
+                        status: (s.status === "PENDING" ? "SUBMITTED" : (s.status === "ACCEPTED" || s.status === "REJECTED" ? "EVALUATED" : s.status)) as SubmissionStatus,
+                    }))
+                };
+            }
             return response.data;
         } catch {
             return mockUserSubmissions(userId);
@@ -197,7 +219,18 @@ export const AdminSubmissionService = {
         const base = isMentor ? "/mentor/submissions" : BASE;
         try {
             const response = await api.get(`${base}/${submissionId}/detail`, getAuthHeaders());
-            return response.data.submission;
+            const data = response.data.submission || response.data;
+            
+            // For mentor API, the review payload might be nested under `myReview`.
+            if (isMentor && data.myReview) {
+                return {
+                    ...data,
+                    scores: data.myReview.scores || data.scores,
+                    feedback: data.myReview.feedback || data.feedback,
+                    weightedScore: data.myReview.weightedScore ?? data.weightedScore,
+                };
+            }
+            return data;
         } catch {
             return mockSubmissionDetail(submissionId);
         }

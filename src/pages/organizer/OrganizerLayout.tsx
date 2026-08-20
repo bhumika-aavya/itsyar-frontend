@@ -1,20 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Zap, User, LogOut, ChevronDown, Building2, Plus, LayoutDashboard } from 'lucide-react';
+import { Zap, User, LogOut, ChevronDown, Building2, Plus, LayoutDashboard, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 
 const NavItem = ({
-  icon: Icon, label, active, onClick,
-}: { icon: React.ElementType; label: string; active: boolean; onClick: () => void }) => (
+  icon: Icon, label, active, onClick, collapsed
+}: { icon: React.ElementType; label: string; active: boolean; onClick: () => void; collapsed: boolean }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm ${active
+    title={collapsed ? label : undefined}
+    className={`w-full flex items-center gap-3 py-3 rounded-xl transition-all font-semibold text-sm cursor-pointer ${collapsed ? 'justify-center px-0' : 'px-4'} ${active
       ? 'bg-[#4F46E5] text-white shadow-lg shadow-indigo-100'
       : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
       }`}
   >
-    <Icon size={18} strokeWidth={active ? 2.5 : 2} />
-    {label}
+    <Icon size={18} strokeWidth={active ? 2.5 : 2} className="shrink-0" />
+    {!collapsed && <span className="flex-1 text-left truncate">{label}</span>}
   </button>
 );
 
@@ -28,6 +29,7 @@ export default function OrganizerLayout() {
   const location = useLocation();
   const { user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -50,26 +52,36 @@ export default function OrganizerLayout() {
   return (
     <div className="flex min-h-screen bg-[#F9FAFD]">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-slate-100 p-6 flex flex-col sticky top-0 h-screen">
-        <div className="flex items-center gap-2 mb-2 px-2 cursor-pointer" onClick={() => navigate('/organizer')}>
-          <div className="bg-[#4F46E5] p-1.5 rounded-lg">
+      <aside className={`${collapsed ? 'w-[88px] px-4 py-6' : 'w-64 p-6'} bg-white border-r border-slate-100 flex flex-col sticky top-0 h-screen transition-all duration-300 relative z-50`}>
+        <button
+          onClick={() => setCollapsed(v => !v)}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className="absolute -right-3 top-8 w-6 h-6 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 hover:text-[#4F46E5] hover:border-[#4F46E5] shadow-sm transition-all z-50 cursor-pointer"
+        >
+          {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
+        </button>
+
+        <div className={`flex items-center gap-2 mb-2 cursor-pointer ${collapsed ? 'justify-center' : 'px-2'}`} onClick={() => navigate('/organizer')}>
+          <div className="bg-[#4F46E5] p-1.5 rounded-lg shrink-0">
             <Zap className="text-white fill-white" size={20} />
           </div>
-          <span className="text-xl font-bold tracking-tight">ForgeInsight</span>
+          {!collapsed && <span className="text-xl font-bold tracking-tight truncate">ForgeInsight</span>}
         </div>
 
-        <div className="mx-2 mb-5">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 rounded-lg">
-            <Building2 size={11} className="text-emerald-600" />
-            <span className="text-[11px] font-extrabold text-emerald-600 uppercase tracking-widest">Organizer Portal</span>
+        <div className={`mb-5 ${collapsed ? 'flex justify-center' : 'mx-2'}`}>
+          <span className={`inline-flex items-center gap-1.5 py-1 bg-emerald-50 rounded-lg ${collapsed ? 'px-2' : 'px-2.5'}`}>
+            <Building2 size={11} className="text-emerald-600 shrink-0" />
+            {!collapsed && <span className="text-[11px] font-extrabold text-emerald-600 uppercase tracking-widest truncate">Organizer Portal</span>}
           </span>
         </div>
 
         <button
           onClick={() => navigate('/organizer/hackathons/create')}
-          className="flex items-center justify-center gap-2 mb-6 px-4 py-2.5 bg-[#4F46E5] text-white rounded-xl text-sm font-extrabold shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all"
+          title={collapsed ? 'Create Hackathon' : undefined}
+          className={`flex items-center justify-center gap-2 mb-6 py-2.5 bg-[#4F46E5] text-white rounded-xl text-sm font-extrabold shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all cursor-pointer ${collapsed ? 'px-0' : 'px-4'}`}
         >
-          <Plus size={15} /> Create Hackathon
+          <Plus size={15} className="shrink-0" />
+          {!collapsed && <span className="truncate">Create Hackathon</span>}
         </button>
 
         <nav className="flex-1 space-y-1">
@@ -80,22 +92,19 @@ export default function OrganizerLayout() {
               label={item.label}
               active={isActive(item.path)}
               onClick={() => navigate(item.path)}
+              collapsed={collapsed}
             />
           ))}
         </nav>
 
         <div className="pt-4 border-t border-slate-100 space-y-1">
-          {/* <button
-            onClick={() => navigate('/dashboard')}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all"
-          >
-            <LayoutDashboard size={16} /> Student Dashboard
-          </button> */}
           <button
             onClick={logout}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-red-400 hover:bg-red-50 transition-all"
+            title={collapsed ? 'Sign Out' : undefined}
+            className={`w-full flex items-center gap-3 py-2.5 rounded-xl text-sm font-semibold text-red-400 hover:bg-red-50 transition-all cursor-pointer ${collapsed ? 'justify-center px-0' : 'px-4'}`}
           >
-            <LogOut size={16} /> Sign Out
+            <LogOut size={16} className="shrink-0" />
+            {!collapsed && <span className="truncate">Sign Out</span>}
           </button>
         </div>
       </aside>
