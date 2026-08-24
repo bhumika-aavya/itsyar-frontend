@@ -1,11 +1,15 @@
 import { z } from "zod";
 
-const CurriculumItemSchema = z.object({
+const BaseCurriculumItemSchema = z.object({
   id: z.string(),
   title: z.string(),
-  type: z.enum(["video", "reading", "assessment"]),
+  type: z.enum(["topic-documentation", "topic-video", "practical-video", "interview-questions", "video", "reading", "assessment"]),
   duration: z.string().optional(), // e.g., "12:45"
   questions: z.number().optional(), // for assessments
+});
+
+const CurriculumItemSchema = BaseCurriculumItemSchema.extend({
+  subItems: z.array(BaseCurriculumItemSchema).optional()
 });
 
 const ModuleSchema = z.object({
@@ -16,6 +20,8 @@ const ModuleSchema = z.object({
   title: z.string(),
   duration: z.string().optional(),
   summary: z.string().optional(),
+  progress: z.number().optional(),
+  status: z.enum(["Completed", "In Progress", "Upcoming"]).optional(),
   items: z.array(CurriculumItemSchema).nullable().optional(),
 });
 

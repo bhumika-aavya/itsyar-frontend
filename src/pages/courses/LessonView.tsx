@@ -5,8 +5,6 @@ import {
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { LessonService } from '@/services/lesson.service';
-import { QuizData } from '@/schemas/lesson.schema';
-import QuizModal from './QuizModal';
 import { CourseService } from '@/services/course.service';
 
 export default function LessonView() {
@@ -14,11 +12,8 @@ export default function LessonView() {
   const { courseId, lessonId } = useParams();
 
   const [activeModule, setActiveModule] = useState<number | null>(null);
-  const [activeQuizId, setActiveQuizId] = useState<string | null>(null);
-  const [isQuizOpen, setIsQuizOpen] = useState(false);
   const [courseData, setCourseData] = useState<any>(null);
-  const [quizData, setQuizData] = useState<QuizData | null>(null);
-  const [quizModuleId, setQuizModuleId] = useState<any>(null);
+
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isUpdatingVideo, setIsUpdatingVideo] = useState(false);
   const [lastSavedTime, setLastSavedTime] = useState(0);
@@ -74,51 +69,9 @@ export default function LessonView() {
   const currentLessonIndex = allLessons.findIndex((l: any) => l?.id === currentLesson?.id);
   const nextLesson = allLessons[currentLessonIndex + 1] ?? null;
 
-  const lastModuleId = courseData?.curriculum?.[courseData.curriculum.length - 1]?.id;
-  // eslint-disable-next-line eqeqeq
-  const isFinalQuiz = quizModuleId != null && quizModuleId == lastModuleId;
-
-  const lessonHasQuiz = currentModule?.hasQuiz || currentLesson?.hasQuiz;
-
-  // Fetch quiz for a specific module/lesson, then open the modal
-  const fetchAndOpenQuiz = async (quizId: string, moduleId: any) => {
-    setActiveQuizId(quizId); // highlight in sidebar immediately
-    try {
-      const quiz = await LessonService.getModuleQuiz(courseId!, quizId);
-      if (quiz) {
-        setQuizData(quiz);
-        setQuizModuleId(moduleId);
-        setIsQuizOpen(true);
-      }
-    } catch (err) {
-      console.error("Failed to fetch quiz", err);
-      setActiveQuizId(null);
-    }
-  };
-
-  // Called when a non-final quiz is completed — advance to the next module
-  const handleQuizComplete = () => {
-    const modules: any[] = courseData?.curriculum ?? [];
-    const currentModIdx = modules.findIndex((m: any) => m.id === quizModuleId);
-    const nextMod = modules[currentModIdx + 1];
-
-    setIsQuizOpen(false);
-    setVideoEnded(false);
-    setActiveQuizId(null);
-
-    if (nextMod) {
-      setActiveModule(nextMod.id);
-      const firstLesson = nextMod.lessons?.[0];
-      if (firstLesson) {
-        navigate(`/courses/${courseId}/lessons/${firstLesson.id}`);
-      }
-    }
-  };
-
   const handleVideoEnded = () => {
     setVideoEnded(true);
-    if (!lessonHasQuiz && nextLesson) {
-      // no quiz — auto-navigate to next lesson after 2s
+    if (nextLesson) {
       setTimeout(() => {
         navigate(`/courses/${courseId}/lessons/${nextLesson.id}`);
       }, 2000);
@@ -177,63 +130,98 @@ export default function LessonView() {
 
           {/* Left Column */}
           <div className="lg:col-span-8 space-y-10">
-            {/* Video Container */}
-            <div className="relative pt-[56.25%] w-full bg-black rounded-[40px] overflow-hidden shadow-2xl border-3 border-white">
-              {isUpdatingVideo ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
-                  <Loader2 className="animate-spin text-white mb-2" size={36} />
-                </div>
-              ) : (
-                <>
-                  <video
-                    key={currentLesson?.id}
-                    className="absolute top-0 left-0 w-full h-full object-cover"
-                    controls
-                    autoPlay={false}
-                    onEnded={handleVideoEnded}
-                    onTimeUpdate={handleTimeUpdate}
-                  >
-                    <source src={`${import.meta.env.VITE_IMAGE_URL}${currentLesson?.videoUrl}`} type="video/mp4" />
-                  </video>
-
-                  {/* Video-ended overlay */}
-                  {videoEnded && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/75 backdrop-blur-sm">
-                      <div className="text-center space-y-6 px-8">
-                        <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
-                          <CheckCircle2 className="text-white" size={32} />
-                        </div>
-                        <div>
-                          <p className="text-white font-extrabold text-xl mb-1">Lesson Complete!</p>
-                          <p className="text-white/60 text-sm font-medium">
-                            {lessonHasQuiz
-                              ? "Test your knowledge before moving on"
-                              : nextLesson
-                                ? "Loading next lesson…"
-                                : "You've finished this course!"}
-                          </p>
-                        </div>
-                        {lessonHasQuiz ? (
-                          <button
-                            onClick={() => fetchAndOpenQuiz(currentLesson?.id ?? '', currentModule?.id)}
-                            className="flex items-center justify-center mx-auto gap-3 px-10 py-4 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-2xl hover:bg-[#4338CA] transition-all active:scale-95"
-                          >
-                            <FileText size={18} /> Start Quiz
-                          </button>
-                        ) : nextLesson ? (
-                          <button
-                            onClick={() => navigate(`/courses/${courseId}/lessons/${nextLesson.id}`)}
-                            className="flex items-center justify-center mx-auto gap-3 px-10 py-4 bg-white text-slate-900 rounded-2xl font-extrabold text-sm hover:bg-slate-100 transition-all"
-                          >
-                            <PlayCircle size={18} /> Next Lesson
-                          </button>
-                        ) : null}
-                      </div>
+            {/* Content Container */}
+            {currentLesson?.type === 'topic-documentation' || currentLesson?.type === 'interview-questions' ? (
+              <div className="w-full bg-white rounded-[40px] p-10 shadow-xl border border-slate-100 min-h-[400px]">
+                <h3 className="text-2xl font-extrabold text-slate-900 mb-6">{currentLesson?.title}</h3>
+                <div className="prose max-w-none text-slate-600">
+                  <p className="text-lg font-medium leading-relaxed mb-6">
+                    {currentLesson?.summary || "Documentation content goes here..."}
+                  </p>
+                  
+                  {currentLesson?.type === 'interview-questions' ? (
+                     <div className="space-y-6">
+                       <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                         <h4 className="font-bold text-slate-800 mb-2">Q1. What is the SDLC?</h4>
+                         <p className="text-sm">The Software Development Lifecycle is a process used by the software industry to design, develop and test high quality software.</p>
+                       </div>
+                       <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                         <h4 className="font-bold text-slate-800 mb-2">Q2. Why is documentation important?</h4>
+                         <p className="text-sm">It provides a clear roadmap for engineers, aligns expectations with stakeholders, and ensures continuity in development.</p>
+                       </div>
+                     </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <p>In modern software engineering, thorough documentation is critical to the success of complex projects.</p>
+                      <ul className="list-disc pl-5 space-y-2">
+                        <li>Establishes clear requirements (PRD/FRD/TRD)</li>
+                        <li>Facilitates seamless onboarding for new team members</li>
+                        <li>Serves as a source of truth for technical architecture</li>
+                      </ul>
                     </div>
                   )}
-                </>
-              )}
-            </div>
+
+                  {nextLesson && (
+                    <div className="mt-12 flex justify-end">
+                      <button
+                        onClick={() => navigate(`/courses/${courseId}/lessons/${nextLesson.id}`)}
+                        className="flex items-center gap-3 px-8 py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 hover:bg-[#4338CA] transition-all"
+                      >
+                         Next Resource <PlayCircle size={18} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="relative pt-[56.25%] w-full bg-black rounded-[40px] overflow-hidden shadow-2xl border-3 border-white">
+                {isUpdatingVideo ? (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
+                    <Loader2 className="animate-spin text-white mb-2" size={36} />
+                  </div>
+                ) : (
+                  <>
+                    <video
+                      key={currentLesson?.id}
+                      className="absolute top-0 left-0 w-full h-full object-cover"
+                      controls
+                      autoPlay={false}
+                      onEnded={handleVideoEnded}
+                      onTimeUpdate={handleTimeUpdate}
+                    >
+                      <source src={`${import.meta.env.VITE_IMAGE_URL}${currentLesson?.videoUrl || "/mock-video.mp4"}`} type="video/mp4" />
+                    </video>
+
+                    {/* Video-ended overlay */}
+                    {videoEnded && (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/75 backdrop-blur-sm">
+                        <div className="text-center space-y-6 px-8">
+                          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto">
+                            <CheckCircle2 className="text-white" size={32} />
+                          </div>
+                          <div>
+                            <p className="text-white font-extrabold text-xl mb-1">Lesson Complete!</p>
+                            <p className="text-white/60 text-sm font-medium">
+                              {nextLesson
+                                  ? "Loading next lesson…"
+                                  : "You've finished this course!"}
+                            </p>
+                          </div>
+                          {nextLesson ? (
+                            <button
+                              onClick={() => navigate(`/courses/${courseId}/lessons/${nextLesson.id}`)}
+                              className="flex items-center justify-center mx-auto gap-3 px-10 py-4 bg-white text-slate-900 rounded-2xl font-extrabold text-sm hover:bg-slate-100 transition-all"
+                            >
+                              <PlayCircle size={18} /> Next Lesson
+                            </button>
+                          ) : null}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
 
             {/* Info Grid */}
             <div className="grid md:grid-cols-10 gap-12 pt-4">
@@ -251,6 +239,7 @@ export default function LessonView() {
                   <Zap size={20} /> Course Materials
                 </div>
                 <div className="flex flex-col gap-3">
+                  {/* Actual materials if any */}
                   {currentLesson?.materials?.map((mat: any) => (
                     <MaterialCard
                       key={mat.id}
@@ -258,6 +247,17 @@ export default function LessonView() {
                       type={mat.type}
                       meta={mat.meta}
                       url={`${import.meta.env.VITE_IMAGE_URL}${mat.url}`}
+                    />
+                  ))}
+                  
+                  {/* Module Resources (Docs & Questions) */}
+                  {currentModule?.lessons?.filter((l:any) => l.type === 'topic-documentation' || l.type === 'interview-questions').map((res: any) => (
+                    <MaterialCard
+                      key={res.id}
+                      title={res.title}
+                      type="pdf"
+                      meta="Module Resource"
+                      onClick={() => navigate(`/courses/${courseId}/lessons/${res.id}`)}
                     />
                   ))}
                 </div>
@@ -283,16 +283,14 @@ export default function LessonView() {
               </div>
 
               <div className="space-y-2">
-                {courseData?.curriculum?.map((mod: any) => (
+                {courseData?.curriculum?.flatMap((mod: any) => mod.items).map((topic: any) => (
                   <ModuleAccordionItem
-                    key={mod.id}
-                    module={mod}
-                    isActive={activeModule === mod.id}
-                    onHeaderClick={() => setActiveModule(activeModule === mod.id ? null : mod.id)}
+                    key={topic.id}
+                    module={topic}
+                    isActive={activeModule === topic.id}
+                    onHeaderClick={() => setActiveModule(activeModule === topic.id ? null : topic.id)}
                     currentLessonId={currentLesson?.id}
-                    activeQuizId={activeQuizId}
                     onLessonClick={(id: string) => navigate(`/courses/${courseId}/lessons/${id}`)}
-                    onQuizClick={(quizId: string, moduleId: any) => fetchAndOpenQuiz(quizId, moduleId)}
                   />
                 ))}
               </div>
@@ -300,27 +298,12 @@ export default function LessonView() {
           </div>
         </div>
       </main>
-
-      {quizData && (
-        <QuizModal
-          isOpen={isQuizOpen}
-          isFinalQuiz={isFinalQuiz}
-          onClose={() => {
-            setIsQuizOpen(false);
-            setVideoEnded(false);
-            setActiveQuizId(null);
-          }}
-          onQuizComplete={handleQuizComplete}
-          data={quizData}
-          courseId={courseId!}
-        />
-      )}
     </div>
   );
 }
 
 // Sidebar Sub-component
-const ModuleAccordionItem = ({ module, isActive, onHeaderClick, currentLessonId, activeQuizId, onLessonClick, onQuizClick }: any) => (
+const ModuleAccordionItem = ({ module, isActive, onHeaderClick, currentLessonId, onLessonClick }: any) => (
   <div className={`rounded-xl overflow-hidden border transition-all duration-300 ${isActive ? "border-[#4F46E5]" : "border-slate-100"}`}>
     <button
       onClick={onHeaderClick}
@@ -328,7 +311,7 @@ const ModuleAccordionItem = ({ module, isActive, onHeaderClick, currentLessonId,
     >
       <div className="text-left">
         <p className={`text-[9px] font-extrabold uppercase tracking-widest mb-0.5 ${isActive ? "text-indigo-100" : "text-slate-400"}`}>
-          Module {module.id}
+          Topic
         </p>
         <p className="text-xs font-bold leading-tight">{module.title}</p>
       </div>
@@ -337,61 +320,35 @@ const ModuleAccordionItem = ({ module, isActive, onHeaderClick, currentLessonId,
 
     {isActive && (
       <div className="bg-white">
-        {(module.lessons ?? []).map((lesson: any) => {
+        {(module.subItems ?? []).filter((l: any) => l.type.includes('video') || l.type.includes('doc') || l.type.includes('interview')).map((lesson: any) => {
           const isCurrent = currentLessonId === lesson.id;
-          const isQuizActive = activeQuizId === lesson.id;
           return (
-            <span key={lesson.id}>
-              <div
-                onClick={() => onLessonClick(lesson.id)}
-                className={`relative flex items-center gap-4 p-4 cursor-pointer transition-all border-l-4 ${isCurrent
-                  ? "bg-[#EEF0FF] border-[#4F46E5] text-[#4F46E5]"
-                  : "border-transparent text-slate-600 hover:bg-slate-50"
-                  }`}
-              >
-                <PlayCircle size={16} className={isCurrent ? "opacity-100" : "text-slate-400"} />
-                <span className={`text-[12px] ${isCurrent ? "font-extrabold" : "font-bold"}`}>{lesson.title}</span>
-              </div>
-              {lesson.hasQuiz && (
-                <div
-                  onClick={() => onQuizClick(lesson.id, module.id)}
-                  className={`relative flex items-center gap-4 p-4 cursor-pointer transition-all border-l-4 group ${isQuizActive
-                    ? "bg-[#EEF0FF] border-[#4F46E5] text-[#4F46E5]"
-                    : "border-transparent text-slate-500 hover:bg-slate-50"
-                    }`}
-                >
-                  <FileText size={16} className={isQuizActive ? "text-[#4F46E5]" : "group-hover:text-[#4F46E5]"} />
-                  <span className={`text-[12px] font-bold ${isQuizActive ? "font-extrabold text-[#4F46E5]" : "group-hover:text-slate-900"}`}>
-                    Module {module.id} Quiz
-                  </span>
-                </div>
+            <div
+              key={lesson.id}
+              onClick={() => onLessonClick(lesson.id)}
+              className={`relative flex items-center gap-4 p-4 cursor-pointer transition-all border-l-4 ${isCurrent
+                ? "bg-[#EEF0FF] border-[#4F46E5] text-[#4F46E5]"
+                : "border-transparent text-slate-600 hover:bg-slate-50"
+                }`}
+            >
+              {lesson.type === 'topic-documentation' || lesson.type === 'interview-questions' ? (
+                 <FileText size={16} className={isCurrent ? "opacity-100" : "text-slate-400"} />
+              ) : (
+                 <PlayCircle size={16} className={isCurrent ? "opacity-100" : "text-slate-400"} />
               )}
-            </span>
+              <span className={`text-[12px] ${isCurrent ? "font-extrabold" : "font-bold"}`}>{lesson.title}</span>
+            </div>
           );
         })}
-        {module.hasQuiz && (
-          <div
-            onClick={() => onQuizClick(module.id, module.id)}
-            className={`flex items-center gap-4 p-4 border-t border-slate-50 cursor-pointer group transition-all border-l-4 ${activeQuizId === String(module.id)
-              ? "bg-[#EEF0FF] border-[#4F46E5] text-[#4F46E5]"
-              : "border-transparent text-slate-400 hover:bg-slate-50"
-              }`}
-          >
-            <FileText size={16} className={activeQuizId === String(module.id) ? "text-[#4F46E5]" : "group-hover:text-[#4F46E5]"} />
-            <span className={`text-[12px] font-bold ${activeQuizId === String(module.id) ? "font-extrabold text-[#4F46E5]" : "group-hover:text-slate-900"}`}>
-              Module {module.id} Quiz
-            </span>
-          </div>
-        )}
       </div>
     )}
   </div>
 );
 
 // Material Card Sub-component
-const MaterialCard = ({ title, meta, type, url }: any) => (
+const MaterialCard = ({ title, meta, type, url, onClick }: any) => (
   <div
-    onClick={() => url && window.open(url, '_blank')}
+    onClick={onClick ? onClick : () => url && window.open(url, '_blank')}
     className="p-4 bg-[#F5F6FA] rounded-2xl border border-transparent flex items-center justify-between group cursor-pointer hover:bg-white hover:border-slate-200 transition-all"
   >
     <div className="flex items-center gap-4 text-left font-bold">

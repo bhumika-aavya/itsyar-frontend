@@ -33,6 +33,7 @@ const ChangePasswordPage = lazy(() => import("@/pages/auth/ChangePassword"));
 const DashboardPage = lazy(() => import("@/pages/dashboard/DashboardPage"));
 const CourseCatalog = lazy(() => import("@/pages/courses/CourseCatalog"));
 const CourseDetail = lazy(() => import("@/pages/courses/CourseDetail"));
+const TopicDetail = lazy(() => import("@/pages/courses/TopicDetail"));
 const LessonView = lazy(() => import("@/pages/courses/LessonView"));
 const CertificatePage = lazy(() => import("@/pages/courses/CertificatePage"));
 const ResultsPage = lazy(() => import("@/pages/courses/ResultsPage"));
@@ -99,6 +100,7 @@ export default function AppRoutes() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/courses" element={<CourseCatalog />} />
             <Route path="/courses/:courseId" element={<CourseDetail />} />
+            <Route path="/courses/:courseId/modules/:moduleId" element={<TopicDetail />} />
             <Route path="/courses/:courseId/lessons/:lessonId" element={<LessonView />} />
             <Route path="/courses/:courseId/certificate" element={<CertificatePage />} />
             <Route path="/hackathons" element={<HackathonListing />} />

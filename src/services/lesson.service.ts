@@ -2,13 +2,18 @@ import api from "@/lib/axios";
 import { QuizData } from "@/schemas/lesson.schema";
 import { getAuthHeaders } from "./auth";
 
+import { CourseService } from "./course.service";
+
 export const LessonService = {
     getLessonDetails: async (courseId: string): Promise<any> => {
         try {
-            const response = await api.get(`/courses/${courseId}/modules`, getAuthHeaders());
-            return response.data.course;
+            // return unified course data
+            const course = await CourseService.getCourseById(courseId);
+            return course;
         } catch (error) {
             console.log(`Using mock data for course: ${courseId}`);
+            const course = await CourseService.getCourseById(courseId);
+            return course;
         }
     },
 
