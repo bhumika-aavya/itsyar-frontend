@@ -7,8 +7,10 @@ import { MyCourse } from '@/schemas/course.schema';
 import { ProfileService } from '@/services/profile.service';
 import { fileToResizedDataUrl } from '@/lib/imageUtils';
 
-const roleLabel = (r: string) =>
-  r.split('/').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('/');
+const roleLabel = (r: string) => {
+  if (r.toLowerCase() === "student") return "Learner";
+  return r.split("/").map(p => p.charAt(0).toUpperCase() + p.slice(1)).join("/");
+};
 
 function DetailRow({ icon: Icon, label, value, valueClassName = 'text-slate-900' }: {
   icon: React.ElementType; label: string; value: React.ReactNode; valueClassName?: string;
@@ -89,7 +91,7 @@ export default function ProfilePage() {
     </div>
   );
 
-  const displayName = user?.fullName || 'Student';
+  const displayName = user?.fullName || 'Learner';
   const displayEmail = user?.email;
 
   return (

@@ -51,7 +51,7 @@ export default function RegisterForm() {
             value="student"
             {...register("userType")}
           />
-          Student
+          Learner
         </label>
 
         <label>

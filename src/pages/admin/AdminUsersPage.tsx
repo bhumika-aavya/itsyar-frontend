@@ -7,7 +7,10 @@ import { AdminService, AdminUser } from "@/services/admin.service";
 
 const ROLES = ["student", "participant", "organizer", "mentor/judge", "admin"];
 
-const roleLabel = (r: string) => r.split("/").map(p => p.charAt(0).toUpperCase() + p.slice(1)).join("/");
+const roleLabel = (r: string) => {
+  if (r.toLowerCase() === "student") return "Learner";
+  return r.split("/").map(p => p.charAt(0).toUpperCase() + p.slice(1)).join("/");
+};
 
 const statusBadge = (status: string) => {
   const map: Record<string, string> = {
