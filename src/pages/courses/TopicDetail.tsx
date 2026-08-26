@@ -52,7 +52,7 @@ const TopicAccordion = ({ topic, index, isOpen, onToggle, moduleId }: { topic: a
                                     const token = localStorage.getItem("token") || "";
                                     let targetUrl = item.url;
                                     if (targetUrl && !targetUrl.startsWith('http')) {
-                                        targetUrl = `${import.meta.env.VITE_API_URL || ''}${targetUrl}?token=${token}`;
+                                        const sep = targetUrl.includes('?') ? '&' : '?'; targetUrl = `${import.meta.env.VITE_API_URL || ''}${targetUrl}${sep}token=${token}`;
                                     } else if (!targetUrl && courseId && moduleId && topicIdVal) {
                                         const docPath = item.type.includes('interview') ? 'interview' : 'documentation';
                                         targetUrl = `${import.meta.env.VITE_API_URL || ''}/courses/${courseId}/${moduleId}/${topicIdVal}/${docPath}?token=${token}`;

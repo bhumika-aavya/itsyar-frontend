@@ -145,12 +145,12 @@ export default function CourseDetailPage() {
                         </div>
 
                         {/* Global Action Button */}
-                        <button
+                        {/* <button
                             onClick={() => navigate(`/courses/${courseId}/lessons/${course?.curriculum?.[0]?.items?.[0]?.id || 1}`)}
                             className="shrink-0 flex items-center gap-3 px-8 py-4.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-extrabold text-[15px] shadow-xl shadow-indigo-200/50 hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-1 transition-all duration-300 active:scale-[0.98]"
                         >
                             <PlayCircle size={22} className="opacity-90" /> Continue Learning
-                        </button>
+                        </button> */}
                     </div>
                 </div>
             </div>

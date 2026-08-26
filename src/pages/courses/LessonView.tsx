@@ -177,7 +177,7 @@ export default function LessonView() {
                 <div className="w-full h-full min-h-[500px] flex flex-col bg-white">
                   {currentAsset?.url ? (
                     <iframe
-                      src={currentAsset.url.startsWith('http') ? currentAsset.url : `${import.meta.env.VITE_API_URL || ''}${currentAsset.url}?token=${token}`}
+                      src={currentAsset.url.startsWith('http') ? currentAsset.url : `${import.meta.env.VITE_API_URL || ''}${currentAsset.url}${currentAsset.url.includes('?') ? '&' : '?'}token=${token}`}
                       className="w-full h-full min-h-[500px] border-0"
                       title={currentAsset.title}
                     />
@@ -250,7 +250,7 @@ export default function LessonView() {
                   {currentTopic?.assets?.filter(a => a.type === 'documentation' || a.type === 'interview_pdf').map((docAsset, idx) => (
                     <a
                       key={idx}
-                      href={docAsset.url ? (docAsset.url.startsWith('http') ? docAsset.url : `${import.meta.env.VITE_API_URL || ''}${docAsset.url}?token=${token}`) : '#'}
+                      href={docAsset.url ? (docAsset.url.startsWith('http') ? docAsset.url : `${import.meta.env.VITE_API_URL || ''}${docAsset.url}${docAsset.url.includes('?') ? '&' : '?'}token=${token}`) : '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-between p-3.5 bg-white border border-slate-100 rounded-2xl hover:border-[#4F46E5] group transition-all shadow-sm"

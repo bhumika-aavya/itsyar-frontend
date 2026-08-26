@@ -67,11 +67,11 @@ const CourseGridCard = ({ data }: { data: Course }) => {
             <CheckCircle size={10} /> Lifetime Access
           </div>
         )}
-        <img 
-          src={data?.image ? `${import.meta.env.VITE_IMAGE_URL}${data.image}` : 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop'} 
-          alt={data.title} 
+        <img
+          src={data?.image ? `${import.meta.env.VITE_IMAGE_URL}${data.image}` : 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop'}
+          alt={data.title}
           onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop'; }}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
       </div>
       <div className="p-6 flex flex-col flex-1">
