@@ -130,9 +130,9 @@ export default function LessonView() {
   }
 
   const isDocument = currentAsset?.type === 'documentation' ||
-    currentAsset?.type === 'interview_pdf';
+    currentAsset?.type === 'interview';
   // Build video streaming URL or fallback
-  const videoSrc = `${import.meta.env.VITE_API_URL}${currentAsset.url}`
+  const videoSrc = `${import.meta.env.VITE_API_URL}${currentAsset?.url}`
     ;
   const moduleTitle = moduleData?.title || moduleData?.moduleTitle || "Module";
   const assetTitle = currentAsset?.title || currentTopic?.title || "";
@@ -247,7 +247,7 @@ export default function LessonView() {
                   <Zap size={18} /> Course Materials
                 </div>
                 <div className="flex flex-col gap-3">
-                  {currentTopic?.assets?.filter(a => a.type === 'documentation' || a.type === 'interview_pdf').map((docAsset, idx) => (
+                  {currentTopic?.assets?.filter(a => a.type === 'documentation' || a.type === 'interview').map((docAsset, idx) => (
                     <a
                       key={idx}
                       href={docAsset.url ? (docAsset.url.startsWith('http') ? docAsset.url : `${import.meta.env.VITE_API_URL || ''}${docAsset.url}?token=${token}`) : '#'}
@@ -306,7 +306,7 @@ export default function LessonView() {
                       <div className="bg-white p-3 space-y-2">
                         {topic.assets?.map((asset: ApiAsset, aIdx: number) => {
                           const isCurrentAsset = isCurrentTopic && currentAsset?.type === asset.type;
-                          const isDoc = asset.type === 'documentation' || asset.type === 'interview_pdf';
+                          const isDoc = asset.type === 'documentation' || asset.type === 'interview';
                           return (
                             <div
                               key={aIdx}
