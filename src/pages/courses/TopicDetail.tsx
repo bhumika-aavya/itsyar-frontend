@@ -45,11 +45,30 @@ const TopicAccordion = ({ topic, index, isOpen, onToggle, moduleId }: { topic: a
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {subItems.length > 0 && subItems.map((item: any, assetIdx: number) => {
-                            const compositeLessonId = `${moduleId}__${topicIdVal}__${item.type}`;
+                            const isDoc = item.type === 'topic-documentation' || item.type === 'interview-questions' || item.type === 'documentation' || item.type === 'interview_pdf' || item.type === 'interview';
+
+                            const handleAssetClick = () => {
+                                if (isDoc) {
+                                    const token = localStorage.getItem("token") || "";
+                                    let targetUrl = item.url;
+                                    if (targetUrl && !targetUrl.startsWith('http')) {
+                                        targetUrl = `${import.meta.env.VITE_API_URL || ''}${targetUrl}?token=${token}`;
+                                    } else if (!targetUrl && courseId && moduleId && topicIdVal) {
+                                        const docPath = item.type.includes('interview') ? 'interview' : 'documentation';
+                                        targetUrl = `${import.meta.env.VITE_API_URL || ''}/courses/${courseId}/${moduleId}/${topicIdVal}/${docPath}?token=${token}`;
+                                    }
+                                    if (targetUrl) {
+                                        window.open(targetUrl, '_blank');
+                                    }
+                                } else {
+                                    navigate(`/course/${courseId}/module/${moduleId}/topic/${topicIdVal}?asset=${item.type}`);
+                                }
+                            };
+
                             return (
                                 <div
                                     key={assetIdx}
-                                    onClick={() => navigate(`/course/${courseId}/module/${moduleId}/topic/${topicIdVal}?asset=${item.type}`)}
+                                    onClick={handleAssetClick}
                                     className="flex items-center gap-3 p-4 bg-slate-50 hover:bg-[#EEF0FF] border border-slate-100 hover:border-[#4F46E5] rounded-xl cursor-pointer group transition-all"
                                 >
                                     <div className="p-2.5 rounded-lg bg-white shadow-sm text-slate-400 group-hover:text-[#4F46E5] group-hover:shadow-md transition-all">
@@ -93,6 +112,10 @@ export default function TopicDetailPage() {
                     if (moduleId) {
                         const moduleData = await CourseService.getModuleTopics(courseId, moduleId);
                         setApiModuleDetail(moduleData);
+                        if (moduleData?.topics?.length) {
+                            const firstTopicId = moduleData.topics[0].topic_id || moduleData.topics[0].topicId;
+                            setOpenModule(firstTopicId);
+                        }
                     }
 
                     // Check if course has been purchased
@@ -314,7 +337,7 @@ export default function TopicDetailPage() {
 
                 </div>
 
-                {course?.thumbnail && (
+                {/* {course?.thumbnail && (
                     <div className="lg:col-span-2">
                         <div className="rounded-[40px] overflow-hidden shadow-2xl shadow-slate-200 border-8 border-white">
                             <img
@@ -324,14 +347,14 @@ export default function TopicDetailPage() {
                             />
                         </div>
                     </div>
-                )}
+                )} */}
             </section>
 
             <section className="space-y-6">
                 <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-slate-900">Module Topics</h2>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                <div className="flex flex-col gap-4 max-w-4xl">
                     {(apiModuleDetail?.topics ?? []).map((topic: any, idx: number) => (
                         <TopicAccordion
                             key={topic.topic_id || topic.topicId || idx}

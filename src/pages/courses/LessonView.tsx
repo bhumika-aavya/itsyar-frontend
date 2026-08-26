@@ -130,7 +130,7 @@ export default function LessonView() {
   }
 
   const isDocument = currentAsset?.type === 'documentation' ||
-    currentAsset?.type === 'interview';
+    currentAsset?.type === 'interview_pdf';
   // Build video streaming URL or fallback
   const videoSrc = `${import.meta.env.VITE_API_URL}${currentAsset?.url}`
     ;
@@ -146,7 +146,7 @@ export default function LessonView() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate(`/courses/${courseId}`)}
+              onClick={() => targetModuleId ? navigate(`/courses/${courseId}/modules/${targetModuleId}`) : navigate(`/courses/${courseId}`)}
               className="p-2 hover:bg-slate-50 rounded-xl text-slate-400 hover:text-slate-600 transition-colors"
             >
               <ChevronLeft size={20} />
@@ -247,7 +247,7 @@ export default function LessonView() {
                   <Zap size={18} /> Course Materials
                 </div>
                 <div className="flex flex-col gap-3">
-                  {currentTopic?.assets?.filter(a => a.type === 'documentation' || a.type === 'interview').map((docAsset, idx) => (
+                  {currentTopic?.assets?.filter(a => a.type === 'documentation' || a.type === 'interview_pdf').map((docAsset, idx) => (
                     <a
                       key={idx}
                       href={docAsset.url ? (docAsset.url.startsWith('http') ? docAsset.url : `${import.meta.env.VITE_API_URL || ''}${docAsset.url}?token=${token}`) : '#'}
@@ -304,9 +304,9 @@ export default function LessonView() {
 
                     {isOpen && (
                       <div className="bg-white p-3 space-y-2">
-                        {topic.assets?.map((asset: ApiAsset, aIdx: number) => {
+                        {topic.assets?.filter((asset: ApiAsset) => asset.type === 'video' || asset.type === 'practical_video' || asset.type.includes('video')).map((asset: ApiAsset, aIdx: number) => {
                           const isCurrentAsset = isCurrentTopic && currentAsset?.type === asset.type;
-                          const isDoc = asset.type === 'documentation' || asset.type === 'interview';
+                          const isDoc = asset.type === 'documentation' || asset.type === 'interview_pdf';
                           return (
                             <div
                               key={aIdx}

@@ -54,7 +54,7 @@ const ModuleGridCard = ({ module, index }: { module: CourseModule, index: number
             </div>
 
             {/* Progress Bar (if active/completed) */}
-            <div className="mt-4 pt-2 border-t border-slate-100">
+            {/* <div className="mt-4 pt-2 border-t border-slate-100">
                 <div className="flex justify-between items-end mb-3">
                     <div>
                         <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block mb-1">Progress</span>
@@ -73,7 +73,7 @@ const ModuleGridCard = ({ module, index }: { module: CourseModule, index: number
                     <span>{Math.round((items.length * (module.progress || 0)) / 100)} Topics</span>
                     <span>{items.length} Topics</span>
                 </div>
-            </div>
+            </div> */}
 
             {/* Action Button */}
             <button

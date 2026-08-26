@@ -98,7 +98,7 @@ export default function MainLayout() {
               key={item.label}
               {...item}
               collapsed={collapsed}
-              active={location.pathname === item.path || location.pathname.startsWith(item.path + '/')}
+              active={location.pathname === item.path || location.pathname.startsWith(item.path + '/') || (item.path === '/courses' && location.pathname.startsWith('/course/'))}
               onClick={() => navigate(item.path)}
             />
           ))}
