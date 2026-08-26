@@ -83,7 +83,7 @@ export default function AuthCallback() {
               className="flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-slate-100 hover:border-[#4F46E5] hover:bg-indigo-50/50 transition-all disabled:opacity-60"
             >
               <GraduationCap size={28} className="text-[#4F46E5]" />
-              <span className="font-extrabold text-slate-800 text-sm">Student</span>
+              <span className="font-extrabold text-slate-800 text-sm">Learner</span>
             </button>
             <button
               type="button"

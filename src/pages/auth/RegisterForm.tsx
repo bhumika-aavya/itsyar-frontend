@@ -214,7 +214,7 @@ export default function RegisterForm() {
                       />
                       <div className="absolute h-3 w-3 rounded-full bg-[#4F46E5] scale-0 peer-checked:scale-100 transition-all duration-200" />
                     </div>
-                    <span className="text-[15px] font-semibold text-slate-600 group-hover:text-slate-900">{type}</span>
+                    <span className="text-[15px] font-semibold text-slate-600 group-hover:text-slate-900">{type === "Student" ? "Learner" : type}</span>
                   </label>
                 ))}
               </div>

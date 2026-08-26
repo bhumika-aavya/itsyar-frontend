@@ -150,7 +150,7 @@ export default function MainLayout() {
                   {user?.fullName || "Guest User"}
                 </div>
                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  {user?.role || "Member"}
+                  {(user?.role?.toLowerCase() === 'student' ? 'Learner' : user?.role) || "Member"}
                 </div>
               </div>
               <ChevronDown
