@@ -7,15 +7,17 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { CourseService } from '@/services/course.service';
 import { PaymentService } from '@/services/payment.service';
-import { CourseDetail, CourseModule } from '@/services/course-detail.schema';
+import { CourseDetail, CourseModule, ApiModuleDetail } from '@/services/course-detail.schema';
 import { COURSE_LIFETIME_PRICE, CURRENCY } from '@/types/payment.types';
 
 // --- Sub-component: Curriculum Accordion ---
-const TopicAccordion = ({ topic, index, isOpen, onToggle }: { topic: any, index: number, isOpen: boolean, onToggle: () => void }) => {
+const TopicAccordion = ({ topic, index, isOpen, onToggle, moduleId }: { topic: any, index: number, isOpen: boolean, onToggle: () => void, moduleId: string }) => {
     const displayNum = index + 1;
-    const subItems = topic.subItems ?? [];
+    const subItems = topic.assets ?? topic.subItems ?? [];
     const navigate = useNavigate();
     const { courseId } = useParams();
+
+    const topicIdVal = topic.topic_id || topic.topicId || `t-${index}`;
 
     return (
         <div className="border border-slate-100 rounded-2xl overflow-hidden bg-white shadow-sm transition-all duration-300">
@@ -25,7 +27,7 @@ const TopicAccordion = ({ topic, index, isOpen, onToggle }: { topic: any, index:
                         {displayNum < 10 ? `0${displayNum}` : displayNum}
                     </span>
                     <div>
-                        <h4 className="font-bold text-slate-800">{topic.title}</h4>
+                        <h4 className="font-bold text-slate-800">{topic.title || topic.topic_title}</h4>
                         {topic.duration && (
                             <span className="text-[11px] font-medium text-slate-400">{topic.duration}</span>
                         )}
@@ -35,25 +37,31 @@ const TopicAccordion = ({ topic, index, isOpen, onToggle }: { topic: any, index:
             </button>
             {isOpen && (
                 <div className="px-5 pb-5 border-t border-slate-50 pt-5">
-                    {/* Hardcoding the generic description from the mockup since topic summary isn't in schema */}
-                    <p className="text-[13px] text-slate-500 font-medium leading-relaxed mb-4">Master the art of writing PRDs, defining user personas, and scoping MVPs.</p>
+                    {topic.topic_summary ? (
+                        <p className="text-[13px] text-slate-500 font-medium leading-relaxed mb-4">{topic.topic_summary}</p>
+                    ) : (
+                        <p className="text-[13px] text-slate-500 font-medium leading-relaxed mb-4">Master the art of writing PRDs, defining user personas, and scoping MVPs.</p>
+                    )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {subItems.length > 0 && subItems.map((item: any) => (
-                            <div
-                                key={item.id}
-                                onClick={() => navigate(`/courses/${courseId}/lessons/${item.id}`)}
-                                className="flex items-center gap-3 p-4 bg-slate-50 hover:bg-[#EEF0FF] border border-slate-100 hover:border-[#4F46E5] rounded-xl cursor-pointer group transition-all"
-                            >
-                                <div className="p-2.5 rounded-lg bg-white shadow-sm text-slate-400 group-hover:text-[#4F46E5] group-hover:shadow-md transition-all">
-                                    {item.type === 'topic-documentation' || item.type === 'interview-questions' ? <FileText size={18} /> : <PlayCircle size={18} />}
+                        {subItems.length > 0 && subItems.map((item: any, assetIdx: number) => {
+                            const compositeLessonId = `${moduleId}__${topicIdVal}__${item.type}`;
+                            return (
+                                <div
+                                    key={assetIdx}
+                                    onClick={() => navigate(`/course/${courseId}/module/${moduleId}/topic/${topicIdVal}?asset=${item.type}`)}
+                                    className="flex items-center gap-3 p-4 bg-slate-50 hover:bg-[#EEF0FF] border border-slate-100 hover:border-[#4F46E5] rounded-xl cursor-pointer group transition-all"
+                                >
+                                    <div className="p-2.5 rounded-lg bg-white shadow-sm text-slate-400 group-hover:text-[#4F46E5] group-hover:shadow-md transition-all">
+                                        {item.type === 'topic-documentation' || item.type === 'interview-questions' || item.type === 'documentation' || item.type === 'interview_pdf' ? <FileText size={18} /> : <PlayCircle size={18} />}
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-sm font-bold text-slate-700 group-hover:text-[#4F46E5] leading-tight">{item.title}</span>
+                                        {item.duration && <span className="text-[10px] font-bold text-slate-400 uppercase">{item.duration}</span>}
+                                    </div>
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-bold text-slate-700 group-hover:text-[#4F46E5] leading-tight">{item.title}</span>
-                                    {item.duration && <span className="text-[10px] font-bold text-slate-400 uppercase">{item.duration}</span>}
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             )}
@@ -66,6 +74,7 @@ export default function TopicDetailPage() {
     const navigate = useNavigate();
 
     const [course, setCourse] = useState<CourseDetail | null>(null);
+    const [apiModuleDetail, setApiModuleDetail] = useState<ApiModuleDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [openModule, setOpenModule] = useState<string | null>(moduleId || null);
     const [isEnrolling, setIsEnrolling] = useState(false);
@@ -79,6 +88,12 @@ export default function TopicDetailPage() {
                 if (courseId) {
                     const data = await CourseService.getCourseById(courseId);
                     setCourse(data);
+
+                    // Fetch module topics with assets
+                    if (moduleId) {
+                        const moduleData = await CourseService.getModuleTopics(courseId, moduleId);
+                        setApiModuleDetail(moduleData);
+                    }
 
                     // Check if course has been purchased
                     const productData = await PaymentService.getPurchaseByProduct(courseId, 'course');
@@ -142,7 +157,7 @@ export default function TopicDetailPage() {
         );
     }
 
-    const activeModule = course?.curriculum?.find(m => m.id === moduleId);
+    const activeModule = course?.curriculum?.find((m: any) => m.moduleId === moduleId || m.id === moduleId);
     const shouldShowPayment = !hasAccess;
 
     const getPriceVal = (c: any) => {
@@ -317,13 +332,13 @@ export default function TopicDetailPage() {
                     <h2 className="text-2xl font-bold text-slate-900">Module Topics</h2>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                    {(activeModule?.items ?? []).map((topic, idx) => (
+                    {(apiModuleDetail?.topics ?? []).map((topic: any, idx: number) => (
                         <TopicAccordion
-                            key={topic.id}
-                            topic={topic}
+                            key={topic.topic_id || topic.topicId || idx}
+                            topic={topic} moduleId={activeModule?.moduleId || ''}
                             index={idx}
-                            isOpen={openModule === topic.id}
-                            onToggle={() => setOpenModule(openModule === topic.id ? null : topic.id)}
+                            isOpen={openModule === (topic.topic_id || topic.topicId)}
+                            onToggle={() => setOpenModule(openModule === (topic.topic_id || topic.topicId) ? null : (topic.topic_id || topic.topicId))}
                         />
                     ))}
                 </div>

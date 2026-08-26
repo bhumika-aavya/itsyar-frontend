@@ -40,21 +40,21 @@ const ModuleGridCard = ({ module, index }: { module: CourseModule, index: number
             <div className="bg-slate-50 rounded-xl p-5 mb-6 flex-1 border border-slate-100">
                 <h4 className="font-bold text-slate-900 text-sm mb-3">Topics</h4>
                 <ul className="space-y-2">
-                    {items.slice(0, 6).map((topic, i) => (
+                    {(module.topics || []).slice(0, 4).map((topic: string, i: number) => (
                         <li key={i} className="text-sm font-medium text-slate-600 truncate">
-                            {topic.title}
+                            {topic}
                         </li>
                     ))}
-                    {items.length > 6 && (
+                    {(module.topics || []).length > 6 && (
                         <li className="text-sm font-medium text-slate-400 mt-2">
-                            + {items.length - 6} more topics
+                            + {(module.topics || []).length - 6} more topics
                         </li>
                     )}
                 </ul>
             </div>
 
             {/* Progress Bar (if active/completed) */}
-            <div className="mt-8 pt-6 border-t border-slate-100">
+            <div className="mt-4 pt-2 border-t border-slate-100">
                 <div className="flex justify-between items-end mb-3">
                     <div>
                         <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block mb-1">Progress</span>

@@ -6,6 +6,7 @@ const BaseCurriculumItemSchema = z.object({
   type: z.enum(["topic-documentation", "topic-video", "practical-video", "interview-questions", "video", "reading", "assessment"]),
   duration: z.string().optional(), // e.g., "12:45"
   questions: z.number().optional(), // for assessments
+  url: z.string().optional(),
 });
 
 const CurriculumItemSchema = BaseCurriculumItemSchema.extend({
@@ -29,24 +30,60 @@ export const CourseDetailSchema = z.object({
   id: z.string(),
   moduleId: z.string(),
   title: z.string(),
-  category: z.string(),
-  description: z.string(),
-  longDescription: z.string(),
-  level: z.string(),
-  modulesCount: z.number(),
-  duration: z.string(),
-  thumbnail: z.string(),
-  takeaways: z.array(z.string()),
+  category: z.string().optional(),
+  description: z.string().optional(),
+  longDescription: z.string().optional(),
+  level: z.string().optional(),
+  modulesCount: z.number().optional(),
+  duration: z.string().nullable().optional(),
+  thumbnail: z.string().optional(),
+  takeaways: z.array(z.string()).optional(),
   include: z.array(z.object({
     icon: z.string(),
     text: z.string()
-  })),
-  curriculum: z.array(ModuleSchema),
+  })).optional(),
+  curriculum: z.array(ModuleSchema).optional(),
   isEnrolled: z.boolean().default(false),
   hasPaid: z.boolean().default(false),
   price: z.number().optional(),
   courseCompletionPercentage: z.number().min(0).max(100).optional(),
 });
+
+// New API Types
+export type ApiAsset = {
+  type: "documentation" | "video" | "practical_video" | "interview_pdf";
+  title: string;
+  duration: string | null;
+  url?: string;
+};
+
+export type ApiTopic = {
+  topicId: string;
+  title: string;
+  sequenceOrder: string;
+  topicSummary?: string;
+  assets: ApiAsset[];
+};
+
+export type ApiModuleDetail = {
+  moduleId: string;
+  moduleTitle: string;
+  moduleSummary: string;
+  topics: ApiTopic[];
+  courseCompletionPercentage?: number;
+  selectedTopicId?: string;
+};
+
+export type ApiModuleList = {
+  moduleId: string;
+  title: string;
+  summary: string;
+  topics: string[];
+  topicCount: number;
+  totalDuration: string;
+  progressPercentage: number;
+  topicsCompleted: number;
+};
 
 export type CourseDetail = z.infer<typeof CourseDetailSchema>;
 export type CourseModule = z.infer<typeof ModuleSchema>;

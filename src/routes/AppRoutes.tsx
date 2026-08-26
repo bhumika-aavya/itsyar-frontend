@@ -102,6 +102,9 @@ export default function AppRoutes() {
             <Route path="/courses/:courseId" element={<CourseDetail />} />
             <Route path="/courses/:courseId/modules/:moduleId" element={<TopicDetail />} />
             <Route path="/courses/:courseId/lessons/:lessonId" element={<LessonView />} />
+            <Route path="/courses/:courseId/lessons" element={<LessonView />} />
+            <Route path="/course/:courseId/module/:moduleId/topic/:topicId" element={<LessonView />} />
+            <Route path="/courses/:courseId/module/:moduleId/topic/:topicId" element={<LessonView />} />
             <Route path="/courses/:courseId/certificate" element={<CertificatePage />} />
             <Route path="/hackathons" element={<HackathonListing />} />
             <Route path="/hackathons/:id" element={<HackathonDetail />} />
