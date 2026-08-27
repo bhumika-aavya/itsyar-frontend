@@ -69,14 +69,22 @@ const TopicAccordion = ({ topic, index, isOpen, onToggle, moduleId }: { topic: a
                                 <div
                                     key={assetIdx}
                                     onClick={handleAssetClick}
-                                    className="flex items-center gap-3 p-4 bg-slate-50 hover:bg-[#EEF0FF] border border-slate-100 hover:border-[#4F46E5] rounded-xl cursor-pointer group transition-all"
+                                    className="flex items-center gap-4 p-4 bg-slate-50 hover:bg-[#EEF0FF] border border-slate-100 hover:border-[#4F46E5] rounded-xl cursor-pointer group transition-all"
                                 >
-                                    <div className="p-2.5 rounded-lg bg-white shadow-sm text-slate-400 group-hover:text-[#4F46E5] group-hover:shadow-md transition-all">
-                                        {item.type === 'topic-documentation' || item.type === 'interview-questions' || item.type === 'documentation' || item.type === 'interview_pdf' ? <FileText size={18} /> : <PlayCircle size={18} />}
+                                    <div className="relative">
+                                        <div className="p-2.5 rounded-lg bg-white shadow-sm text-slate-400 group-hover:text-[#4F46E5] group-hover:shadow-md transition-all">
+                                            {item.type === 'topic-documentation' || item.type === 'interview-questions' || item.type === 'documentation' || item.type === 'interview_pdf' ? <FileText size={18} /> : <PlayCircle size={18} />}
+                                        </div>
+                                        <div className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-slate-200 group-hover:bg-[#4F46E5] text-slate-600 group-hover:text-white text-[10px] font-extrabold flex items-center justify-center shadow-xs border border-white transition-all duration-200">
+                                            {assetIdx + 1}
+                                        </div>
                                     </div>
                                     <div className="flex flex-col">
+                                        <span className="text-[10px] font-extrabold text-[#4F46E5] uppercase tracking-wider mb-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                                            Step 0{assetIdx + 1}
+                                        </span>
                                         <span className="text-sm font-bold text-slate-700 group-hover:text-[#4F46E5] leading-tight">{item.title}</span>
-                                        {item.duration && <span className="text-[10px] font-bold text-slate-400 uppercase">{item.duration}</span>}
+                                        {item.duration && <span className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">{item.duration}</span>}
                                     </div>
                                 </div>
                             );
