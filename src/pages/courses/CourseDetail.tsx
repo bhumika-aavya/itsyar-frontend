@@ -33,7 +33,7 @@ const ModuleGridCard = ({ module, index }: { module: CourseModule, index: number
 
             {/* Summary */}
             <p className="text-slate-500 text-sm leading-relaxed mb-8 flex-1 font-medium">
-                {module.summary}
+                {module.summary.slice(0, 80) + "..."}
             </p>
 
             {/* Topics List Box */}

@@ -326,13 +326,13 @@ export default function TopicDetailPage() {
             </button>
 
             {/* Hero Section */}
-            <section className={`grid ${(course?.thumbnail) ? 'lg:grid-cols-5' : 'lg:grid-cols-1'} gap-12 items-start mb-16`}>
-                <div className={`${(course?.thumbnail) ? 'lg:col-span-3' : 'lg:col-span-1'} space-y-6`}>
+            <section className="mb-16">
+                <div className="w-full space-y-6">
                     <span className="inline-block px-3 py-1 rounded-md bg-indigo-50 text-[#4F46E5] text-[10px] font-extrabold uppercase tracking-widest">
                         Module {activeModule?.order || ''}
                     </span>
                     <h2 className="text-2xl font-bold text-slate-900">{activeModule?.title || course?.title}</h2>
-                    <p className="text-lg text-slate-500 font-medium leading-relaxed max-w-xl">{activeModule?.summary || course?.description}</p>
+                    <p className="text-lg text-slate-500 font-medium leading-relaxed w-full max-w-none">{activeModule?.summary || course?.description}</p>
 
 
                 </div>

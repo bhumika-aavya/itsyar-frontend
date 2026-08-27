@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Book, Code, Layout, Database, Loader2, Lock, CheckCircle } from 'lucide-react';
+import { Book, Code, Layout, Database, Loader2, Lock, CheckCircle, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { CourseService } from '@/services/course.service';
 import { Course, MyCourse } from '@/schemas/course.schema';
@@ -75,9 +75,16 @@ const CourseGridCard = ({ data }: { data: Course }) => {
         />
       </div>
       <div className="p-6 flex flex-col flex-1">
-        <div className="flex gap-2 mb-4">
-          <span className="bg-indigo-50 text-[#4F46E5] text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider">{data.tag}</span>
-          <span className="bg-slate-50 text-slate-400 text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider">{data.duration}</span>
+        <div className="flex items-center gap-2 mb-4">
+          {data.tag && (
+            <span className="bg-indigo-50 text-[#4F46E5] text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider">
+              {data.tag}
+            </span>
+          )}
+          <span className="flex items-center gap-1.5 bg-slate-50 text-slate-400 text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider">
+            <Clock size={12} />
+            {data.duration}
+          </span>
         </div>
         <h3 className="font-bold text-slate-900 mb-3 group-hover:text-[#4F46E5] transition-colors">{data.title}</h3>
         <p className="text-xs text-slate-400 leading-relaxed font-medium mb-6 flex-1">{data.description}</p>
