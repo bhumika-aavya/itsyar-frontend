@@ -36,11 +36,34 @@ export const CourseService = {
     getCourseModules: async (courseId: string): Promise<ApiModuleList[]> => {
         try {
             const response = await api.get(`/courses/course-modules/${courseId}`, getAuthHeaders());
-            return response.data.modules ?? [];
+            const list = response.data.modules ?? [];
+            if (list.length > 0) return list;
         } catch (error) {
             console.error(`API Error: getCourseModules failed for course ${courseId}`, error);
-            return [];
         }
+
+        // Check locally created admin courses
+        try {
+            const raw = localStorage.getItem("forge_admin_courses");
+            if (raw) {
+                const storedCourses = JSON.parse(raw);
+                const found = storedCourses.find((c: any) => String(c.id) === String(courseId));
+                if (found && found.modules && found.modules.length > 0) {
+                    return found.modules.map((m: any) => ({
+                        moduleId: m.id,
+                        title: m.title,
+                        summary: m.summary || "",
+                        topics: (m.topics || []).map((t: any) => t.title),
+                        topicCount: m.topics?.length || 0,
+                        totalDuration: "N/A",
+                        progressPercentage: 0,
+                        topicsCompleted: 0,
+                    }));
+                }
+            }
+        } catch { }
+
+        return [];
     },
     //     getCourseModuleTopics: async (courseId: string): Promise<ApiModuleList[]> => {
     //     try {
@@ -104,11 +127,45 @@ export const CourseService = {
     getModuleTopics: async (courseId: string, moduleId: string): Promise<ApiModuleDetail> => {
         try {
             const response = await api.get(`/courses/${courseId}/${moduleId}`, getAuthHeaders());
-            return response.data;
+            if (response.data) return response.data;
         } catch (error) {
             console.error(`API Error: getModuleTopics failed`, error);
-            throw error;
         }
+
+        // Local course fallback
+        try {
+            const raw = localStorage.getItem("forge_admin_courses");
+            if (raw) {
+                const storedCourses = JSON.parse(raw);
+                const course = storedCourses.find((c: any) => String(c.id) === String(courseId));
+                const mod = course?.modules?.find((m: any) => String(m.id) === String(moduleId));
+                if (mod) {
+                    return {
+                        moduleId: mod.id,
+                        moduleTitle: mod.title,
+                        moduleSummary: mod.summary || "",
+                        topics: (mod.topics || []).map((t: any) => ({
+                            topicId: t.id,
+                            title: t.title,
+                            sequenceOrder: String(t.topicNumber || 1),
+                            topicSummary: t.summary || "",
+                            assets: (t.assets || []).map((a: any) => ({
+                                type: a.type === "topic_video" ? "video"
+                                    : a.type === "practical_video" ? "practical_video"
+                                    : a.type === "documentation_pdf" ? "documentation"
+                                    : "interview_pdf",
+                                title: a.title,
+                                duration: a.duration || null,
+                                url: a.url,
+                            })),
+                        })),
+                        courseCompletionPercentage: 0,
+                    };
+                }
+            }
+        } catch { }
+
+        throw new Error("Module topics not found");
     },
 
     getTopicDetail: async (courseId: string, moduleId: string, topicId: string): Promise<ApiModuleDetail> => {

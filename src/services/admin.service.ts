@@ -63,14 +63,45 @@ export interface AdminOverview {
   platformHealth: PlatformHealth;
 }
 
+export interface CourseAssetData {
+  id?: string;
+  type: "topic_video" | "practical_video" | "documentation_pdf" | "interview_pdf";
+  title: string;
+  url?: string;
+  fileName?: string;
+  fileSize?: string;
+  duration?: string;
+}
+
+export interface CourseTopicData {
+  id: string;
+  topicNumber: number;
+  title: string;
+  summary: string;
+  assets: CourseAssetData[];
+}
+
+export interface CourseModuleData {
+  id: string;
+  order: number;
+  title: string;
+  summary: string;
+  topics: CourseTopicData[];
+}
+
 export interface AdminCourse {
   id: string;
   title: string;
+  description?: string;
   instructor: string;
   level: string;
+  category?: string;
+  tag?: string;
+  duration?: string;
   enrolled: number;
   modulesCount: number;
   thumbnail?: string;
+  modules?: CourseModuleData[];
 }
 
 export interface AdminHackathon {
@@ -178,6 +209,27 @@ const toLowerStatus = (s: string): AdminUser["status"] => {
 
 const toBackendStatus = (s: "active" | "inactive" | "banned") =>
   s === "banned" ? "Banned" : s === "inactive" ? "Inactive" : "Active";
+
+const LOCAL_COURSES_KEY = "forge_admin_courses";
+
+export function loadLocalCourses(): AdminCourse[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(LOCAL_COURSES_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveLocalCourses(list: AdminCourse[]) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(LOCAL_COURSES_KEY, JSON.stringify(list));
+  } catch {
+    // ignore
+  }
+}
 
 export const AdminService = {
   /** 1. GET /overview */
@@ -342,40 +394,175 @@ export const AdminService = {
   },
 
   getCourses: async (search?: string): Promise<AdminCourse[]> => {
+    let apiCourses: AdminCourse[] = [];
     try {
       const res = await api.get("/admin/courses", { ...getAuthHeaders(), params: { search } });
-      return res.data?.courses ?? [];
+      apiCourses = res.data?.courses ?? [];
     } catch {
-      return [];
+      apiCourses = [];
     }
+
+    // Merge with locally stored course data to preserve custom modules/topics
+    const local = loadLocalCourses();
+    const map = new Map<string, AdminCourse>();
+
+    // Put API courses first
+    for (const c of apiCourses) {
+      map.set(String(c.id), {
+        ...c,
+        id: String(c.id),
+        title: capitalizeTitle(c.title ?? ""),
+        instructor: c.instructor ?? (c as any).author ?? "Admin",
+        level: c.level ?? "Beginner",
+        enrolled: c.enrolled ?? (c as any).enrolledCount ?? 0,
+        modulesCount: c.modulesCount ?? c.modules?.length ?? 0,
+      });
+    }
+
+    // Merge/override with locally enhanced courses (has modules, topics, assets)
+    for (const lc of local) {
+      const existing = map.get(String(lc.id));
+      if (existing) {
+        map.set(String(lc.id), {
+          ...existing,
+          ...lc,
+          modules: lc.modules ?? existing.modules ?? [],
+          modulesCount: lc.modules?.length ?? existing.modulesCount ?? 0,
+        });
+      } else {
+        map.set(String(lc.id), lc);
+      }
+    }
+
+    let all = Array.from(map.values());
+    if (search && search.trim()) {
+      const q = search.toLowerCase();
+      all = all.filter(c => c.title.toLowerCase().includes(q) || c.instructor.toLowerCase().includes(q));
+    }
+    return all;
   },
 
-  createCourse: async (data: { title: string; description?: string; instructor?: string; level?: string; category?: string }): Promise<any> => {
-    const payload = { title: data.title, description: data.description, instructor: data.instructor, level: data.level, tag: data.category };
+  getCourseDetail: async (id: string): Promise<AdminCourse | null> => {
+    const courses = await AdminService.getCourses();
+    const found = courses.find(c => String(c.id) === String(id));
+    if (found) return found;
+
+    const local = loadLocalCourses();
+    return local.find(c => String(c.id) === String(id)) || null;
+  },
+
+  createCourse: async (data: {
+    title: string;
+    description?: string;
+    instructor?: string;
+    level?: string;
+    category?: string;
+    duration?: string;
+    thumbnail?: string;
+    modules?: CourseModuleData[];
+  }): Promise<AdminCourse> => {
+    const newId = `crs_${Date.now()}`;
+    const payload = {
+      title: data.title,
+      description: data.description,
+      instructor: data.instructor,
+      level: data.level,
+      tag: data.category,
+      duration: data.duration,
+      thumbnail: data.thumbnail,
+    };
+
+    let serverCourse: any = null;
     try {
       const res = await api.post("/admin/courses", payload, getAuthHeaders());
-      return { id: `c${Date.now()}`, ...data, ...res.data?.course };
+      serverCourse = res.data?.course;
     } catch {
-      return { id: `c${Date.now()}`, ...data, enrolledCount: 0 };
+      // Backend may fail or not support all fields; gracefully proceed
     }
+
+    const createdCourse: AdminCourse = {
+      id: serverCourse?.id ? String(serverCourse.id) : newId,
+      title: capitalizeTitle(data.title),
+      description: data.description || "",
+      instructor: data.instructor || "Admin",
+      level: data.level || "Beginner",
+      category: data.category || "Programming",
+      tag: data.category || "Programming",
+      duration: data.duration || "",
+      thumbnail: data.thumbnail || "",
+      enrolled: 0,
+      modulesCount: data.modules?.length || 0,
+      modules: data.modules || [],
+    };
+
+    // Save to local storage
+    const current = loadLocalCourses();
+    saveLocalCourses([createdCourse, ...current]);
+
+    return createdCourse;
   },
 
-  updateCourse: async (id: string, data: { title?: string; description?: string; instructor?: string; level?: string; category?: string }): Promise<any> => {
-    const payload = { title: data.title, description: data.description, instructor: data.instructor, level: data.level, tag: data.category };
+  updateCourse: async (id: string, data: {
+    title?: string;
+    description?: string;
+    instructor?: string;
+    level?: string;
+    category?: string;
+    duration?: string;
+    thumbnail?: string;
+    modules?: CourseModuleData[];
+  }): Promise<AdminCourse> => {
+    const payload = {
+      title: data.title,
+      description: data.description,
+      instructor: data.instructor,
+      level: data.level,
+      tag: data.category,
+      duration: data.duration,
+      thumbnail: data.thumbnail,
+    };
+
     try {
       await api.put(`/admin/courses/${id}`, payload, getAuthHeaders());
-      return { id, ...data };
     } catch {
-      return { id, ...data };
+      // Gracefully continue
     }
+
+    const current = loadLocalCourses();
+    const existingIdx = current.findIndex(c => String(c.id) === String(id));
+    const updated: AdminCourse = {
+      ...(existingIdx >= 0 ? current[existingIdx] : {}),
+      id: String(id),
+      title: data.title ? capitalizeTitle(data.title) : current[existingIdx]?.title || "",
+      description: data.description !== undefined ? data.description : current[existingIdx]?.description,
+      instructor: data.instructor || current[existingIdx]?.instructor || "Admin",
+      level: data.level || current[existingIdx]?.level || "Beginner",
+      category: data.category || current[existingIdx]?.category || "Programming",
+      duration: data.duration || current[existingIdx]?.duration || "",
+      thumbnail: data.thumbnail !== undefined ? data.thumbnail : current[existingIdx]?.thumbnail,
+      enrolled: current[existingIdx]?.enrolled || 0,
+      modulesCount: data.modules ? data.modules.length : current[existingIdx]?.modulesCount || 0,
+      modules: data.modules !== undefined ? data.modules : current[existingIdx]?.modules,
+    };
+
+    if (existingIdx >= 0) {
+      current[existingIdx] = updated;
+      saveLocalCourses(current);
+    } else {
+      saveLocalCourses([updated, ...current]);
+    }
+
+    return updated;
   },
 
   deleteCourse: async (id: string): Promise<void> => {
     try {
       await api.delete(`/admin/courses/${id}`, getAuthHeaders());
     } catch {
-      // mock no-op
+      // ignore
     }
+    const current = loadLocalCourses();
+    saveLocalCourses(current.filter(c => String(c.id) !== String(id)));
   },
 
   getHackathons: async (params?: { search?: string; status?: string }): Promise<AdminHackathon[]> => {

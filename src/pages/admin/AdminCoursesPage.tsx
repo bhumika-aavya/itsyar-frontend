@@ -53,25 +53,11 @@ export default function AdminCoursesPage() {
   );
 
   const openAdd = () => {
-    setEditingId(null);
-    setForm(EMPTY_FORM);
-    setFormError("");
-    setShowModal(true);
+    navigate("/admin/courses/create");
   };
 
   const openEdit = (course: any) => {
-    setEditingId(course.id);
-    setForm({
-      title: course.title ?? "",
-      description: course.description ?? "",
-      instructor: course.instructor ?? course.author ?? "",
-      level: course.level ?? course.difficulty ?? "Beginner",
-      category: course.category ?? "Programming",
-      thumbnail: course.thumbnail ?? "",
-      duration: course.duration ?? "",
-    });
-    setFormError("");
-    setShowModal(true);
+    navigate(`/admin/courses/${course.id}/edit`);
   };
 
   const handleSave = async () => {

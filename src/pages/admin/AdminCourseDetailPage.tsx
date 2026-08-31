@@ -42,17 +42,7 @@ export default function AdminCourseDetailPage() {
 
   const openEdit = () => {
     if (!course) return;
-    setForm({
-      title: course.title ?? "",
-      description: course.description ?? "",
-      instructor: course.instructor ?? course.author ?? "",
-      level: course.level ?? course.difficulty ?? "Beginner",
-      category: course.category ?? "Programming",
-      thumbnail: course.thumbnail ?? "",
-      duration: course.duration ?? "",
-    });
-    setFormError("");
-    setShowModal(true);
+    navigate(`/admin/courses/${course.id}/edit`);
   };
 
   const handleSave = async () => {
@@ -160,7 +150,52 @@ export default function AdminCourseDetailPage() {
           {course.description && (
             <div>
               <p className="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-2">Description</p>
-              <p className="text-sm font-medium text-slate-600 leading-relaxed">{course.description}</p>
+              <p className="text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed">{course.description}</p>
+            </div>
+          )}
+
+          {/* Curriculum Modules & Topics */}
+          {course.modules && course.modules.length > 0 && (
+            <div className="pt-4 border-t border-slate-100 dark:border-[#2e303a] space-y-4">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">
+                  Curriculum ({course.modules.length} Modules)
+                </p>
+                <button
+                  onClick={() => navigate(`/admin/courses/${course.id}/edit`)}
+                  className="text-xs font-extrabold text-[#4F46E5] hover:underline"
+                >
+                  Manage Curriculum &rarr;
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {course.modules.map((m: any, mIdx: number) => (
+                  <div key={m.id || mIdx} className="p-4 rounded-2xl bg-slate-50 dark:bg-[#1c1d24] border border-slate-200/70 dark:border-[#2e303a] space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-black text-slate-900 dark:text-slate-100">
+                        Module {mIdx + 1}: {m.title}
+                      </h4>
+                      <span className="text-xs font-bold text-[#4F46E5] bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded-lg">
+                        {m.topics?.length || 0} topics
+                      </span>
+                    </div>
+                    {m.summary && (
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{m.summary}</p>
+                    )}
+                    {m.topics && m.topics.length > 0 && (
+                      <div className="pl-3 border-l-2 border-slate-200 dark:border-[#2e303a] space-y-1 pt-1">
+                        {m.topics.map((t: any, tIdx: number) => (
+                          <div key={t.id || tIdx} className="flex items-center justify-between text-xs font-medium text-slate-600 dark:text-slate-400">
+                            <span>{tIdx + 1}. {t.title}</span>
+                            <span className="text-[11px] font-bold text-slate-400">{t.assets?.length || 0} assets</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

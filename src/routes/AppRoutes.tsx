@@ -12,6 +12,7 @@ import { ProtectedRoute, PublicRoute, AdminRoute, RoleRoute } from "./RouteGuard
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
 const AdminUsersPage = lazy(() => import("@/pages/admin/AdminUsersPage"));
 const AdminCoursesPage = lazy(() => import("@/pages/admin/AdminCoursesPage"));
+const AdminCreateCoursePage = lazy(() => import("@/pages/admin/AdminCreateCoursePage"));
 const AdminCourseDetailPage = lazy(() => import("@/pages/admin/AdminCourseDetailPage"));
 const AdminHackathonsPage = lazy(() => import("@/pages/admin/AdminHackathonsPage"));
 const AdminTeamsPage = lazy(() => import("@/pages/admin/AdminTeamsPage"));
@@ -131,7 +132,9 @@ export default function AppRoutes() {
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/users" element={<AdminUsersPage />} />
               <Route path="/admin/courses" element={<AdminCoursesPage />} />
+              <Route path="/admin/courses/create" element={<AdminCreateCoursePage />} />
               <Route path="/admin/courses/:id" element={<AdminCourseDetailPage />} />
+              <Route path="/admin/courses/:id/edit" element={<AdminCreateCoursePage />} />
               <Route path="/admin/hackathons" element={<AdminHackathonsPage />} />
               <Route path="/admin/hackathons/create" element={<CreateHackathon />} />
               <Route path="/admin/hackathons/:id/edit" element={<CreateHackathon />} />
