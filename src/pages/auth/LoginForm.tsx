@@ -109,7 +109,7 @@ export default function LoginForm() {
                 {...register("email")}
                 type="email"
                 placeholder="name@company.com"
-                className={`h-14 w-full rounded-xl border-2 pl-12 pr-4 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 ${errors.email ? "border-red-400" : "border-transparent focus:border-[#3AADDD] focus:bg-white"
+                className={`h-14 w-full rounded-xl border-2 pl-12 pr-4 bg-[#F8F6FC] dark:bg-[#1c1d24] outline-none transition-all font-medium text-slate-900 dark:text-slate-100 ${errors.email ? "border-red-400" : "border-transparent focus:border-[#3AADDD] dark:focus:border-[#3AADDD] focus:bg-white dark:focus:bg-[#252630]"
                   }`}
               />
             </div>
@@ -134,7 +134,7 @@ export default function LoginForm() {
                 {...register("password")}
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-                className={`h-14 w-full rounded-xl border-2 pl-12 pr-12 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 ${errors.password ? "border-red-400" : "border-transparent focus:border-[#3AADDD] focus:bg-white"
+                className={`h-14 w-full rounded-xl border-2 pl-12 pr-12 bg-[#F8F6FC] dark:bg-[#1c1d24] outline-none transition-all font-medium text-slate-900 dark:text-slate-100 ${errors.password ? "border-red-400" : "border-transparent focus:border-[#3AADDD] dark:focus:border-[#3AADDD] focus:bg-white dark:focus:bg-[#252630]"
                   }`}
               />
               {passwordValue && (
@@ -157,7 +157,7 @@ export default function LoginForm() {
               <UserCog className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.role ? 'text-red-400' : 'text-slate-400'}`} size={18} />
               <select
                 {...register("role")}
-                className={`h-14 w-full appearance-none rounded-xl border-2 pl-12 pr-10 bg-[#F8F6FC] outline-none transition-all cursor-pointer font-bold text-slate-700 ${errors.role ? "border-red-400" : "border-transparent focus:border-[#3AADDD] focus:bg-white"
+                className={`h-14 w-full appearance-none rounded-xl border-2 pl-12 pr-10 bg-[#F8F6FC] dark:bg-[#1c1d24] outline-none transition-all cursor-pointer font-bold text-slate-700 dark:text-slate-300 ${errors.role ? "border-red-400" : "border-transparent focus:border-[#3AADDD] dark:focus:border-[#3AADDD] focus:bg-white dark:focus:bg-[#252630]"
                   }`}
               >
                 <option value="">Please Select your role</option>

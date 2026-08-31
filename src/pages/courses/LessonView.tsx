@@ -140,7 +140,7 @@ export default function LessonView() {
   const displayTitle = assetTitle ? `${moduleTitle} - ${assetTitle}` : moduleTitle;
 
   return (
-    <div className="min-h-screen bg-[#F9FAFD] flex flex-col text-left">
+    <div className="min-h-screen bg-[#F9FAFD] dark:bg-[#111217] flex flex-col text-left transition-colors duration-300">
       {/* Top Bar Header */}
       <header className="bg-white border-b border-slate-100 sticky top-0 z-30 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -318,11 +318,11 @@ export default function LessonView() {
                                 }
                               }}
                               className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all ${isCurrentAsset
-                                ? "bg-[#EEF0FF] text-[#4F46E5] font-extrabold border border-indigo-100 shadow-xs"
-                                : "text-slate-700 font-bold hover:bg-slate-50"
+                                ? "bg-[#EEF0FF] dark:bg-[#1e1b4b] text-[#4F46E5] dark:text-[#818cf8] font-extrabold border border-indigo-100 dark:border-indigo-950 shadow-xs"
+                                : "text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-[#1c1d24]"
                                 }`}
                             >
-                              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isCurrentAsset ? "bg-white text-[#4F46E5] shadow-xs" : "bg-slate-50 text-slate-400"
+                              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isCurrentAsset ? "bg-white dark:bg-[#252630] text-[#4F46E5] dark:text-[#818cf8] shadow-xs" : "bg-slate-50 dark:bg-[#1c1d24] text-slate-400 dark:text-slate-500"
                                 }`}>
                                 {isDoc ? <FileText size={16} /> : <PlayCircle size={16} />}
                               </div>

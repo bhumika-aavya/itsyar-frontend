@@ -32,7 +32,7 @@
 
   font: 16px/1.5 var(--sans);
   letter-spacing: 0.01em;
-  color-scheme: light; /* Force light mode for now to match the Figma */
+  color-scheme: light;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -105,24 +105,43 @@
   --sidebar-ring: oklch(0.708 0 0)
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
+.dark {
+  color-scheme: dark;
+  --text: #9ca3af;
+  --text-h: #f3f4f6;
+  --bg: #16171d;
+  --border: #2e303a;
+  --code-bg: #1f2028;
+  --accent: #c084fc;
+  --accent-bg: rgba(192, 132, 252, 0.15);
+  --accent-border: rgba(192, 132, 252, 0.5);
+  --social-bg: rgba(47, 48, 58, 0.5);
+  --shadow:
+    rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+  /* Shadcn dark mode variables */
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+}
+
+.dark #social .button-icon {
+  filter: invert(1) brightness(2);
 }
 
 #root {
@@ -287,4 +306,110 @@ code {
   button {
     text-align: center;
   }
+}
+
+/* Global Dark Mode Style Overrides */
+.dark {
+  color-scheme: dark;
+}
+
+.dark .bg-white {
+  background-color: #16171d !important;
+}
+
+.dark .bg-slate-50,
+.dark .bg-\[\#F9FAFD\],
+.dark .bg-slate-50\/50 {
+  background-color: #111217 !important;
+}
+
+.dark .bg-slate-100 {
+  background-color: #1c1d24 !important;
+}
+
+.dark .border-slate-50 {
+  border-color: #1c1d24 !important;
+}
+
+.dark .border-slate-100 {
+  border-color: #2e303a !important;
+}
+
+.dark .border-slate-200 {
+  border-color: #3e404f !important;
+}
+
+.dark .text-slate-900 {
+  color: #f3f4f6 !important;
+}
+
+.dark .text-slate-800 {
+  color: #e5e7eb !important;
+}
+
+.dark .text-slate-700 {
+  color: #d1d5db !important;
+}
+
+.dark .text-slate-600 {
+  color: #9ca3af !important;
+}
+
+.dark .text-slate-500 {
+  color: #abb1bb !important;
+}
+
+.dark .text-slate-400 {
+  color: #8a909c !important;
+}
+
+.dark .hover\:bg-slate-50:hover {
+  background-color: #1c1d24 !important;
+}
+
+.dark .hover\:bg-slate-100:hover {
+  background-color: #2a2c38 !important;
+}
+
+.dark .hover\:bg-\[\#EEF0FF\]:hover {
+  background-color: rgba(79, 70, 229, 0.15) !important;
+}
+
+.dark .hover\:bg-\[\#EEF0FF\]\/50:hover {
+  background-color: rgba(79, 70, 229, 0.08) !important;
+}
+
+/* Opacity and Specificity focus-state Overrides for Dark Mode */
+.dark .bg-white\/80 {
+  background-color: rgba(22, 23, 29, 0.8) !important;
+}
+
+.dark .bg-white\/50 {
+  background-color: rgba(22, 23, 29, 0.5) !important;
+}
+
+.dark .bg-white\/10 {
+  background-color: rgba(22, 23, 29, 0.1) !important;
+}
+
+.dark .bg-slate-50\/50 {
+  background-color: rgba(17, 18, 23, 0.5) !important;
+}
+
+.dark .focus\:bg-white:focus {
+  background-color: #16171d !important;
+  color: #f3f4f6 !important;
+}
+
+.dark .focus\:bg-slate-50:focus {
+  background-color: #111217 !important;
+  color: #f3f4f6 !important;
+}
+
+.dark .from-indigo-50\/90 {
+  --tw-gradient-from: rgba(79, 70, 229, 0.12) var(--tw-gradient-from-position) !important;
+}
+
+.dark .via-purple-50\/40 {
+  --tw-gradient-via: rgba(168, 85, 247, 0.04) var(--tw-gradient-via-position) !important;
 }

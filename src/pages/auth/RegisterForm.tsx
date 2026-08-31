@@ -112,7 +112,7 @@ export default function RegisterForm() {
                 <input
                   {...register("fullName")}
                   placeholder="Enter your full name"
-                  className={`h-14 w-full rounded-xl border-2 pl-12 pr-4 outline-none transition-all font-medium text-slate-900 ${errors.fullName ? "border-red-400" : "border-transparent bg-[#F8F6FC] focus:border-[#3AADDD] focus:bg-white"
+                  className={`h-14 w-full rounded-xl border-2 pl-12 pr-4 outline-none transition-all font-medium text-slate-900 dark:text-slate-100 ${errors.fullName ? "border-red-400" : "border-transparent bg-[#F8F6FC] dark:bg-[#1c1d24] focus:border-[#3AADDD] dark:focus:border-[#3AADDD] focus:bg-white dark:focus:bg-[#252630]"
                     }`}
                 />
               </div>
@@ -128,7 +128,7 @@ export default function RegisterForm() {
                   {...register("email")}
                   type="email"
                   placeholder="Enter your email"
-                  className={`h-14 w-full rounded-xl border-2 pl-12 pr-4 outline-none transition-all font-medium text-slate-900 ${errors.email ? "border-red-400" : "border-transparent bg-[#F8F6FC] focus:border-[#3AADDD] focus:bg-white"
+                  className={`h-14 w-full rounded-xl border-2 pl-12 pr-4 outline-none transition-all font-medium text-slate-900 dark:text-slate-100 ${errors.email ? "border-red-400" : "border-transparent bg-[#F8F6FC] dark:bg-[#1c1d24] focus:border-[#3AADDD] dark:focus:border-[#3AADDD] focus:bg-white dark:focus:bg-[#252630]"
                     }`}
                 />
               </div>
@@ -145,7 +145,7 @@ export default function RegisterForm() {
                     {...register("password")}
                     type={showPass ? "text" : "password"}
                     placeholder="Create password"
-                    className={`h-14 w-full rounded-xl border-2 pl-11 pr-10 outline-none transition-all font-medium text-slate-900 text-sm ${errors.password ? "border-red-400" : "border-transparent bg-[#F8F6FC] focus:border-[#3AADDD] focus:bg-white"
+                    className={`h-14 w-full rounded-xl border-2 pl-11 pr-10 outline-none transition-all font-medium text-slate-900 dark:text-slate-100 text-sm ${errors.password ? "border-red-400" : "border-transparent bg-[#F8F6FC] dark:bg-[#1c1d24] focus:border-[#3AADDD] dark:focus:border-[#3AADDD] focus:bg-white dark:focus:bg-[#252630]"
                       }`}
                   />
                   {passwordValue && (
@@ -164,7 +164,7 @@ export default function RegisterForm() {
                     {...register("confirmPassword")}
                     type={showConfirmPass ? "text" : "password"}
                     placeholder="Confirm password"
-                    className={`h-14 w-full rounded-xl border-2 pl-11 pr-10 outline-none transition-all font-medium text-slate-900 text-sm ${errors.confirmPassword ? "border-red-400" : "border-transparent bg-[#F8F6FC] focus:border-[#3AADDD] focus:bg-white"
+                    className={`h-14 w-full rounded-xl border-2 pl-11 pr-10 outline-none transition-all font-medium text-slate-900 dark:text-slate-100 text-sm ${errors.confirmPassword ? "border-red-400" : "border-transparent bg-[#F8F6FC] dark:bg-[#1c1d24] focus:border-[#3AADDD] dark:focus:border-[#3AADDD] focus:bg-white dark:focus:bg-[#252630]"
                       }`}
                   />
                   {confirmPasswordValue && (
@@ -263,7 +263,7 @@ export default function RegisterForm() {
           </form>
         </div>
 
-        <div className="bg-[#F4F2FF] p-8 text-center border-t border-slate-100">
+        <div className="bg-[#F4F2FF] dark:bg-[#1c1d24] p-8 text-center border-t border-slate-100 dark:border-[#2e303a]">
           <p className="text-[15px] font-bold text-slate-500">
             Already have an account? <button onClick={() => navigate('/login')} className="text-[#4F46E5] font-extrabold hover:underline">Sign In</button>
           </p>

@@ -1165,7 +1165,7 @@ export default function HackathonCodeSandbox({
 
         // ── Split view (problem + editor side by side) — shown immediately on entering fullscreen ──
         return (
-            <div className="fixed inset-0 z-[500] bg-[#F8F9FC] flex flex-col">
+            <div className="fixed inset-0 z-[500] bg-[#F8F9FC] dark:bg-[#111217] flex flex-col transition-colors duration-300">
                 {fsHeader}
                 {fsOverlays}
 

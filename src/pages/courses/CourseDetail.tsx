@@ -14,12 +14,12 @@ const ModuleGridCard = ({ module, index }: { module: CourseModule, index: number
     const { courseId } = useParams();
 
     return (
-        <div className="bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-[24px] p-7 flex flex-col hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-200 transition-all duration-300 group cursor-pointer hover:-translate-y-1"
+        <div className="bg-white/80 dark:bg-[#16171d]/80 backdrop-blur-xl border border-slate-200/60 dark:border-[#2e303a]/60 rounded-[24px] p-7 flex flex-col hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-200 dark:hover:border-indigo-900 transition-all duration-300 group cursor-pointer hover:-translate-y-1"
             onClick={() => navigate(`/courses/${courseId}/modules/${module.id}`)}
         >
             {/* Header */}
             <div className="flex items-start gap-4 mb-5">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100/50 group-hover:scale-110 transition-transform duration-300 shadow-inner">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-100/50 dark:border-indigo-900/30 group-hover:scale-110 transition-transform duration-300 shadow-inner">
                     {index % 2 === 0 ? <BookOpen size={24} className="opacity-80" /> : <Code size={24} className="opacity-80" />}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -78,7 +78,7 @@ const ModuleGridCard = ({ module, index }: { module: CourseModule, index: number
             {/* Action Button */}
             <button
                 onClick={() => navigate(`/courses/${courseId}/modules/${module.id}`)}
-                className="w-full py-3.5 border-2 border-indigo-50 text-indigo-600 bg-white/50 font-extrabold text-sm rounded-xl hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-300 active:scale-[0.98] shadow-sm"
+                className="w-full py-3.5 border-2 border-indigo-50 dark:border-indigo-950 text-indigo-600 dark:text-indigo-400 bg-white/50 dark:bg-[#1c1d24]/50 font-extrabold text-sm rounded-xl hover:bg-indigo-600 dark:hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all duration-300 active:scale-[0.98] shadow-sm"
             >
                 View Module
             </button>

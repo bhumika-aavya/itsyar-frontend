@@ -29,18 +29,18 @@ export default function HackathonSandboxPage() {
     if (!id) return null;
 
     if (checking) return (
-        <div className="h-screen flex items-center justify-center bg-[#F8F9FC]">
+        <div className="h-screen flex items-center justify-center bg-[#F8F9FC] dark:bg-[#111217] transition-colors duration-300">
             <Loader2 className="animate-spin text-[#4F46E5]" size={36} />
         </div>
     );
 
     if (!isRegistered) return (
-        <div className="h-screen flex flex-col items-center justify-center bg-[#F8F9FC] gap-6 p-8 text-center">
-            <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center">
+        <div className="h-screen flex flex-col items-center justify-center bg-[#F8F9FC] dark:bg-[#111217] gap-6 p-8 text-center transition-colors duration-300">
+            <div className="w-16 h-16 bg-red-50 dark:bg-red-950/30 rounded-2xl flex items-center justify-center">
                 <Lock size={28} className="text-red-400" />
             </div>
             <div>
-                <h2 className="text-2xl font-extrabold text-slate-900">Registration Required</h2>
+                <h2 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100">Registration Required</h2>
                 <p className="text-sm font-medium text-slate-400 mt-2 max-w-sm leading-relaxed">
                     You must register for this hackathon before accessing the code sandbox. Please go back and complete registration.
                 </p>

@@ -12,16 +12,16 @@ const roleLabel = (r: string) => {
   return r.split("/").map(p => p.charAt(0).toUpperCase() + p.slice(1)).join("/");
 };
 
-function DetailRow({ icon: Icon, label, value, valueClassName = 'text-slate-900' }: {
+function DetailRow({ icon: Icon, label, value, valueClassName = 'text-slate-900 dark:text-slate-100' }: {
   icon: React.ElementType; label: string; value: React.ReactNode; valueClassName?: string;
 }) {
   return (
-    <div className="flex items-center gap-3 px-4 py-3 bg-slate-50/60 rounded-2xl">
-      <div className="w-9 h-9 bg-white border border-slate-100 rounded-xl flex items-center justify-center text-[#4F46E5] shrink-0">
+    <div className="flex items-center gap-3 px-4 py-3 bg-slate-50 dark:bg-[#1c1d24] rounded-2xl">
+      <div className="w-9 h-9 bg-white dark:bg-[#252630] border border-slate-100 dark:border-[#2e303a] rounded-xl flex items-center justify-center text-[#4F46E5] dark:text-[#818cf8] shrink-0">
         <Icon size={16} />
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">{label}</p>
+        <p className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{label}</p>
         <p className={`text-sm font-extrabold truncate ${valueClassName}`}>{value}</p>
       </div>
     </div>

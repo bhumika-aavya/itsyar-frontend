@@ -36,11 +36,11 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F6FC] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[#F8F6FC] dark:bg-[#111217] flex items-center justify-center p-6 transition-colors duration-300">
       <div className="w-full max-w-md flex flex-col items-center">
         <div className="mb-8"><Logo /></div>
 
-        <div className="w-full rounded-[32px] border border-slate-100 bg-white p-10 shadow-xl shadow-slate-200/40">
+        <div className="w-full rounded-[32px] border border-slate-100 dark:border-[#2e303a] bg-white p-10 shadow-xl shadow-slate-200/40 dark:shadow-none">
           {done ? (
             <div className="text-center space-y-4">
               <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto">
@@ -84,7 +84,7 @@ export default function ResetPassword() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="At least 8 characters"
-                      className="h-14 w-full rounded-xl border-2 border-transparent pl-12 pr-12 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 focus:border-[#3AADDD] focus:bg-white"
+                      className="h-14 w-full rounded-xl border-2 border-transparent bg-[#F8F6FC] dark:bg-[#1c1d24] pl-12 pr-12 outline-none focus:border-[#3AADDD] dark:focus:border-[#3AADDD] focus:bg-white dark:focus:bg-[#252630] transition-all font-medium text-slate-900 dark:text-slate-100"
                     />
                     {password && (
                       <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
@@ -103,7 +103,7 @@ export default function ResetPassword() {
                       value={confirm}
                       onChange={(e) => setConfirm(e.target.value)}
                       placeholder="Repeat your password"
-                      className="h-14 w-full rounded-xl border-2 border-transparent pl-12 pr-12 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 focus:border-[#3AADDD] focus:bg-white"
+                      className="h-14 w-full rounded-xl border-2 border-transparent bg-[#F8F6FC] dark:bg-[#1c1d24] pl-12 pr-12 outline-none focus:border-[#3AADDD] dark:focus:border-[#3AADDD] focus:bg-white dark:focus:bg-[#252630] transition-all font-medium text-slate-900 dark:text-slate-100"
                     />
                     {confirm && (
                       <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">

@@ -28,11 +28,11 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F6FC] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[#F8F6FC] dark:bg-[#111217] flex items-center justify-center p-6 transition-colors duration-300">
       <div className="w-full max-w-md flex flex-col items-center">
         <div className="mb-8"><Logo /></div>
 
-        <div className="w-full rounded-[32px] border border-slate-100 bg-white p-10 shadow-xl shadow-slate-200/40">
+        <div className="w-full rounded-[32px] border border-slate-100 dark:border-[#2e303a] bg-white p-10 shadow-xl shadow-slate-200/40 dark:shadow-none">
           <button
             onClick={() => navigate('/login')}
             className="flex items-center gap-2 text-slate-400 hover:text-[#4F46E5] text-sm font-bold mb-8 transition-colors"
@@ -74,7 +74,7 @@ export default function ForgotPassword() {
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="flex flex-col space-y-1.5 items-start">
-                  <label className="text-[13px] font-bold text-slate-800 ml-1">Email Address</label>
+                  <label className="text-[13px] font-bold text-slate-800 dark:text-slate-300 ml-1">Email Address</label>
                   <div className="relative w-full">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input
@@ -82,7 +82,7 @@ export default function ForgotPassword() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="name@company.com"
-                      className="h-14 w-full rounded-xl border-2 border-transparent pl-12 pr-4 bg-[#F8F6FC] outline-none transition-all font-medium text-slate-900 focus:border-[#3AADDD] focus:bg-white"
+                      className="h-14 w-full rounded-xl border-2 border-transparent bg-[#F8F6FC] dark:bg-[#1c1d24] pl-12 pr-4 outline-none focus:border-[#3AADDD] dark:focus:border-[#3AADDD] focus:bg-white dark:focus:bg-[#252630] transition-all font-medium text-slate-900 dark:text-slate-100"
                     />
                   </div>
                 </div>

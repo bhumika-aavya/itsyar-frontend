@@ -6,6 +6,7 @@ import {
 import HeroImage from '@/assets/landing-page.png';
 import { useNavigate } from 'react-router-dom';
 import { LandingService } from '@/services/landing.service';
+import ThemeToggle from '@/components/ThemeToggle';
 
 // Standardized Container Component
 const Container = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
@@ -36,7 +37,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white border-b border-slate-50 sticky top-0 z-50 w-full">
+    <nav className="bg-white dark:bg-[#16171d] border-b border-slate-50 dark:border-[#2e303a] sticky top-0 z-50 w-full transition-colors duration-300">
       <Container className="flex items-center justify-between py-5">
         <div
           className="flex items-center gap-2 cursor-pointer"
@@ -45,7 +46,7 @@ const Navbar = () => {
           <div className="bg-[#4F46E5] p-1.5 rounded-lg">
             <Zap className="text-white fill-white" size={18} />
           </div>
-          <span className="text-xl font-bold tracking-tight text-slate-900">ForgeInsight</span>
+          <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">ForgeInsight</span>
         </div>
 
         <div className="hidden md:flex items-center gap-10">
@@ -58,7 +59,7 @@ const Navbar = () => {
             <button
               key={item.id}
               onClick={() => scrollToSection(item.id)}
-              className="text-[14px] font-bold text-slate-500 hover:text-[#4F46E5] transition-colors"
+              className="text-[14px] font-bold text-slate-500 dark:text-slate-400 hover:text-[#4F46E5] dark:hover:text-[#818cf8] transition-colors"
             >
               {item.label}
             </button>
@@ -66,14 +67,15 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <button
-            className="text-[14px] font-bold text-slate-700 px-4 py-2 hover:text-[#4F46E5]"
+            className="text-[14px] font-bold text-slate-700 dark:text-slate-300 px-4 py-2 hover:text-[#4F46E5] dark:hover:text-[#818cf8] transition-colors"
             onClick={() => navigate('/login')}
           >
             Sign In
           </button>
           <button
-            className="text-[14px] font-bold bg-[#4F46E5] text-white px-6 py-2.5 rounded-xl hover:bg-[#4338CA] transition-all shadow-lg shadow-indigo-100"
+            className="text-[14px] font-bold bg-[#4F46E5] text-white px-6 py-2.5 rounded-xl hover:bg-[#4338CA] transition-all shadow-lg shadow-indigo-100 dark:shadow-none"
             onClick={() => navigate('/register')}
           >
             Sign Up
