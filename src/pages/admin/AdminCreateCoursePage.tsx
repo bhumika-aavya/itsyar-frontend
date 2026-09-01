@@ -11,15 +11,9 @@ import {
 import { toast } from "sonner";
 
 const CATEGORIES = [
-  "Programming",
-  "Web Development",
-  "Data Science",
-  "AI / ML",
-  "Cloud Architecture",
-  "DevOps",
-  "Cybersecurity",
-  "Design",
-  "Other"
+  "Palantir",
+  "React",
+  "Python",
 ];
 
 const LEVELS = ["Beginner", "Intermediate", "Advanced", "All Levels"];
@@ -435,13 +429,12 @@ export default function AdminCreateCoursePage() {
                   if (s.step === 2 && !validateStep1()) return;
                   setCurrentStep(s.step as 1 | 2 | 3);
                 }}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all ${
-                  active
-                    ? "bg-[#4F46E5] text-white shadow-sm"
-                    : completed
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all ${active
+                  ? "bg-[#4F46E5] text-white shadow-sm"
+                  : completed
                     ? "text-[#4F46E5] dark:text-indigo-400 hover:bg-white dark:hover:bg-[#252630]"
                     : "text-slate-500 dark:text-slate-400 hover:text-slate-700"
-                }`}
+                  }`}
               >
                 <Icon size={14} />
                 <span>{s.label}</span>
@@ -474,9 +467,8 @@ export default function AdminCreateCoursePage() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. React for Beginners"
-                className={`w-full h-12 px-4 bg-slate-50 dark:bg-[#1c1d24] border ${
-                  errors.title ? "border-red-500" : "border-slate-200 dark:border-[#2e303a]"
-                } rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 outline-none focus:border-[#4F46E5] dark:focus:border-indigo-400 transition-all`}
+                className={`w-full h-12 px-4 bg-slate-50 dark:bg-[#1c1d24] border ${errors.title ? "border-red-500" : "border-slate-200 dark:border-[#2e303a]"
+                  } rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 outline-none focus:border-[#4F46E5] dark:focus:border-indigo-400 transition-all`}
               />
               {errors.title && <p className="text-xs font-bold text-red-500">{errors.title}</p>}
             </div>
@@ -505,10 +497,9 @@ export default function AdminCreateCoursePage() {
                   type="text"
                   value={instructor}
                   onChange={(e) => setInstructor(e.target.value)}
-                  placeholder="e.g. Harshpreet Kaur Arora"
-                  className={`w-full h-12 px-4 bg-slate-50 dark:bg-[#1c1d24] border ${
-                    errors.instructor ? "border-red-500" : "border-slate-200 dark:border-[#2e303a]"
-                  } rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 outline-none focus:border-[#4F46E5] dark:focus:border-indigo-400 transition-all`}
+                  placeholder="e.g. John Doe"
+                  className={`w-full h-12 px-4 bg-slate-50 dark:bg-[#1c1d24] border ${errors.instructor ? "border-red-500" : "border-slate-200 dark:border-[#2e303a]"
+                    } rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 outline-none focus:border-[#4F46E5] dark:focus:border-indigo-400 transition-all`}
                 />
                 {errors.instructor && (
                   <p className="text-xs font-bold text-red-500">{errors.instructor}</p>
@@ -590,11 +581,10 @@ export default function AdminCreateCoursePage() {
               {/* Upload Box */}
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className={`border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
-                  thumbnail
-                    ? "border-emerald-500/40 bg-emerald-50/20 dark:bg-emerald-950/10"
-                    : "border-slate-200 dark:border-[#2e303a] hover:border-[#4F46E5] bg-slate-50/50 dark:bg-[#1c1d24]"
-                }`}
+                className={`border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${thumbnail
+                  ? "border-emerald-500/40 bg-emerald-50/20 dark:bg-emerald-950/10"
+                  : "border-slate-200 dark:border-[#2e303a] hover:border-[#4F46E5] bg-slate-50/50 dark:bg-[#1c1d24]"
+                  }`}
               >
                 <input
                   ref={fileInputRef}
@@ -744,20 +734,18 @@ export default function AdminCreateCoursePage() {
                       <div
                         key={m.id}
                         onClick={() => setSelectedModuleId(m.id)}
-                        className={`p-4 rounded-2xl border transition-all cursor-pointer group relative ${
-                          isSelected
-                            ? "bg-indigo-50/50 dark:bg-indigo-950/20 border-[#4F46E5] dark:border-indigo-500 shadow-xs"
-                            : "bg-slate-50/60 dark:bg-[#1c1d24]/60 border-slate-200/70 dark:border-[#2e303a] hover:border-slate-300"
-                        }`}
+                        className={`p-4 rounded-2xl border transition-all cursor-pointer group relative ${isSelected
+                          ? "bg-indigo-50/50 dark:bg-indigo-950/20 border-[#4F46E5] dark:border-indigo-500 shadow-xs"
+                          : "bg-slate-50/60 dark:bg-[#1c1d24]/60 border-slate-200/70 dark:border-[#2e303a] hover:border-slate-300"
+                          }`}
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="flex items-center gap-2">
                             <span
-                              className={`w-6 h-6 rounded-lg text-[11px] font-black flex items-center justify-center ${
-                                isSelected
-                                  ? "bg-[#4F46E5] text-white"
-                                  : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
-                              }`}
+                              className={`w-6 h-6 rounded-lg text-[11px] font-black flex items-center justify-center ${isSelected
+                                ? "bg-[#4F46E5] text-white"
+                                : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                                }`}
                             >
                               {idx + 1}
                             </span>
@@ -921,11 +909,10 @@ export default function AdminCreateCoursePage() {
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-200/60 dark:border-[#2e303a]/60">
                               {/* 1. Topic Video */}
                               <div
-                                className={`flex items-center gap-2 p-2 rounded-xl text-xs font-bold ${
-                                  hasVid
-                                    ? "bg-indigo-50 dark:bg-indigo-950/30 text-[#4F46E5] dark:text-indigo-300"
-                                    : "bg-slate-100/70 dark:bg-[#16171d]/60 text-slate-400"
-                                }`}
+                                className={`flex items-center gap-2 p-2 rounded-xl text-xs font-bold ${hasVid
+                                  ? "bg-indigo-50 dark:bg-indigo-950/30 text-[#4F46E5] dark:text-indigo-300"
+                                  : "bg-slate-100/70 dark:bg-[#16171d]/60 text-slate-400"
+                                  }`}
                               >
                                 <PlayCircle size={15} />
                                 <span className="truncate">Topic Video</span>
@@ -934,11 +921,10 @@ export default function AdminCreateCoursePage() {
 
                               {/* 2. Walkthrough Video */}
                               <div
-                                className={`flex items-center gap-2 p-2 rounded-xl text-xs font-bold ${
-                                  hasPrac
-                                    ? "bg-indigo-50 dark:bg-indigo-950/30 text-[#4F46E5] dark:text-indigo-300"
-                                    : "bg-slate-100/70 dark:bg-[#16171d]/60 text-slate-400"
-                                }`}
+                                className={`flex items-center gap-2 p-2 rounded-xl text-xs font-bold ${hasPrac
+                                  ? "bg-indigo-50 dark:bg-indigo-950/30 text-[#4F46E5] dark:text-indigo-300"
+                                  : "bg-slate-100/70 dark:bg-[#16171d]/60 text-slate-400"
+                                  }`}
                               >
                                 <Video size={15} />
                                 <span className="truncate">Walkthrough</span>
@@ -947,11 +933,10 @@ export default function AdminCreateCoursePage() {
 
                               {/* 3. Topic Docs */}
                               <div
-                                className={`flex items-center gap-2 p-2 rounded-xl text-xs font-bold ${
-                                  hasDoc
-                                    ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-300"
-                                    : "bg-slate-100/70 dark:bg-[#16171d]/60 text-slate-400"
-                                }`}
+                                className={`flex items-center gap-2 p-2 rounded-xl text-xs font-bold ${hasDoc
+                                  ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-300"
+                                  : "bg-slate-100/70 dark:bg-[#16171d]/60 text-slate-400"
+                                  }`}
                               >
                                 <FileText size={15} />
                                 <span className="truncate">Documentation</span>
@@ -960,11 +945,10 @@ export default function AdminCreateCoursePage() {
 
                               {/* 4. Interview PDF */}
                               <div
-                                className={`flex items-center gap-2 p-2 rounded-xl text-xs font-bold ${
-                                  hasInt
-                                    ? "bg-purple-50 dark:bg-purple-950/30 text-purple-600 dark:text-purple-300"
-                                    : "bg-slate-100/70 dark:bg-[#16171d]/60 text-slate-400"
-                                }`}
+                                className={`flex items-center gap-2 p-2 rounded-xl text-xs font-bold ${hasInt
+                                  ? "bg-purple-50 dark:bg-purple-950/30 text-purple-600 dark:text-purple-300"
+                                  : "bg-slate-100/70 dark:bg-[#16171d]/60 text-slate-400"
+                                  }`}
                               >
                                 <HelpCircle size={15} />
                                 <span className="truncate">Interview PDF</span>
