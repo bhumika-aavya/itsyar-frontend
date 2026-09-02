@@ -63,9 +63,35 @@ export interface AdminOverview {
   platformHealth: PlatformHealth;
 }
 
+export type QuizQuestionType = "mcq" | "question_answer" | "true_false" | "code_challenge";
+
+export interface TopicQuizQuestion {
+  id: string;
+  type: QuizQuestionType;
+  question: string;
+  options?: string[]; // for mcq
+  correctOptionIndex?: number; // for mcq (0, 1, 2, 3...)
+  correctAnswerText?: string; // for question_answer
+  correctBoolean?: boolean; // for true_false
+  codeLanguage?: string; // for code_challenge
+  codeStarter?: string; // for code_challenge
+  codeSolution?: string; // for code_challenge
+  explanation?: string;
+  points?: number;
+}
+
+export interface TopicQuizData {
+  id: string;
+  title: string;
+  description?: string;
+  timeLimitMinutes?: number;
+  passingScorePercentage?: number;
+  questions: TopicQuizQuestion[];
+}
+
 export interface CourseAssetData {
   id?: string;
-  type: "topic_video" | "practical_video" | "documentation_pdf" | "interview_pdf";
+  type: "topic_video" | "practical_video" | "documentation_pdf" | "interview_pdf" | "quiz";
   title: string;
   url?: string;
   fileName?: string;
@@ -79,6 +105,7 @@ export interface CourseTopicData {
   title: string;
   summary: string;
   assets: CourseAssetData[];
+  quiz?: TopicQuizData;
 }
 
 export interface CourseModuleData {
@@ -563,6 +590,14 @@ export const AdminService = {
     }
     const current = loadLocalCourses();
     saveLocalCourses(current.filter(c => String(c.id) !== String(id)));
+  },
+
+  deleteModule: async (courseId: string, moduleId: string): Promise<void> => {
+    try {
+      await api.delete(`/admin/courses/${courseId}/module/${moduleId}`, getAuthHeaders());
+    } catch {
+      // ignore
+    }
   },
 
   getHackathons: async (params?: { search?: string; status?: string }): Promise<AdminHackathon[]> => {
