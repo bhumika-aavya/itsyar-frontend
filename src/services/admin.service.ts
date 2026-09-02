@@ -78,6 +78,10 @@ export interface TopicQuizQuestion {
   codeSolution?: string; // for code_challenge
   explanation?: string;
   points?: number;
+  source_chunk_ids?: string[];
+  source_pages?: number[];
+  validation_status?: string;
+  validation_notes?: string;
 }
 
 export interface TopicQuizData {

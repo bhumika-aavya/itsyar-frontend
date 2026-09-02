@@ -146,4 +146,8 @@ export interface QuizBuilderModalProps {
   onDeleteQuestion: (qId: string) => void;
   onClose: () => void;
   onSave: () => void;
+  courseId?: string;
+  topicId?: string;
+  topicSummary?: string;
+  onAddGeneratedQuestions?: (questions: TopicQuizQuestion[]) => void;
 }

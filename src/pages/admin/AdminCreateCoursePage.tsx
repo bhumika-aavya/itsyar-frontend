@@ -616,6 +616,19 @@ export default function AdminCreateCoursePage() {
     toast.success("Question deleted");
   };
 
+  const handleAddGeneratedQuestions = (newQuestions: TopicQuizQuestion[]) => {
+    setQuizQuestions((prev) => {
+      if (prev.length === 1 && !prev[0].question.trim()) {
+        return newQuestions;
+      }
+      return [...prev, ...newQuestions];
+    });
+    if (newQuestions.length > 0) {
+      setExpandedQuestionId(newQuestions[0].id);
+    }
+    toast.success(`Added ${newQuestions.length} generated questions to quiz`);
+  };
+
   const handleSaveQuiz = () => {
     if (!quizTitle.trim()) {
       setQuizError("Quiz title is required");
@@ -971,6 +984,10 @@ export default function AdminCreateCoursePage() {
         onDeleteQuestion={deleteQuestion}
         onClose={() => setShowQuizModal(false)}
         onSave={handleSaveQuiz}
+        courseId={activeCourseId || editCourseId || undefined}
+        topicId={quizCardTargetTopicId || undefined}
+        topicSummary={topicSummary || undefined}
+        onAddGeneratedQuestions={handleAddGeneratedQuestions}
       />
     </div>
   );
