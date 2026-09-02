@@ -6,6 +6,8 @@ import {
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CourseService } from '@/services/course.service';
 import { ApiModuleDetail, ApiTopic, ApiAsset } from '@/services/course-detail.schema';
+import InAppPdfViewer from '@/components/pdf/InAppPdfViewer';
+import { PdfService } from '@/services/pdf.service';
 
 export default function LessonView() {
   const navigate = useNavigate();
@@ -131,6 +133,24 @@ export default function LessonView() {
 
   const isDocument = currentAsset?.type === 'documentation' ||
     currentAsset?.type === 'interview_pdf';
+
+  const [resolvedPdfUrl, setResolvedPdfUrl] = useState<string>('');
+
+  useEffect(() => {
+    const resolveDoc = async () => {
+      if (isDocument && currentAsset) {
+        if (currentAsset.url) {
+          setResolvedPdfUrl(currentAsset.url);
+        } else if (courseId && targetModuleId) {
+          const tId = currentTopic?.topic_id || currentTopic?.topicId;
+          const docType = currentAsset.type.includes('interview') ? 'interview' : 'documentation';
+          const u = await PdfService.resolvePdfUrl(courseId, targetModuleId, tId, docType);
+          setResolvedPdfUrl(u);
+        }
+      }
+    };
+    resolveDoc();
+  }, [isDocument, currentAsset, courseId, targetModuleId, currentTopic]);
   // Build video streaming URL or fallback
   const videoSrc = `${import.meta.env.VITE_API_URL}${currentAsset?.url}`
     ;
@@ -166,7 +186,9 @@ export default function LessonView() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Viewer Area */}
           <div className="lg:col-span-8 space-y-8">
-            <div className="relative w-full aspect-video bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl shadow-indigo-900/10 border border-slate-800">
+            <div className={`relative w-full bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl shadow-indigo-900/10 border border-slate-800 ${
+              isDocument ? "min-h-[640px] h-[75vh]" : "aspect-video"
+            }`}>
               {isUpdatingVideo && (
                 <div className="absolute inset-0 z-20 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center">
                   <Loader2 className="animate-spin text-white" size={36} />
@@ -174,20 +196,26 @@ export default function LessonView() {
               )}
 
               {isDocument ? (
-                <div className="w-full h-full min-h-[500px] flex flex-col bg-white">
-                  {currentAsset?.url ? (
-                    <iframe
-                      src={currentAsset.url.startsWith('http') ? currentAsset.url : `${import.meta.env.VITE_API_URL || ''}${currentAsset.url}${currentAsset.url.includes('?') ? '&' : '?'}token=${token}`}
-                      className="w-full h-full min-h-[500px] border-0"
-                      title={currentAsset.title}
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-full text-slate-400 p-8 text-center">
-                      <FileText size={48} className="mb-3 opacity-40" />
-                      <p className="font-bold text-sm">No Document URL Available</p>
-                    </div>
-                  )}
-                </div>
+                <InAppPdfViewer
+                  url={resolvedPdfUrl || currentAsset?.url}
+                  title={currentAsset?.title || (currentAsset?.type === 'interview_pdf' ? "Interview Questions" : "Topic Documentation")}
+                  subtitle={displayTitle}
+                  className="w-full h-full rounded-none border-0"
+                  onOpenNewTab={() => {
+                    const tId = currentTopic?.topic_id || currentTopic?.topicId;
+                    const docType = currentAsset?.type.includes('interview') ? 'interview' : 'documentation';
+                    const params = new URLSearchParams({
+                      url: resolvedPdfUrl || currentAsset?.url || '',
+                      title: currentAsset?.title || (docType === 'interview' ? 'Interview Questions' : 'Topic Documentation'),
+                      subtitle: displayTitle,
+                      courseId: courseId || '',
+                      moduleId: targetModuleId || '',
+                      topicId: tId || '',
+                      type: docType,
+                    });
+                    window.open(`/pdf-viewer?${params.toString()}`, '_blank');
+                  }}
+                />
               ) : (
                 <>
                   <video
@@ -248,24 +276,37 @@ export default function LessonView() {
                 </div>
                 <div className="flex flex-col gap-3">
                   {currentTopic?.assets?.filter(a => a.type === 'documentation' || a.type === 'interview_pdf').map((docAsset, idx) => (
-                    <a
+                    <div
                       key={idx}
-                      href={docAsset.url ? (docAsset.url.startsWith('http') ? docAsset.url : `${import.meta.env.VITE_API_URL || ''}${docAsset.url}${docAsset.url.includes('?') ? '&' : '?'}token=${token}`) : '#'}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-3.5 bg-white border border-slate-100 rounded-2xl hover:border-[#4F46E5] group transition-all shadow-sm"
+                      onClick={() => {
+                        const tId = currentTopic.topic_id || currentTopic.topicId;
+                        const docType = docAsset.type.includes('interview') ? 'interview' : 'documentation';
+                        const params = new URLSearchParams({
+                          url: docAsset.url || '',
+                          title: docAsset.title || (docType === 'interview' ? 'Interview Questions' : 'Topic Documentation'),
+                          subtitle: displayTitle,
+                          courseId: courseId || '',
+                          moduleId: targetModuleId || '',
+                          topicId: tId || '',
+                          type: docType,
+                        });
+                        window.open(`/pdf-viewer?${params.toString()}`, '_blank');
+                      }}
+                      className="flex items-center justify-between p-3.5 bg-white border border-slate-100 rounded-2xl hover:border-[#4F46E5] hover:shadow-md group transition-all shadow-sm cursor-pointer"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-[#4F46E5]">
+                        <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-[#4F46E5] group-hover:bg-[#4F46E5] group-hover:text-white transition-all">
                           <FileText size={18} />
                         </div>
                         <div>
                           <h4 className="text-xs font-bold text-slate-800 group-hover:text-[#4F46E5] transition-colors">{docAsset.title}</h4>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">PDF Document</p>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">In-App PDF Reader</p>
                         </div>
                       </div>
-                      <Download size={14} className="text-slate-400 group-hover:text-[#4F46E5]" />
-                    </a>
+                      <span className="text-[11px] font-extrabold text-[#4F46E5] opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                        Read →
+                      </span>
+                    </div>
                   )) || <p className="text-xs text-slate-400 font-medium">No additional materials available.</p>}
                 </div>
               </div>
@@ -304,7 +345,7 @@ export default function LessonView() {
 
                     {isOpen && (
                       <div className="bg-white p-3 space-y-2">
-                        {topic.assets?.filter((asset: ApiAsset) => asset.type === 'video' || asset.type === 'practical_video' || asset.type.includes('video')).map((asset: ApiAsset, aIdx: number) => {
+                        {topic.assets?.map((asset: ApiAsset, aIdx: number) => {
                           const isCurrentAsset = isCurrentTopic && currentAsset?.type === asset.type;
                           const isDoc = asset.type === 'documentation' || asset.type === 'interview_pdf';
                           return (

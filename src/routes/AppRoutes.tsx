@@ -36,6 +36,7 @@ const CourseCatalog = lazy(() => import("@/pages/courses/CourseCatalog"));
 const CourseDetail = lazy(() => import("@/pages/courses/CourseDetail"));
 const TopicDetail = lazy(() => import("@/pages/courses/TopicDetail"));
 const LessonView = lazy(() => import("@/pages/courses/LessonView"));
+const PdfViewerPage = lazy(() => import("@/pages/courses/PdfViewerPage"));
 const CertificatePage = lazy(() => import("@/pages/courses/CertificatePage"));
 const ResultsPage = lazy(() => import("@/pages/courses/ResultsPage"));
 const HackathonListing = lazy(() => import("@/pages/hackathon/HackathonListing"));
@@ -93,6 +94,11 @@ export default function AppRoutes() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+        </Route>
+
+        {/* Fullscreen standalone in-app PDF viewer — no outer layout */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/pdf-viewer" element={<PdfViewerPage />} />
         </Route>
 
         {/* ── Student / participant shared layout ───────────────────────── */}

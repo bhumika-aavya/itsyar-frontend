@@ -10,8 +10,25 @@ import { PaymentService } from '@/services/payment.service';
 import { CourseDetail, CourseModule, ApiModuleDetail } from '@/services/course-detail.schema';
 import { COURSE_LIFETIME_PRICE, CURRENCY } from '@/types/payment.types';
 
+import InAppPdfModal from '@/components/pdf/InAppPdfModal';
+import { PdfService } from '@/services/pdf.service';
+
 // --- Sub-component: Curriculum Accordion ---
-const TopicAccordion = ({ topic, index, isOpen, onToggle, moduleId }: { topic: any, index: number, isOpen: boolean, onToggle: () => void, moduleId: string }) => {
+const TopicAccordion = ({
+    topic,
+    index,
+    isOpen,
+    onToggle,
+    moduleId,
+    onOpenPdf,
+}: {
+    topic: any;
+    index: number;
+    isOpen: boolean;
+    onToggle: () => void;
+    moduleId: string;
+    onOpenPdf?: (url: string, title: string, subtitle: string) => void;
+}) => {
     const displayNum = index + 1;
     const subItems = topic.assets ?? topic.subItems ?? [];
     const navigate = useNavigate();
@@ -47,19 +64,28 @@ const TopicAccordion = ({ topic, index, isOpen, onToggle, moduleId }: { topic: a
                         {subItems.length > 0 && subItems.map((item: any, assetIdx: number) => {
                             const isDoc = item.type === 'topic-documentation' || item.type === 'interview-questions' || item.type === 'documentation' || item.type === 'interview_pdf' || item.type === 'interview';
 
-                            const handleAssetClick = () => {
+                            const handleAssetClick = async () => {
                                 if (isDoc) {
-                                    const token = localStorage.getItem("token") || "";
                                     let targetUrl = item.url;
-                                    if (targetUrl && !targetUrl.startsWith('http')) {
-                                        const sep = targetUrl.includes('?') ? '&' : '?'; targetUrl = `${import.meta.env.VITE_API_URL || ''}${targetUrl}${sep}token=${token}`;
-                                    } else if (!targetUrl && courseId && moduleId && topicIdVal) {
-                                        const docPath = item.type.includes('interview') ? 'interview' : 'documentation';
-                                        targetUrl = `${import.meta.env.VITE_API_URL || ''}/courses/${courseId}/${moduleId}/${topicIdVal}/${docPath}?token=${token}`;
+                                    const docType = item.type.includes('interview') ? 'interview' : 'documentation';
+                                    if (!targetUrl && courseId && moduleId && topicIdVal) {
+                                        targetUrl = await PdfService.resolvePdfUrl(courseId, moduleId, topicIdVal, docType);
                                     }
-                                    if (targetUrl) {
-                                        window.open(targetUrl, '_blank');
-                                    }
+                                    const docTitle = item.title || (docType === 'interview' ? 'Interview Questions' : 'Topic Documentation');
+                                    const subtitle = `${topic.title || topic.topic_title || 'Topic'} • Documentation`;
+
+                                    const params = new URLSearchParams({
+                                        url: targetUrl || '',
+                                        title: docTitle,
+                                        subtitle: subtitle,
+                                        courseId: courseId || '',
+                                        moduleId: moduleId || '',
+                                        topicId: topicIdVal,
+                                        type: docType,
+                                    });
+
+                                    // Open in new tab in full screen
+                                    window.open(`/pdf-viewer?${params.toString()}`, '_blank');
                                 } else {
                                     navigate(`/course/${courseId}/module/${moduleId}/topic/${topicIdVal}?asset=${item.type}`);
                                 }
@@ -107,6 +133,26 @@ export default function TopicDetailPage() {
     const [isEnrolling, setIsEnrolling] = useState(false);
     const [isPurchased, setIsPurchased] = useState(false);
     const [isPurchaseLoading, setIsPurchaseLoading] = useState(false);
+    const [pdfModalState, setPdfModalState] = useState<{
+        isOpen: boolean;
+        url: string;
+        title: string;
+        subtitle: string;
+    }>({
+        isOpen: false,
+        url: '',
+        title: '',
+        subtitle: '',
+    });
+
+    const handleOpenPdf = (url: string, title: string, subtitle: string) => {
+        setPdfModalState({
+            isOpen: true,
+            url,
+            title,
+            subtitle,
+        });
+    };
 
     useEffect(() => {
         const fetchCourse = async () => {
@@ -366,14 +412,25 @@ export default function TopicDetailPage() {
                     {(apiModuleDetail?.topics ?? []).map((topic: any, idx: number) => (
                         <TopicAccordion
                             key={topic.topic_id || topic.topicId || idx}
-                            topic={topic} moduleId={activeModule?.moduleId || ''}
+                            topic={topic}
+                            moduleId={activeModule?.moduleId || ''}
                             index={idx}
                             isOpen={openModule === (topic.topic_id || topic.topicId)}
                             onToggle={() => setOpenModule(openModule === (topic.topic_id || topic.topicId) ? null : (topic.topic_id || topic.topicId))}
+                            onOpenPdf={handleOpenPdf}
                         />
                     ))}
                 </div>
             </section>
+
+            {/* In-App PDF Viewer Modal */}
+            <InAppPdfModal
+                isOpen={pdfModalState.isOpen}
+                url={pdfModalState.url}
+                title={pdfModalState.title}
+                subtitle={pdfModalState.subtitle}
+                onClose={() => setPdfModalState((prev) => ({ ...prev, isOpen: false }))}
+            />
         </div>
     );
 }
