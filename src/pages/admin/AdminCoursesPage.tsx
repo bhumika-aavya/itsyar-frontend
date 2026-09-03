@@ -137,13 +137,7 @@ export default function AdminCoursesPage() {
               onClick={() => navigate(`/admin/courses/${course.id}`)}
               className="bg-white border border-slate-100 rounded-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all group cursor-pointer"
             >
-              {course.thumbnail ? (
-                <img src={course.thumbnail} alt={course.title} className="w-full h-36 object-cover" />
-              ) : (
-                <div className="w-full h-36 bg-indigo-50 flex items-center justify-center">
-                  <BookOpen size={32} className="text-[#4F46E5]/30" />
-                </div>
-              )}
+              <img src={course?.thumbnail ? course?.thumbnail : 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop'} alt={course.title} className="w-full h-36 object-cover" />
               <div className="p-5 space-y-3">
                 <div>
                   <p className="font-extrabold text-slate-900 leading-snug">{course.title}</p>
