@@ -294,11 +294,15 @@ export const CourseStudioApi = {
     };
   },
 
-  /** Step 4 — Finalize Topic: POST .../topic */
+  /** Step 4 — Edit topic to attach everything: PUT .../topic/{topic_id} */
   finalizeTopic: async (courseId: string, moduleId: string, payload: FinalizeTopicPayload) => {
     const formData = new FormData();
-    formData.append("topic_id", payload.topic_id);
-    formData.append("title", payload.title.trim());
+    if (payload.topic_id) {
+      formData.append("topic_id", payload.topic_id);
+    }
+    if (payload.title?.trim()) {
+      formData.append("title", payload.title.trim());
+    }
     if (payload.summary?.trim()) {
       formData.append("summary", payload.summary.trim());
     }
@@ -336,11 +340,27 @@ export const CourseStudioApi = {
       formData.append("interview_pdf", payload.interview_pdf);
     }
 
-    const res = await api.post(
-      `/admin/courses/${courseId}/module/${moduleId}/topic`,
-      formData,
-      getAuthHeaders()
-    );
+    // Step 4: PUT /api/admin/courses/{course_id}/module/{module_id}/topic/{topic_id}
+    let res: any;
+    try {
+      res = await api.put(
+        `/admin/courses/${courseId}/module/${moduleId}/topic/${payload.topic_id}`,
+        formData,
+        getAuthHeaders()
+      );
+    } catch (putErr: any) {
+      // Fallback if backend router only maps POST
+      if (putErr?.response?.status === 404 || putErr?.response?.status === 405) {
+        res = await api.post(
+          `/admin/courses/${courseId}/module/${moduleId}/topic`,
+          formData,
+          getAuthHeaders()
+        );
+      } else {
+        throw putErr;
+      }
+    }
+
     const d = res.data || {};
     const retTopicId = d.topicId || d.topic_id || payload.topic_id;
     return {

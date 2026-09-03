@@ -593,10 +593,18 @@ export default function AdminCreateCoursePage() {
         }
       }
 
-      // Step 4: Finalize Topic
-      if (courseId) {
+      // Step 4: Edit topic to attach everything (PUT .../topic/{topic_id})
+      const hasAssetsToAttach = Boolean(
+        topicVideoGcsPath ||
+        practicalVideoGcsPath ||
+        topicDocPdfFile ||
+        interviewPdfFile ||
+        editingTopicId
+      );
+
+      if (courseId && hasAssetsToAttach) {
         try {
-          toast.loading("Finalizing topic assets & documentation...", { id: "topic-upload" });
+          toast.loading("Attaching topic assets & documentation...", { id: "topic-upload" });
           await CourseStudioApi.finalizeTopic(courseId, topicTargetModuleId, {
             topic_id: finalTopicId,
             title: topicTitle.trim(),
