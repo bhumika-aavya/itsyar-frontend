@@ -46,6 +46,10 @@ export interface CourseInfoStepProps {
   totalAssetsCount: number;
   totalQuizzesCount: number;
   onThumbnailFileSelected: (file: File) => void;
+  status: "published" | "draft";
+  setStatus: (val: "published" | "draft") => void;
+  isActive: boolean;
+  setIsActive: (val: boolean) => void;
 }
 
 export interface CurriculumStepProps {
@@ -74,8 +78,13 @@ export interface CourseReviewStepProps {
   totalTopicsCount: number;
   isEditing: boolean;
   saving: boolean;
+  status: "published" | "draft";
+  setStatus: (val: "published" | "draft") => void;
+  isActive: boolean;
+  setIsActive: (val: boolean) => void;
   onBack: () => void;
   onPublish: () => void;
+  onSaveDraft?: () => void;
 }
 
 export interface ModuleModalProps {
@@ -113,11 +122,12 @@ export interface TopicModalProps {
   onRemoveQuiz: () => void;
   topicError: string;
   onClose: () => void;
-  onSave: () => void;
+  isSavingTopic?: boolean;
   onFileUpload: (
     e: React.ChangeEvent<HTMLInputElement>,
     setter: (val: { name: string; url: string; duration?: string }) => void,
-    type: "pdf" | "video"
+    type: "pdf" | "video",
+    fileSetter?: (f: File) => void
   ) => void;
 }
 

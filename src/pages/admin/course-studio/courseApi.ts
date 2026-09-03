@@ -6,7 +6,9 @@ export interface CreateCoursePayload {
   title: string;
   description: string;
   instructor: string;
-  category: CourseCategory | string;
+  category?: CourseCategory | string;
+  tag?: string;
+  level?: string;
 }
 
 export interface UpdateCoursePayload {
@@ -14,7 +16,11 @@ export interface UpdateCoursePayload {
   description?: string;
   instructor?: string;
   category?: CourseCategory | string;
+  tag?: string;
+  level?: string;
   price?: number;
+  status?: "published" | "draft" | "active" | "inactive";
+  isActive?: boolean;
 }
 
 export interface CreateModulePayload {
@@ -25,6 +31,22 @@ export interface CreateModulePayload {
 export interface UpdateModulePayload {
   title?: string;
   summary?: string;
+}
+
+export interface FinalizeTopicPayload {
+  topic_id: string;
+  title: string;
+  summary?: string;
+  topic_video_gcs_path?: string;
+  topic_video_content_type?: string;
+  topic_video_size_byte?: number;
+  topic_video_duration?: string;
+  practical_video_gcs_path?: string;
+  practical_video_content_type?: string;
+  practical_video_size_byte?: number;
+  practical_video_duration?: string;
+  documentation_pdf?: File | null;
+  interview_pdf?: File | null;
 }
 
 export const CourseStudioApi = {
@@ -40,13 +62,22 @@ export const CourseStudioApi = {
   /** 2. POST /api/admin/courses */
   createCourse: async (data: CreateCoursePayload): Promise<{ courseId?: string; course?: any; raw: any }> => {
     const validCategories = ["Python", "Palantir", "React"];
-    const category = validCategories.includes(data.category) ? data.category : "Palantir";
+    const tag = validCategories.includes(data.tag || "")
+      ? data.tag
+      : validCategories.includes(data.category || "")
+        ? data.category
+        : "Palantir";
+
+    const validLevels = ["Beginner", "Intermediate", "Advanced", "All Levels"];
+    const level = validLevels.includes(data.level || "") ? data.level : "Beginner";
 
     const payload = {
       title: data.title.trim(),
       description: data.description.trim(),
       instructor: data.instructor.trim(),
-      category,
+      tag,
+      category: tag,
+      level,
     };
 
     const res = await api.post("/admin/courses", payload, getAuthHeaders());
@@ -57,7 +88,7 @@ export const CourseStudioApi = {
       res.data?.course_id ||
       res.data?.id;
 
-    // ⚠️ Response does not include the new course_id yet — after creating, re-fetch GET /api/admin/courses to find it
+    // ⚠️ Response does not include the new course_id — re-fetch GET /api/admin/courses to find it
     if (!courseId) {
       try {
         const fetchRes = await api.get("/admin/courses", {
@@ -97,11 +128,18 @@ export const CourseStudioApi = {
     if (data.title !== undefined) payload.title = data.title.trim();
     if (data.description !== undefined) payload.description = data.description.trim();
     if (data.instructor !== undefined) payload.instructor = data.instructor.trim();
-    if (data.category !== undefined) {
+    if (data.category !== undefined || data.tag !== undefined) {
       const validCategories = ["Python", "Palantir", "React"];
-      payload.category = validCategories.includes(data.category) ? data.category : "Palantir";
+      const cat = data.tag || data.category || "Palantir";
+      payload.tag = validCategories.includes(cat) ? cat : "Palantir";
+    }
+    if (data.level !== undefined) {
+      const validLevels = ["Beginner", "Intermediate", "Advanced", "All Levels"];
+      payload.level = validLevels.includes(data.level) ? data.level : "Beginner";
     }
     if (data.price !== undefined) payload.price = data.price;
+    if (data.status !== undefined) payload.status = data.status;
+    if (data.isActive !== undefined) payload.is_active = data.isActive;
 
     const res = await api.put(`/admin/courses/${courseId}`, payload, getAuthHeaders());
     return res.data;
@@ -112,13 +150,7 @@ export const CourseStudioApi = {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await api.post(`/admin/courses/${courseId}/image`, formData, {
-      ...getAuthHeaders(),
-      headers: {
-        ...getAuthHeaders().headers,
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    const res = await api.post(`/admin/courses/${courseId}/image`, formData, getAuthHeaders());
     return res.data;
   },
 
@@ -159,5 +191,221 @@ export const CourseStudioApi = {
     const res = await api.delete(`/admin/courses/${courseId}/module/${moduleId}`, getAuthHeaders());
     return res.data;
   },
-};
 
+  // =========================================================
+  // TOPIC APIs (4-Step Creation Flow)
+  // Hierarchy: Course → Module → Topic
+  // Base: /api/admin/courses/{course_id}/module/{module_id}
+  // =========================================================
+
+  /** GET .../topic : Returns topics for the module */
+  getModuleTopics: async (courseId: string, moduleId: string): Promise<any[]> => {
+    // 1. Try admin endpoint
+    try {
+      const res = await api.get(`/admin/courses/${courseId}/module/${moduleId}/topic`, getAuthHeaders());
+      const d = res.data;
+      if (Array.isArray(d)) return d;
+      if (d?.topics && Array.isArray(d.topics)) return d.topics;
+      if (d?.data && Array.isArray(d.data)) return d.data;
+    } catch (e) {
+      console.warn("admin getModuleTopics error, trying fallback route", e);
+    }
+
+    // 2. Try courses module endpoint
+    try {
+      const res2 = await api.get(`/courses/${courseId}/${moduleId}`, getAuthHeaders());
+      const d2 = res2.data;
+      if (Array.isArray(d2)) return d2;
+      if (d2?.topics && Array.isArray(d2.topics)) return d2.topics;
+      if (d2?.data?.topics && Array.isArray(d2.data.topics)) return d2.data.topics;
+    } catch (e2) {
+      console.warn("courses getModuleTopics error", e2);
+    }
+
+    return [];
+  },
+
+  /** Step 1 — Reserve a topic_id: POST .../topic */
+  reserveTopic: async (courseId: string, moduleId: string, data: { title: string; summary?: string }) => {
+    const formData = new FormData();
+    formData.append("title", data.title.trim());
+    if (data.summary?.trim()) {
+      formData.append("summary", data.summary.trim());
+    }
+
+    const res = await api.post(
+      `/admin/courses/${courseId}/module/${moduleId}/topic`,
+      formData,
+      getAuthHeaders()
+    );
+    const d = res.data || {};
+    const topicId =
+      d.topicId ||
+      d.topic_id ||
+      d.id ||
+      d.topic?.id ||
+      d.topic?.topicId ||
+      d.topic?.topic_id ||
+      "";
+
+    return {
+      success: Boolean(d.success ?? true),
+      status: d.status || "reserved",
+      topic_id: String(topicId),
+      topicId: String(topicId),
+    };
+  },
+
+  /** Step 2 & 3 — Upload Video: POST /api/courses/{course_id}/modules/{module_id}/upload-video */
+  uploadTopicVideo: async (
+    courseId: string,
+    moduleId: string,
+    topicId: string,
+    videoType: "topic" | "practical",
+    file: File
+  ) => {
+    const formData = new FormData();
+    formData.append("topic_id", topicId);
+    formData.append("video_type", videoType);
+    formData.append("file", file);
+
+    const res = await api.post(
+      `/courses/${courseId}/modules/${moduleId}/upload-video`,
+      formData,
+      getAuthHeaders()
+    );
+
+    const d = res.data || {};
+    const retTopicId = d.topicId || d.topic_id || topicId;
+    const gcsPath = d.gcsPath || d.gcs_path || "";
+    const contentType = d.contentType || d.content_type || file.type || "video/mp4";
+    const sizeByte = Number(d.sizeByte || d.size_byte || file.size || 0);
+
+    return {
+      success: Boolean(d.success ?? true),
+      topic_id: String(retTopicId),
+      topicId: String(retTopicId),
+      gcs_path: String(gcsPath),
+      gcsPath: String(gcsPath),
+      content_type: String(contentType),
+      contentType: String(contentType),
+      size_byte: sizeByte,
+      sizeByte: sizeByte,
+    };
+  },
+
+  /** Step 4 — Edit topic to attach everything: PUT .../topic/{topic_id} */
+  finalizeTopic: async (courseId: string, moduleId: string, payload: FinalizeTopicPayload) => {
+    const formData = new FormData();
+    if (payload.topic_id) {
+      formData.append("topic_id", payload.topic_id);
+    }
+    if (payload.title?.trim()) {
+      formData.append("title", payload.title.trim());
+    }
+    if (payload.summary?.trim()) {
+      formData.append("summary", payload.summary.trim());
+    }
+
+    if (payload.topic_video_gcs_path) {
+      formData.append("topic_video_gcs_path", payload.topic_video_gcs_path);
+    }
+    if (payload.topic_video_content_type) {
+      formData.append("topic_video_content_type", payload.topic_video_content_type);
+    }
+    if (payload.topic_video_size_byte !== undefined && payload.topic_video_size_byte !== null) {
+      formData.append("topic_video_size_byte", String(payload.topic_video_size_byte));
+    }
+    if (payload.topic_video_duration) {
+      formData.append("topic_video_duration", payload.topic_video_duration);
+    }
+
+    if (payload.practical_video_gcs_path) {
+      formData.append("practical_video_gcs_path", payload.practical_video_gcs_path);
+    }
+    if (payload.practical_video_content_type) {
+      formData.append("practical_video_content_type", payload.practical_video_content_type);
+    }
+    if (payload.practical_video_size_byte !== undefined && payload.practical_video_size_byte !== null) {
+      formData.append("practical_video_size_byte", String(payload.practical_video_size_byte));
+    }
+    if (payload.practical_video_duration) {
+      formData.append("practical_video_duration", payload.practical_video_duration);
+    }
+
+    if (payload.documentation_pdf) {
+      formData.append("documentation_pdf", payload.documentation_pdf);
+    }
+    if (payload.interview_pdf) {
+      formData.append("interview_pdf", payload.interview_pdf);
+    }
+
+    // Step 4: PUT /api/admin/courses/{course_id}/module/{module_id}/topic/{topic_id}
+    let res: any;
+    try {
+      res = await api.put(
+        `/admin/courses/${courseId}/module/${moduleId}/topic/${payload.topic_id}`,
+        formData,
+        getAuthHeaders()
+      );
+    } catch (putErr: any) {
+      // Fallback if backend router only maps POST
+      if (putErr?.response?.status === 404 || putErr?.response?.status === 405) {
+        res = await api.post(
+          `/admin/courses/${courseId}/module/${moduleId}/topic`,
+          formData,
+          getAuthHeaders()
+        );
+      } else {
+        throw putErr;
+      }
+    }
+
+    const d = res.data || {};
+    const retTopicId = d.topicId || d.topic_id || payload.topic_id;
+    return {
+      success: Boolean(d.success ?? true),
+      status: d.status || "success",
+      topic_id: String(retTopicId),
+      topicId: String(retTopicId),
+    };
+  },
+
+  /** DELETE .../topic/{topic_id} */
+  deleteTopic: async (courseId: string, moduleId: string, topicId: string) => {
+    const res = await api.delete(
+      `/admin/courses/${courseId}/module/${moduleId}/topic/${topicId}`,
+      getAuthHeaders()
+    );
+    return res.data;
+  },
+
+  /** POST /api/admin/courses/{course_id}/topics/{topic_id}/quiz/save */
+  saveTopicQuiz: async (courseId: string, topicId: string, payload: any) => {
+    try {
+      const res = await api.post(
+        `/admin/courses/${courseId}/topics/${topicId}/quiz/save`,
+        payload,
+        getAuthHeaders()
+      );
+      return res.data;
+    } catch (err) {
+      console.warn("Quiz save backend warning:", err);
+      return null;
+    }
+  },
+
+  /** POST /api/admin/courses/{course_id}/topics/{topic_id}/quiz/generate */
+  generateTopicQuiz: async (
+    courseId: string,
+    topicId: string,
+    payload: { topic_title?: string; topic_summary?: string; count?: number }
+  ) => {
+    const res = await api.post(
+      `/admin/courses/${courseId}/topics/${topicId}/quiz/generate`,
+      payload,
+      getAuthHeaders()
+    );
+    return res.data;
+  },
+};

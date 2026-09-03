@@ -68,7 +68,7 @@ const CourseGridCard = ({ data }: { data: Course }) => {
           </div>
         )}
         <img
-          src={data?.image ? `${import.meta.env.VITE_IMAGE_URL}${data.image}` : 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop'}
+          src={data?.imageUrl ? `${import.meta.env.VITE_IMAGE_URL}${data.imageUrl}` : 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop'}
           alt={data.title}
           onError={(e) => { e.currentTarget.src = 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop'; }}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
@@ -87,7 +87,7 @@ const CourseGridCard = ({ data }: { data: Course }) => {
           </span>
         </div>
         <h3 className="font-bold text-slate-900 mb-3 group-hover:text-[#4F46E5] transition-colors">{data.title}</h3>
-        <p className="text-xs text-slate-400 leading-relaxed font-medium mb-6 flex-1">{data.description}</p>
+        <p className="text-xs text-slate-400 leading-relaxed font-medium mb-6 flex-1">{data.description.slice(0, 150)}</p>
 
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-50">
           <div className="flex items-center gap-2">

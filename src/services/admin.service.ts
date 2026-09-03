@@ -133,6 +133,8 @@ export interface AdminCourse {
   modulesCount: number;
   thumbnail?: string;
   modules?: CourseModuleData[];
+  isActive?: boolean;
+  status?: "published" | "draft" | "active" | "inactive";
 }
 
 export interface AdminHackathon {
@@ -439,6 +441,8 @@ export const AdminService = {
 
     // Put API courses first
     for (const c of apiCourses) {
+      const active = c.isActive ?? (c as any).is_active ?? true;
+      const stat = c.status ?? (active ? "published" : "draft");
       map.set(String(c.id), {
         ...c,
         id: String(c.id),
@@ -447,6 +451,8 @@ export const AdminService = {
         level: c.level ?? "Beginner",
         enrolled: c.enrolled ?? (c as any).enrolledCount ?? 0,
         modulesCount: c.modulesCount ?? c.modules?.length ?? 0,
+        isActive: active,
+        status: stat,
       });
     }
 
@@ -459,9 +465,15 @@ export const AdminService = {
           ...lc,
           modules: lc.modules ?? existing.modules ?? [],
           modulesCount: lc.modules?.length ?? existing.modulesCount ?? 0,
+          isActive: lc.isActive !== undefined ? lc.isActive : existing.isActive ?? true,
+          status: lc.status || existing.status || "published",
         });
       } else {
-        map.set(String(lc.id), lc);
+        map.set(String(lc.id), {
+          ...lc,
+          isActive: lc.isActive ?? true,
+          status: lc.status || "published",
+        });
       }
     }
 
@@ -524,6 +536,8 @@ export const AdminService = {
       enrolled: 0,
       modulesCount: data.modules?.length || 0,
       modules: data.modules || [],
+      isActive: (data as any).isActive !== undefined ? (data as any).isActive : true,
+      status: (data as any).status || "published",
     };
 
     // Save to local storage
@@ -542,8 +556,10 @@ export const AdminService = {
     duration?: string;
     thumbnail?: string;
     modules?: CourseModuleData[];
+    isActive?: boolean;
+    status?: "published" | "draft" | "active" | "inactive";
   }): Promise<AdminCourse> => {
-    const payload = {
+    const payload: Record<string, any> = {
       title: data.title,
       description: data.description,
       instructor: data.instructor,
@@ -552,6 +568,8 @@ export const AdminService = {
       duration: data.duration,
       thumbnail: data.thumbnail,
     };
+    if (data.isActive !== undefined) payload.is_active = data.isActive;
+    if (data.status !== undefined) payload.status = data.status;
 
     try {
       await api.put(`/admin/courses/${id}`, payload, getAuthHeaders());
@@ -574,6 +592,8 @@ export const AdminService = {
       enrolled: current[existingIdx]?.enrolled || 0,
       modulesCount: data.modules ? data.modules.length : current[existingIdx]?.modulesCount || 0,
       modules: data.modules !== undefined ? data.modules : current[existingIdx]?.modules,
+      isActive: data.isActive !== undefined ? data.isActive : current[existingIdx]?.isActive ?? true,
+      status: data.status || current[existingIdx]?.status || "published",
     };
 
     if (existingIdx >= 0) {
@@ -584,6 +604,45 @@ export const AdminService = {
     }
 
     return updated;
+  },
+
+  toggleCourseActive: async (courseId: string, isActive: boolean): Promise<{ success: boolean; isActive: boolean }> => {
+    try {
+      await api.put(`/admin/courses/${courseId}`, { is_active: isActive }, getAuthHeaders());
+    } catch (e) {
+      console.warn("Toggle course active backend warning:", e);
+    }
+
+    const local = loadLocalCourses();
+    const existingIdx = local.findIndex((c) => String(c.id) === String(courseId));
+    if (existingIdx >= 0) {
+      local[existingIdx].isActive = isActive;
+      local[existingIdx].status = isActive ? (local[existingIdx].status === "draft" ? "draft" : "published") : "draft";
+      saveLocalCourses(local);
+    } else {
+      saveLocalCourses([{ id: String(courseId), title: "", instructor: "", level: "Beginner", enrolled: 0, modulesCount: 0, isActive, status: isActive ? "published" : "draft" }, ...local]);
+    }
+    return { success: true, isActive };
+  },
+
+  toggleCourseStatus: async (courseId: string, status: "published" | "draft"): Promise<{ success: boolean; status: "published" | "draft" }> => {
+    const isActive = status === "published";
+    try {
+      await api.put(`/admin/courses/${courseId}`, { status, is_active: isActive }, getAuthHeaders());
+    } catch (e) {
+      console.warn("Toggle course status backend warning:", e);
+    }
+
+    const local = loadLocalCourses();
+    const existingIdx = local.findIndex((c) => String(c.id) === String(courseId));
+    if (existingIdx >= 0) {
+      local[existingIdx].status = status;
+      local[existingIdx].isActive = isActive;
+      saveLocalCourses(local);
+    } else {
+      saveLocalCourses([{ id: String(courseId), title: "", instructor: "", level: "Beginner", enrolled: 0, modulesCount: 0, isActive, status }, ...local]);
+    }
+    return { success: true, status };
   },
 
   deleteCourse: async (id: string): Promise<void> => {

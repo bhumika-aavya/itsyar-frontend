@@ -102,14 +102,9 @@ export default function AdminCourseDetailPage() {
       </button>
 
       <div className="bg-white border border-slate-100 rounded-[24px] overflow-hidden shadow-sm">
-        {course.thumbnail ? (
-          <img src={course.thumbnail} alt={course.title} className="w-full h-56 object-cover" />
-        ) : (
-          <div className="w-full h-56 bg-indigo-50 flex items-center justify-center">
-            <BookOpen size={48} className="text-[#4F46E5]/30" />
-          </div>
-        )}
-
+        <img src={course?.thumbnail
+          ? course.thumbnail
+          : "https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop"} alt={course.title} className="w-full h-56 object-cover" />
         <div className="p-8 space-y-5">
           <div className="flex items-start justify-between gap-4">
             <div>

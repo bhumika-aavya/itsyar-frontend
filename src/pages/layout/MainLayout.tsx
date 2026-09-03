@@ -64,11 +64,11 @@ export default function MainLayout() {
   const allMenuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
     { icon: BookOpen, label: 'Courses', path: '/courses', roles: ['student'] },
-    { icon: Zap, label: 'Hackathons', path: '/hackathons' },
+    // { icon: Zap, label: 'Hackathons', path: '/hackathons' },
     { icon: Users, label: 'Team', path: '/teams', roles: ['participant'] },
     { icon: Mail, label: 'Team Invites', path: '/team-invites', roles: ['participant'], badge: pendingInvites },
     { icon: Trophy, label: 'Leaderboard', path: '/leaderboard', roles: ['participant'] },
-    { icon: ClipboardList, label: 'Result', path: '/results', roles: ['student'] },
+    // { icon: ClipboardList, label: 'Result', path: '/results', roles: ['student'] },
     { icon: User, label: 'Profile', path: '/profile' },
   ];
 

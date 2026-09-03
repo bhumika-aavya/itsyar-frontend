@@ -25,6 +25,10 @@ export default function CourseInfoStep({
   totalAssetsCount,
   totalQuizzesCount,
   onThumbnailFileSelected,
+  status = "published",
+  setStatus = () => {},
+  isActive = true,
+  setIsActive = () => {},
 }: CourseInfoStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -153,6 +157,44 @@ export default function CourseInfoStep({
                 </option>
               ))}
             </select>
+          </div>
+        </div>
+
+        {/* Status Control */}
+        <div className="pt-2 border-t border-slate-100 dark:border-[#2e303a]">
+          <div className="space-y-2 max-w-sm">
+            <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Course Status
+            </label>
+            <div className="flex gap-2 p-1.5 bg-slate-50 dark:bg-[#1c1d24] rounded-xl border border-slate-200 dark:border-[#2e303a]">
+              <button
+                type="button"
+                onClick={() => setStatus("published")}
+                className={`flex-1 py-2 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                  status === "published"
+                    ? "bg-emerald-600 text-white shadow-xs"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800"
+                }`}
+              >
+                Published
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatus("draft")}
+                className={`flex-1 py-2 rounded-lg text-xs font-extrabold transition-all cursor-pointer ${
+                  status === "draft"
+                    ? "bg-amber-500 text-white shadow-xs"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800"
+                }`}
+              >
+                Draft
+              </button>
+            </div>
+            <p className="text-[11px] font-medium text-slate-400">
+              {status === "published"
+                ? "Published courses are visible to learners on the platform."
+                : "Draft courses are saved privately and hidden from the catalog."}
+            </p>
           </div>
         </div>
 

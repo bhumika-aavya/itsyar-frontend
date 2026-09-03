@@ -27,11 +27,11 @@ const NAV_ITEMS = [
   { icon: LayoutDashboard, label: 'Overview', path: '/admin' },
   { icon: Users, label: 'Users', path: '/admin/users' },
   { icon: BookOpen, label: 'Courses', path: '/admin/courses' },
-  { icon: Zap, label: 'Hackathons', path: '/admin/hackathons' },
-  { icon: Users2, label: 'Teams', path: '/admin/teams' },
+  // { icon: Zap, label: 'Hackathons', path: '/admin/hackathons' },
+  // { icon: Users2, label: 'Teams', path: '/admin/teams' },
   { icon: User, label: 'Profile', path: '/admin/profile' },
   // { icon: Settings, label: 'Settings', path: '/admin/settings' },
-  { icon: Scale, label: 'Submissions', path: '/admin/submissions' }
+  // { icon: Scale, label: 'Submissions', path: '/admin/submissions' }
 ];
 
 export default function AdminLayout() {
