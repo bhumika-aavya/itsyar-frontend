@@ -1,7 +1,7 @@
 import React from "react";
 import {
   X, FileText, HelpCircle, PlayCircle, Video,
-  BrainCircuit, Edit3, Trash2, Clock, Award, Plus
+  BrainCircuit, Edit3, Trash2, Clock, Award, Plus, Loader2
 } from "lucide-react";
 import { TopicModalProps } from "./types";
 
@@ -30,6 +30,7 @@ export default function TopicModal({
   onClose,
   onSave,
   onFileUpload,
+  isSavingTopic = false,
 }: TopicModalProps) {
   if (!isOpen) return null;
 
@@ -404,10 +405,18 @@ export default function TopicModal({
           </button>
           <button
             type="button"
+            disabled={isSavingTopic}
             onClick={onSave}
-            className="px-6 py-2.5 bg-[#4F46E5] text-white rounded-xl text-xs font-extrabold shadow-md shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all cursor-pointer"
+            className="px-6 py-2.5 bg-[#4F46E5] text-white rounded-xl text-xs font-extrabold shadow-md shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50"
           >
-            {isEditing ? "Save Topic" : "Create Topic"}
+            {isSavingTopic ? (
+              <>
+                <Loader2 size={14} className="animate-spin" />
+                <span>{isEditing ? "Saving Topic..." : "Creating Topic..."}</span>
+              </>
+            ) : (
+              isEditing ? "Save Topic" : "Create Topic"
+            )}
           </button>
         </div>
       </div>

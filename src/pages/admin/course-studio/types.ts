@@ -113,11 +113,12 @@ export interface TopicModalProps {
   onRemoveQuiz: () => void;
   topicError: string;
   onClose: () => void;
-  onSave: () => void;
+  isSavingTopic?: boolean;
   onFileUpload: (
     e: React.ChangeEvent<HTMLInputElement>,
     setter: (val: { name: string; url: string; duration?: string }) => void,
-    type: "pdf" | "video"
+    type: "pdf" | "video",
+    fileSetter?: (f: File) => void
   ) => void;
 }
 

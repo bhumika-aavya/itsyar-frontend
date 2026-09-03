@@ -59,12 +59,19 @@ export default function AdminCreateCoursePage() {
   const [topicTitle, setTopicTitle] = useState("");
   const [topicSummary, setTopicSummary] = useState("");
   const [topicError, setTopicError] = useState("");
+  const [isSavingTopic, setIsSavingTopic] = useState(false);
 
-  // 4 Assets for Topic
+  // 4 Assets for Topic (Metadata & Object URLs)
   const [topicDocPdf, setTopicDocPdf] = useState<{ name: string; url: string; size?: string }>({ name: "", url: "" });
   const [interviewPdf, setInterviewPdf] = useState<{ name: string; url: string; size?: string }>({ name: "", url: "" });
   const [topicVideo, setTopicVideo] = useState<{ name: string; url: string; duration?: string }>({ name: "", url: "", duration: "" });
   const [practicalVideo, setPracticalVideo] = useState<{ name: string; url: string; duration?: string }>({ name: "", url: "", duration: "" });
+
+  // 4 Raw File Objects for Multipart Upload
+  const [topicDocPdfFile, setTopicDocPdfFile] = useState<File | null>(null);
+  const [interviewPdfFile, setInterviewPdfFile] = useState<File | null>(null);
+  const [topicVideoFile, setTopicVideoFile] = useState<File | null>(null);
+  const [practicalVideoFile, setPracticalVideoFile] = useState<File | null>(null);
 
   // Topic Quiz State
   const [topicQuiz, setTopicQuiz] = useState<TopicQuizData | null>(null);
@@ -115,14 +122,12 @@ export default function AdminCreateCoursePage() {
         try {
           serverModules = await CourseStudioApi.getCourseModules(editCourseId);
         } catch {
-          // Backend module endpoint might be unavailable or empty; fallback to course detail modules
           serverModules = [];
         }
 
         let combinedModules: CourseModuleData[] = c.modules && c.modules.length > 0 ? [...c.modules] : [];
 
         if (serverModules && serverModules.length > 0) {
-          // Merge server modules while preserving topics & quizzes
           const serverMapped: CourseModuleData[] = serverModules.map((sm: any, idx: number) => {
             const modId = sm.moduleId || sm.id || `mod_${idx + 1}`;
             const existing = combinedModules.find((cm) => cm.id === modId);
@@ -160,11 +165,60 @@ export default function AdminCreateCoursePage() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleNextToModules = () => {
+  /**
+   * Helper: Ensure course exists in backend and activeCourseId is set before adding curriculum.
+   * This prevents duplicate creation and provides the required courseId for modules & topics.
+   */
+  const ensureCourseCreated = async (): Promise<string> => {
+    if (activeCourseId) return activeCourseId;
+    if (editCourseId) {
+      setActiveCourseId(editCourseId);
+      return editCourseId;
+    }
+
+    if (!title.trim() || !instructor.trim()) {
+      toast.error("Please fill in course title and instructor in Step 1 first");
+      setCurrentStep(1);
+      throw new Error("Course title and instructor required");
+    }
+
+    const res = await CourseStudioApi.createCourse({
+      title: title.trim(),
+      description: description.trim(),
+      instructor: instructor.trim(),
+      category,
+      level,
+    });
+
+    const newId = res.courseId || `crs_${Date.now()}`;
+    setActiveCourseId(newId);
+
+    if (thumbnailFile && res.courseId) {
+      try {
+        await CourseStudioApi.uploadThumbnail(res.courseId, thumbnailFile);
+      } catch (imgErr) {
+        console.warn("Thumbnail upload warning", imgErr);
+      }
+    }
+
+    return newId;
+  };
+
+  const handleNextToModules = async () => {
     if (!validateStep1()) {
       toast.error("Please fill in the required course details");
       return;
     }
+
+    // Auto-provision course if starting brand new
+    if (!activeCourseId && !editCourseId) {
+      try {
+        await ensureCourseCreated();
+      } catch {
+        // user prompted
+      }
+    }
+
     setCurrentStep(2);
     if (!selectedModuleId && modules.length > 0) {
       setSelectedModuleId(modules[0].id);
@@ -196,18 +250,27 @@ export default function AdminCreateCoursePage() {
     }
     setModuleError("");
 
+    let courseId: string | null = activeCourseId || editCourseId || null;
+    if (!courseId) {
+      try {
+        courseId = await ensureCourseCreated();
+      } catch {
+        // save locally
+      }
+    }
+
     let activeId = selectedModuleId;
 
     if (editingModuleId) {
       // 7. PUT /api/admin/courses/{course_id}/module/{module_id}
-      if (activeCourseId) {
+      if (courseId) {
         try {
-          await CourseStudioApi.updateModule(activeCourseId, editingModuleId, {
+          await CourseStudioApi.updateModule(courseId, editingModuleId, {
             title: moduleTitle.trim(),
             summary: moduleSummary.trim(),
           });
-        } catch {
-          // Continue gracefully
+        } catch (err) {
+          console.warn("Update module warning", err);
         }
       }
 
@@ -224,17 +287,17 @@ export default function AdminCreateCoursePage() {
       let newModId = `mod_${Date.now()}`;
 
       // 6. POST /api/admin/courses/{course_id}/module
-      if (activeCourseId) {
+      if (courseId) {
         try {
-          const res = await CourseStudioApi.createModule(activeCourseId, {
+          const res = await CourseStudioApi.createModule(courseId, {
             title: moduleTitle.trim(),
             summary: moduleSummary.trim(),
           });
           if (res?.module?.moduleId || res?.module?.id || res?.moduleId) {
             newModId = res?.module?.moduleId || res?.module?.id || res?.moduleId;
           }
-        } catch {
-          // Continue gracefully
+        } catch (err) {
+          console.warn("Create module warning", err);
         }
       }
 
@@ -280,7 +343,7 @@ export default function AdminCreateCoursePage() {
     toast.success("Module deleted");
   };
 
-  // ================= TOPIC ACTIONS =================
+  // ================= TOPIC ACTIONS (4-STEP FLOW) =================
   const openCreateTopic = (modId: string) => {
     const targetMod = modules.find((m) => m.id === modId);
     const nextNum = (targetMod?.topics?.length || 0) + 1;
@@ -294,6 +357,11 @@ export default function AdminCreateCoursePage() {
     setInterviewPdf({ name: "", url: "" });
     setTopicVideo({ name: "", url: "", duration: "" });
     setPracticalVideo({ name: "", url: "", duration: "" });
+    setTopicDocPdfFile(null);
+    setInterviewPdfFile(null);
+    setTopicVideoFile(null);
+    setPracticalVideoFile(null);
+    setIsSavingTopic(false);
     setTopicQuiz(null);
     setTopicError("");
     setShowTopicModal(true);
@@ -315,86 +383,283 @@ export default function AdminCreateCoursePage() {
     setInterviewPdf({ name: intAsset?.fileName || intAsset?.title || "", url: intAsset?.url || "" });
     setTopicVideo({ name: vidAsset?.fileName || vidAsset?.title || "", url: vidAsset?.url || "", duration: vidAsset?.duration || "" });
     setPracticalVideo({ name: pracAsset?.fileName || pracAsset?.title || "", url: pracAsset?.url || "", duration: pracAsset?.duration || "" });
+    setTopicDocPdfFile(null);
+    setInterviewPdfFile(null);
+    setTopicVideoFile(null);
+    setPracticalVideoFile(null);
+    setIsSavingTopic(false);
 
     setTopicQuiz(topic.quiz ? JSON.parse(JSON.stringify(topic.quiz)) : null);
     setTopicError("");
     setShowTopicModal(true);
   };
 
-  const handleSaveTopic = () => {
+  /**
+   * Reads video duration client-side from HTML5 video element (per user specification)
+   */
+  const computeVideoDuration = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      try {
+        const video = document.createElement("video");
+        video.preload = "metadata";
+        video.onloadedmetadata = () => {
+          window.URL.revokeObjectURL(video.src);
+          const mins = Math.floor(video.duration / 60);
+          const secs = Math.floor(video.duration % 60);
+          resolve(`${mins}:${secs.toString().padStart(2, "0")}`);
+        };
+        video.onerror = () => resolve("10:00");
+        video.src = URL.createObjectURL(file);
+      } catch {
+        resolve("10:00");
+      }
+    });
+  };
+
+  const handleGenericFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setter: (val: { name: string; url: string; duration?: string }) => void,
+    type: "pdf" | "video",
+    rawSetter?: (f: File) => void
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (rawSetter) {
+      rawSetter(file);
+    } else {
+      if (setter === setTopicDocPdf) setTopicDocPdfFile(file);
+      else if (setter === setInterviewPdf) setInterviewPdfFile(file);
+      else if (setter === setTopicVideo) setTopicVideoFile(file);
+      else if (setter === setPracticalVideo) setPracticalVideoFile(file);
+    }
+
+    let dur: string | undefined = undefined;
+    if (type === "video") {
+      dur = await computeVideoDuration(file);
+    }
+
+    setter({
+      name: file.name,
+      url: URL.createObjectURL(file),
+      duration: dur,
+    });
+    toast.success(`Attached ${file.name}${dur ? ` (${dur})` : ""}`);
+  };
+
+  /**
+   * 4-Step Topic Creation Flow:
+   * Step 1 — Reserve a topic_id: POST /api/admin/courses/{course_id}/module/{module_id}/topic
+   * Step 2 — Upload Topic Video: POST /api/admin/{course_id}/modules/{module_id}/upload-video
+   * Step 3 — Upload Practical Walkthrough Video: POST /api/admin/{course_id}/modules/{module_id}/upload-video
+   * Step 4 — Finalize: POST /api/admin/courses/{course_id}/module/{module_id}/topic with assets
+   */
+  const handleSaveTopic = async () => {
     if (!topicTitle.trim()) {
       setTopicError("Topic title is required");
       return;
     }
     if (!topicTargetModuleId) return;
     setTopicError("");
+    setIsSavingTopic(true);
 
-    const assets: CourseAssetData[] = [];
-    if (topicDocPdf.url || topicDocPdf.name) {
-      assets.push({
-        id: `ast_doc_${Date.now()}`,
-        type: "documentation_pdf",
-        title: "Topic Documentation",
-        url: topicDocPdf.url,
-        fileName: topicDocPdf.name,
-      });
-    }
-    if (interviewPdf.url || interviewPdf.name) {
-      assets.push({
-        id: `ast_int_${Date.now()}`,
-        type: "interview_pdf",
-        title: "Interview Questions",
-        url: interviewPdf.url,
-        fileName: interviewPdf.name,
-      });
-    }
-    if (topicVideo.url || topicVideo.name) {
-      assets.push({
-        id: `ast_vid_${Date.now()}`,
-        type: "topic_video",
-        title: "Topic Video Lecture",
-        url: topicVideo.url,
-        fileName: topicVideo.name,
-        duration: topicVideo.duration,
-      });
-    }
-    if (practicalVideo.url || practicalVideo.name) {
-      assets.push({
-        id: `ast_prac_${Date.now()}`,
-        type: "practical_video",
-        title: "Practical Walkthrough Video",
-        url: practicalVideo.url,
-        fileName: practicalVideo.name,
-        duration: practicalVideo.duration,
-      });
-    }
+    try {
+      let courseId = activeCourseId || editCourseId;
+      if (!courseId) {
+        courseId = await ensureCourseCreated();
+      }
 
-    const topicPayload: CourseTopicData = {
-      id: editingTopicId || `top_${Date.now()}`,
-      topicNumber,
-      title: topicTitle.trim(),
-      summary: topicSummary.trim(),
-      assets,
-      quiz: topicQuiz || undefined,
-    };
+      let topicIdToUse = editingTopicId;
+      let topicVideoGcsPath = "";
+      let topicVideoContentType = "";
+      let topicVideoSizeByte = 0;
+      let practicalVideoGcsPath = "";
+      let practicalVideoContentType = "";
+      let practicalVideoSizeByte = 0;
 
-    setModules((prev) =>
-      prev.map((m) => {
-        if (m.id !== topicTargetModuleId) return m;
-        const exists = m.topics?.some((t) => t.id === topicPayload.id);
-        const updatedTopics = exists
-          ? m.topics.map((t) => (t.id === topicPayload.id ? topicPayload : t))
-          : [...(m.topics || []), topicPayload];
-        return { ...m, topics: updatedTopics };
-      })
-    );
+      // Step 1: Reserve topic_id if new
+      if (!topicIdToUse && courseId) {
+        try {
+          const reserveRes = await CourseStudioApi.reserveTopic(courseId, topicTargetModuleId, {
+            title: topicTitle.trim(),
+            summary: topicSummary.trim() || undefined,
+          });
+          if (reserveRes?.topic_id) {
+            topicIdToUse = reserveRes.topic_id;
+          }
+        } catch (resErr) {
+          console.warn("Topic reservation fallback to local ID", resErr);
+          topicIdToUse = `TOP-${Date.now()}`;
+        }
+      }
 
-    setShowTopicModal(false);
-    toast.success(editingTopicId ? "Topic updated" : "Topic created successfully");
+      const finalTopicId = topicIdToUse || `TOP-${Date.now()}`;
+
+      // Step 2: Upload Topic Video
+      if (topicVideoFile && courseId) {
+        try {
+          toast.loading("Uploading lecture video...", { id: "topic-upload" });
+          const vidRes = await CourseStudioApi.uploadTopicVideo(
+            courseId,
+            topicTargetModuleId,
+            finalTopicId,
+            "topic",
+            topicVideoFile
+          );
+          if (vidRes?.gcs_path) {
+            topicVideoGcsPath = vidRes.gcs_path;
+            topicVideoContentType = vidRes.content_type || "video/mp4";
+            topicVideoSizeByte = vidRes.size_byte || topicVideoFile.size;
+          }
+        } catch (vErr) {
+          console.warn("Topic video upload warning", vErr);
+        }
+      }
+
+      // Step 3: Upload Practical Walkthrough Video
+      if (practicalVideoFile && courseId) {
+        try {
+          toast.loading("Uploading practical video...", { id: "topic-upload" });
+          const pracRes = await CourseStudioApi.uploadTopicVideo(
+            courseId,
+            topicTargetModuleId,
+            finalTopicId,
+            "practical",
+            practicalVideoFile
+          );
+          if (pracRes?.gcs_path) {
+            practicalVideoGcsPath = pracRes.gcs_path;
+            practicalVideoContentType = pracRes.content_type || "video/mp4";
+            practicalVideoSizeByte = pracRes.size_byte || practicalVideoFile.size;
+          }
+        } catch (pErr) {
+          console.warn("Practical video upload warning", pErr);
+        }
+      }
+
+      // Step 4: Finalize Topic
+      if (courseId) {
+        try {
+          toast.loading("Finalizing topic assets & documentation...", { id: "topic-upload" });
+          await CourseStudioApi.finalizeTopic(courseId, topicTargetModuleId, {
+            topic_id: finalTopicId,
+            title: topicTitle.trim(),
+            summary: topicSummary.trim() || undefined,
+            topic_video_gcs_path: topicVideoGcsPath || undefined,
+            topic_video_content_type: topicVideoContentType || undefined,
+            topic_video_size_byte: topicVideoSizeByte || undefined,
+            topic_video_duration: topicVideo.duration || "10:00",
+            practical_video_gcs_path: practicalVideoGcsPath || undefined,
+            practical_video_content_type: practicalVideoContentType || undefined,
+            practical_video_size_byte: practicalVideoSizeByte || undefined,
+            practical_video_duration: practicalVideo.duration || "10:00",
+            documentation_pdf: topicDocPdfFile || undefined,
+            interview_pdf: interviewPdfFile || undefined,
+          });
+        } catch (finErr) {
+          console.warn("Topic finalize warning", finErr);
+        }
+      }
+
+      // Step 5: Save topic quiz to PostgreSQL backend if attached
+      if (topicQuiz && courseId) {
+        try {
+          await CourseStudioApi.saveTopicQuiz(courseId, finalTopicId, {
+            title: topicQuiz.title,
+            description: topicQuiz.description,
+            time_limit_minutes: topicQuiz.timeLimitMinutes,
+            passing_score_percentage: topicQuiz.passingScorePercentage,
+            questions: topicQuiz.questions as any,
+          });
+        } catch (quizErr) {
+          console.warn("Quiz save warning", quizErr);
+        }
+      }
+
+      toast.dismiss("topic-upload");
+
+      // Update Local State for Rendering
+      const assets: CourseAssetData[] = [];
+      if (topicDocPdf.url || topicDocPdf.name || topicDocPdfFile) {
+        assets.push({
+          id: `ast_doc_${Date.now()}`,
+          type: "documentation_pdf",
+          title: "Topic Documentation",
+          url: topicDocPdf.url,
+          fileName: topicDocPdf.name || topicDocPdfFile?.name || "documentation.pdf",
+        });
+      }
+      if (interviewPdf.url || interviewPdf.name || interviewPdfFile) {
+        assets.push({
+          id: `ast_int_${Date.now()}`,
+          type: "interview_pdf",
+          title: "Interview Questions",
+          url: interviewPdf.url,
+          fileName: interviewPdf.name || interviewPdfFile?.name || "interview_questions.pdf",
+        });
+      }
+      if (topicVideo.url || topicVideo.name || topicVideoFile) {
+        assets.push({
+          id: `ast_vid_${Date.now()}`,
+          type: "topic_video",
+          title: "Topic Video Lecture",
+          url: topicVideo.url,
+          fileName: topicVideo.name || topicVideoFile?.name || "topic_video.mp4",
+          duration: topicVideo.duration || "10:00",
+        });
+      }
+      if (practicalVideo.url || practicalVideo.name || practicalVideoFile) {
+        assets.push({
+          id: `ast_prac_${Date.now()}`,
+          type: "practical_video",
+          title: "Practical Walkthrough Video",
+          url: practicalVideo.url,
+          fileName: practicalVideo.name || practicalVideoFile?.name || "practical_video.mp4",
+          duration: practicalVideo.duration || "10:00",
+        });
+      }
+
+      const topicPayload: CourseTopicData = {
+        id: finalTopicId,
+        topicNumber,
+        title: topicTitle.trim(),
+        summary: topicSummary.trim(),
+        assets,
+        quiz: topicQuiz || undefined,
+      };
+
+      setModules((prev) =>
+        prev.map((m) => {
+          if (m.id !== topicTargetModuleId) return m;
+          const exists = m.topics?.some((t) => t.id === topicPayload.id);
+          const updatedTopics = exists
+            ? m.topics.map((t) => (t.id === topicPayload.id ? topicPayload : t))
+            : [...(m.topics || []), topicPayload];
+          return { ...m, topics: updatedTopics };
+        })
+      );
+
+      setShowTopicModal(false);
+      toast.success(editingTopicId ? "Topic updated successfully" : "Topic created successfully");
+    } catch (err: any) {
+      toast.dismiss("topic-upload");
+      console.error("Topic save error", err);
+      toast.error(err?.message || "Failed to create topic");
+    } finally {
+      setIsSavingTopic(false);
+    }
   };
 
-  const handleDeleteTopic = (modId: string, topicId: string) => {
+  const handleDeleteTopic = async (modId: string, topicId: string) => {
     if (!confirm("Delete this topic?")) return;
+    const courseId = activeCourseId || editCourseId;
+    if (courseId) {
+      try {
+        await CourseStudioApi.deleteTopic(courseId, modId, topicId);
+      } catch (delErr) {
+        console.warn("Delete topic warning", delErr);
+      }
+    }
     setModules((prev) =>
       prev.map((m) =>
         m.id === modId
@@ -403,21 +668,6 @@ export default function AdminCreateCoursePage() {
       )
     );
     toast.success("Topic removed");
-  };
-
-  const handleGenericFileUpload = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    setter: (val: { name: string; url: string; duration?: string }) => void,
-    type: "pdf" | "video"
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setter({
-      name: file.name,
-      url: URL.createObjectURL(file),
-      duration: type === "video" ? "10:00" : undefined,
-    });
-    toast.success(`Attached ${file.name}`);
   };
 
   // ================= QUIZ BUILDER ACTIONS =================
@@ -616,6 +866,19 @@ export default function AdminCreateCoursePage() {
     toast.success("Question deleted");
   };
 
+  const handleAddGeneratedQuestions = (newQuestions: TopicQuizQuestion[]) => {
+    setQuizQuestions((prev) => {
+      if (prev.length === 1 && !prev[0].question.trim()) {
+        return newQuestions;
+      }
+      return [...prev, ...newQuestions];
+    });
+    if (newQuestions.length > 0) {
+      setExpandedQuestionId(newQuestions[0].id);
+    }
+    toast.success(`Added ${newQuestions.length} generated questions to quiz`);
+  };
+
   const handleSaveQuiz = () => {
     if (!quizTitle.trim()) {
       setQuizError("Quiz title is required");
@@ -648,6 +911,17 @@ export default function AdminCreateCoursePage() {
       toast.success("Quiz updated for this topic");
       setShowQuizModal(false);
     } else if (quizModalSource === "topic_card" && quizCardTargetModuleId && quizCardTargetTopicId) {
+      const courseId = activeCourseId || editCourseId;
+      if (courseId) {
+        CourseStudioApi.saveTopicQuiz(courseId, quizCardTargetTopicId, {
+          title: quizPayload.title,
+          description: quizPayload.description,
+          time_limit_minutes: quizPayload.timeLimitMinutes,
+          passing_score_percentage: quizPayload.passingScorePercentage,
+          questions: quizPayload.questions as any,
+        }).catch((e) => console.warn("Quiz save backend warning", e));
+      }
+
       setModules((prev) =>
         prev.map((m) => {
           if (m.id !== quizCardTargetModuleId) return m;
@@ -666,6 +940,7 @@ export default function AdminCreateCoursePage() {
 
   // ================= PUBLISH / SAVE COURSE (DYNAMIC APIs) =================
   const handlePublishCourse = async () => {
+    if (saving) return; // Prevent duplicate requests on rapid clicks
     if (!title.trim() || !instructor.trim()) {
       setCurrentStep(1);
       toast.error("Please fill in course title and instructor name");
@@ -676,17 +951,18 @@ export default function AdminCreateCoursePage() {
     try {
       const courseIdToUse = activeCourseId || editCourseId;
 
-      if (isEditing && courseIdToUse) {
-        // 3. PUT /api/admin/courses/{course_id}
+      if (courseIdToUse) {
+        // ALWAYS UPDATE existing course — NEVER DUPLICATE!
         await CourseStudioApi.updateCourse(courseIdToUse, {
           title: title.trim(),
           description: description.trim(),
           instructor: instructor.trim(),
           category,
+          level,
           price: 0,
         });
 
-        // 4. POST /api/admin/courses/{course_id}/image
+        // Upload/replace thumbnail if new file selected
         if (thumbnailFile) {
           try {
             await CourseStudioApi.uploadThumbnail(courseIdToUse, thumbnailFile);
@@ -695,7 +971,7 @@ export default function AdminCreateCoursePage() {
           }
         }
 
-        // Also update local store
+        // Also update local cache
         await AdminService.updateCourse(courseIdToUse, {
           title,
           description,
@@ -709,18 +985,18 @@ export default function AdminCreateCoursePage() {
 
         toast.success("Course changes saved successfully!");
       } else {
-        // 2. POST /api/admin/courses
+        // ONLY call createCourse if course does NOT already exist
         const createResult = await CourseStudioApi.createCourse({
           title: title.trim(),
           description: description.trim(),
           instructor: instructor.trim(),
           category,
+          level,
         });
 
         const newCourseId = createResult.courseId || `crs_${Date.now()}`;
         setActiveCourseId(newCourseId);
 
-        // 4. POST image if thumbnail file attached
         if (thumbnailFile && createResult.courseId) {
           try {
             await CourseStudioApi.uploadThumbnail(createResult.courseId, thumbnailFile);
@@ -729,7 +1005,6 @@ export default function AdminCreateCoursePage() {
           }
         }
 
-        // 6. Sync modules to backend
         if (createResult.courseId && modules.length > 0) {
           for (const m of modules) {
             try {
@@ -743,7 +1018,6 @@ export default function AdminCreateCoursePage() {
           }
         }
 
-        // Also save to local store
         await AdminService.createCourse({
           title,
           description,
@@ -759,7 +1033,8 @@ export default function AdminCreateCoursePage() {
       }
 
       navigate("/admin/courses");
-    } catch {
+    } catch (err) {
+      console.error("Publish course error", err);
       toast.error("Failed to save course. Please try again.");
     } finally {
       setSaving(false);
@@ -912,7 +1187,7 @@ export default function AdminCreateCoursePage() {
         onSave={handleSaveModule}
       />
 
-      {/* ================= MODAL: ADD / EDIT TOPIC ================= */}
+      {/* ================= MODAL: ADD / EDIT TOPIC (4-STEP FLOW) ================= */}
       <TopicModal
         isOpen={showTopicModal}
         isEditing={Boolean(editingTopicId)}
@@ -943,6 +1218,7 @@ export default function AdminCreateCoursePage() {
         onClose={() => setShowTopicModal(false)}
         onSave={handleSaveTopic}
         onFileUpload={handleGenericFileUpload}
+        isSavingTopic={isSavingTopic}
       />
 
       {/* ================= MODAL: TOPIC QUIZ BUILDER ================= */}
@@ -971,6 +1247,10 @@ export default function AdminCreateCoursePage() {
         onDeleteQuestion={deleteQuestion}
         onClose={() => setShowQuizModal(false)}
         onSave={handleSaveQuiz}
+        courseId={activeCourseId || editCourseId || undefined}
+        topicId={quizCardTargetTopicId || undefined}
+        topicSummary={topicSummary || undefined}
+        onAddGeneratedQuestions={handleAddGeneratedQuestions}
       />
     </div>
   );
