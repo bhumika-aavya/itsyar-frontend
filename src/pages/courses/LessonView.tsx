@@ -121,16 +121,6 @@ export default function LessonView() {
     return null;
   }, [currentTopic, currentAsset, targetModuleId, activeTopics, courseId, paramModuleId]);
 
-  const token = localStorage.getItem("token") || "";
-
-  if (isInitialLoading) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-[#F9FAFD]">
-        <Loader2 className="animate-spin text-[#4F46E5]" size={40} />
-      </div>
-    );
-  }
-
   const isDocument = currentAsset?.type === 'documentation' ||
     currentAsset?.type === 'interview_pdf';
 
@@ -151,6 +141,16 @@ export default function LessonView() {
     };
     resolveDoc();
   }, [isDocument, currentAsset, courseId, targetModuleId, currentTopic]);
+
+  const token = localStorage.getItem("token") || "";
+
+  if (isInitialLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-[#F9FAFD]">
+        <Loader2 className="animate-spin text-[#4F46E5]" size={40} />
+      </div>
+    );
+  }
   // Build video streaming URL or fallback
   const videoSrc = `${import.meta.env.VITE_API_URL}${currentAsset?.url}`
     ;

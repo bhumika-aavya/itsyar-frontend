@@ -38,6 +38,8 @@ export default function AdminCreateCoursePage() {
   const [duration, setDuration] = useState("");
   const [thumbnail, setThumbnail] = useState("");
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [courseStatus, setCourseStatus] = useState<"published" | "draft">("published");
+  const [courseIsActive, setCourseIsActive] = useState<boolean>(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Step 2: Modules & Topics
@@ -116,6 +118,8 @@ export default function AdminCreateCoursePage() {
         setLevel(c.level || "Beginner");
         setDuration(c.duration || "");
         setThumbnail(c.thumbnail || "");
+        setCourseStatus(c.status === "draft" ? "draft" : "published");
+        setCourseIsActive(c.isActive !== undefined ? c.isActive : (c.status !== "inactive" && (c as any).is_active !== false));
 
         // 5. GET /api/admin/courses/{course_id}/module to fetch dynamic modules
         let serverModules: any[] = [];
@@ -128,17 +132,72 @@ export default function AdminCreateCoursePage() {
         let combinedModules: CourseModuleData[] = c.modules && c.modules.length > 0 ? [...c.modules] : [];
 
         if (serverModules && serverModules.length > 0) {
-          const serverMapped: CourseModuleData[] = serverModules.map((sm: any, idx: number) => {
-            const modId = sm.moduleId || sm.id || `mod_${idx + 1}`;
-            const existing = combinedModules.find((cm) => cm.id === modId);
-            return {
-              id: modId,
-              order: idx + 1,
-              title: sm.title || sm.moduleTitle || `Module ${idx + 1}`,
-              summary: sm.summary || sm.moduleSummary || "",
-              topics: existing?.topics || [],
-            };
-          });
+          const serverMapped: CourseModuleData[] = await Promise.all(
+            serverModules.map(async (sm: any, idx: number) => {
+              const modId = sm.moduleId || sm.id || `mod_${idx + 1}`;
+              const existing = combinedModules.find((cm) => cm.id === modId);
+
+              // Actively fetch topics for this module from topic API
+              let fetchedTopics: any[] = [];
+              try {
+                fetchedTopics = await CourseStudioApi.getModuleTopics(editCourseId, modId);
+              } catch (tErr) {
+                console.warn(`Could not fetch topics for module ${modId}`, tErr);
+                fetchedTopics = [];
+              }
+
+              let mappedTopics: CourseTopicData[] = [];
+              if (fetchedTopics && fetchedTopics.length > 0) {
+                mappedTopics = fetchedTopics.map((t: any, tIdx: number) => {
+                  const topicId = t.topicId || t.topic_id || t.id || `top_${tIdx + 1}`;
+                  const seqNum = Number(t.sequenceOrder || t.topicNumber || tIdx + 1) || tIdx + 1;
+                  const rawAssets = t.assets || t.subItems || [];
+                  const mappedAssets: CourseAssetData[] = rawAssets.map((a: any, aIdx: number) => {
+                    const rawType = String(a.type || "").toLowerCase();
+                    let assetType: CourseAssetData["type"] = "topic_video";
+                    if (rawType.includes("practical") || rawType === "practical_video") {
+                      assetType = "practical_video";
+                    } else if (rawType.includes("interview") || rawType === "interview_pdf") {
+                      assetType = "interview_pdf";
+                    } else if (rawType.includes("doc") || rawType === "documentation_pdf" || rawType === "documentation") {
+                      assetType = "documentation_pdf";
+                    } else if (rawType.includes("quiz")) {
+                      assetType = "quiz";
+                    }
+
+                    return {
+                      id: a.id || `asset_${aIdx + 1}`,
+                      type: assetType,
+                      title: a.title || "Asset",
+                      url: a.url || a.gcs_path || a.gcsPath || "",
+                      duration: a.duration || undefined,
+                      fileName: a.fileName || a.filename || undefined,
+                      fileSize: a.fileSize || a.size || undefined,
+                    };
+                  });
+
+                  return {
+                    id: topicId,
+                    topicNumber: seqNum,
+                    title: t.title || t.topic_title || `Topic ${tIdx + 1}`,
+                    summary: t.summary || t.topicSummary || t.topic_summary || "",
+                    assets: mappedAssets,
+                    quiz: t.quiz,
+                  };
+                });
+              } else if (existing?.topics && existing.topics.length > 0) {
+                mappedTopics = existing.topics;
+              }
+
+              return {
+                id: modId,
+                order: idx + 1,
+                title: sm.title || sm.moduleTitle || `Module ${idx + 1}`,
+                summary: sm.summary || sm.moduleSummary || "",
+                topics: mappedTopics,
+              };
+            })
+          );
           combinedModules = serverMapped;
         }
 
@@ -936,13 +995,16 @@ export default function AdminCreateCoursePage() {
   };
 
   // ================= PUBLISH / SAVE COURSE (DYNAMIC APIs) =================
-  const handlePublishCourse = async () => {
+  const handlePublishCourse = async (overrideStatus?: "published" | "draft", overrideActive?: boolean) => {
     if (saving) return; // Prevent duplicate requests on rapid clicks
     if (!title.trim() || !instructor.trim()) {
       setCurrentStep(1);
       toast.error("Please fill in course title and instructor name");
       return;
     }
+
+    const finalStatus = overrideStatus || courseStatus;
+    const finalActive = overrideActive !== undefined ? overrideActive : (finalStatus === "published" ? courseIsActive : false);
 
     setSaving(true);
     try {
@@ -957,6 +1019,8 @@ export default function AdminCreateCoursePage() {
           category,
           level,
           price: 0,
+          status: finalStatus,
+          isActive: finalActive,
         });
 
         // Upload/replace thumbnail if new file selected
@@ -978,9 +1042,11 @@ export default function AdminCreateCoursePage() {
           duration,
           thumbnail,
           modules,
+          status: finalStatus,
+          isActive: finalActive,
         });
 
-        toast.success("Course changes saved successfully!");
+        toast.success(finalStatus === "draft" ? "Course saved as draft!" : "Course changes saved successfully!");
       } else {
         // ONLY call createCourse if course does NOT already exist
         const createResult = await CourseStudioApi.createCourse({
@@ -989,6 +1055,8 @@ export default function AdminCreateCoursePage() {
           instructor: instructor.trim(),
           category,
           level,
+          status: finalStatus,
+          isActive: finalActive,
         });
 
         const newCourseId = createResult.courseId || `crs_${Date.now()}`;
@@ -1024,9 +1092,11 @@ export default function AdminCreateCoursePage() {
           duration,
           thumbnail,
           modules,
-        });
+          status: finalStatus,
+          isActive: finalActive,
+        } as any);
 
-        toast.success("Course created and published successfully!");
+        toast.success(finalStatus === "draft" ? "Course saved as draft!" : "Course created and published successfully!");
       }
 
       navigate("/admin/courses");
@@ -1036,6 +1106,11 @@ export default function AdminCreateCoursePage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleSaveDraft = () => {
+    setCourseStatus("draft");
+    handlePublishCourse("draft", false);
   };
 
   const totalTopicsCount = modules.reduce((acc, m) => acc + (m.topics?.length || 0), 0);
@@ -1132,6 +1207,10 @@ export default function AdminCreateCoursePage() {
           totalAssetsCount={totalAssetsCount}
           totalQuizzesCount={totalQuizzesCount}
           onThumbnailFileSelected={setThumbnailFile}
+          status={courseStatus}
+          setStatus={setCourseStatus}
+          isActive={courseIsActive}
+          setIsActive={setCourseIsActive}
         />
       )}
 
@@ -1166,8 +1245,13 @@ export default function AdminCreateCoursePage() {
           totalTopicsCount={totalTopicsCount}
           isEditing={isEditing}
           saving={saving}
+          status={courseStatus}
+          setStatus={setCourseStatus}
+          isActive={courseIsActive}
+          setIsActive={setCourseIsActive}
           onBack={() => setCurrentStep(2)}
-          onPublish={handlePublishCourse}
+          onPublish={() => handlePublishCourse("published", true)}
+          onSaveDraft={handleSaveDraft}
         />
       )}
 

@@ -19,6 +19,8 @@ export interface UpdateCoursePayload {
   tag?: string;
   level?: string;
   price?: number;
+  status?: "published" | "draft" | "active" | "inactive";
+  isActive?: boolean;
 }
 
 export interface CreateModulePayload {
@@ -136,6 +138,8 @@ export const CourseStudioApi = {
       payload.level = validLevels.includes(data.level) ? data.level : "Beginner";
     }
     if (data.price !== undefined) payload.price = data.price;
+    if (data.status !== undefined) payload.status = data.status;
+    if (data.isActive !== undefined) payload.is_active = data.isActive;
 
     const res = await api.put(`/admin/courses/${courseId}`, payload, getAuthHeaders());
     return res.data;
@@ -195,9 +199,30 @@ export const CourseStudioApi = {
   // =========================================================
 
   /** GET .../topic : Returns topics for the module */
-  getModuleTopics: async (courseId: string, moduleId: string) => {
-    const res = await api.get(`/admin/courses/${courseId}/module/${moduleId}/topic`, getAuthHeaders());
-    return res.data;
+  getModuleTopics: async (courseId: string, moduleId: string): Promise<any[]> => {
+    // 1. Try admin endpoint
+    try {
+      const res = await api.get(`/admin/courses/${courseId}/module/${moduleId}/topic`, getAuthHeaders());
+      const d = res.data;
+      if (Array.isArray(d)) return d;
+      if (d?.topics && Array.isArray(d.topics)) return d.topics;
+      if (d?.data && Array.isArray(d.data)) return d.data;
+    } catch (e) {
+      console.warn("admin getModuleTopics error, trying fallback route", e);
+    }
+
+    // 2. Try courses module endpoint
+    try {
+      const res2 = await api.get(`/courses/${courseId}/${moduleId}`, getAuthHeaders());
+      const d2 = res2.data;
+      if (Array.isArray(d2)) return d2;
+      if (d2?.topics && Array.isArray(d2.topics)) return d2.topics;
+      if (d2?.data?.topics && Array.isArray(d2.data.topics)) return d2.data.topics;
+    } catch (e2) {
+      console.warn("courses getModuleTopics error", e2);
+    }
+
+    return [];
   },
 
   /** Step 1 — Reserve a topic_id: POST .../topic */
@@ -215,8 +240,13 @@ export const CourseStudioApi = {
     );
     const d = res.data || {};
     const topicId =
-      d.topicId
-    "";
+      d.topicId ||
+      d.topic_id ||
+      d.id ||
+      d.topic?.id ||
+      d.topic?.topicId ||
+      d.topic?.topic_id ||
+      "";
 
     return {
       success: Boolean(d.success ?? true),
