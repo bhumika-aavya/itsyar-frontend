@@ -232,7 +232,7 @@ export const CourseStudioApi = {
     // Try admin endpoint first, then courses endpoint
     try {
       const res = await api.post(
-        `/admin/courses/${courseId}/modules/${moduleId}/upload-video`,
+        `/courses/${courseId}/modules/${moduleId}/upload-video`,
         formData,
         getAuthHeaders()
       );
@@ -244,18 +244,19 @@ export const CourseStudioApi = {
         size_byte: number;
       };
     } catch {
-      const res = await api.post(
-        `/admin/${courseId}/modules/${moduleId}/upload-video`,
-        formData,
-        getAuthHeaders()
-      );
-      return res.data as {
-        success: boolean;
-        topic_id: string;
-        gcs_path: string;
-        content_type: string;
-        size_byte: number;
-      };
+      console.lo
+      // const res = await api.post(
+      //   `/admin/${courseId}/modules/${moduleId}/upload-video`,
+      //   formData,
+      //   getAuthHeaders()
+      // );
+      // return res.data as {
+      //   success: boolean;
+      //   topic_id: string;
+      //   gcs_path: string;
+      //   content_type: string;
+      //   size_byte: number;
+      // };
     }
   },
 

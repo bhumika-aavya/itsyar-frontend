@@ -447,13 +447,6 @@ export default function AdminCreateCoursePage() {
     toast.success(`Attached ${file.name}${dur ? ` (${dur})` : ""}`);
   };
 
-  /**
-   * 4-Step Topic Creation Flow:
-   * Step 1 — Reserve a topic_id: POST /api/admin/courses/{course_id}/module/{module_id}/topic
-   * Step 2 — Upload Topic Video: POST /api/admin/{course_id}/modules/{module_id}/upload-video
-   * Step 3 — Upload Practical Walkthrough Video: POST /api/admin/{course_id}/modules/{module_id}/upload-video
-   * Step 4 — Finalize: POST /api/admin/courses/{course_id}/module/{module_id}/topic with assets
-   */
   const handleSaveTopic = async () => {
     if (!topicTitle.trim()) {
       setTopicError("Topic title is required");
