@@ -213,10 +213,20 @@ export const CourseStudioApi = {
       formData,
       getAuthHeaders()
     );
-    return res.data as { success: boolean; status: string; topic_id: string };
+    const d = res.data || {};
+    const topicId =
+      d.topicId
+    "";
+
+    return {
+      success: Boolean(d.success ?? true),
+      status: d.status || "reserved",
+      topic_id: String(topicId),
+      topicId: String(topicId),
+    };
   },
 
-  /** Step 2 & 3 — Upload Video: POST /api/admin/{course_id}/modules/{module_id}/upload-video */
+  /** Step 2 & 3 — Upload Video: POST /api/courses/{course_id}/modules/{module_id}/upload-video */
   uploadTopicVideo: async (
     courseId: string,
     moduleId: string,
@@ -229,35 +239,29 @@ export const CourseStudioApi = {
     formData.append("video_type", videoType);
     formData.append("file", file);
 
-    // Try admin endpoint first, then courses endpoint
-    try {
-      const res = await api.post(
-        `/courses/${courseId}/modules/${moduleId}/upload-video`,
-        formData,
-        getAuthHeaders()
-      );
-      return res.data as {
-        success: boolean;
-        topic_id: string;
-        gcs_path: string;
-        content_type: string;
-        size_byte: number;
-      };
-    } catch {
-      console.lo
-      // const res = await api.post(
-      //   `/admin/${courseId}/modules/${moduleId}/upload-video`,
-      //   formData,
-      //   getAuthHeaders()
-      // );
-      // return res.data as {
-      //   success: boolean;
-      //   topic_id: string;
-      //   gcs_path: string;
-      //   content_type: string;
-      //   size_byte: number;
-      // };
-    }
+    const res = await api.post(
+      `/courses/${courseId}/modules/${moduleId}/upload-video`,
+      formData,
+      getAuthHeaders()
+    );
+
+    const d = res.data || {};
+    const retTopicId = d.topicId || d.topic_id || topicId;
+    const gcsPath = d.gcsPath || d.gcs_path || "";
+    const contentType = d.contentType || d.content_type || file.type || "video/mp4";
+    const sizeByte = Number(d.sizeByte || d.size_byte || file.size || 0);
+
+    return {
+      success: Boolean(d.success ?? true),
+      topic_id: String(retTopicId),
+      topicId: String(retTopicId),
+      gcs_path: String(gcsPath),
+      gcsPath: String(gcsPath),
+      content_type: String(contentType),
+      contentType: String(contentType),
+      size_byte: sizeByte,
+      sizeByte: sizeByte,
+    };
   },
 
   /** Step 4 — Finalize Topic: POST .../topic */
@@ -275,7 +279,7 @@ export const CourseStudioApi = {
     if (payload.topic_video_content_type) {
       formData.append("topic_video_content_type", payload.topic_video_content_type);
     }
-    if (payload.topic_video_size_byte) {
+    if (payload.topic_video_size_byte !== undefined && payload.topic_video_size_byte !== null) {
       formData.append("topic_video_size_byte", String(payload.topic_video_size_byte));
     }
     if (payload.topic_video_duration) {
@@ -288,7 +292,7 @@ export const CourseStudioApi = {
     if (payload.practical_video_content_type) {
       formData.append("practical_video_content_type", payload.practical_video_content_type);
     }
-    if (payload.practical_video_size_byte) {
+    if (payload.practical_video_size_byte !== undefined && payload.practical_video_size_byte !== null) {
       formData.append("practical_video_size_byte", String(payload.practical_video_size_byte));
     }
     if (payload.practical_video_duration) {
@@ -307,7 +311,14 @@ export const CourseStudioApi = {
       formData,
       getAuthHeaders()
     );
-    return res.data as { success: boolean; status: string; topic_id: string };
+    const d = res.data || {};
+    const retTopicId = d.topicId || d.topic_id || payload.topic_id;
+    return {
+      success: Boolean(d.success ?? true),
+      status: d.status || "success",
+      topic_id: String(retTopicId),
+      topicId: String(retTopicId),
+    };
   },
 
   /** DELETE .../topic/{topic_id} */

@@ -477,16 +477,20 @@ export default function AdminCreateCoursePage() {
             title: topicTitle.trim(),
             summary: topicSummary.trim() || undefined,
           });
-          if (reserveRes?.topic_id) {
-            topicIdToUse = reserveRes.topic_id;
+          const reservedId = reserveRes?.topicId || reserveRes?.topic_id;
+          if (reservedId) {
+            topicIdToUse = reservedId;
           }
         } catch (resErr) {
-          console.warn("Topic reservation fallback to local ID", resErr);
-          topicIdToUse = `TOP-${Date.now()}`;
+          console.warn("Topic reservation failed", resErr);
         }
       }
 
-      const finalTopicId = topicIdToUse || `TOP-${Date.now()}`;
+      if (!topicIdToUse) {
+        throw new Error("Failed to reserve topic ID from server. Please try again.");
+      }
+
+      const finalTopicId = topicIdToUse;
 
       // Step 2: Upload Topic Video
       if (topicVideoFile && courseId) {
@@ -499,10 +503,10 @@ export default function AdminCreateCoursePage() {
             "topic",
             topicVideoFile
           );
-          if (vidRes?.gcs_path) {
-            topicVideoGcsPath = vidRes.gcs_path;
-            topicVideoContentType = vidRes.content_type || "video/mp4";
-            topicVideoSizeByte = vidRes.size_byte || topicVideoFile.size;
+          if (vidRes?.gcsPath || vidRes?.gcs_path) {
+            topicVideoGcsPath = vidRes.gcsPath || vidRes.gcs_path || "";
+            topicVideoContentType = vidRes.contentType || vidRes.content_type || "video/mp4";
+            topicVideoSizeByte = vidRes.sizeByte || vidRes.size_byte || topicVideoFile.size;
           }
         } catch (vErr) {
           console.warn("Topic video upload warning", vErr);
@@ -520,10 +524,10 @@ export default function AdminCreateCoursePage() {
             "practical",
             practicalVideoFile
           );
-          if (pracRes?.gcs_path) {
-            practicalVideoGcsPath = pracRes.gcs_path;
-            practicalVideoContentType = pracRes.content_type || "video/mp4";
-            practicalVideoSizeByte = pracRes.size_byte || practicalVideoFile.size;
+          if (pracRes?.gcsPath || pracRes?.gcs_path) {
+            practicalVideoGcsPath = pracRes.gcsPath || pracRes.gcs_path || "";
+            practicalVideoContentType = pracRes.contentType || pracRes.content_type || "video/mp4";
+            practicalVideoSizeByte = pracRes.sizeByte || pracRes.size_byte || practicalVideoFile.size;
           }
         } catch (pErr) {
           console.warn("Practical video upload warning", pErr);
