@@ -63,8 +63,8 @@ export const CourseStudioApi = {
     const tag = validCategories.includes(data.tag || "")
       ? data.tag
       : validCategories.includes(data.category || "")
-      ? data.category
-      : "Palantir";
+        ? data.category
+        : "Palantir";
 
     const validLevels = ["Beginner", "Intermediate", "Advanced", "All Levels"];
     const level = validLevels.includes(data.level || "") ? data.level : "Beginner";
@@ -245,7 +245,7 @@ export const CourseStudioApi = {
       };
     } catch {
       const res = await api.post(
-        `/admin/${courseId}/modules/${moduleId}/upload-video`,
+        `/admin/${courseId}/module/${moduleId}/upload-video`,
         formData,
         getAuthHeaders()
       );
