@@ -232,7 +232,7 @@ export const CourseStudioApi = {
     // Try admin endpoint first, then courses endpoint
     try {
       const res = await api.post(
-        `/admin/courses/${courseId}/module/${moduleId}/upload-video`,
+        `/admin/courses/${courseId}/modules/${moduleId}/upload-video`,
         formData,
         getAuthHeaders()
       );
@@ -245,7 +245,7 @@ export const CourseStudioApi = {
       };
     } catch {
       const res = await api.post(
-        `/admin/${courseId}/module/${moduleId}/upload-video`,
+        `/admin/${courseId}/modules/${moduleId}/upload-video`,
         formData,
         getAuthHeaders()
       );
