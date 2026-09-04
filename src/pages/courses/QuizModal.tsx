@@ -112,28 +112,64 @@ export default function QuizModal({
       let earned = 0;
       const evals = questions.map((q: any, idx: number) => {
         const qId = q.id || `q_${idx}`;
-        const uAns = selectedAnswers[qId];
-        const cAns = q.correct_answer || q.correctAnswer || (q.options ? q.options[0] : "True");
-        const isMatch = String(uAns).trim().toLowerCase() === String(cAns).trim().toLowerCase();
-        if (isMatch) earned += q.points || 1;
+        const rawAns = selectedAnswers[qId];
+
+        // Format user answer text
+        let uAns = rawAns;
+        if (typeof rawAns === "number" && q.options && q.options[rawAns]) {
+          uAns = q.options[rawAns];
+        } else if (rawAns === true || rawAns === "true") {
+          uAns = "True";
+        } else if (rawAns === false || rawAns === "false") {
+          uAns = "False";
+        } else if (!rawAns) {
+          uAns = "Not answered";
+        }
+
+        // Format correct answer text
+        let cAns = q.correct_answer || q.correctAnswer;
+        if (!cAns) {
+          if (q.correctOptionIndex !== undefined && q.options && q.options[q.correctOptionIndex]) {
+            cAns = q.options[q.correctOptionIndex];
+          } else if (q.correctBoolean !== undefined) {
+            cAns = q.correctBoolean ? "True" : "False";
+          } else if (q.options && q.options.length > 0) {
+            cAns = q.options[0];
+          } else {
+            cAns = "True";
+          }
+        }
+
+        const isMatch = uAns !== "Not answered" && String(uAns).trim().toLowerCase() === String(cAns).trim().toLowerCase();
+        const maxPts = Number(q.points) || (q.type === "question_answer" ? 2 : q.type === "code_challenge" ? 5 : 1);
+        const ptsAwarded = isMatch ? maxPts : 0;
+        earned += ptsAwarded;
+
+        const conceptExplanation = q.explanation || "This question tests core architectural and data transformation principles from the topic curriculum.";
 
         return {
           question_id: qId,
-          question_text: q.text || q.question,
+          question_text: q.text || q.question || `Question ${idx + 1}`,
           question_type: q.type || "mcq",
-          user_answer: uAns ?? "Not answered",
+          user_answer: uAns,
           correct_answer: cAns,
           is_correct: isMatch,
-          score: isMatch ? (q.points || 1) : 0,
-          max_score: q.points || 1,
-          what_went_wrong: isMatch ? undefined : `Selected '${uAns}' instead of '${cAns}'.`,
-          how_to_improve: isMatch ? "Solid understanding." : "Review the topic documentation to strengthen this concept.",
-          explanation: q.explanation,
+          score: ptsAwarded,
+          max_score: maxPts,
+          what_went_wrong: isMatch
+            ? undefined
+            : uAns === "Not answered"
+            ? "No answer was selected or submitted for this question."
+            : `You selected "${uAns}", but the correct principle is "${cAns}".`,
+          how_to_improve: isMatch
+            ? "Concept mastered! Excellent work."
+            : `Review the topic curriculum regarding ${q.text || q.question}. Key takeaway: ${conceptExplanation}`,
+          explanation: conceptExplanation,
           source_pages: q.source_pages || [1],
         };
       });
 
-      const total = questions.reduce((s: number, q: any) => s + (q.points || 1), 0) || 1;
+      const total = questions.reduce((s: number, q: any) => s + (Number(q.points) || 1), 0) || 1;
       const pct = Math.round((earned / total) * 100);
       const passed = pct >= (data?.passingThreshold || 70);
 
@@ -148,8 +184,8 @@ export default function QuizModal({
         time_elapsed_seconds: (data?.timeLimit || 15) * 60 - timeLeft,
         evaluations: evals,
         overall_feedback: passed
-          ? "Great job! You passed this topic assessment."
-          : "Score is below passing threshold. Review the diagnostics below.",
+          ? "Great job! You demonstrated mastery of this topic."
+          : "Score is below passing threshold. Review the diagnostic breakdown below to target areas for improvement.",
       });
 
       if (passed) {
@@ -163,21 +199,21 @@ export default function QuizModal({
   // Render Result Breakdown if finished
   if (submissionResult) {
     return (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4">
-        <div className="bg-slate-900 w-full max-w-4xl h-[90vh] rounded-[36px] border border-slate-800 shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
-          <div className="flex items-center justify-between px-8 py-4 border-b border-slate-800 bg-slate-950/60">
-            <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
-              <Sparkles size={16} className="text-indigo-400" /> Assessment Result
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-6">
+        <div className="bg-[#0b0d14] w-full max-w-4xl h-[88vh] max-h-[900px] rounded-[32px] border border-slate-800 shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+          <div className="flex items-center justify-between px-6 sm:px-8 py-3.5 border-b border-slate-800/80 bg-slate-950/80 shrink-0">
+            <h3 className="text-xs sm:text-sm font-extrabold text-white flex items-center gap-2">
+              <Sparkles size={15} className="text-indigo-400" /> Assessment Result Breakdown
             </h3>
             <button
               onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           </div>
 
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 min-h-0 relative overflow-hidden">
             <QuizResultBreakdown
               result={submissionResult}
               isFinalQuiz={isFinalQuiz}

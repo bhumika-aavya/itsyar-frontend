@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
     ChevronLeft, BarChart2, BookOpen, Clock, CheckCircle2,
     PlayCircle, FileText, HelpCircle, ChevronDown, ChevronUp,
-    Loader2, Zap, ShoppingCart, Lock
+    Loader2, Zap, ShoppingCart, Lock, BrainCircuit, Sparkles
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CourseService } from '@/services/course.service';
@@ -12,6 +12,8 @@ import { COURSE_LIFETIME_PRICE, CURRENCY } from '@/types/payment.types';
 
 import InAppPdfModal from '@/components/pdf/InAppPdfModal';
 import { PdfService } from '@/services/pdf.service';
+import QuizModal from '@/pages/courses/QuizModal';
+import { QuizAiService } from '@/services/quiz-ai.service';
 
 // --- Sub-component: Curriculum Accordion ---
 const TopicAccordion = ({
@@ -21,6 +23,7 @@ const TopicAccordion = ({
     onToggle,
     moduleId,
     onOpenPdf,
+    onOpenQuiz,
 }: {
     topic: any;
     index: number;
@@ -28,12 +31,23 @@ const TopicAccordion = ({
     onToggle: () => void;
     moduleId: string;
     onOpenPdf?: (url: string, title: string, subtitle: string) => void;
+    onOpenQuiz?: (topic: any) => void;
 }) => {
     const displayNum = index + 1;
-    const subItems = topic.assets ?? topic.subItems ?? [];
+    const baseSubItems = topic.assets ?? topic.subItems ?? [];
+    
+    // Ensure Step 05: Topic Quiz & Knowledge Assessment is present
+    const subItems = [...baseSubItems];
+    if (!subItems.some((it: any) => it.type === 'topic-quiz' || it.type === 'quiz')) {
+        subItems.push({
+            type: 'topic-quiz',
+            title: 'Topic Quiz & Knowledge Assessment',
+            duration: '10-15 mins'
+        });
+    }
+
     const navigate = useNavigate();
     const { courseId } = useParams();
-
     const topicIdVal = topic.topic_id || topic.topicId || `t-${index}`;
 
     return (
@@ -62,9 +76,15 @@ const TopicAccordion = ({
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {subItems.length > 0 && subItems.map((item: any, assetIdx: number) => {
-                            const isDoc = item.type === 'topic-documentation' || item.type === 'interview-questions' || item.type === 'documentation' || item.type === 'interview_pdf' || item.type === 'interview';
+                            const isQuiz = item.type === 'topic-quiz' || item.type === 'quiz';
+                            const isDoc = !isQuiz && (item.type === 'topic-documentation' || item.type === 'interview-questions' || item.type === 'documentation' || item.type === 'interview_pdf' || item.type === 'interview');
 
                             const handleAssetClick = async () => {
+                                if (isQuiz) {
+                                    onOpenQuiz?.(topic);
+                                    return;
+                                }
+
                                 if (isDoc) {
                                     let targetUrl = item.url;
                                     const docType = item.type.includes('interview') ? 'interview' : 'documentation';
@@ -95,22 +115,57 @@ const TopicAccordion = ({
                                 <div
                                     key={assetIdx}
                                     onClick={handleAssetClick}
-                                    className="flex items-center gap-4 p-4 bg-slate-50 hover:bg-[#EEF0FF] border border-slate-100 hover:border-[#4F46E5] rounded-xl cursor-pointer group transition-all"
+                                    className={`flex items-center gap-4 p-4 border rounded-xl cursor-pointer group transition-all ${
+                                        isQuiz
+                                            ? "bg-amber-50/40 hover:bg-amber-50/80 border-amber-200/70 hover:border-amber-400"
+                                            : "bg-slate-50 hover:bg-[#EEF0FF] border-slate-100 hover:border-[#4F46E5]"
+                                    }`}
                                 >
                                     <div className="relative">
-                                        <div className="p-2.5 rounded-lg bg-white shadow-sm text-slate-400 group-hover:text-[#4F46E5] group-hover:shadow-md transition-all">
-                                            {item.type === 'topic-documentation' || item.type === 'interview-questions' || item.type === 'documentation' || item.type === 'interview_pdf' ? <FileText size={18} /> : <PlayCircle size={18} />}
+                                        <div className={`p-2.5 rounded-lg bg-white shadow-sm transition-all ${
+                                            isQuiz
+                                                ? "text-amber-600 group-hover:text-amber-700 group-hover:shadow-md"
+                                                : "text-slate-400 group-hover:text-[#4F46E5] group-hover:shadow-md"
+                                        }`}>
+                                            {isQuiz ? (
+                                                <BrainCircuit size={18} />
+                                            ) : isDoc ? (
+                                                <FileText size={18} />
+                                            ) : (
+                                                <PlayCircle size={18} />
+                                            )}
                                         </div>
-                                        <div className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-slate-200 group-hover:bg-[#4F46E5] text-slate-600 group-hover:text-white text-[10px] font-extrabold flex items-center justify-center shadow-xs border border-white transition-all duration-200">
+                                        <div className={`absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full text-[10px] font-extrabold flex items-center justify-center shadow-xs border border-white transition-all duration-200 ${
+                                            isQuiz
+                                                ? "bg-amber-500 group-hover:bg-amber-600 text-white"
+                                                : "bg-slate-200 group-hover:bg-[#4F46E5] text-slate-600 group-hover:text-white"
+                                        }`}>
                                             {assetIdx + 1}
                                         </div>
                                     </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-extrabold text-[#4F46E5] uppercase tracking-wider mb-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
-                                            Step 0{assetIdx + 1}
+                                    <div className="flex flex-col flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-0.5">
+                                            <span className={`text-[10px] font-extrabold uppercase tracking-wider ${
+                                                isQuiz ? "text-amber-600" : "text-[#4F46E5] opacity-60 group-hover:opacity-100"
+                                            }`}>
+                                                Step 0{assetIdx + 1}
+                                            </span>
+                                            {isQuiz && (
+                                                <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-amber-100 text-amber-700">
+                                                    AI Graded
+                                                </span>
+                                            )}
+                                        </div>
+                                        <span className={`text-sm font-bold truncate leading-tight ${
+                                            isQuiz ? "text-slate-900 group-hover:text-amber-700" : "text-slate-700 group-hover:text-[#4F46E5]"
+                                        }`}>
+                                            {item.title}
                                         </span>
-                                        <span className="text-sm font-bold text-slate-700 group-hover:text-[#4F46E5] leading-tight">{item.title}</span>
-                                        {item.duration && <span className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">{item.duration}</span>}
+                                        {item.duration && (
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">
+                                                {item.duration}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             );
@@ -133,6 +188,7 @@ export default function TopicDetailPage() {
     const [isEnrolling, setIsEnrolling] = useState(false);
     const [isPurchased, setIsPurchased] = useState(false);
     const [isPurchaseLoading, setIsPurchaseLoading] = useState(false);
+    
     const [pdfModalState, setPdfModalState] = useState<{
         isOpen: boolean;
         url: string;
@@ -145,12 +201,79 @@ export default function TopicDetailPage() {
         subtitle: '',
     });
 
+    const [quizModalState, setQuizModalState] = useState<{
+        isOpen: boolean;
+        data: any;
+        topicId: string;
+        topicTitle: string;
+    }>({
+        isOpen: false,
+        data: null,
+        topicId: '',
+        topicTitle: '',
+    });
+
     const handleOpenPdf = (url: string, title: string, subtitle: string) => {
         setPdfModalState({
             isOpen: true,
             url,
             title,
             subtitle,
+        });
+    };
+
+    const handleOpenTopicQuiz = async (topic: any) => {
+        const topicIdVal = topic.topic_id || topic.topicId || '';
+        const topicTitle = topic.title || topic.topic_title || 'Topic Assessment';
+
+        try {
+            if (courseId && topicIdVal) {
+                const quizRes = await QuizAiService.getTopicQuizStudent(courseId, topicIdVal);
+                if (quizRes && quizRes.quiz && quizRes.quiz.questions && quizRes.quiz.questions.length > 0) {
+                    setQuizModalState({
+                        isOpen: true,
+                        data: quizRes.quiz,
+                        topicId: topicIdVal,
+                        topicTitle: topicTitle,
+                    });
+                    return;
+                }
+            }
+        } catch (e) {
+            console.warn("[TopicDetail] Could not fetch quiz from API, using fallback quiz", e);
+        }
+
+        // Fallback default quiz structure if not yet created in DB
+        setQuizModalState({
+            isOpen: true,
+            data: {
+                title: `${topicTitle} Assessment`,
+                path: `Course Assessment • ${topicTitle}`,
+                timeLimit: 15,
+                passingThreshold: 70,
+                questions: [
+                    {
+                        id: `q_sample_1_${topicIdVal}`,
+                        type: 'mcq',
+                        text: `What is the primary architectural concept introduced in ${topicTitle}?`,
+                        options: [
+                            "Core functional data architecture and pipeline transformations",
+                            "Deprecated legacy manual batch scripting",
+                            "Unmonitored unencrypted database transactions",
+                            "Single-node volatile caching storage"
+                        ],
+                        points: 1
+                    },
+                    {
+                        id: `q_sample_2_${topicIdVal}`,
+                        type: 'true_false',
+                        text: `True or False: The principles in ${topicTitle} enforce data validation and reproducible pipeline workflows.`,
+                        points: 1
+                    }
+                ]
+            },
+            topicId: topicIdVal,
+            topicTitle: topicTitle,
         });
     };
 
@@ -190,34 +313,6 @@ export default function TopicDetailPage() {
     }, [courseId, navigate]);
 
     const hasAccess = isPurchased || course?.hasPaid;
-
-    const handleEnroll = async () => {
-        if (!courseId) return;
-
-        // Scenario 1: Already paid and enrolled
-        if (hasAccess && course?.isEnrolled) {
-            navigate(`/courses/${courseId}/lessons/${course?.moduleId}`);
-            return;
-        }
-
-        // Scenario 2: Paid but not yet enrolled
-        if (hasAccess && !course?.isEnrolled) {
-            setIsEnrolling(true);
-            try {
-                await CourseService.enrollInCourse(courseId);
-                setCourse(prev => prev ? { ...prev, isEnrolled: true } : prev);
-                navigate(`/courses/${courseId}/lessons/${course?.moduleId}`);
-            } catch (error) {
-                console.error("Failed to enroll in course", error);
-            } finally {
-                setIsEnrolling(false);
-            }
-            return;
-        }
-
-        // Scenario 3: Not paid
-        navigate(`/payments/course/${courseId}`);
-    };
 
     const handleBuyCourse = () => {
         if (!courseId) return;
@@ -280,54 +375,23 @@ export default function TopicDetailPage() {
                                     Lifetime Access Unlocked
                                 </h3>
                             </div>
-                            <p className="text-sm font-medium text-emerald-600">
-                                Pay once. Own the course forever. Learn at your own pace with all future updates and resources included.
+                            <p className="text-xs text-emerald-600 font-medium leading-relaxed">
+                                Get instant access to all video modules, interactive walkthroughs, interview question banks, AI assessments, and downloadable resources with no monthly fees.
                             </p>
-                            <ul className="mt-4 space-y-2">
-                                {[
-                                    'Full access to all video lectures and modules',
-                                    'Verified course completion certificate',
-                                    'Downloadable starter templates and source code projects',
-                                    'Direct support from the instructor via forums',
-                                ].map((feature, i) => (
-                                    <li key={i} className="flex items-start gap-2 text-sm font-medium text-emerald-700">
-                                        <CheckCircle2 size={16} className="text-emerald-400 shrink-0 mt-0.5" />
-                                        {feature}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        {/* What you'll learn */}
-                        <div className="space-y-3">
-                            <h3 className="font-extrabold text-slate-900">What you'll learn in this course</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {course?.takeaways?.map((item, i) => (
-                                    <div key={i} className="flex items-start gap-2 text-sm font-medium text-slate-600">
-                                        <CheckCircle2 size={16} className="text-[#4F46E5] shrink-0 mt-0.5" />
-                                        {item}
-                                    </div>
-                                )) || [
-                                    'Create beautiful frontend UI',
-                                    'Write secure and optimized code',
-                                    'Integrate Stripe payment gateways',
-                                    'Understand full stack routing',
-                                ].map((item, i) => (
-                                    <div key={i} className="flex items-start gap-2 text-sm font-medium text-slate-600">
-                                        <CheckCircle2 size={16} className="text-[#4F46E5] shrink-0 mt-0.5" />
-                                        {item}
-                                    </div>
-                                ))}
-                            </div>
                         </div>
                     </div>
 
-                    {/* Right: Payment Summary Panel */}
+                    {/* Right: Checkout card */}
                     <div className="lg:col-span-2">
-                        <div className="bg-[#F9FAFF] border border-indigo-50 p-8 rounded-[40px] shadow-sm flex flex-col gap-6">
-                            <div className="border-b border-indigo-50/50 pb-4">
-                                <h3 className="font-extrabold text-slate-900 text-lg">Payment Summary</h3>
-                                <p className="text-xs font-bold text-slate-400 mt-1">Review your order details</p>
+                        <div className="bg-white border border-indigo-100 rounded-[32px] p-8 shadow-xl shadow-indigo-100/50 space-y-6">
+                            <div className="flex items-baseline justify-between border-b border-indigo-50/50 pb-6">
+                                <div>
+                                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">One-time payment</span>
+                                    <span className="text-3xl font-extrabold text-slate-900">{formattedPrice}</span>
+                                </div>
+                                <span className="text-[11px] font-extrabold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                                    Lifetime Access
+                                </span>
                             </div>
 
                             <div className="space-y-3">
@@ -387,21 +451,7 @@ export default function TopicDetailPage() {
                     </span>
                     <h2 className="text-2xl font-bold text-slate-900">{activeModule?.title || course?.title}</h2>
                     <p className="text-lg text-slate-500 font-medium leading-relaxed w-full max-w-none">{activeModule?.summary || course?.description}</p>
-
-
                 </div>
-
-                {/* {course?.thumbnail && (
-                    <div className="lg:col-span-2">
-                        <div className="rounded-[40px] overflow-hidden shadow-2xl shadow-slate-200 border-8 border-white">
-                            <img
-                                src={`${import.meta.env.VITE_IMAGE_URL}${course.thumbnail}`}
-                                alt={activeModule?.title || course?.title || "Thumbnail"}
-                                className="w-full aspect-video object-cover"
-                            />
-                        </div>
-                    </div>
-                )} */}
             </section>
 
             <section className="space-y-6">
@@ -418,6 +468,7 @@ export default function TopicDetailPage() {
                             isOpen={openModule === (topic.topic_id || topic.topicId)}
                             onToggle={() => setOpenModule(openModule === (topic.topic_id || topic.topicId) ? null : (topic.topic_id || topic.topicId))}
                             onOpenPdf={handleOpenPdf}
+                            onOpenQuiz={handleOpenTopicQuiz}
                         />
                     ))}
                 </div>
@@ -431,17 +482,19 @@ export default function TopicDetailPage() {
                 subtitle={pdfModalState.subtitle}
                 onClose={() => setPdfModalState((prev) => ({ ...prev, isOpen: false }))}
             />
+
+            {/* Topic Quiz Assessment Modal */}
+            {quizModalState.isOpen && (
+                <QuizModal
+                    isOpen={quizModalState.isOpen}
+                    onClose={() => setQuizModalState(prev => ({ ...prev, isOpen: false }))}
+                    data={quizModalState.data}
+                    isFinalQuiz={false}
+                    courseId={courseId || ''}
+                    topicId={quizModalState.topicId}
+                    moduleId={moduleId}
+                />
+            )}
         </div>
     );
 }
-
-// Helper component for cleaner hero section
-const MetaItem = ({ icon: Icon, label, val, color, bg }: any) => (
-    <div className="flex items-center gap-3">
-        <div className={`p-2.5 ${bg} ${color} rounded-xl`}><Icon size={20} /></div>
-        <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</p>
-            <p className="text-sm font-bold text-slate-800">{val}</p>
-        </div>
-    </div>
-);
