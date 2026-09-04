@@ -6,6 +6,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { AdminService, AdminCourse } from "@/services/admin.service";
 import { toast } from "sonner";
+import Swal from "sweetalert2";
 
 type FilterTab = "all" | "published" | "draft";
 
@@ -21,7 +22,7 @@ export default function AdminCoursesPage() {
   const fetchCourses = () => {
     AdminService.getCourses()
       .then(setCourses)
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   };
 
@@ -67,10 +68,10 @@ export default function AdminCoursesPage() {
         prev.map((c) =>
           c.id === course.id
             ? {
-                ...c,
-                status: nextStatus,
-                isActive: nextStatus === "published",
-              }
+              ...c,
+              status: nextStatus,
+              isActive: nextStatus === "published",
+            }
             : c
         )
       );
@@ -88,7 +89,14 @@ export default function AdminCoursesPage() {
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm("Permanently delete this course and all its curriculum?")) return;
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Permanently delete this course and all its curriculum?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!"
+    });
+    if (!result.isConfirmed) return;
     setDeletingId(id);
     try {
       await AdminService.deleteCourse(id);
@@ -114,7 +122,7 @@ export default function AdminCoursesPage() {
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-[#2e303a] pb-5">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Courses Studio</h1>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Courses</h1>
           <p className="text-sm font-medium text-slate-400 mt-0.5">
             Manage course curriculum, drafts, and published content.
           </p>
@@ -142,19 +150,17 @@ export default function AdminCoursesPage() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as FilterTab)}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${
-                  active
-                    ? "bg-white dark:bg-[#2e303a] text-[#4F46E5] dark:text-indigo-400 shadow-xs"
-                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-                }`}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap ${active
+                  ? "bg-white dark:bg-[#2e303a] text-[#4F46E5] dark:text-indigo-400 shadow-xs"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                  }`}
               >
                 <span>{tab.label}</span>
                 <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-md font-black ${
-                    active
-                      ? "bg-indigo-50 dark:bg-indigo-950/60 text-[#4F46E5] dark:text-indigo-400"
-                      : "bg-slate-200 dark:bg-slate-800 text-slate-500"
-                  }`}
+                  className={`text-[10px] px-1.5 py-0.2 rounded-md font-black ${active
+                    ? "bg-indigo-50 dark:bg-indigo-950/60 text-[#4F46E5] dark:text-indigo-400"
+                    : "bg-slate-200 dark:bg-slate-800 text-slate-500"
+                    }`}
                 >
                   {tab.count}
                 </span>
@@ -191,7 +197,7 @@ export default function AdminCoursesPage() {
           {filtered.map((course) => {
             const isDraft = course.status === "draft";
             const isBusy = togglingId === course.id;
-
+            { console.log(' course?.imageUrl', `${import.meta.env.VITE_IMAGE_URL}${course.imageUrl}`) }
             return (
               <div
                 key={course.id}
@@ -202,8 +208,8 @@ export default function AdminCoursesPage() {
                 <div className="relative w-full h-44 overflow-hidden bg-slate-100 dark:bg-[#1c1d24]">
                   <img
                     src={
-                      course?.thumbnail
-                        ? course.thumbnail
+                      course?.imageUrl
+                        ? `${import.meta.env.VITE_IMAGE_URL}${course.imageUrl}`
                         : "https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop"
                     }
                     alt={course.title}
@@ -224,11 +230,10 @@ export default function AdminCoursesPage() {
                       onClick={(e) => handleToggleStatus(course, e)}
                       disabled={isBusy}
                       title={isDraft ? "Click to Publish course" : "Click to set as Draft"}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider backdrop-blur-md shadow-md transition-all cursor-pointer ${
-                        isDraft
-                          ? "bg-amber-500/90 hover:bg-amber-600 text-white"
-                          : "bg-emerald-600/90 hover:bg-emerald-700 text-white"
-                      }`}
+                      className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider backdrop-blur-md shadow-md transition-all cursor-pointer ${isDraft
+                        ? "bg-amber-500/90 hover:bg-amber-600 text-white"
+                        : "bg-emerald-600/90 hover:bg-emerald-700 text-white"
+                        }`}
                     >
                       {isBusy ? (
                         <Loader2 size={12} className="animate-spin" />

@@ -15,6 +15,7 @@ import ModuleModal from "./course-studio/ModuleModal";
 import TopicModal from "./course-studio/TopicModal";
 import QuizBuilderModal from "./course-studio/QuizBuilderModal";
 import { toast } from "sonner";
+import Swal from "sweetalert2";
 
 export default function AdminCreateCoursePage() {
   const navigate = useNavigate();
@@ -382,7 +383,14 @@ export default function AdminCreateCoursePage() {
 
   const handleDeleteModule = async (moduleId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm("Are you sure you want to delete this module and all its topics?")) return;
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Are you sure you want to delete this module and all its topics?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!"
+    });
+    if (!result.isConfirmed) return;
 
     // 9. DELETE /api/admin/courses/{course_id}/module/{module_id}
     const courseIdToUse = activeCourseId || editCourseId;
@@ -715,7 +723,14 @@ export default function AdminCreateCoursePage() {
   };
 
   const handleDeleteTopic = async (modId: string, topicId: string) => {
-    if (!confirm("Delete this topic?")) return;
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Delete this topic?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!"
+    });
+    if (!result.isConfirmed) return;
     const courseId = activeCourseId || editCourseId;
     if (courseId) {
       try {
@@ -1017,6 +1032,7 @@ export default function AdminCreateCoursePage() {
     setSaving(true);
     try {
       const courseIdToUse = activeCourseId || editCourseId;
+      let finalThumbnailUrl = thumbnail;
 
       if (courseIdToUse) {
         // ALWAYS UPDATE existing course — NEVER DUPLICATE!
@@ -1034,7 +1050,10 @@ export default function AdminCreateCoursePage() {
         // Upload/replace thumbnail if new file selected
         if (thumbnailFile) {
           try {
-            await CourseStudioApi.uploadThumbnail(courseIdToUse, thumbnailFile);
+            const uploadRes = await CourseStudioApi.uploadThumbnail(courseIdToUse, thumbnailFile);
+            if (uploadRes && (uploadRes.url || uploadRes.thumbnailUrl || uploadRes.thumbnail_url)) {
+              finalThumbnailUrl = uploadRes.url || uploadRes.thumbnailUrl || uploadRes.thumbnail_url;
+            }
           } catch (imgErr) {
             console.warn("Thumbnail upload warning", imgErr);
           }
@@ -1048,7 +1067,7 @@ export default function AdminCreateCoursePage() {
           level,
           category,
           duration,
-          thumbnail,
+          thumbnail: finalThumbnailUrl,
           modules,
           status: finalStatus,
           isActive: finalActive,
@@ -1072,7 +1091,10 @@ export default function AdminCreateCoursePage() {
 
         if (thumbnailFile && createResult.courseId) {
           try {
-            await CourseStudioApi.uploadThumbnail(createResult.courseId, thumbnailFile);
+            const uploadRes = await CourseStudioApi.uploadThumbnail(createResult.courseId, thumbnailFile);
+            if (uploadRes && (uploadRes.url || uploadRes.thumbnailUrl || uploadRes.thumbnail_url)) {
+              finalThumbnailUrl = uploadRes.url || uploadRes.thumbnailUrl || uploadRes.thumbnail_url;
+            }
           } catch (imgErr) {
             console.warn("Thumbnail upload warning", imgErr);
           }
@@ -1098,7 +1120,7 @@ export default function AdminCreateCoursePage() {
           level,
           category,
           duration,
-          thumbnail,
+          thumbnail: finalThumbnailUrl,
           modules,
           status: finalStatus,
           isActive: finalActive,
@@ -1132,12 +1154,20 @@ export default function AdminCreateCoursePage() {
   );
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-16">
+    <div className="space-y-4 max-w-6xl mx-auto pb-16">
       {/* Top Bar / Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-[#2e303a] pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-[#2e303a] pb-2">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate("/admin/courses")}
+            onClick={() => {
+              if (editCourseId) {
+                navigate(`/admin/courses/${editCourseId}`);
+              } else if (activeCourseId) {
+                navigate(`/admin/courses/${activeCourseId}`);
+              } else {
+                navigate("/admin/courses");
+              }
+            }}
             className="p-2.5 bg-white dark:bg-[#16171d] border border-slate-200 dark:border-[#2e303a] text-slate-500 dark:text-slate-400 hover:text-[#4F46E5] dark:hover:text-indigo-400 rounded-xl transition-all shadow-xs cursor-pointer"
           >
             <ChevronLeft size={18} />
@@ -1297,8 +1327,15 @@ export default function AdminCreateCoursePage() {
         setPracticalVideo={setPracticalVideo}
         topicQuiz={topicQuiz}
         onOpenQuizBuilder={openQuizBuilderFromTopicModal}
-        onRemoveQuiz={() => {
-          if (confirm("Remove quiz from this topic?")) {
+        onRemoveQuiz={async () => {
+          const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "Remove quiz from this topic?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, remove it!"
+          });
+          if (result.isConfirmed) {
             setTopicQuiz(null);
             toast.success("Quiz detached from topic");
           }

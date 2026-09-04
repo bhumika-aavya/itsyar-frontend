@@ -196,7 +196,7 @@ export default function CurriculumStep({
 
               {/* Topics List */}
               {!selectedModule.topics || selectedModule.topics.length === 0 ? (
-                <div className="py-16 text-center border-2 border-dashed border-slate-200 dark:border-[#2e303a] rounded-2xl p-8 space-y-3">
+                <div className="py-16 flex flex-col items-center justify-center text-center border-2 border-dashed border-slate-200 dark:border-[#2e303a] rounded-2xl p-8 space-y-3">
                   <div className="w-14 h-14 bg-indigo-50 dark:bg-indigo-950/40 text-[#4F46E5] dark:text-indigo-400 rounded-2xl flex items-center justify-center mx-auto">
                     <BookOpen size={26} />
                   </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, BookOpen, Edit2, Trash2, Loader2, Save, X, Users } from "lucide-react";
 import { AdminService } from "@/services/admin.service";
+import Swal from "sweetalert2";
 
 interface CourseForm {
   title: string;
@@ -59,7 +60,14 @@ export default function AdminCourseDetailPage() {
 
   const handleDelete = async () => {
     if (!course) return;
-    if (!confirm("Permanently delete this course?")) return;
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Permanently delete this course?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!"
+    });
+    if (!result.isConfirmed) return;
     setDeleting(true);
     await AdminService.deleteCourse(course.id);
     navigate("/admin/courses");
@@ -100,10 +108,9 @@ export default function AdminCourseDetailPage() {
       >
         <ArrowLeft size={15} /> Back to Courses
       </button>
-
       <div className="bg-white border border-slate-100 rounded-[24px] overflow-hidden shadow-sm">
-        <img src={course?.thumbnail
-          ? course.thumbnail
+        <img src={course?.imageUrl
+          ? `${import.meta.env.VITE_IMAGE_URL}${course.imageUrl}`
           : "https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop"} alt={course.title} className="w-full h-56 object-cover" />
         <div className="p-8 space-y-5">
           <div className="flex items-start justify-between gap-4">

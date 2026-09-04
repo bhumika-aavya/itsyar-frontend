@@ -12,7 +12,7 @@ export default function MentorCoursesPage() {
   useEffect(() => {
     CourseService.getAllCourses()
       .then(data => setCourses(Array.isArray(data) ? data : (data as any)?.courses ?? []))
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, []);
 
@@ -66,13 +66,9 @@ export default function MentorCoursesPage() {
             const levelCls = LEVEL_COLOR[level] ?? "bg-slate-50 text-slate-500";
             return (
               <div key={course.id} className="bg-white border border-slate-100 rounded-[20px] overflow-hidden shadow-sm hover:shadow-md transition-all">
-                {course.thumbnail ? (
-                  <img src={course.thumbnail} alt={course.title} className="w-full h-36 object-cover" />
-                ) : (
-                  <div className="w-full h-36 bg-sky-50 flex items-center justify-center">
-                    <BookOpen size={32} className="text-sky-300" />
-                  </div>
-                )}
+                <img src={course?.imageUrl
+                  ? `${import.meta.env.VITE_IMAGE_URL}${course.imageUrl}` : "https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=800&auto=format&fit=crop"
+                } alt={course.title} className="w-full h-36 object-cover" />
                 <div className="p-5 space-y-3">
                   <div>
                     <p className="font-extrabold text-slate-900 leading-snug">{course.title}</p>
