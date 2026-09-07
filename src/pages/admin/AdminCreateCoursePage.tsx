@@ -274,10 +274,13 @@ export default function AdminCreateCoursePage() {
 
     // Auto-provision course if starting brand new
     if (!activeCourseId && !editCourseId) {
+      setSaving(true);
       try {
         await ensureCourseCreated();
       } catch {
         // user prompted
+      } finally {
+        setSaving(false);
       }
     }
 
@@ -395,19 +398,23 @@ export default function AdminCreateCoursePage() {
       text: "Are you sure you want to delete this module and all its topics?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Yes, delete it!"
+      confirmButtonText: "Yes, delete it!",
+      showLoaderOnConfirm: true,
+      preConfirm: async () => {
+        const courseIdToUse = activeCourseId || editCourseId;
+        if (courseIdToUse) {
+          try {
+            await CourseStudioApi.deleteModule(courseIdToUse, moduleId);
+          } catch (err) {
+            console.warn("Module delete warning", err);
+            Swal.showValidationMessage("Failed to delete module");
+          }
+        }
+      },
+      allowOutsideClick: () => !Swal.isLoading()
     });
+    
     if (!result.isConfirmed) return;
-
-    // 9. DELETE /api/admin/courses/{course_id}/module/{module_id}
-    const courseIdToUse = activeCourseId || editCourseId;
-    if (courseIdToUse) {
-      try {
-        await CourseStudioApi.deleteModule(courseIdToUse, moduleId);
-      } catch (err) {
-        console.warn("Module delete warning", err);
-      }
-    }
 
     const remaining = modules.filter((m) => m.id !== moduleId);
     setModules(remaining);
@@ -581,6 +588,7 @@ export default function AdminCreateCoursePage() {
             topicVideoGcsPath = vidRes.gcsPath || vidRes.gcs_path || "";
             topicVideoContentType = vidRes.contentType || vidRes.content_type || "video/mp4";
             topicVideoSizeByte = vidRes.sizeByte || vidRes.size_byte || topicVideoFile.size;
+            toast.success("Video uploaded successfully");
           }
         } catch (vErr) {
           console.warn("Topic video upload warning", vErr);
@@ -602,6 +610,7 @@ export default function AdminCreateCoursePage() {
             practicalVideoGcsPath = pracRes.gcsPath || pracRes.gcs_path || "";
             practicalVideoContentType = pracRes.contentType || pracRes.content_type || "video/mp4";
             practicalVideoSizeByte = pracRes.sizeByte || pracRes.size_byte || practicalVideoFile.size;
+            toast.success("Practical Video uploaded successfully");
           }
         } catch (pErr) {
           console.warn("Practical video upload warning", pErr);
@@ -635,6 +644,9 @@ export default function AdminCreateCoursePage() {
             documentation_pdf: topicDocPdfFile || undefined,
             interview_pdf: interviewPdfFile || undefined,
           });
+          
+          if (topicDocPdfFile) toast.success("Document PDF uploaded successfully");
+          if (interviewPdfFile) toast.success("Interview Questions PDF uploaded successfully");
         } catch (finErr) {
           console.warn("Topic finalize warning", finErr);
         }
@@ -735,17 +747,24 @@ export default function AdminCreateCoursePage() {
       text: "Delete this topic?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Yes, delete it!"
+      confirmButtonText: "Yes, delete it!",
+      showLoaderOnConfirm: true,
+      preConfirm: async () => {
+        const courseId = activeCourseId || editCourseId;
+        if (courseId) {
+          try {
+            await CourseStudioApi.deleteTopic(courseId, modId, topicId);
+          } catch (delErr) {
+            console.warn("Delete topic warning", delErr);
+            Swal.showValidationMessage("Failed to delete topic");
+          }
+        }
+      },
+      allowOutsideClick: () => !Swal.isLoading()
     });
+    
     if (!result.isConfirmed) return;
-    const courseId = activeCourseId || editCourseId;
-    if (courseId) {
-      try {
-        await CourseStudioApi.deleteTopic(courseId, modId, topicId);
-      } catch (delErr) {
-        console.warn("Delete topic warning", delErr);
-      }
-    }
+    
     setModules((prev) =>
       prev.map((m) =>
         m.id === modId
