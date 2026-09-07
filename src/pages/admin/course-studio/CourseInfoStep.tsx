@@ -29,6 +29,7 @@ export default function CourseInfoStep({
   setStatus = () => {},
   isActive = true,
   setIsActive = () => {},
+  saving = false,
 }: CourseInfoStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -111,13 +112,20 @@ export default function CourseInfoStep({
 
           <div className="space-y-1.5">
             <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Estimated Duration
+              Estimated Duration (hh:mm:ss)
             </label>
             <input
               type="text"
               value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              placeholder="e.g. 12 hours (optional)"
+              onChange={(e) => {
+                const val = e.target.value.replace(/[^0-9]/g, '');
+                let formatted = val;
+                if (val.length > 2 && val.length <= 4) formatted = `${val.slice(0, 2)}:${val.slice(2)}`;
+                else if (val.length > 4) formatted = `${val.slice(0, 2)}:${val.slice(2, 4)}:${val.slice(4, 6)}`;
+                setDuration(formatted);
+              }}
+              placeholder="e.g. 12:30:00"
+              maxLength={8}
               className="w-full h-12 px-4 bg-slate-50 dark:bg-[#1c1d24] border border-slate-200 dark:border-[#2e303a] rounded-xl text-sm font-medium text-slate-900 dark:text-slate-100 outline-none focus:border-[#4F46E5] dark:focus:border-indigo-400 transition-all"
             />
           </div>
@@ -202,11 +210,12 @@ export default function CourseInfoStep({
         <div className="pt-4 flex justify-end">
           <button
             type="button"
+            disabled={saving}
             onClick={onNext}
-            className="flex items-center gap-2 px-8 py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-[#4338CA] transition-all cursor-pointer"
+            className="flex items-center gap-2 px-8 py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-[#4338CA] transition-all cursor-pointer disabled:opacity-50"
           >
-            <span>Next: Create Modules</span>
-            <ArrowRight size={16} />
+            <span>{saving ? "Creating Course..." : "Next: Create Modules"}</span>
+            {!saving && <ArrowRight size={16} />}
           </button>
         </div>
       </div>

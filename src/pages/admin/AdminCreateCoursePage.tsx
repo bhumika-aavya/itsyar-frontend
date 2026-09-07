@@ -53,6 +53,7 @@ export default function AdminCreateCoursePage() {
   const [moduleTitle, setModuleTitle] = useState("");
   const [moduleSummary, setModuleSummary] = useState("");
   const [moduleError, setModuleError] = useState("");
+  const [isSavingModule, setIsSavingModule] = useState(false);
 
   // Topic Modal State
   const [showTopicModal, setShowTopicModal] = useState(false);
@@ -118,7 +119,8 @@ export default function AdminCreateCoursePage() {
         setCategory(validCats.includes(cat) ? cat : "Palantir");
         setLevel(c.level || "Beginner");
         setDuration(c.duration || "");
-        setThumbnail(c.thumbnail || "");
+        const imgUrl = c.imageUrl ? `${import.meta.env.VITE_IMAGE_URL}${c.imageUrl}` : c.thumbnail || "";
+        setThumbnail(imgUrl);
         setCourseStatus(c.status === "draft" ? "draft" : "published");
         setCourseIsActive(c.isActive !== undefined ? c.isActive : (c.status !== "inactive" && (c as any).is_active !== false));
 
@@ -309,75 +311,80 @@ export default function AdminCreateCoursePage() {
       return;
     }
     setModuleError("");
+    setIsSavingModule(true);
 
-    let courseId: string | null = activeCourseId || editCourseId || null;
-    if (!courseId) {
-      try {
-        courseId = await ensureCourseCreated();
-      } catch {
-        // save locally
-      }
-    }
-
-    let activeId = selectedModuleId;
-
-    if (editingModuleId) {
-      // 7. PUT /api/admin/courses/{course_id}/module/{module_id}
-      if (courseId) {
+    try {
+      let courseId: string | null = activeCourseId || editCourseId || null;
+      if (!courseId) {
         try {
-          await CourseStudioApi.updateModule(courseId, editingModuleId, {
-            title: moduleTitle.trim(),
-            summary: moduleSummary.trim(),
-          });
-        } catch (err) {
-          console.warn("Update module warning", err);
+          courseId = await ensureCourseCreated();
+        } catch {
+          // save locally
         }
       }
 
-      setModules((prev) =>
-        prev.map((m) =>
-          m.id === editingModuleId
-            ? { ...m, title: moduleTitle.trim(), summary: moduleSummary.trim() }
-            : m
-        )
-      );
-      activeId = editingModuleId;
-      toast.success("Module updated");
-    } else {
-      let newModId = `mod_${Date.now()}`;
+      let activeId = selectedModuleId;
 
-      // 6. POST /api/admin/courses/{course_id}/module
-      if (courseId) {
-        try {
-          const res = await CourseStudioApi.createModule(courseId, {
-            title: moduleTitle.trim(),
-            summary: moduleSummary.trim(),
-          });
-          if (res?.module?.moduleId || res?.module?.id || res?.moduleId) {
-            newModId = res?.module?.moduleId || res?.module?.id || res?.moduleId;
+      if (editingModuleId) {
+        // 7. PUT /api/admin/courses/{course_id}/module/{module_id}
+        if (courseId) {
+          try {
+            await CourseStudioApi.updateModule(courseId, editingModuleId, {
+              title: moduleTitle.trim(),
+              summary: moduleSummary.trim(),
+            });
+          } catch (err) {
+            console.warn("Update module warning", err);
           }
-        } catch (err) {
-          console.warn("Create module warning", err);
         }
+
+        setModules((prev) =>
+          prev.map((m) =>
+            m.id === editingModuleId
+              ? { ...m, title: moduleTitle.trim(), summary: moduleSummary.trim() }
+              : m
+          )
+        );
+        activeId = editingModuleId;
+        toast.success("Module updated");
+      } else {
+        let newModId = `mod_${Date.now()}`;
+
+        // 6. POST /api/admin/courses/{course_id}/module
+        if (courseId) {
+          try {
+            const res = await CourseStudioApi.createModule(courseId, {
+              title: moduleTitle.trim(),
+              summary: moduleSummary.trim(),
+            });
+            if (res?.module?.moduleId || res?.module?.id || res?.moduleId) {
+              newModId = res?.module?.moduleId || res?.module?.id || res?.moduleId;
+            }
+          } catch (err) {
+            console.warn("Create module warning", err);
+          }
+        }
+
+        const newModule: CourseModuleData = {
+          id: newModId,
+          order: modules.length + 1,
+          title: moduleTitle.trim(),
+          summary: moduleSummary.trim(),
+          topics: [],
+        };
+        setModules((prev) => [...prev, newModule]);
+        activeId = newModId;
+        setSelectedModuleId(newModId);
+        toast.success("New module created");
       }
 
-      const newModule: CourseModuleData = {
-        id: newModId,
-        order: modules.length + 1,
-        title: moduleTitle.trim(),
-        summary: moduleSummary.trim(),
-        topics: [],
-      };
-      setModules((prev) => [...prev, newModule]);
-      activeId = newModId;
-      setSelectedModuleId(newModId);
-      toast.success("New module created");
-    }
+      setShowModuleModal(false);
 
-    setShowModuleModal(false);
-
-    if (andAddTopic && activeId) {
-      openCreateTopic(activeId);
+      if (andAddTopic && activeId) {
+        openCreateTopic(activeId);
+      }
+    } finally {
+      setIsSavingModule(false);
     }
   };
 
@@ -1157,7 +1164,7 @@ export default function AdminCreateCoursePage() {
     <div className="space-y-4 max-w-6xl mx-auto pb-16">
       {/* Top Bar / Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-[#2e303a] pb-2">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
           <button
             onClick={() => {
               if (editCourseId) {
@@ -1172,7 +1179,7 @@ export default function AdminCreateCoursePage() {
           >
             <ChevronLeft size={18} />
           </button>
-          <div>
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-xs font-extrabold uppercase tracking-wider text-[#4F46E5] bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded-md">
                 Course Studio
@@ -1181,7 +1188,7 @@ export default function AdminCreateCoursePage() {
                 {isEditing ? "Editing Course" : "New Course"}
               </span>
             </div>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight mt-0.5">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight mt-0.5 truncate max-w-full">
               {title ? title : "Untitled Course"}
             </h1>
           </div>
@@ -1249,6 +1256,7 @@ export default function AdminCreateCoursePage() {
           setStatus={setCourseStatus}
           isActive={courseIsActive}
           setIsActive={setCourseIsActive}
+          saving={saving}
         />
       )}
 
@@ -1304,6 +1312,7 @@ export default function AdminCreateCoursePage() {
         moduleError={moduleError}
         onClose={() => setShowModuleModal(false)}
         onSave={handleSaveModule}
+        saving={isSavingModule}
       />
 
       {/* ================= MODAL: ADD / EDIT TOPIC (4-STEP FLOW) ================= */}

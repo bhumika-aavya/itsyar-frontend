@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, BookOpen, Edit2, Trash2, Loader2, Save, X, Users } from "lucide-react";
 import { AdminService } from "@/services/admin.service";
+import { CourseStudioApi } from "./course-studio/courseApi";
 import Swal from "sweetalert2";
 
 interface CourseForm {
@@ -32,9 +33,38 @@ export default function AdminCourseDetailPage() {
 
   useEffect(() => {
     AdminService.getCourses()
-      .then(courses => {
+      .then(async courses => {
         const found = courses.find((c: any) => String(c.id) === String(id));
-        if (found) setCourse(found);
+        if (found) {
+          try {
+            const serverModules = await CourseStudioApi.getCourseModules(id as string);
+            if (serverModules) {
+              // Fetch topics for each module to get full details (like titles)
+              const mappedModules = await Promise.all(
+                serverModules.map(async (sm: any) => {
+                  const modId = sm.moduleId || sm.id;
+                  let fetchedTopics: any[] = [];
+                  if (modId) {
+                    try {
+                      fetchedTopics = await CourseStudioApi.getModuleTopics(id as string, modId);
+                    } catch (tErr) {
+                      console.warn("Failed to fetch topics for module", modId);
+                    }
+                  }
+                  return {
+                    ...sm,
+                    topics: fetchedTopics.length > 0 ? fetchedTopics : sm.topics || [],
+                  };
+                })
+              );
+              found.modules = mappedModules;
+              found.modulesCount = mappedModules.length;
+            }
+          } catch (e) {
+            console.warn("Failed to fetch modules for course", e);
+          }
+          setCourse(found);
+        }
         else setNotFound(true);
       })
       .catch(() => setNotFound(true))
@@ -115,7 +145,7 @@ export default function AdminCourseDetailPage() {
         <div className="p-8 space-y-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-extrabold text-slate-900">{course.title}</h1>
+              <h2 className="text-2xl font-extrabold text-slate-900">{course.title}</h2>
               <p className="text-sm font-bold text-slate-400 mt-1">
                 {course.instructor ?? course.author ?? "—"}
               </p>
@@ -144,9 +174,9 @@ export default function AdminCourseDetailPage() {
             <span className="flex items-center gap-1.5 text-xs font-bold text-slate-400">
               <Users size={13} /> {course.enrolled ?? 0} enrolled
             </span>
-            {course.modulesCount != null && (
-              <span className="text-xs font-bold text-slate-400">{course.modulesCount} modules</span>
-            )}
+            <span className="text-xs font-bold text-slate-400">
+              {course.modules?.length ?? course.modulesCount ?? 0} modules
+            </span>
           </div>
 
           {course.description && (
@@ -189,7 +219,7 @@ export default function AdminCourseDetailPage() {
                       <div className="pl-3 border-l-2 border-slate-200 dark:border-[#2e303a] space-y-1 pt-1">
                         {m.topics.map((t: any, tIdx: number) => (
                           <div key={t.id || tIdx} className="flex items-center justify-between text-xs font-medium text-slate-600 dark:text-slate-400">
-                            <span>{tIdx + 1}. {t.title}</span>
+                            <span>{tIdx + 1}. {t.title || t.topic_title || t.name || t.topic_name || "Untitled Topic"}</span>
                             <span className="text-[11px] font-bold text-slate-400">{t.assets?.length || 0} assets</span>
                           </div>
                         ))}
@@ -246,11 +276,18 @@ export default function AdminCourseDetailPage() {
                     className={INPUT_CLS}
                   />
                 </Field>
-                <Field label="Duration">
+                <Field label="Duration (hh:mm:ss)">
                   <input
                     value={form.duration}
-                    onChange={e => setForm(f => f && ({ ...f, duration: e.target.value }))}
-                    placeholder="e.g. 12 hours"
+                    onChange={e => {
+                      const val = e.target.value.replace(/[^0-9]/g, '');
+                      let formatted = val;
+                      if (val.length > 2 && val.length <= 4) formatted = `${val.slice(0, 2)}:${val.slice(2)}`;
+                      else if (val.length > 4) formatted = `${val.slice(0, 2)}:${val.slice(2, 4)}:${val.slice(4, 6)}`;
+                      setForm(f => f && ({ ...f, duration: formatted }));
+                    }}
+                    placeholder="e.g. 12:30:00"
+                    maxLength={8}
                     className={INPUT_CLS}
                   />
                 </Field>

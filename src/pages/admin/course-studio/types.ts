@@ -50,6 +50,7 @@ export interface CourseInfoStepProps {
   setStatus: (val: "published" | "draft") => void;
   isActive: boolean;
   setIsActive: (val: boolean) => void;
+  saving?: boolean;
 }
 
 export interface CurriculumStepProps {
@@ -97,6 +98,7 @@ export interface ModuleModalProps {
   moduleError: string;
   onClose: () => void;
   onSave: (andAddTopic?: boolean) => void;
+  saving?: boolean;
 }
 
 export interface TopicModalProps {
