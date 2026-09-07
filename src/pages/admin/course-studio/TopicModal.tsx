@@ -288,8 +288,8 @@ export default function TopicModal({
             </div>
           </div>
 
-          {/* ================= 5. TOPIC QUIZ & ASSESSMENT SECTION ================= */}
-          <div className="pt-3 border-t border-slate-200/60 dark:border-[#2e303a]/60">
+          {/* ================= 5. TOPIC QUIZ & ASSESSMENT SECTION (Disabled for now) ================= */}
+          {/* <div className="pt-3 border-t border-slate-200/60 dark:border-[#2e303a]/60">
             <div className="flex items-center justify-between mb-3">
               <div>
                 <span className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
@@ -345,7 +345,6 @@ export default function TopicModal({
                     </div>
                   </div>
 
-                  {/* Quiz Details Pills */}
                   <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-200/60 dark:border-[#2e303a]/60 text-[11px] font-bold text-slate-500 dark:text-slate-400">
                     <span className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white dark:bg-[#16171d] border border-slate-200/70 dark:border-[#2e303a]">
                       <Clock size={12} className="text-slate-400" />
@@ -390,7 +389,7 @@ export default function TopicModal({
                 </div>
               )}
             </div>
-          </div>
+          </div> */}
 
           {topicError && <p className="text-xs font-bold text-red-500">{topicError}</p>}
         </div>

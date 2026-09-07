@@ -319,8 +319,8 @@ export default function CurriculumStep({
                             {hasInt && <Check size={12} className="ml-auto shrink-0" />}
                           </div>
 
-                          {/* 5. Topic Quiz */}
-                          <button
+                          {/* 5. Topic Quiz (Disabled for now) */}
+                          {/* <button
                             type="button"
                             onClick={() => onOpenQuizBuilder(selectedModule.id, t)}
                             className={`flex items-center gap-2 p-2 rounded-xl text-xs font-bold transition-all text-left cursor-pointer group/quiz ${
@@ -348,7 +348,7 @@ export default function CurriculumStep({
                             ) : (
                               <Plus size={12} className="ml-auto shrink-0 text-slate-400 group-hover/quiz:text-slate-600" />
                             )}
-                          </button>
+                          </button> */}
                         </div>
                       </div>
                     );

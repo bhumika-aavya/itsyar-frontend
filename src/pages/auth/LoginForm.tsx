@@ -87,14 +87,14 @@ export default function LoginForm() {
         <Logo />
       </div>
 
-      <div className="w-full rounded-[32px] border border-slate-100 bg-white p-10 shadow-xl shadow-slate-200/40">
+      <div className="w-full rounded-[32px] border border-slate-100 dark:border-[#2e303a] bg-white dark:bg-[#16171d] p-10 shadow-xl shadow-slate-200/40 dark:shadow-none">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Welcome back</h2>
-          <p className="mt-2 text-sm font-medium text-slate-500">Sign in to your ForgeInsight account.</p>
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Welcome back</h2>
+          <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">Sign in to your ForgeInsight account.</p>
         </div>
 
         {serverError && (
-          <div className="mb-6 p-3 bg-red-50 text-red-500 rounded-xl text-sm text-center font-bold border border-red-100">
+          <div className="mb-6 p-3 bg-red-50 dark:bg-red-950/30 text-red-500 dark:text-red-400 rounded-xl text-sm text-center font-bold border border-red-100 dark:border-red-900/50">
             {serverError}
           </div>
         )}
@@ -102,7 +102,7 @@ export default function LoginForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Email Address */}
           <div className="flex flex-col space-y-1.5 items-start">
-            <label className="text-[13px] font-bold text-slate-800 ml-1">Email Address <span className="text-red-400">*</span></label>
+            <label className="text-[13px] font-bold text-slate-800 dark:text-slate-200 ml-1">Email Address <span className="text-red-400">*</span></label>
             <div className="relative w-full">
               <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.email ? 'text-red-400' : 'text-slate-400'}`} size={18} />
               <input
@@ -119,11 +119,11 @@ export default function LoginForm() {
           {/* Password */}
           <div className="flex flex-col space-y-1.5 items-start">
             <div className="flex justify-between items-center w-full px-1">
-              <label className="text-[13px] font-bold text-slate-800">Password <span className="text-red-400">*</span></label>
+              <label className="text-[13px] font-bold text-slate-800 dark:text-slate-200">Password <span className="text-red-400">*</span></label>
               <button
                 type="button"
                 onClick={() => navigate('/forgot-password')}
-                className="text-[12px] font-bold text-[#4F46E5] hover:underline"
+                className="text-[12px] font-bold text-[#4F46E5] dark:text-indigo-400 hover:underline"
               >
                 Forgot password?
               </button>
@@ -141,7 +141,7 @@ export default function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -152,7 +152,7 @@ export default function LoginForm() {
 
           {/* Role Dropdown */}
           <div className="flex flex-col space-y-1.5 items-start pb-2">
-            <label className="text-[13px] font-bold text-slate-800 ml-1">Sign in as <span className="text-red-400">*</span></label>
+            <label className="text-[13px] font-bold text-slate-800 dark:text-slate-200 ml-1">Sign in as <span className="text-red-400">*</span></label>
             <div className="relative w-full">
               <UserCog className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.role ? 'text-red-400' : 'text-slate-400'}`} size={18} />
               <select
@@ -175,23 +175,23 @@ export default function LoginForm() {
           <button
             disabled={isLoading}
             type="submit"
-            className="h-14 w-full rounded-xl bg-[#4F46E5] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#4338CA] transition-all disabled:opacity-70 shadow-lg shadow-indigo-100 active:scale-[0.98]"
+            className="h-14 w-full rounded-xl bg-[#4F46E5] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#4338CA] transition-all disabled:opacity-70 shadow-lg shadow-indigo-100 dark:shadow-none active:scale-[0.98]"
           >
             {isLoading ? <Loader2 className="animate-spin" /> : "Sign In"}
           </button>
 
           {/* Divider */}
           <div className="flex items-center gap-4">
-            <div className="h-[1px] flex-1 bg-slate-100" />
+            <div className="h-[1px] flex-1 bg-slate-100 dark:bg-[#2e303a]" />
             <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Or Continue With</span>
-            <div className="h-[1px] flex-1 bg-slate-100" />
+            <div className="h-[1px] flex-1 bg-slate-100 dark:bg-[#2e303a]" />
           </div>
 
           {/* Google Login Button */}
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="h-14 w-full rounded-xl border-2 border-slate-100 bg-white flex items-center justify-center gap-3 font-bold text-slate-700 hover:bg-slate-50 transition-all active:scale-[0.98]"
+            className="h-14 w-full rounded-xl border-2 border-slate-100 dark:border-[#2e303a] bg-white dark:bg-[#16171d] flex items-center justify-center gap-3 font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#1c1d24] transition-all active:scale-[0.98]"
           >
             <img
               src="https://www.svgrepo.com/show/475656/google-color.svg"
@@ -202,12 +202,12 @@ export default function LoginForm() {
           </button>
         </form>
 
-        <p className="mt-8 text-center text-sm font-bold text-slate-500">
+        <p className="mt-8 text-center text-sm font-bold text-slate-500 dark:text-slate-400">
           Don't have an account?{" "}
           <button
             type="button"
             onClick={() => navigate('/register')}
-            className="text-[#4F46E5] hover:underline"
+            className="text-[#4F46E5] dark:text-indigo-400 hover:underline"
           >
             Sign up
           </button>
