@@ -256,41 +256,34 @@ export const CourseStudioApi = {
     };
   },
 
-  /** Step 2 & 3 — Upload Video: POST /api/courses/{course_id}/modules/{module_id}/upload-video */
-  uploadTopicVideo: async (
+  /** Step 2 & 3 — Get GCS Upload URL for Video: POST /api/courses/{course_id}/modules/{module_id}/topics/get-upload-url */
+  getTopicVideoUploadUrl: async (
     courseId: string,
     moduleId: string,
     topicId: string,
     videoType: "topic" | "practical",
-    file: File
+    fileType: string,
+    fileSize: number
   ) => {
     const formData = new FormData();
     formData.append("topic_id", topicId);
     formData.append("video_type", videoType);
-    formData.append("file", file);
+    formData.append("content_type", fileType);
+    formData.append("size_byte", String(fileSize));
 
     const res = await api.post(
-      `/courses/${courseId}/modules/${moduleId}/upload-video`,
+      `/courses/${courseId}/modules/${moduleId}/topics/get-upload-url`,
       formData,
       getAuthHeaders()
     );
 
     const d = res.data || {};
-    const retTopicId = d.topicId || d.topic_id || topicId;
-    const gcsPath = d.gcsPath || d.gcs_path || "";
-    const contentType = d.contentType || d.content_type || file.type || "video/mp4";
-    const sizeByte = Number(d.sizeByte || d.size_byte || file.size || 0);
-
     return {
       success: Boolean(d.success ?? true),
-      topic_id: String(retTopicId),
-      topicId: String(retTopicId),
-      gcs_path: String(gcsPath),
-      gcsPath: String(gcsPath),
-      content_type: String(contentType),
-      contentType: String(contentType),
-      size_byte: sizeByte,
-      sizeByte: sizeByte,
+      topicId: String(d.topicId || d.topic_id || topicId),
+      uploadUrl: String(d.uploadUrl || d.upload_url || ""),
+      gcsPath: String(d.gcsPath || d.gcs_path || ""),
+      contentType: String(d.contentType || d.content_type || fileType),
     };
   },
 
