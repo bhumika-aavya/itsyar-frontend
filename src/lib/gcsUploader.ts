@@ -28,7 +28,12 @@ export function uploadBinaryToGCS(
       }
     };
 
-    xhr.onerror = () => reject(new Error("Network connection error during GCS upload."));
+    xhr.onerror = () =>
+      reject(
+        new Error(
+          "Network connection or CORS error during GCS upload. Ensure bucket CORS configuration is applied."
+        )
+      );
     xhr.send(file);
   });
 }

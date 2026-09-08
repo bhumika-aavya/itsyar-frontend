@@ -7,20 +7,22 @@ export function getVideoDuration(file: File): Promise<string> {
     const video = document.createElement("video");
     video.preload = "metadata";
 
+    const objectUrl = URL.createObjectURL(file);
+
     video.onloadedmetadata = () => {
-      URL.revokeObjectURL(video.src);
       const totalSeconds = Math.round(video.duration);
       const minutes = Math.floor(totalSeconds / 60);
       const seconds = totalSeconds % 60;
       const formatted = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
       resolve(formatted);
     };
 
     video.onerror = () => {
-      URL.revokeObjectURL(video.src);
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
       resolve(""); // Graceful fallback
     };
 
-    video.src = URL.createObjectURL(file);
+    video.src = objectUrl;
   });
 }
