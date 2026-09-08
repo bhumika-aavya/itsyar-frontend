@@ -37,27 +37,27 @@ const TopicAccordion = ({
     const topicIdVal = topic.topic_id || topic.topicId || `t-${index}`;
 
     return (
-        <div className="border border-slate-100 rounded-2xl overflow-hidden bg-white shadow-sm transition-all duration-300">
-            <button onClick={onToggle} className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-50/50 transition-colors">
+        <div className="border border-slate-100 dark:border-[#2e303a] rounded-2xl overflow-hidden bg-white dark:bg-[#16171d] shadow-sm dark:shadow-none transition-all duration-300">
+            <button onClick={onToggle} className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-50/50 dark:hover:bg-[#1c1d24]/50 transition-colors">
                 <div className="flex items-center gap-4">
-                    <span className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-[11px] font-extrabold text-slate-400">
+                    <span className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-[#252630] flex items-center justify-center text-[11px] font-extrabold text-slate-400 dark:text-slate-500">
                         {displayNum < 10 ? `0${displayNum}` : displayNum}
                     </span>
                     <div>
-                        <h4 className="font-bold text-slate-800">{topic.title || topic.topic_title}</h4>
+                        <h4 className="font-bold text-slate-900 dark:text-white">{topic.title || topic.topic_title}</h4>
                         {topic.duration && (
-                            <span className="text-[11px] font-medium text-slate-400">{topic.duration}</span>
+                            <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500">{topic.duration}</span>
                         )}
                     </div>
                 </div>
                 {isOpen ? <ChevronUp className="text-slate-400" size={20} /> : <ChevronDown className="text-slate-400" size={20} />}
             </button>
             {isOpen && (
-                <div className="px-5 pb-5 border-t border-slate-50 pt-5">
+                <div className="px-5 pb-5 border-t border-slate-50 dark:border-[#2e303a] pt-5">
                     {topic.topic_summary ? (
-                        <p className="text-[13px] text-slate-500 font-medium leading-relaxed mb-4">{topic.topic_summary}</p>
+                        <p className="text-[13px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed mb-4">{topic.topic_summary}</p>
                     ) : (
-                        <p className="text-[13px] text-slate-500 font-medium leading-relaxed mb-4">Master the art of writing PRDs, defining user personas, and scoping MVPs.</p>
+                        <p className="text-[13px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed mb-4">Master the art of writing PRDs, defining user personas, and scoping MVPs.</p>
                     )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -95,21 +95,21 @@ const TopicAccordion = ({
                                 <div
                                     key={assetIdx}
                                     onClick={handleAssetClick}
-                                    className="flex items-center gap-4 p-4 bg-slate-50 hover:bg-[#EEF0FF] border border-slate-100 hover:border-[#4F46E5] rounded-xl cursor-pointer group transition-all"
+                                    className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-[#1C1D24] hover:bg-[#EEF0FF] dark:hover:bg-[#1e1b4b]/40 border border-slate-100 dark:border-white/5 hover:border-[#4F46E5] dark:hover:border-[#4F46E5] rounded-xl cursor-pointer group transition-all"
                                 >
                                     <div className="relative">
-                                        <div className="p-2.5 rounded-lg bg-white shadow-sm text-slate-400 group-hover:text-[#4F46E5] group-hover:shadow-md transition-all">
+                                        <div className="p-2.5 rounded-lg bg-white dark:bg-[#16171d] shadow-sm dark:shadow-none text-slate-400 group-hover:text-[#4F46E5] group-hover:shadow-md transition-all">
                                             {item.type === 'topic-documentation' || item.type === 'interview-questions' || item.type === 'documentation' || item.type === 'interview_pdf' ? <FileText size={18} /> : <PlayCircle size={18} />}
                                         </div>
-                                        <div className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-slate-200 group-hover:bg-[#4F46E5] text-slate-600 group-hover:text-white text-[10px] font-extrabold flex items-center justify-center shadow-xs border border-white transition-all duration-200">
+                                        <div className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-slate-200 dark:bg-[#252630] group-hover:bg-[#4F46E5] text-slate-600 dark:text-slate-300 group-hover:text-white text-[10px] font-extrabold flex items-center justify-center shadow-xs border border-white dark:border-[#16171d] transition-all duration-200">
                                             {assetIdx + 1}
                                         </div>
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] font-extrabold text-[#4F46E5] uppercase tracking-wider mb-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                                        <span className="text-[10px] font-extrabold text-[#4F46E5] dark:text-[#818cf8] uppercase tracking-wider mb-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
                                             Step 0{assetIdx + 1}
                                         </span>
-                                        <span className="text-sm font-bold text-slate-700 group-hover:text-[#4F46E5] leading-tight">{item.title}</span>
+                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-[#4F46E5] dark:group-hover:text-[#818cf8] leading-tight">{item.title}</span>
                                         {item.duration && <span className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">{item.duration}</span>}
                                     </div>
                                 </div>
@@ -374,54 +374,53 @@ export default function TopicDetailPage() {
     }
 
     return (
-        <div className="max-w-6xl mx-auto text-left pb-20">
-            <button onClick={() => navigate(`/courses/${courseId}`)} className="flex items-center gap-2 text-slate-400 hover:text-[#4F46E5] font-bold text-xs transition-colors mb-6 uppercase">
-                <ChevronLeft size={16} /> Back to Module Overview
-            </button>
+        <div className="min-h-screen pb-20 relative overflow-hidden font-sans text-left">
+            {/* Header Section */}
+            <div className="pt-6 px-6 md:px-10 relative z-10">
+                <div className="max-w-7xl mx-auto">
+                    <button onClick={() => navigate(`/courses/${courseId}`)} className="flex items-center gap-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-bold text-xs transition-colors mb-3 uppercase tracking-widest">
+                        <ChevronLeft size={16} /> Back to Module Overview
+                    </button>
 
-            {/* Hero Section */}
-            <section className="mb-16">
-                <div className="w-full space-y-6">
-                    <span className="inline-block px-3 py-1 rounded-md bg-indigo-50 text-[#4F46E5] text-[10px] font-extrabold uppercase tracking-widest">
-                        Module {activeModule?.order || ''}
-                    </span>
-                    <h2 className="text-2xl font-bold text-slate-900">{activeModule?.title || course?.title}</h2>
-                    <p className="text-lg text-slate-500 font-medium leading-relaxed w-full max-w-none">{activeModule?.summary || course?.description}</p>
-
-
-                </div>
-
-                {/* {course?.thumbnail && (
-                    <div className="lg:col-span-2">
-                        <div className="rounded-[40px] overflow-hidden shadow-2xl shadow-slate-200 border-8 border-white">
-                            <img
-                                src={`${import.meta.env.VITE_IMAGE_URL}${course.thumbnail}`}
-                                alt={activeModule?.title || course?.title || "Thumbnail"}
-                                className="w-full aspect-video object-cover"
-                            />
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6">
+                        <div className="relative max-w-4xl">
+                            <span className="inline-block px-3 py-1 rounded-md bg-indigo-50 dark:bg-indigo-950/50 text-[#4F46E5] dark:text-indigo-400 text-[10px] font-extrabold uppercase tracking-widest mb-3">
+                                Module {activeModule?.order || ''}
+                            </span>
+                            <h2 className="md:text-[50px] text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.1]">
+                                {activeModule?.title || course?.title}
+                            </h2>
+                            <p className="text-slate-500 dark:text-slate-400 font-medium text-[17px] mt-2 leading-relaxed">
+                                {activeModule?.summary || course?.description}
+                            </p>
                         </div>
                     </div>
-                )} */}
-            </section>
+                </div>
+            </div>
 
-            <section className="space-y-6">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold text-slate-900">Module Topics</h2>
+            {/* Main Content Area */}
+            <div className="max-w-7xl mx-auto pt-5">
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between pb-1">
+                        <h3 className="text-xl md:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+                            Module Topics
+                        </h3>
+                    </div>
+                    <div className="flex flex-col gap-4 max-w-5xl">
+                        {(apiModuleDetail?.topics ?? []).map((topic: any, idx: number) => (
+                            <TopicAccordion
+                                key={topic.topic_id || topic.topicId || idx}
+                                topic={topic}
+                                moduleId={activeModule?.moduleId || ''}
+                                index={idx}
+                                isOpen={openModule === (topic.topic_id || topic.topicId)}
+                                onToggle={() => setOpenModule(openModule === (topic.topic_id || topic.topicId) ? null : (topic.topic_id || topic.topicId))}
+                                onOpenPdf={handleOpenPdf}
+                            />
+                        ))}
+                    </div>
                 </div>
-                <div className="flex flex-col gap-4 max-w-4xl">
-                    {(apiModuleDetail?.topics ?? []).map((topic: any, idx: number) => (
-                        <TopicAccordion
-                            key={topic.topic_id || topic.topicId || idx}
-                            topic={topic}
-                            moduleId={activeModule?.moduleId || ''}
-                            index={idx}
-                            isOpen={openModule === (topic.topic_id || topic.topicId)}
-                            onToggle={() => setOpenModule(openModule === (topic.topic_id || topic.topicId) ? null : (topic.topic_id || topic.topicId))}
-                            onOpenPdf={handleOpenPdf}
-                        />
-                    ))}
-                </div>
-            </section>
+            </div>
 
             {/* In-App PDF Viewer Modal */}
             <InAppPdfModal

@@ -106,93 +106,88 @@ export default function MainLayout() {
         </nav>
 
         {(['admin', 'superadmin'].includes((user?.role ?? '').toLowerCase())) && (
-          <div className="pt-4 border-t border-slate-100">
+          <div className="pt-3 pb-3 border-t border-slate-100 dark:border-[#2e303a]">
             <button
               onClick={() => navigate('/admin')}
               title={collapsed ? 'Admin Panel' : undefined}
-              className={`w-full flex items-center gap-3 py-2.5 rounded-xl text-sm font-semibold text-[#4F46E5] hover:bg-indigo-50 transition-all cursor-pointer ${collapsed ? 'justify-center px-0' : 'px-4'}`}
+              className={`w-full flex items-center gap-3 py-2.5 rounded-xl text-sm font-semibold text-[#4F46E5] hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-all cursor-pointer ${collapsed ? 'justify-center px-0' : 'px-4'}`}
             >
               <Shield size={16} className="shrink-0" />
               {!collapsed && <span className="truncate">Admin Panel</span>}
             </button>
           </div>
         )}
-      </aside>
 
-      {/* Main Area */}
-      <main className="flex-1 flex flex-col">
-        <header className="h-20 bg-white dark:bg-[#16171d] border-b border-slate-100 dark:border-[#2e303a] flex items-center justify-between px-10 sticky top-0 z-40">
-          <div className="relative w-96 text-left">
-            {/* <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input
-              type="text"
-              placeholder="Search courses..."
-              className="w-full h-11 bg-[#F5F6FA] border-none rounded-xl pl-12 pr-4 text-sm focus:ring-2 focus:ring-[#3AADDD]/20 transition-all"
-            /> */}
-          </div>
-
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
-
-            {/* Dynamic User Section with Dropdown */}
-            <div className="relative" ref={dropdownRef}>
+        {/* Bottom User & Preferences Section */}
+        {!collapsed ? (
+          <div className="pt-4 mt-auto border-t border-slate-100 dark:border-[#2e303a] space-y-3">
+            <div className="flex items-center justify-between gap-2 p-2 rounded-2xl bg-slate-50/80 dark:bg-[#1C1D24]/80 border border-slate-100 dark:border-white/5">
               <div
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-3 cursor-pointer group p-1.5 pr-3 rounded-2xl hover:bg-slate-50 dark:hover:bg-[#1f2028] transition-all border border-transparent hover:border-slate-100 dark:hover:border-[#2e303a]"
+                onClick={() => navigate('/profile')}
+                className="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer hover:opacity-80 transition-opacity"
+                title="View Profile"
               >
-                <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-950/50 border-2 border-white dark:border-[#2e303a] shadow-sm overflow-hidden flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-900/30 shrink-0 flex items-center justify-center overflow-hidden">
                   {user?.avatarUrl ? (
                     <img src={user.avatarUrl} alt={user?.fullName ?? "User"} className="w-full h-full object-cover" />
                   ) : (
-                    <span className="text-[#4F46E5] dark:text-[#818cf8] font-extrabold text-sm uppercase">
+                    <span className="text-[#4F46E5] dark:text-[#818cf8] font-extrabold text-xs uppercase">
                       {user?.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
                     </span>
                   )}
                 </div>
-                <div className="text-right hidden sm:block">
-                  <div className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight">
+                <div className="min-w-0 flex-1 text-left">
+                  <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate leading-tight">
                     {user?.fullName || "Guest User"}
-                  </div>
-                  <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                  </p>
+                  <p className="text-[10px] font-extrabold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
                     {(user?.role?.toLowerCase() === 'student' ? 'Learner' : user?.role) || "Member"}
-                  </div>
+                  </p>
                 </div>
-                <ChevronDown
-                  size={16}
-                  className={`text-slate-400 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`}
-                />
               </div>
 
-              {/* Dropdown Menu */}
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-[#1f2028] rounded-2xl shadow-2xl border border-slate-100 dark:border-[#2e303a] py-2 z-50 animate-in fade-in zoom-in-95 duration-200">
-                  <div className="px-4 py-3 border-b border-slate-50 dark:border-[#2e303a] mb-1">
-                    <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Account</p>
-                    <p className="text-sm font-bold text-slate-700 dark:text-slate-300 truncate">{user?.email}</p>
-                  </div>
-
-                  <button
-                    onClick={() => { navigate('/profile'); setIsDropdownOpen(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#252630] hover:text-[#4F46E5] dark:hover:text-[#818cf8] transition-colors"
-                  >
-                    <User size={16} /> My Profile
-                  </button>
-
-                  <div className="h-px bg-slate-50 dark:bg-[#2e303a] my-1 mx-2" />
-
-                  <button
-                    onClick={() => { logout(); setIsDropdownOpen(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
-                  >
-                    <LogOut size={16} /> Sign Out
-                  </button>
-                </div>
-              )}
+              <div className="flex items-center gap-0.5 shrink-0">
+                <ThemeToggle />
+                <button
+                  onClick={() => logout()}
+                  title="Sign Out"
+                  className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all cursor-pointer"
+                >
+                  <LogOut size={16} />
+                </button>
+              </div>
             </div>
           </div>
-        </header>
+        ) : (
+          <div className="pt-4 mt-auto border-t border-slate-100 dark:border-[#2e303a] flex flex-col items-center gap-3">
+            <ThemeToggle />
+            <div
+              onClick={() => navigate('/profile')}
+              className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-900/30 flex items-center justify-center cursor-pointer hover:scale-105 transition-all overflow-hidden"
+              title={`${user?.fullName || 'User'} (${user?.role || 'Member'})`}
+            >
+              {user?.avatarUrl ? (
+                <img src={user.avatarUrl} alt={user?.fullName ?? "User"} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-[#4F46E5] dark:text-[#818cf8] font-extrabold text-sm uppercase">
+                  {user?.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
+                </span>
+              )}
+            </div>
+            <button
+              onClick={() => logout()}
+              title="Sign Out"
+              className="p-2.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all cursor-pointer"
+            >
+              <LogOut size={16} />
+            </button>
+          </div>
+        )}
+      </aside>
 
-        <div className="p-10 flex-1 overflow-y-auto">
+      {/* Main Area */}
+      <main className="flex-1 flex flex-col min-w-0">
+        <div className="p-6 md:p-10 flex-1 overflow-y-auto">
           <Outlet />
         </div>
       </main>
