@@ -40,7 +40,7 @@ export default function ResetPassword() {
       <div className="w-full max-w-md flex flex-col items-center">
         <div className="mb-8"><Logo /></div>
 
-        <div className="w-full rounded-[32px] border border-slate-100 dark:border-[#2e303a] bg-white p-10 shadow-xl shadow-slate-200 dark:shadow-none/40 dark:shadow-none">
+        <div className="w-full rounded-[32px] border border-slate-100 dark:border-[#2e303a] bg-white dark:bg-[#16171d] p-10 shadow-xl shadow-slate-200 dark:shadow-none">
           {done ? (
             <div className="text-center space-y-4">
               <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto">

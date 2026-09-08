@@ -112,7 +112,7 @@ const Hero = () => {
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <button
               onClick={() => handleNavigation('student')}
-              className="flex items-center gap-2 bg-[#4F46E5] text-white px-8 py-4 rounded-2xl font-bold hover:scale-[1.02] transition-all shadow-xl shadow-indigo-200 dark:shadow-none/50"
+              className="flex items-center gap-2 bg-[#4F46E5] text-white px-8 py-4 rounded-2xl font-bold hover:scale-[1.02] transition-all shadow-xl shadow-indigo-200 dark:shadow-none"
             >
               <Play size={18} fill="white" />
               Start Learning

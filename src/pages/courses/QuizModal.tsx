@@ -191,7 +191,7 @@ export default function QuizModal({ isOpen, onClose, onQuizComplete, data, isFin
 
         {/* Sidebar */}
         <div className="w-[340px] bg-[#F8F9FD] p-10 flex flex-col border-l border-slate-50">
-          <div className="bg-white rounded-[32px] p-10 text-center shadow-xl shadow-indigo-500 dark:shadow-none/5 border border-indigo-50">
+          <div className="bg-white dark:bg-[#16171d] rounded-[32px] p-10 text-center shadow-xl shadow-indigo-500 dark:shadow-none border border-indigo-50 dark:border-white/5">
             <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-3">Time Remaining</p>
             <div className={`text-6xl font-extrabold tabular-nums tracking-tighter ${timeLeft < 60 ? 'text-red-500 animate-pulse' : 'text-slate-900'}`}>
               {formatTime(timeLeft)}

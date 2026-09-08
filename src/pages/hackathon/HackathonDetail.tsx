@@ -425,7 +425,7 @@ export default function HackathonDetail() {
 
                     {/* RIGHT SIDEBAR */}
                     <div className="lg:col-span-1 space-y-6 sticky top-28">
-                        <div className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-2xl shadow-slate-200/50 space-y-8">
+                        <div className="bg-white dark:bg-[#16171d] border border-slate-100 dark:border-[#2e303a] rounded-[32px] p-8 shadow-2xl shadow-slate-200/50 dark:shadow-none space-y-8">
                             <div className="space-y-5">
                                 <SidebarItem icon={Calendar} label="Date" value={`${formatDate(data.startDate)} – ${formatDate(data.endDate)}`} />
                                 <SidebarItem icon={Users} label="Registered Teams" value={data.participantCount} />

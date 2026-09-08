@@ -102,7 +102,7 @@ export default function ProfilePage() {
       </div>
 
       {/* Profile Header Card */}
-      <div className="bg-white rounded-[28px] border border-slate-100 shadow-xl shadow-slate-100 dark:shadow-none/40 p-8">
+      <div className="bg-white dark:bg-[#1C1D24] rounded-[28px] border border-slate-100 dark:border-white/5 shadow-xl shadow-slate-100 dark:shadow-none p-8">
         <div className="flex items-center gap-6">
           {/* Avatar */}
           <div className="relative">
@@ -150,7 +150,7 @@ export default function ProfilePage() {
       <div className={isStudent ? "grid grid-cols-3 gap-6" : "grid grid-cols-1 gap-6"}>
         {/* Completed Courses — student only, backend 403s course endpoints for other roles */}
         {isStudent && (
-          <div className="col-span-2 bg-white rounded-[28px] border border-slate-100 shadow-xl shadow-slate-100 dark:shadow-none/40 p-6">
+          <div className="col-span-2 bg-white dark:bg-[#1C1D24] rounded-[28px] border border-slate-100 dark:border-white/5 shadow-xl shadow-slate-100 dark:shadow-none p-6">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-extrabold text-slate-900">Completed Courses</h2>
               <button
@@ -198,7 +198,7 @@ export default function ProfilePage() {
         )}
 
         {/* Account Details */}
-        <div className="bg-white rounded-[28px] border border-slate-100 shadow-xl shadow-slate-100 dark:shadow-none/40 p-6">
+        <div className="bg-white dark:bg-[#1C1D24] rounded-[28px] border border-slate-100 dark:border-white/5 shadow-xl shadow-slate-100 dark:shadow-none p-6">
           <h2 className="text-base font-extrabold text-slate-900 mb-4">Account Details</h2>
           <div className="space-y-2.5">
             <DetailRow icon={IdCard} label="Role" value={roleLabel(role || 'student')} />

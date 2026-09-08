@@ -46,7 +46,7 @@ export default function PricingCard({
         <div
             className={`relative rounded-[32px] p-8 md:p-10 transition-all duration-300 flex flex-col ${featured
                     ? 'bg-gradient-to-br from-[#4F46E5] via-[#4338CA] to-[#3730A3] text-white shadow-2xl shadow-indigo-200 dark:shadow-none scale-[1.02] border border-indigo-300/20'
-                    : 'bg-white border border-slate-100 text-slate-900 shadow-lg shadow-slate-200 dark:shadow-none/50 hover:shadow-xl hover:shadow-slate-200/60'
+                    : 'bg-white dark:bg-[#16171d] border border-slate-100 dark:border-[#2e303a] text-slate-900 dark:text-white shadow-lg shadow-slate-200 dark:shadow-none hover:shadow-xl hover:shadow-slate-200/60 dark:hover:shadow-none'
                 }`}
         >
             {/* Featured badge */}

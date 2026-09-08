@@ -103,7 +103,7 @@ export default function LeaderboardPage() {
           <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
         </div>
       ) : (
-        <div className="bg-white rounded-[28px] border border-slate-100 shadow-xl shadow-slate-100 dark:shadow-none/40 overflow-hidden">
+        <div className="bg-white dark:bg-[#16171d] rounded-[28px] border border-slate-100 dark:border-[#2e303a] shadow-xl shadow-slate-100 dark:shadow-none overflow-hidden">
           {/* Search */}
           <div className="p-6 border-b border-slate-100">
             <div className="relative max-w-sm">

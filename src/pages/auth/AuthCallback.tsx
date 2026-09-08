@@ -70,7 +70,7 @@ export default function AuthCallback() {
   if (needsRole) {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-[#F9FAFD] p-6">
-        <div className="w-full max-w-md bg-white rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200 dark:shadow-none/40 p-10 text-center space-y-6">
+        <div className="w-full max-w-md bg-white dark:bg-[#16171d] rounded-[32px] border border-slate-100 dark:border-[#2e303a] shadow-xl shadow-slate-200 dark:shadow-none p-10 text-center space-y-6">
           <div>
             <h2 className="text-2xl font-extrabold text-slate-900">One last thing</h2>
             <p className="text-sm font-medium text-slate-500 mt-2">How will you be using ForgeInsight?</p>

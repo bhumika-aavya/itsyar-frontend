@@ -4,7 +4,7 @@ import React from "react";
 export default function Logo() {
   return (
     <div className="flex flex-col items-center">
-      <div className="flex h-[88px] w-[88px] items-center justify-center rounded-[28px] bg-[#4F46E5] shadow-xl shadow-indigo-200 dark:shadow-none dark:shadow-indigo-950 dark:shadow-none/50">
+      <div className="flex h-[88px] w-[88px] items-center justify-center rounded-[28px] bg-[#4F46E5] shadow-xl shadow-indigo-200 dark:shadow-none">
         <Zap
           className="h-11 w-11 text-white fill-white"
           strokeWidth={2.5}

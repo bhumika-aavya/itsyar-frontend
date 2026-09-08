@@ -29,7 +29,7 @@ export default function PaymentSummary({
     children,
 }: PaymentSummaryProps) {
     return (
-        <div className="bg-white border border-slate-100 rounded-[32px] p-8 shadow-2xl shadow-slate-200/50 space-y-6">
+        <div className="bg-white dark:bg-[#16171d] border border-slate-100 dark:border-[#2e303a] rounded-[32px] p-8 shadow-2xl shadow-slate-200/50 dark:shadow-none space-y-6">
             {/* Product Image */}
             {imageUrl && (
                 <div className="rounded-2xl overflow-hidden border border-slate-50">

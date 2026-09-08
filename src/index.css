@@ -413,3 +413,12 @@ code {
 .dark .via-purple-50\/40 {
   --tw-gradient-via: rgba(168, 85, 247, 0.04) var(--tw-gradient-via-position) !important;
 }
+
+/* Prevent glowing light/slate shadows in dark mode */
+.dark [class*="shadow-slate-"],
+.dark [class*="shadow-indigo-50"],
+.dark [class*="shadow-indigo-100"],
+.dark [class*="shadow-indigo-200"] {
+  --tw-shadow-color: transparent !important;
+  box-shadow: none !important;
+}

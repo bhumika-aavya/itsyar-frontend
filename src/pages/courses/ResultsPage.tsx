@@ -29,7 +29,7 @@ export default function ResultsPage() {
         <p className="text-slate-400 font-medium mt-1">Track your learning milestones and academic achievements.</p>
       </div>
 
-      <div className="bg-white rounded-[32px] border border-slate-100 shadow-xl shadow-slate-100 dark:shadow-none/40 overflow-hidden">
+      <div className="bg-white dark:bg-[#16171d] rounded-[32px] border border-slate-100 dark:border-[#2e303a] shadow-xl shadow-slate-100 dark:shadow-none overflow-hidden">
         {/* Card Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-100">
           <div className="flex items-center gap-3">

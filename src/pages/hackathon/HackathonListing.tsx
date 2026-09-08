@@ -107,7 +107,7 @@ export default function HackathonListing() {
             </div>
 
             {/* Table */}
-            <div className="bg-white border border-slate-100 rounded-[32px] shadow-xl shadow-slate-200 dark:shadow-none/40 overflow-hidden">
+            <div className="bg-white dark:bg-[#16171d] border border-slate-100 dark:border-[#2e303a] rounded-[32px] shadow-xl shadow-slate-200 dark:shadow-none overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>

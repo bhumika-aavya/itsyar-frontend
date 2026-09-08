@@ -186,7 +186,7 @@ export default function LessonView() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Viewer Area */}
           <div className="lg:col-span-8 space-y-8">
-            <div className={`relative w-full bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl shadow-indigo-900 dark:shadow-none/10 border border-slate-800 ${
+            <div className={`relative w-full bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl shadow-indigo-900 dark:shadow-none border border-slate-800 ${
               isDocument ? "min-h-[640px] h-[75vh]" : "aspect-video"
             }`}>
               {isUpdatingVideo && (
@@ -292,15 +292,15 @@ export default function LessonView() {
                         });
                         window.open(`/pdf-viewer?${params.toString()}`, '_blank');
                       }}
-                      className="flex items-center justify-between p-3.5 bg-white border border-slate-100 rounded-2xl hover:border-[#4F46E5] hover:shadow-md group transition-all shadow-sm cursor-pointer"
+                      className="flex items-center justify-between p-3.5 bg-white dark:bg-[#16171d] border border-slate-100 dark:border-[#2e303a] rounded-2xl hover:border-[#4F46E5] hover:shadow-md dark:hover:shadow-none group transition-all shadow-sm dark:shadow-none cursor-pointer"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-[#4F46E5] group-hover:bg-[#4F46E5] group-hover:text-white transition-all">
+                        <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center text-[#4F46E5] dark:text-[#818cf8] group-hover:bg-[#4F46E5] group-hover:text-white transition-all">
                           <FileText size={18} />
                         </div>
                         <div>
-                          <h4 className="text-xs font-bold text-slate-800 group-hover:text-[#4F46E5] transition-colors">{docAsset.title}</h4>
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">In-App PDF Reader</p>
+                          <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#4F46E5] transition-colors">{docAsset.title}</h4>
+                          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">In-App PDF Reader</p>
                         </div>
                       </div>
                       <span className="text-[11px] font-extrabold text-[#4F46E5] opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
@@ -314,8 +314,8 @@ export default function LessonView() {
           </div>
 
           {/* Sidebar: Topics Hierarchy */}
-          <div className="lg:col-span-4 bg-white border border-slate-100 rounded-[32px] p-5 flex flex-col h-[calc(100vh-140px)] sticky top-28 shadow-xl shadow-slate-100 dark:shadow-none/50">
-            <h3 className="font-extrabold text-slate-900 text-base px-2 mb-4">Course Content</h3>
+          <div className="lg:col-span-4 bg-white dark:bg-[#16171d] border border-slate-100 dark:border-[#2e303a] rounded-[32px] p-5 flex flex-col h-[calc(100vh-140px)] sticky top-28 shadow-xl shadow-slate-100 dark:shadow-none">
+            <h3 className="font-extrabold text-slate-900 dark:text-white text-base px-2 mb-4">Course Content</h3>
             <div className="flex-1 overflow-y-auto pr-1 space-y-3">
               {activeTopics.map((topic: ApiTopic, topicIdx: number) => {
                 const tId = topic.topic_id || topic.topicId || `t-${topicIdx}`;
@@ -325,12 +325,12 @@ export default function LessonView() {
                 return (
                   <div
                     key={tId}
-                    className={`rounded-2xl overflow-hidden border transition-all duration-300 ${isCurrentTopic ? "border-[#4F46E5] shadow-sm" : "border-slate-100"
+                    className={`rounded-2xl overflow-hidden border transition-all duration-300 ${isCurrentTopic ? "border-[#4F46E5] shadow-sm dark:shadow-none" : "border-slate-100 dark:border-[#2e303a]"
                       }`}
                   >
                     <button
                       onClick={() => setOpenTopicId(isOpen ? null : tId)}
-                      className={`w-full p-4 flex items-center justify-between transition-colors ${isCurrentTopic ? "bg-[#4F46E5] text-white" : "bg-white text-slate-700 hover:bg-slate-50"
+                      className={`w-full p-4 flex items-center justify-between transition-colors ${isCurrentTopic ? "bg-[#4F46E5] text-white" : "bg-white dark:bg-[#1c1d24] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#252630]"
                         }`}
                     >
                       <div className="text-left">
@@ -344,7 +344,7 @@ export default function LessonView() {
                     </button>
 
                     {isOpen && (
-                      <div className="bg-white p-3 space-y-2">
+                      <div className="bg-white dark:bg-[#16171d] p-3 space-y-2">
                         {topic.assets?.map((asset: ApiAsset, aIdx: number) => {
                           const isCurrentAsset = isCurrentTopic && currentAsset?.type === asset.type;
                           const isDoc = asset.type === 'documentation' || asset.type === 'interview_pdf';
@@ -359,11 +359,11 @@ export default function LessonView() {
                                 }
                               }}
                               className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all ${isCurrentAsset
-                                ? "bg-[#EEF0FF] dark:bg-[#1e1b4b] text-[#4F46E5] dark:text-[#818cf8] font-extrabold border border-indigo-100 dark:border-indigo-950 shadow-xs"
+                                ? "bg-[#EEF0FF] dark:bg-[#1e1b4b] text-[#4F46E5] dark:text-[#818cf8] font-extrabold border border-indigo-100 dark:border-indigo-950 shadow-xs dark:shadow-none"
                                 : "text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-[#1c1d24]"
                                 }`}
                             >
-                              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isCurrentAsset ? "bg-white dark:bg-[#252630] text-[#4F46E5] dark:text-[#818cf8] shadow-xs" : "bg-slate-50 dark:bg-[#1c1d24] text-slate-400 dark:text-slate-500"
+                              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isCurrentAsset ? "bg-white dark:bg-[#252630] text-[#4F46E5] dark:text-[#818cf8] shadow-xs dark:shadow-none" : "bg-slate-50 dark:bg-[#1c1d24] text-slate-400 dark:text-slate-500"
                                 }`}>
                                 {isDoc ? <FileText size={16} /> : <PlayCircle size={16} />}
                               </div>

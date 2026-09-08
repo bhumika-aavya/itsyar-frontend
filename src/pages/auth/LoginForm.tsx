@@ -87,7 +87,7 @@ export default function LoginForm() {
         <Logo />
       </div>
 
-      <div className="w-full rounded-[32px] border border-slate-100 dark:border-[#2e303a] bg-white dark:bg-[#16171d] p-10 shadow-xl shadow-slate-200 dark:shadow-none/40 dark:shadow-none">
+      <div className="w-full rounded-[32px] border border-slate-100 dark:border-[#2e303a] bg-white dark:bg-[#16171d] p-10 shadow-xl shadow-slate-200 dark:shadow-none">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Welcome back</h2>
           <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">Sign in to your ForgeInsight account.</p>

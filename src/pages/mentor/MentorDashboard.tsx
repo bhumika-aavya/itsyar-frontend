@@ -161,7 +161,7 @@ export default function MentorDashboard() {
                             <button
                                 key={sub.userId}
                                 onClick={() => navigate(`/mentor/submissions/${sub.userId}`)}
-                                className="w-full bg-white border border-slate-100 rounded-2xl p-5 flex items-center gap-5 hover:border-[#4F46E5]/30 hover:shadow-md hover:shadow-indigo-50 dark:shadow-none/50 transition-all text-left group"
+                                className="w-full bg-white dark:bg-[#16171d] border border-slate-100 dark:border-[#2e303a] rounded-2xl p-5 flex items-center gap-5 hover:border-[#4F46E5]/30 hover:shadow-md hover:shadow-indigo-50 dark:hover:shadow-none dark:shadow-none transition-all text-left group"
                             >
                                 {/* Language badge */}
                                 <div className="w-12 h-12 bg-[#1E1E2E] rounded-xl flex items-center justify-center shrink-0">
