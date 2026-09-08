@@ -60,7 +60,7 @@ export default function HackathonTeamsPanel({ hackathon }: Props) {
                 {canJoin && (
                     <button
                         onClick={() => setJoinModalOpen(true)}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all active:scale-95"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all active:scale-95"
                     >
                         <Plus size={16} /> Create Team
                     </button>
@@ -77,7 +77,7 @@ export default function HackathonTeamsPanel({ hackathon }: Props) {
                     {canJoin && (
                         <button
                             onClick={() => setJoinModalOpen(true)}
-                            className="px-6 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all"
+                            className="px-6 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all"
                         >
                             Create First Team
                         </button>

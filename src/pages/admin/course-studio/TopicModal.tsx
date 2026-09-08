@@ -406,7 +406,7 @@ export default function TopicModal({
             type="button"
             disabled={isSavingTopic}
             onClick={onSave}
-            className="px-6 py-2.5 bg-[#4F46E5] text-white rounded-xl text-xs font-extrabold shadow-md shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50"
+            className="px-6 py-2.5 bg-[#4F46E5] text-white rounded-xl text-xs font-extrabold shadow-md shadow-indigo-10 dark:shadow-none0 dark:shadow-none hover:bg-[#4338CA] transition-all cursor-pointer flex items-center gap-2 disabled:opacity-50"
           >
             {isSavingTopic ? (
               <>

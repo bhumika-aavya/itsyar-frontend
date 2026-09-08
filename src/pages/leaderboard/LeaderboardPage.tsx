@@ -103,7 +103,7 @@ export default function LeaderboardPage() {
           <Loader2 className="animate-spin text-[#4F46E5]" size={32} />
         </div>
       ) : (
-        <div className="bg-white rounded-[28px] border border-slate-100 shadow-xl shadow-slate-100/40 overflow-hidden">
+        <div className="bg-white rounded-[28px] border border-slate-100 shadow-xl shadow-slate-100 dark:shadow-none/40 overflow-hidden">
           {/* Search */}
           <div className="p-6 border-b border-slate-100">
             <div className="relative max-w-sm">
@@ -126,7 +126,7 @@ export default function LeaderboardPage() {
                   key={entry.rank}
                   className={`flex-1 max-w-[180px] rounded-2xl border p-5 ${
                     entry.rank === 1
-                      ? 'border-[#4F46E5] bg-indigo-50/60 shadow-lg shadow-indigo-100'
+                      ? 'border-[#4F46E5] bg-indigo-50/60 shadow-lg shadow-indigo-100 dark:shadow-none'
                       : 'border-slate-100 bg-white'
                   }`}
                 >

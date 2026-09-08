@@ -11,7 +11,7 @@ const NavItem = ({
     onClick={onClick}
     title={collapsed ? label : undefined}
     className={`w-full flex items-center gap-3 py-3 rounded-xl transition-all font-semibold text-sm cursor-pointer ${collapsed ? 'justify-center px-0' : 'px-4'} ${active
-      ? 'bg-[#4F46E5] text-white shadow-lg shadow-indigo-100/50 dark:shadow-none'
+      ? 'bg-[#4F46E5] text-white shadow-lg shadow-indigo-100 dark:shadow-none/50 dark:shadow-none'
       : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#1f2028] hover:text-slate-900 dark:hover:text-slate-100'
       }`}
   >
@@ -79,7 +79,7 @@ export default function OrganizerLayout() {
         <button
           onClick={() => navigate('/organizer/hackathons/create')}
           title={collapsed ? 'Create Hackathon' : undefined}
-          className={`flex items-center justify-center gap-2 mb-6 py-2.5 bg-[#4F46E5] text-white rounded-xl text-sm font-extrabold shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all cursor-pointer ${collapsed ? 'px-0' : 'px-4'}`}
+          className={`flex items-center justify-center gap-2 mb-6 py-2.5 bg-[#4F46E5] text-white rounded-xl text-sm font-extrabold shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all cursor-pointer ${collapsed ? 'px-0' : 'px-4'}`}
         >
           <Plus size={15} className="shrink-0" />
           {!collapsed && <span className="truncate">Create Hackathon</span>}

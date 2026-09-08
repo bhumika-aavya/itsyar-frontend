@@ -72,7 +72,7 @@ export default function RegistrationSuccessPage() {
         <div className="relative mb-6 flex items-center justify-center w-32 h-32">
           <div className="absolute inset-0 rounded-full bg-indigo-50" />
           <div className="absolute inset-4 rounded-full bg-indigo-100" />
-          <div className="relative w-20 h-20 rounded-full bg-[#4F46E5] flex items-center justify-center shadow-2xl shadow-indigo-300">
+          <div className="relative w-20 h-20 rounded-full bg-[#4F46E5] flex items-center justify-center shadow-2xl shadow-indigo-300 dark:shadow-none">
             <CheckCircle2 size={40} className="text-white" strokeWidth={2} />
           </div>
           <span className="absolute -top-1 -right-0 text-lg">✨</span>
@@ -144,7 +144,7 @@ export default function RegistrationSuccessPage() {
             onClick={() => navigate(`/hackathons/${id}/sandbox`, {
               state: { hackathonStatus: 'Running', hackathonEndDate: endDate },
             })}
-            className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-emerald-100 hover:bg-emerald-600 transition-all flex items-center justify-center gap-2"
+            className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-emerald-100 dark:shadow-none hover:bg-emerald-600 transition-all flex items-center justify-center gap-2"
           >
             <Play size={16} fill="white" /> Start Hackathon Now
           </button>
@@ -152,7 +152,7 @@ export default function RegistrationSuccessPage() {
 
         <button
           onClick={() => navigate(`/hackathons/${id}`)}
-          className="w-full py-4 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-200 hover:bg-[#4338CA] transition-all"
+          className="w-full py-4 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-200 dark:shadow-none hover:bg-[#4338CA] transition-all"
         >
           View Hackathon
         </button>

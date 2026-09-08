@@ -14,17 +14,17 @@ const ModuleGridCard = ({ module, index }: { module: CourseModule, index: number
     const { courseId } = useParams();
 
     return (
-        <div className="bg-white/80 dark:bg-[#16171d]/80 backdrop-blur-xl border border-slate-200/60 dark:border-[#2e303a]/60 rounded-[24px] p-7 flex flex-col hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-200 dark:hover:border-indigo-900 transition-all duration-300 group cursor-pointer hover:-translate-y-1"
+        <div className="bg-white/80 dark:bg-[#16171d]/80 backdrop-blur-xl border border-slate-200/60 dark:border-[#2e303a]/60 rounded-[24px] p-7 flex flex-col hover:shadow-2xl hover:shadow-indigo-500 dark:shadow-none/10 hover:border-indigo-200 dark:hover:border-indigo-900 transition-all duration-300 group cursor-pointer hover:-translate-y-1"
             onClick={() => navigate(`/courses/${courseId}/modules/${module.id}`)}
         >
             {/* Header */}
-            <div className="flex items-start gap-4 mb-5">
+            <div className="flex items-start gap-4 mb-4 h-[64px]">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-100/50 dark:border-indigo-900/30 group-hover:scale-110 transition-transform duration-300 shadow-inner">
                     {index % 2 === 0 ? <BookOpen size={24} className="opacity-80" /> : <Code size={24} className="opacity-80" />}
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start gap-2">
-                        <h3 className="font-extrabold text-slate-900 text-lg leading-tight group-hover:text-indigo-600 transition-colors">
+                        <h3 className="font-extrabold text-slate-900 text-lg leading-tight group-hover:text-indigo-600 transition-colors line-clamp-2">
                             Module {displayNum}: {module.title}
                         </h3>
                     </div>
@@ -32,8 +32,8 @@ const ModuleGridCard = ({ module, index }: { module: CourseModule, index: number
             </div>
 
             {/* Summary */}
-            <p className="text-slate-500 text-sm leading-relaxed mb-8 flex-1 font-medium">
-                {module.summary.slice(0, 80) + "..."}
+            <p className="text-slate-500 text-sm leading-relaxed mb-6 h-[45px] font-medium line-clamp-2">
+                {module.summary.length > 80 ? module.summary.slice(0, 80) + "..." : module.summary}
             </p>
 
             {/* Topics List Box */}
@@ -147,7 +147,7 @@ export default function CourseDetailPage() {
                         {/* Global Action Button */}
                         {/* <button
                             onClick={() => navigate(`/courses/${courseId}/lessons/${course?.curriculum?.[0]?.items?.[0]?.id || 1}`)}
-                            className="shrink-0 flex items-center gap-3 px-8 py-4.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-extrabold text-[15px] shadow-xl shadow-indigo-200/50 hover:shadow-2xl hover:shadow-indigo-500/30 hover:-translate-y-1 transition-all duration-300 active:scale-[0.98]"
+                            className="shrink-0 flex items-center gap-3 px-8 py-4.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-extrabold text-[15px] shadow-xl shadow-indigo-200 dark:shadow-none/50 hover:shadow-2xl hover:shadow-indigo-500 dark:shadow-none/30 hover:-translate-y-1 transition-all duration-300 active:scale-[0.98]"
                         >
                             <PlayCircle size={22} className="opacity-90" /> Continue Learning
                         </button> */}

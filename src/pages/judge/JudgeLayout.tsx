@@ -11,7 +11,7 @@ const NavItem = ({
     onClick={onClick}
     title={collapsed ? label : undefined}
     className={`w-full flex items-center gap-3 py-3 rounded-xl transition-all font-semibold text-sm cursor-pointer ${collapsed ? 'justify-center px-0' : 'px-4'} ${active
-        ? 'bg-[#4F46E5] text-white shadow-lg shadow-indigo-100/50 dark:shadow-none'
+        ? 'bg-[#4F46E5] text-white shadow-lg shadow-indigo-100 dark:shadow-none/50 dark:shadow-none'
         : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#1f2028] hover:text-slate-900 dark:hover:text-slate-100'
       }`}
   >

@@ -91,7 +91,7 @@ export default function QuizModal({ isOpen, onClose, onQuizComplete, data, isFin
             {isFinalQuiz && (
               <button
                 onClick={() => navigate(`/courses/${courseId}/certificate`)}
-                className="w-full py-4 bg-[#10B981] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-emerald-100 flex items-center justify-center gap-2 hover:bg-emerald-600 transition-all"
+                className="w-full py-4 bg-[#10B981] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-emerald-100 dark:shadow-none flex items-center justify-center gap-2 hover:bg-emerald-600 transition-all"
               >
                 <Award size={20} /> View &amp; Download Certificate
               </button>
@@ -191,7 +191,7 @@ export default function QuizModal({ isOpen, onClose, onQuizComplete, data, isFin
 
         {/* Sidebar */}
         <div className="w-[340px] bg-[#F8F9FD] p-10 flex flex-col border-l border-slate-50">
-          <div className="bg-white rounded-[32px] p-10 text-center shadow-xl shadow-indigo-500/5 border border-indigo-50">
+          <div className="bg-white rounded-[32px] p-10 text-center shadow-xl shadow-indigo-500 dark:shadow-none/5 border border-indigo-50">
             <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-3">Time Remaining</p>
             <div className={`text-6xl font-extrabold tabular-nums tracking-tighter ${timeLeft < 60 ? 'text-red-500 animate-pulse' : 'text-slate-900'}`}>
               {formatTime(timeLeft)}
@@ -207,7 +207,7 @@ export default function QuizModal({ isOpen, onClose, onQuizComplete, data, isFin
             </div>
             <button
               onClick={() => setIsFinished(true)}
-              className="w-full py-5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-[15px] shadow-2xl shadow-indigo-200 hover:bg-[#4338CA] transition-all active:scale-95"
+              className="w-full py-5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-[15px] shadow-2xl shadow-indigo-200 dark:shadow-none hover:bg-[#4338CA] transition-all active:scale-95"
             >
               Submit Test
             </button>

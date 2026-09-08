@@ -122,7 +122,7 @@ export default function OrganizerDashboard() {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => navigate('/organizer/hackathons/create')}
-                        className="flex items-center gap-2 px-6 py-3 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 hover:bg-[#4338CA] transition-all active:scale-95"
+                        className="flex items-center gap-2 px-6 py-3 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all active:scale-95"
                     >
                         <Plus size={16} /> Create Hackathon
                     </button>

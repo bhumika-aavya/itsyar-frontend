@@ -45,8 +45,8 @@ export default function PricingCard({
     return (
         <div
             className={`relative rounded-[32px] p-8 md:p-10 transition-all duration-300 flex flex-col ${featured
-                    ? 'bg-gradient-to-br from-[#4F46E5] via-[#4338CA] to-[#3730A3] text-white shadow-2xl shadow-indigo-200 scale-[1.02] border border-indigo-300/20'
-                    : 'bg-white border border-slate-100 text-slate-900 shadow-lg shadow-slate-200/50 hover:shadow-xl hover:shadow-slate-200/60'
+                    ? 'bg-gradient-to-br from-[#4F46E5] via-[#4338CA] to-[#3730A3] text-white shadow-2xl shadow-indigo-200 dark:shadow-none scale-[1.02] border border-indigo-300/20'
+                    : 'bg-white border border-slate-100 text-slate-900 shadow-lg shadow-slate-200 dark:shadow-none/50 hover:shadow-xl hover:shadow-slate-200/60'
                 }`}
         >
             {/* Featured badge */}
@@ -104,7 +104,7 @@ export default function PricingCard({
                 disabled={disabled || isLoading}
                 className={`w-full py-4 rounded-2xl font-extrabold text-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${featured
                         ? 'bg-white text-[#4F46E5] hover:bg-indigo-50 shadow-lg'
-                        : 'bg-[#4F46E5] text-white hover:bg-[#4338CA] shadow-xl shadow-indigo-100'
+                        : 'bg-[#4F46E5] text-white hover:bg-[#4338CA] shadow-xl shadow-indigo-100 dark:shadow-none'
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
                 {isLoading ? (

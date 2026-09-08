@@ -466,7 +466,7 @@ export default function InAppPdfViewer({
       {/* Screen Capture / Alt-Tab / Snipping Tool Privacy Shield */}
       {isCaptureProtected && (
         <div className="absolute inset-0 z-40 bg-slate-950/95 backdrop-blur-3xl flex flex-col items-center justify-center text-center p-8 transition-opacity duration-150 animate-in fade-in duration-100">
-          <div className="w-16 h-16 rounded-3xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mb-4 shadow-xl shadow-indigo-500/5">
+          <div className="w-16 h-16 rounded-3xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mb-4 shadow-xl shadow-indigo-500 dark:shadow-none/5">
             <ShieldAlert size={32} />
           </div>
           <h3 className="text-lg font-black text-white mb-2">Protected Course Material</h3>

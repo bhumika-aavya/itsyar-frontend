@@ -295,7 +295,7 @@ export default function MyTeamSection({ myTeam: initialTeam }: Props) {
         <button
           onClick={() => setShowInviteInput(true)}
           disabled={filledCount >= team.maxMembers}
-          className="w-70 py-3 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+          className="w-70 py-3 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
         >
           <UserPlus size={16} />
           Invite Member (Send Request)

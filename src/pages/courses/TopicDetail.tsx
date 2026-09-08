@@ -353,7 +353,7 @@ export default function TopicDetailPage() {
                             <button
                                 onClick={handleBuyCourse}
                                 disabled={isPurchaseLoading}
-                                className="w-full py-4 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 hover:bg-[#4338CA] transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50"
+                                className="w-full py-4 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-50"
                             >
                                 {isPurchaseLoading ? (
                                     <Loader2 size={16} className="animate-spin" />

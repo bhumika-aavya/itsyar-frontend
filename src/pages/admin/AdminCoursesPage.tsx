@@ -129,7 +129,7 @@ export default function AdminCoursesPage() {
         </div>
         <button
           onClick={openAdd}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl text-sm font-extrabold shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all cursor-pointer shrink-0"
+          className="flex items-center gap-2 px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl text-sm font-extrabold shadow-lg shadow-indigo-10 dark:shadow-none0 dark:shadow-none hover:bg-[#4338CA] transition-all cursor-pointer shrink-0"
         >
           <Plus size={16} />
           <span>Add Course</span>

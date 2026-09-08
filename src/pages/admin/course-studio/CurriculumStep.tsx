@@ -36,7 +36,7 @@ export default function CurriculumStep({
           <button
             type="button"
             onClick={onOpenCreateModule}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#4F46E5] text-white rounded-xl text-xs font-extrabold shadow-md shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#4F46E5] text-white rounded-xl text-xs font-extrabold shadow-md shadow-indigo-10 dark:shadow-none0 dark:shadow-none hover:bg-[#4338CA] transition-all cursor-pointer"
           >
             <Plus size={15} />
             <span>Add Module</span>

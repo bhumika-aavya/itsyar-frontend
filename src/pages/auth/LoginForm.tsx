@@ -87,7 +87,7 @@ export default function LoginForm() {
         <Logo />
       </div>
 
-      <div className="w-full rounded-[32px] border border-slate-100 dark:border-[#2e303a] bg-white dark:bg-[#16171d] p-10 shadow-xl shadow-slate-200/40 dark:shadow-none">
+      <div className="w-full rounded-[32px] border border-slate-100 dark:border-[#2e303a] bg-white dark:bg-[#16171d] p-10 shadow-xl shadow-slate-200 dark:shadow-none/40 dark:shadow-none">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Welcome back</h2>
           <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">Sign in to your ForgeInsight account.</p>
@@ -175,7 +175,7 @@ export default function LoginForm() {
           <button
             disabled={isLoading}
             type="submit"
-            className="h-14 w-full rounded-xl bg-[#4F46E5] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#4338CA] transition-all disabled:opacity-70 shadow-lg shadow-indigo-100 dark:shadow-none active:scale-[0.98]"
+            className="h-14 w-full rounded-xl bg-[#4F46E5] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#4338CA] transition-all disabled:opacity-70 shadow-lg shadow-indigo-10 dark:shadow-none0 dark:shadow-none active:scale-[0.98]"
           >
             {isLoading ? <Loader2 className="animate-spin" /> : "Sign In"}
           </button>

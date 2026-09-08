@@ -562,7 +562,7 @@ export default function QuizBuilderModal({
           <button
             type="button"
             onClick={onSave}
-            className="flex items-center gap-2 px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-extrabold shadow-md shadow-amber-200 dark:shadow-none transition-all cursor-pointer"
+            className="flex items-center gap-2 px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-extrabold shadow-md shadow-amber-20 dark:shadow-none0 dark:shadow-none transition-all cursor-pointer"
           >
             <Save size={14} />
             <span>Save Quiz to Topic</span>

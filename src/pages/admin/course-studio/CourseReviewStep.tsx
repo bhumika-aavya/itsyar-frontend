@@ -178,7 +178,7 @@ export default function CourseReviewStep({
               type="button"
               onClick={onPublish}
               disabled={saving}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-3 bg-[#4F46E5] text-white rounded-xl text-xs font-extrabold shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all disabled:opacity-60 cursor-pointer"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-3 bg-[#4F46E5] text-white rounded-xl text-xs font-extrabold shadow-lg shadow-indigo-10 dark:shadow-none0 dark:shadow-none hover:bg-[#4338CA] transition-all disabled:opacity-60 cursor-pointer"
             >
               {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
               <span>

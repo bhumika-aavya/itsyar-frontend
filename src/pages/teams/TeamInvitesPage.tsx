@@ -74,7 +74,7 @@ export default function TeamInvitesPage() {
           </p>
           <button
             onClick={() => navigate('/teams')}
-            className="px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all"
+            className="px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all"
           >
             Browse Teams
           </button>
@@ -109,7 +109,7 @@ export default function TeamInvitesPage() {
                   <button
                     onClick={() => handleAccept(invite)}
                     disabled={isActing}
-                    className="flex items-center gap-1.5 px-4 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all"
+                    className="flex items-center gap-1.5 px-4 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] disabled:opacity-60 transition-all"
                   >
                     {isActing ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
                     Accept

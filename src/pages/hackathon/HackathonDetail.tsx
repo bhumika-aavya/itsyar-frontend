@@ -218,7 +218,7 @@ export default function HackathonDetail() {
 
                                             <div className="relative flex items-start justify-between gap-6 flex-wrap">
                                                 <div className="flex items-start gap-4 min-w-0">
-                                                    <div className="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-200">
+                                                    <div className="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-200 dark:shadow-none">
                                                         <Lightbulb size={26} className="text-white" fill="white" />
                                                     </div>
                                                     <div className="min-w-0">
@@ -284,7 +284,7 @@ export default function HackathonDetail() {
                                             ) : (
                                                 <button
                                                     onClick={openSandbox}
-                                                    className="flex items-center gap-2 px-7 py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-200 hover:bg-[#4338CA] transition-all active:scale-95 shrink-0"
+                                                    className="flex items-center gap-2 px-7 py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-200 dark:shadow-none hover:bg-[#4338CA] transition-all active:scale-95 shrink-0"
                                                 >
                                                     <Play size={16} fill="white" />
                                                     {isRegistered ? (hasSavedProgress ? 'Resume Hackathon' : 'Start Hackathon') : 'Register Now'}
@@ -471,7 +471,7 @@ export default function HackathonDetail() {
                                                 onClick={openSandbox}
                                                 className={`w-full py-4 text-white rounded-2xl font-extrabold text-sm shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 ${data?.isRegistered
                                                     ? 'bg-emerald-500 shadow-emerald-100 hover:bg-emerald-600'
-                                                    : 'bg-[#4F46E5] shadow-indigo-100 hover:bg-[#4338CA]'
+                                                    : 'bg-[#4F46E5] shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA]'
                                                     }`}
                                             >
                                                 <Play size={15} fill="white" />
@@ -492,7 +492,7 @@ export default function HackathonDetail() {
                                     <>
                                         <button
                                             onClick={() => setIsJoinModalOpen(true)}
-                                            className="w-full py-4 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 hover:bg-[#4338CA] transition-all active:scale-95"
+                                            className="w-full py-4 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all active:scale-95"
                                         >
                                             Register &amp; Join
                                         </button>

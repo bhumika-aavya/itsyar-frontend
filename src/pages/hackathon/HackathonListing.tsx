@@ -107,7 +107,7 @@ export default function HackathonListing() {
             </div>
 
             {/* Table */}
-            <div className="bg-white border border-slate-100 rounded-[32px] shadow-xl shadow-slate-200/40 overflow-hidden">
+            <div className="bg-white border border-slate-100 rounded-[32px] shadow-xl shadow-slate-200 dark:shadow-none/40 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -172,7 +172,7 @@ export default function HackathonListing() {
                                                         {joinable && (
                                                             <button
                                                                 onClick={() => setJoiningHackathon(hack)}
-                                                                className="px-6 py-2 bg-[#4F46E5] text-white rounded-xl font-bold text-xs hover:bg-[#4338CA] shadow-lg shadow-indigo-100 transition-all active:scale-95"
+                                                                className="px-6 py-2 bg-[#4F46E5] text-white rounded-xl font-bold text-xs hover:bg-[#4338CA] shadow-lg shadow-indigo-100 dark:shadow-none transition-all active:scale-95"
                                                             >
                                                                 Join
                                                             </button>

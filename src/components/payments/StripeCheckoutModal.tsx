@@ -198,7 +198,7 @@ function StripePaymentForm({
                 <button
                     type="submit"
                     disabled={isSubmitting || isPolling || !stripe}
-                    className="w-full h-12 bg-[#4F46E5] hover:bg-[#4338CA] text-white font-extrabold text-sm rounded-xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
+                    className="w-full h-12 bg-[#4F46E5] hover:bg-[#4338CA] text-white font-extrabold text-sm rounded-xl transition-all shadow-lg shadow-indigo-100 dark:shadow-none flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
                 >
                     {isSubmitting || isPolling ? (
                         <>
@@ -273,7 +273,7 @@ function FallbackPaymentForm({
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full h-12 bg-[#4F46E5] hover:bg-[#4338CA] text-white font-extrabold text-sm rounded-xl transition-all shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
+                    className="w-full h-12 bg-[#4F46E5] hover:bg-[#4338CA] text-white font-extrabold text-sm rounded-xl transition-all shadow-lg shadow-indigo-100 dark:shadow-none flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
                 >
                     {isSubmitting ? (
                         <>

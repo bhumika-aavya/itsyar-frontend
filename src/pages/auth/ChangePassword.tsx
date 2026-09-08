@@ -101,7 +101,7 @@ export default function ChangePassword() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="h-14 w-full rounded-xl bg-[#4F46E5] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#4338CA] transition-all disabled:opacity-70 shadow-lg shadow-indigo-100 mt-2"
+                className="h-14 w-full rounded-xl bg-[#4F46E5] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#4338CA] transition-all disabled:opacity-70 shadow-lg shadow-indigo-100 dark:shadow-none mt-2"
               >
                 {isLoading ? <Loader2 className="animate-spin" size={20} /> : 'Update Password'}
               </button>

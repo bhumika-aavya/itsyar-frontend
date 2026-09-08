@@ -101,7 +101,7 @@ export default function CertificatePage() {
                 <button
                     onClick={handleDownload}
                     disabled={isDownloading}
-                    className="flex items-center gap-2 px-8 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-xl shadow-indigo-100 hover:bg-[#4338CA] transition-all active:scale-95 disabled:opacity-70"
+                    className="flex items-center gap-2 px-8 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-xl shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all active:scale-95 disabled:opacity-70"
                 >
                     {isDownloading ? <Loader2 className="animate-spin" size={18} /> : <Download size={18} />}
                     {isDownloading ? "Generating PDF..." : "Download Certificate (PDF)"}

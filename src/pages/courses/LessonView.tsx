@@ -186,7 +186,7 @@ export default function LessonView() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Viewer Area */}
           <div className="lg:col-span-8 space-y-8">
-            <div className={`relative w-full bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl shadow-indigo-900/10 border border-slate-800 ${
+            <div className={`relative w-full bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl shadow-indigo-900 dark:shadow-none/10 border border-slate-800 ${
               isDocument ? "min-h-[640px] h-[75vh]" : "aspect-video"
             }`}>
               {isUpdatingVideo && (
@@ -314,7 +314,7 @@ export default function LessonView() {
           </div>
 
           {/* Sidebar: Topics Hierarchy */}
-          <div className="lg:col-span-4 bg-white border border-slate-100 rounded-[32px] p-5 flex flex-col h-[calc(100vh-140px)] sticky top-28 shadow-xl shadow-slate-100/50">
+          <div className="lg:col-span-4 bg-white border border-slate-100 rounded-[32px] p-5 flex flex-col h-[calc(100vh-140px)] sticky top-28 shadow-xl shadow-slate-100 dark:shadow-none/50">
             <h3 className="font-extrabold text-slate-900 text-base px-2 mb-4">Course Content</h3>
             <div className="flex-1 overflow-y-auto pr-1 space-y-3">
               {activeTopics.map((topic: ApiTopic, topicIdx: number) => {

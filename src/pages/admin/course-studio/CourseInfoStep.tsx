@@ -212,7 +212,7 @@ export default function CourseInfoStep({
             type="button"
             disabled={saving}
             onClick={onNext}
-            className="flex items-center gap-2 px-8 py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-indigo-200 dark:shadow-none hover:bg-[#4338CA] transition-all cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-2 px-8 py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-indigo-20 dark:shadow-none0 dark:shadow-none hover:bg-[#4338CA] transition-all cursor-pointer disabled:opacity-50"
           >
             <span>{saving ? "Creating Course..." : "Next: Create Modules"}</span>
             {!saving && <ArrowRight size={16} />}

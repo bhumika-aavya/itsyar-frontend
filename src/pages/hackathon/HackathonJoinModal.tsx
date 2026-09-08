@@ -344,7 +344,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                             <button
                                 onClick={handleIndividualRegister}
                                 disabled={submitting}
-                                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
                             >
                                 {submitting ? <><Loader2 size={16} className="animate-spin" /> Registering...</> : 'Register Now'}
                             </button>
@@ -423,7 +423,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                             <button
                                 onClick={() => selectedTeamId && setStep('confirm')}
                                 disabled={!selectedTeamId}
-                                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                             >
                                 Continue
                             </button>
@@ -529,7 +529,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                             <button
                                 onClick={handleCreateTeam}
                                 disabled={submitting}
-                                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
                             >
                                 {submitting ? <><Loader2 size={16} className="animate-spin" /> Creating...</> : 'Create Team'}
                             </button>
@@ -551,7 +551,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                         </div>
                         <button
                             onClick={() => setStep('confirm')}
-                            className="w-full py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all mt-2"
+                            className="w-full py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all mt-2"
                         >
                             Go to Hackathon
                         </button>
@@ -611,7 +611,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                             <button
                                 onClick={handleConfirmJoin}
                                 disabled={submitting}
-                                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
                             >
                                 {submitting ? <><Loader2 size={16} className="animate-spin" /> Joining...</> : 'Confirm Join'}
                             </button>
@@ -638,7 +638,7 @@ export default function HackathonJoinModal({ isOpen, onClose, hackathon }: Props
                         </div>
                         <button
                             onClick={onClose}
-                            className="w-full py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all mt-2"
+                            className="w-full py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all mt-2"
                         >
                             {joinedTeam ? 'Go to Dashboard' : 'View Hackathon'}
                         </button>

@@ -32,7 +32,7 @@ export default function ForgotPassword() {
       <div className="w-full max-w-md flex flex-col items-center">
         <div className="mb-8"><Logo /></div>
 
-        <div className="w-full rounded-[32px] border border-slate-100 dark:border-[#2e303a] bg-white p-10 shadow-xl shadow-slate-200/40 dark:shadow-none">
+        <div className="w-full rounded-[32px] border border-slate-100 dark:border-[#2e303a] bg-white p-10 shadow-xl shadow-slate-200 dark:shadow-none/40 dark:shadow-none">
           <button
             onClick={() => navigate('/login')}
             className="flex items-center gap-2 text-slate-400 hover:text-[#4F46E5] text-sm font-bold mb-8 transition-colors"
@@ -90,7 +90,7 @@ export default function ForgotPassword() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="h-14 w-full rounded-xl bg-[#4F46E5] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#4338CA] transition-all disabled:opacity-70 shadow-lg shadow-indigo-100"
+                  className="h-14 w-full rounded-xl bg-[#4F46E5] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#4338CA] transition-all disabled:opacity-70 shadow-lg shadow-indigo-100 dark:shadow-none"
                 >
                   {isLoading ? <Loader2 className="animate-spin" size={20} /> : 'Send Reset Link'}
                 </button>

@@ -129,7 +129,7 @@ export default function AdminHackathonsPage() {
         </div>
         <button
           onClick={() => navigate("/admin/hackathons/create")}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#4F46E5] text-white rounded-xl text-sm font-extrabold shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#4F46E5] text-white rounded-xl text-sm font-extrabold shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all"
         >
           <Plus size={16} /> Create Hackathon
         </button>
@@ -358,7 +358,7 @@ export default function AdminHackathonsPage() {
                   toast.success(`Hackathon approved! Price set to $${priceInput}`);
                   setReviewingHackathon(null);
                 }}
-                className="px-4 py-2.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white font-extrabold text-xs rounded-xl transition-all shadow-md shadow-indigo-100"
+                className="px-4 py-2.5 bg-[#4F46E5] hover:bg-[#4338CA] text-white font-extrabold text-xs rounded-xl transition-all shadow-md shadow-indigo-100 dark:shadow-none"
               >
                 Approve & Set Price
               </button>

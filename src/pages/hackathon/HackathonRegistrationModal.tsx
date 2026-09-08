@@ -166,7 +166,7 @@ export default function HackathonRegistrationModal({ isOpen, onClose, hackathonD
                             <button
                                 type="button"
                                 onClick={handleSubmit(onSubmit)}
-                                className="w-full py-4 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 hover:bg-[#4338CA] transition-all"
+                                className="w-full py-4 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all"
                             >
                                 {isSubmitting ? <Loader2 className="animate-spin" /> : "Confirm Registration"}
                             </button>
@@ -180,7 +180,7 @@ export default function HackathonRegistrationModal({ isOpen, onClose, hackathonD
                     <span className="text-sm font-bold text-slate-900">Team Neural Ninjas V2 (You)</span>
                     <div className="flex gap-4">
                         <button type="button" onClick={onClose} className="px-10 py-3 bg-white border border-slate-200 rounded-xl font-bold text-xs text-slate-600 hover:bg-slate-50">Cancel</button>
-                        <button type="button" onClick={handleSubmit(onSubmit)} className="px-10 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-xs shadow-lg shadow-indigo-100">Confirm Registration</button>
+                        <button type="button" onClick={handleSubmit(onSubmit)} className="px-10 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-xs shadow-lg shadow-indigo-100 dark:shadow-none">Confirm Registration</button>
                     </div>
                 </div>
             </div>

@@ -30,11 +30,11 @@ function MyTeamBannerCard({ team, onManage }: { team: MyTeamData; onManage: () =
   return (
     <div
       onClick={onManage}
-      className="group bg-white border-2 border-[#4F46E5]/20 rounded-[24px] p-6 shadow-sm shadow-indigo-50 hover:border-[#3AADDD]/50 hover:shadow-md hover:shadow-indigo-100 transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center gap-5"
+      className="group bg-white border-2 border-[#4F46E5]/20 rounded-[24px] p-6 shadow-sm shadow-indigo-50 dark:shadow-none hover:border-[#3AADDD]/50 hover:shadow-md hover:shadow-indigo-100 dark:shadow-none transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center gap-5"
     >
       {/* Icon + team info */}
       <div className="flex items-center gap-4 flex-1 min-w-0">
-        <div className="w-12 h-12 rounded-2xl bg-[#4F46E5] flex items-center justify-center shrink-0 shadow-lg shadow-indigo-200">
+        <div className="w-12 h-12 rounded-2xl bg-[#4F46E5] flex items-center justify-center shrink-0 shadow-lg shadow-indigo-200 dark:shadow-none">
           <Users size={22} className="text-white" />
         </div>
         <div className="min-w-0">
@@ -63,7 +63,7 @@ function MyTeamBannerCard({ team, onManage }: { team: MyTeamData; onManage: () =
       {/* CTA */}
       <button
         onClick={(e) => { e.stopPropagation(); onManage(); }}
-        className="flex items-center gap-2 px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all shrink-0 self-start sm:self-auto"
+        className="flex items-center gap-2 px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all shrink-0 self-start sm:self-auto"
       >
         <Settings size={15} />
         Manage Team
@@ -252,7 +252,7 @@ export default function TeamCollaborationPage() {
         <h1 className="text-3xl font-extrabold text-slate-900">Team Collaboration Hub</h1>
         <button
           onClick={() => setCreateModalOpen(true)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all"
+          className="flex items-center gap-2 px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all"
         >
           <Users size={16} />
           Create Team
@@ -316,7 +316,7 @@ export default function TeamCollaborationPage() {
                 </p>
                 <button
                   onClick={() => setCreateModalOpen(true)}
-                  className="px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all"
+                  className="px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all"
                 >
                   Create First Team
                 </button>

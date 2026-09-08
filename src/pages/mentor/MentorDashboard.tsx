@@ -103,7 +103,7 @@ export default function MentorDashboard() {
                         <button
                             key={key}
                             onClick={() => setFilter(key)}
-                            className={`p-5 rounded-2xl text-left border transition-all ${filter === key ? 'border-[#4F46E5] shadow-md shadow-indigo-50' : 'border-slate-100 hover:border-slate-200'} bg-white`}
+                            className={`p-5 rounded-2xl text-left border transition-all ${filter === key ? 'border-[#4F46E5] shadow-md shadow-indigo-50 dark:shadow-none' : 'border-slate-100 hover:border-slate-200'} bg-white`}
                         >
                             <div className={`w-9 h-9 ${cfg.bg} rounded-xl flex items-center justify-center mb-3`}>
                                 <cfg.Icon size={18} className={cfg.color} />
@@ -161,7 +161,7 @@ export default function MentorDashboard() {
                             <button
                                 key={sub.userId}
                                 onClick={() => navigate(`/mentor/submissions/${sub.userId}`)}
-                                className="w-full bg-white border border-slate-100 rounded-2xl p-5 flex items-center gap-5 hover:border-[#4F46E5]/30 hover:shadow-md hover:shadow-indigo-50/50 transition-all text-left group"
+                                className="w-full bg-white border border-slate-100 rounded-2xl p-5 flex items-center gap-5 hover:border-[#4F46E5]/30 hover:shadow-md hover:shadow-indigo-50 dark:shadow-none/50 transition-all text-left group"
                             >
                                 {/* Language badge */}
                                 <div className="w-12 h-12 bg-[#1E1E2E] rounded-xl flex items-center justify-center shrink-0">

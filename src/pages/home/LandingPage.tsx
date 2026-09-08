@@ -75,7 +75,7 @@ const Navbar = () => {
             Sign In
           </button>
           <button
-            className="text-[14px] font-bold bg-[#4F46E5] text-white px-6 py-2.5 rounded-xl hover:bg-[#4338CA] transition-all shadow-lg shadow-indigo-100 dark:shadow-none"
+            className="text-[14px] font-bold bg-[#4F46E5] text-white px-6 py-2.5 rounded-xl hover:bg-[#4338CA] transition-all shadow-lg shadow-indigo-10 dark:shadow-none0 dark:shadow-none"
             onClick={() => navigate('/register')}
           >
             Sign Up
@@ -112,7 +112,7 @@ const Hero = () => {
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <button
               onClick={() => handleNavigation('student')}
-              className="flex items-center gap-2 bg-[#4F46E5] text-white px-8 py-4 rounded-2xl font-bold hover:scale-[1.02] transition-all shadow-xl shadow-indigo-200/50"
+              className="flex items-center gap-2 bg-[#4F46E5] text-white px-8 py-4 rounded-2xl font-bold hover:scale-[1.02] transition-all shadow-xl shadow-indigo-200 dark:shadow-none/50"
             >
               <Play size={18} fill="white" />
               Start Learning

@@ -58,7 +58,7 @@ export default function ProtectedPurchaseButton({
         <button
             onClick={onPurchase}
             disabled={isLoading}
-            className="flex items-center gap-2 px-6 py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 hover:bg-[#4338CA] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-6 py-3.5 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
         >
             {isLoading ? (
                 <Loader2 size={16} className="animate-spin" />

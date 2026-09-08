@@ -297,7 +297,7 @@ export default function SubmissionReview() {
               <button
                 onClick={() => handleSave(true)}
                 disabled={saving !== null}
-                className="flex-1 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
               >
                 {saving === "submit" ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                 Submit Review

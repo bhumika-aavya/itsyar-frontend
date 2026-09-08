@@ -943,7 +943,7 @@ export default function CreateHackathon() {
                     <button
                         type="submit"
                         disabled={saving || (!isFoundry && includeProblem && selectedLangs.length === 0) || (isFoundry && !foundryLink?.trim())}
-                        className="flex items-center gap-2 px-8 py-3 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95"
+                        className="flex items-center gap-2 px-8 py-3 bg-[#4F46E5] text-white rounded-2xl font-extrabold text-sm shadow-xl shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95"
                     >
                         {saving
                             ? <><Loader2 size={15} className="animate-spin" /> Saving...</>

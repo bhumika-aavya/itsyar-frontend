@@ -144,7 +144,7 @@ export default function AdminUsersPage() {
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#4F46E5] text-white rounded-xl text-sm font-extrabold shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#4F46E5] text-white rounded-xl text-sm font-extrabold shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all"
         >
           <UserPlus size={16} /> Add User
         </button>
@@ -393,7 +393,7 @@ export default function AdminUsersPage() {
               <button
                 onClick={handleInvite}
                 disabled={inviting}
-                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
               >
                 {inviting ? <Loader2 size={15} className="animate-spin" /> : <UserPlus size={15} />}
                 {inviting ? "Creating…" : "Create User"}
@@ -455,7 +455,7 @@ export default function AdminUsersPage() {
               <button
                 onClick={handleSaveEdit}
                 disabled={savingEdit}
-                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] disabled:opacity-60 transition-all flex items-center justify-center gap-2"
               >
                 {savingEdit ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
                 {savingEdit ? "Saving…" : "Save Changes"}

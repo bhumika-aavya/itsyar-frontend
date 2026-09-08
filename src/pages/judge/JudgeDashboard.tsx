@@ -107,7 +107,7 @@ export default function JudgeDashboard() {
       <div className="grid grid-cols-2 gap-4">
         <button
           onClick={() => navigate("/judge/hackathons")}
-          className="bg-white border border-slate-100 rounded-2xl p-5 text-left hover:border-[#3AADDD]/30 hover:shadow-md hover:shadow-indigo-50 transition-all group"
+          className="bg-white border border-slate-100 rounded-2xl p-5 text-left hover:border-[#3AADDD]/30 hover:shadow-md hover:shadow-indigo-50 dark:shadow-none transition-all group"
         >
           <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center mb-3">
             <Scale size={20} className="text-[#4F46E5]" />

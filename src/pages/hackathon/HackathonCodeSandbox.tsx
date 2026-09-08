@@ -741,7 +741,7 @@ export default function HackathonCodeSandbox({
                 <button
                     onClick={handleSubmit}
                     disabled={submitting || !code.trim()}
-                    className="flex items-center gap-2 px-8 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95"
+                    className="flex items-center gap-2 px-8 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] disabled:opacity-60 disabled:cursor-not-allowed transition-all active:scale-95"
                 >
                     {submitting ? <><Loader2 size={15} className="animate-spin" /> Submitting…</> : <><Send size={15} /> Submit</>}
                 </button>
@@ -1023,7 +1023,7 @@ export default function HackathonCodeSandbox({
             </div>
             <button
                 onClick={() => setRetryKey(k => k + 1)}
-                className="flex items-center gap-2 px-6 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all"
+                className="flex items-center gap-2 px-6 py-3 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all"
             >
                 Try Again
             </button>
@@ -1244,7 +1244,7 @@ export default function HackathonCodeSandbox({
                                 <Maximize2 size={14} /> Fullscreen
                             </button>
                             <button onClick={() => setTab('editor')}
-                                className="px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 hover:bg-[#4338CA] transition-all">
+                                className="px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl font-extrabold text-sm shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all">
                                 Open Editor
                             </button>
                         </div>

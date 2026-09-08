@@ -84,7 +84,7 @@ export default function ModuleModal({
               type="button"
               disabled={saving}
               onClick={() => onSave(true)}
-              className="px-6 py-2.5 bg-[#4F46E5] text-white rounded-xl text-xs font-extrabold shadow-md shadow-indigo-100 dark:shadow-none hover:bg-[#4338CA] transition-all cursor-pointer disabled:opacity-50"
+              className="px-6 py-2.5 bg-[#4F46E5] text-white rounded-xl text-xs font-extrabold shadow-md shadow-indigo-10 dark:shadow-none0 dark:shadow-none hover:bg-[#4338CA] transition-all cursor-pointer disabled:opacity-50"
             >
               {saving ? "Saving..." : "Continue to Add Topics"}
             </button>
