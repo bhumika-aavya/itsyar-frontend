@@ -16,6 +16,8 @@ import TopicModal from "./course-studio/TopicModal";
 import QuizBuilderModal from "./course-studio/QuizBuilderModal";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
+import { getVideoDuration } from "@/lib/videoDuration";
+import { uploadBinaryToGCS } from "@/lib/gcsUploader";
 
 export default function AdminCreateCoursePage() {
   const navigate = useNavigate();
@@ -573,44 +575,64 @@ export default function AdminCreateCoursePage() {
 
       const finalTopicId = topicIdToUse;
 
-      // Step 2: Upload Topic Video
+      // Step 2: Ingest Topic Video (Direct to GCS)
       if (topicVideoFile && courseId) {
         try {
-          toast.loading("Uploading lecture video...", { id: "topic-upload" });
-          const vidRes = await CourseStudioApi.uploadTopicVideo(
+          toast.loading("Uploading lecture video (0%)...", { id: "topic-upload" });
+          const duration = await getVideoDuration(topicVideoFile);
+          
+          const sessionRes = await CourseStudioApi.getTopicVideoUploadUrl(
             courseId,
             topicTargetModuleId,
             finalTopicId,
             "topic",
-            topicVideoFile
+            topicVideoFile.type || "video/mp4",
+            topicVideoFile.size
           );
-          if (vidRes?.gcsPath || vidRes?.gcs_path) {
-            topicVideoGcsPath = vidRes.gcsPath || vidRes.gcs_path || "";
-            topicVideoContentType = vidRes.contentType || vidRes.content_type || "video/mp4";
-            topicVideoSizeByte = vidRes.sizeByte || vidRes.size_byte || topicVideoFile.size;
-            toast.success("Video uploaded successfully");
+          
+          if (sessionRes.uploadUrl) {
+            await uploadBinaryToGCS(sessionRes.uploadUrl, topicVideoFile, (pct) => {
+              toast.loading(`Uploading lecture video (${pct}%)...`, { id: "topic-upload" });
+            });
+            
+            topicVideoGcsPath = sessionRes.gcsPath;
+            topicVideoContentType = sessionRes.contentType;
+            topicVideoSizeByte = topicVideoFile.size;
+            topicVideo.duration = duration; // Save extracted duration to state
+            
+            toast.success("Video uploaded successfully", { id: "topic-upload" });
           }
         } catch (vErr) {
           console.warn("Topic video upload warning", vErr);
         }
       }
 
-      // Step 3: Upload Practical Walkthrough Video
+      // Step 3: Ingest Practical Walkthrough Video (Direct to GCS)
       if (practicalVideoFile && courseId) {
         try {
-          toast.loading("Uploading practical video...", { id: "topic-upload" });
-          const pracRes = await CourseStudioApi.uploadTopicVideo(
+          toast.loading("Uploading practical video (0%)...", { id: "prac-upload" });
+          const duration = await getVideoDuration(practicalVideoFile);
+          
+          const sessionRes = await CourseStudioApi.getTopicVideoUploadUrl(
             courseId,
             topicTargetModuleId,
             finalTopicId,
             "practical",
-            practicalVideoFile
+            practicalVideoFile.type || "video/mp4",
+            practicalVideoFile.size
           );
-          if (pracRes?.gcsPath || pracRes?.gcs_path) {
-            practicalVideoGcsPath = pracRes.gcsPath || pracRes.gcs_path || "";
-            practicalVideoContentType = pracRes.contentType || pracRes.content_type || "video/mp4";
-            practicalVideoSizeByte = pracRes.sizeByte || pracRes.size_byte || practicalVideoFile.size;
-            toast.success("Practical Video uploaded successfully");
+          
+          if (sessionRes.uploadUrl) {
+            await uploadBinaryToGCS(sessionRes.uploadUrl, practicalVideoFile, (pct) => {
+              toast.loading(`Uploading practical video (${pct}%)...`, { id: "prac-upload" });
+            });
+            
+            practicalVideoGcsPath = sessionRes.gcsPath;
+            practicalVideoContentType = sessionRes.contentType;
+            practicalVideoSizeByte = practicalVideoFile.size;
+            practicalVideo.duration = duration; // Save extracted duration to state
+            
+            toast.success("Practical Video uploaded successfully", { id: "prac-upload" });
           }
         } catch (pErr) {
           console.warn("Practical video upload warning", pErr);
@@ -628,7 +650,7 @@ export default function AdminCreateCoursePage() {
 
       if (courseId && hasAssetsToAttach) {
         try {
-          toast.loading("Attaching topic assets & documentation...", { id: "topic-upload" });
+          toast.loading("Attaching topic assets & documentation...", { id: "assets-upload" });
           await CourseStudioApi.finalizeTopic(courseId, topicTargetModuleId, {
             topic_id: finalTopicId,
             title: topicTitle.trim(),
@@ -645,9 +667,11 @@ export default function AdminCreateCoursePage() {
             interview_pdf: interviewPdfFile || undefined,
           });
           
+          toast.dismiss("assets-upload");
           if (topicDocPdfFile) toast.success("Document PDF uploaded successfully");
           if (interviewPdfFile) toast.success("Interview Questions PDF uploaded successfully");
         } catch (finErr) {
+          toast.dismiss("assets-upload");
           console.warn("Topic finalize warning", finErr);
         }
       }
