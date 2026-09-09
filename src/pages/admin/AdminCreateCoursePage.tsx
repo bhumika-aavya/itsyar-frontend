@@ -740,7 +740,11 @@ export default function AdminCreateCoursePage() {
       );
 
       setShowTopicModal(false);
-      toast.success(editingTopicId ? "Topic updated successfully" : "Topic created successfully");
+      if (interviewPdfFile || interviewPdf.url) {
+        toast.success("Topic saved. AI is extracting interview questions in the background.", { duration: 5000 });
+      } else {
+        toast.success(editingTopicId ? "Topic updated successfully" : "Topic created successfully");
+      }
     } catch (err: any) {
       toast.dismiss("topic-upload");
       console.error("Topic save error", err);

@@ -184,6 +184,11 @@ export default function TopicModal({
                   placeholder="Or paste interview PDF link..."
                   className="w-full h-8 px-2.5 bg-white dark:bg-[#16171d] border border-slate-200 dark:border-[#2e303a] rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 outline-none"
                 />
+
+                <div className="flex items-center gap-1.5 text-[10px] font-semibold text-purple-600 dark:text-purple-400 bg-purple-50/80 dark:bg-purple-950/40 px-2 py-1 rounded-md border border-purple-100 dark:border-purple-900/30">
+                  <BrainCircuit size={12} className="shrink-0" />
+                  <span>AI automatically extracts and generates topic quiz questions from this PDF in the background.</span>
+                </div>
               </div>
 
               {/* 3. Topic Video */}
