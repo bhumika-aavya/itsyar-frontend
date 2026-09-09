@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
     ChevronLeft, BarChart2, BookOpen, Clock, CheckCircle2,
     PlayCircle, FileText, HelpCircle, ChevronDown, ChevronUp,
-    Loader2, Zap, ShoppingCart, Lock
+    Loader2, Zap, ShoppingCart, Lock, BrainCircuit, Sparkles
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CourseService } from '@/services/course.service';
@@ -12,26 +12,49 @@ import { COURSE_LIFETIME_PRICE, CURRENCY } from '@/types/payment.types';
 
 import InAppPdfModal from '@/components/pdf/InAppPdfModal';
 import { PdfService } from '@/services/pdf.service';
+import QuizModal from '@/pages/courses/QuizModal';
+import { QuizAiService } from '@/services/quiz-ai.service';
 import { toast } from 'sonner';
 
-// --- Sub-component: Curriculum Accordion ---
-const TopicAccordion = ({
-    topic,
-    index,
-    isOpen,
-    onToggle,
-    moduleId,
-    onOpenPdf,
-}: {
+interface TopicAccordionProps {
     topic: any;
     index: number;
     isOpen: boolean;
     onToggle: () => void;
     moduleId: string;
     onOpenPdf?: (url: string, title: string, subtitle: string) => void;
+    onOpenQuiz?: (topic: any) => void;
+}
+
+// --- Sub-component: Curriculum Accordion ---
+const TopicAccordion: React.FC<TopicAccordionProps> = ({
+    topic,
+    index,
+    isOpen,
+    onToggle,
+    moduleId,
+    onOpenPdf,
+    onOpenQuiz,
 }) => {
     const displayNum = index + 1;
-    const subItems = topic.assets ?? topic.subItems ?? [];
+    const topicHasQuiz = Boolean(topic.isQuiz ?? topic.isquiz ?? topic.is_quiz ?? false);
+    const baseSubItems = (topic.assets ?? topic.subItems ?? []).filter((it: any) => {
+        if (!topicHasQuiz && (it.type === 'topic-quiz' || it.type === 'quiz')) {
+            return false;
+        }
+        return true;
+    });
+
+    // Only display Step 05: Topic Quiz & Knowledge Assessment when topic has quiz enabled
+    const subItems = [...baseSubItems];
+    if (topicHasQuiz && !subItems.some((it: any) => it.type === 'topic-quiz' || it.type === 'quiz')) {
+        subItems.push({
+            type: 'topic-quiz',
+            title: 'Topic Quiz & Knowledge Assessment',
+            duration: '10-15 mins'
+        });
+    }
+
     const navigate = useNavigate();
     const { courseId } = useParams();
 
@@ -63,10 +86,16 @@ const TopicAccordion = ({
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {subItems.length > 0 && subItems.map((item: any, assetIdx: number) => {
-                            const isDoc = item.type === 'topic-documentation' || item.type === 'interview-questions' || item.type === 'documentation' || item.type === 'interview_pdf' || item.type === 'interview';
+                            const isQuiz = item.type === 'topic-quiz' || item.type === 'quiz';
+                            const isDoc = !isQuiz && (item.type === 'topic-documentation' || item.type === 'interview-questions' || item.type === 'documentation' || item.type === 'interview_pdf' || item.type === 'interview');
                             const hasUrl = Boolean(item.url);
 
                             const handleAssetClick = async () => {
+                                if (isQuiz) {
+                                    onOpenQuiz?.(topic);
+                                    return;
+                                }
+
                                 if (isDoc) {
                                     let targetUrl = item.url;
                                     const docType = item.type.includes('interview') ? 'interview' : 'documentation';
@@ -97,22 +126,52 @@ const TopicAccordion = ({
                                 <div
                                     key={assetIdx}
                                     onClick={handleAssetClick}
-                                    className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-[#1C1D24] hover:bg-[#EEF0FF] dark:hover:bg-[#1e1b4b]/40 border border-slate-100 dark:border-white/5 hover:border-[#4F46E5] dark:hover:border-[#4F46E5] rounded-xl cursor-pointer group transition-all"
+                                    className={`flex items-center gap-4 p-4 border rounded-xl cursor-pointer group transition-all ${isQuiz
+                                        ? "bg-amber-50/40 dark:bg-amber-950/20 hover:bg-amber-50/80 dark:hover:bg-amber-950/40 border-amber-200/70 dark:border-amber-800/40 hover:border-amber-400 dark:hover:border-amber-600"
+                                        : "bg-slate-50 dark:bg-[#1C1D24] hover:bg-[#EEF0FF] dark:hover:bg-[#1e1b4b]/40 border-slate-100 dark:border-white/5 hover:border-[#4F46E5] dark:hover:border-[#4F46E5]"
+                                        }`}
                                 >
                                     <div className="relative">
-                                        <div className="p-2.5 rounded-lg bg-white dark:bg-[#16171d] shadow-sm dark:shadow-none text-slate-400 group-hover:text-[#4F46E5] group-hover:shadow-md transition-all">
-                                            {isDoc ? <FileText size={18} /> : <PlayCircle size={18} />}
+                                        <div className={`p-2.5 rounded-lg bg-white dark:bg-[#16171d] shadow-sm dark:shadow-none transition-all ${isQuiz
+                                            ? "text-amber-600 dark:text-amber-400 group-hover:text-amber-700 dark:group-hover:text-amber-300 group-hover:shadow-md"
+                                            : "text-slate-400 group-hover:text-[#4F46E5] group-hover:shadow-md"
+                                            }`}>
+                                            {isQuiz ? (
+                                                <BrainCircuit size={18} />
+                                            ) : isDoc ? (
+                                                <FileText size={18} />
+                                            ) : (
+                                                <PlayCircle size={18} />
+                                            )}
                                         </div>
-                                        <div className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-slate-200 dark:bg-[#252630] group-hover:bg-[#4F46E5] text-slate-600 dark:text-slate-300 group-hover:text-white text-[10px] font-extrabold flex items-center justify-center shadow-xs border border-white dark:border-[#16171d] transition-all duration-200">
+                                        <div className={`absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full text-[10px] font-extrabold flex items-center justify-center shadow-xs border border-white dark:border-[#16171d] transition-all duration-200 ${isQuiz
+                                            ? "bg-amber-500 group-hover:bg-amber-600 text-white"
+                                            : "bg-slate-200 dark:bg-[#252630] group-hover:bg-[#4F46E5] text-slate-600 dark:text-slate-300 group-hover:text-white"
+                                            }`}>
                                             {assetIdx + 1}
                                         </div>
                                     </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-extrabold text-[#4F46E5] dark:text-[#818cf8] uppercase tracking-wider mb-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
-                                            Step 0{assetIdx + 1}
+                                    <div className="flex flex-col flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-0.5">
+                                            <span className={`text-[10px] font-extrabold uppercase tracking-wider ${isQuiz ? "text-amber-600 dark:text-amber-400" : "text-[#4F46E5] dark:text-[#818cf8] opacity-60 group-hover:opacity-100"
+                                                }`}>
+                                                Step 0{assetIdx + 1}
+                                            </span>
+                                            {isQuiz && (
+                                                <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40">
+                                                    AI Graded
+                                                </span>
+                                            )}
+                                        </div>
+                                        <span className={`text-sm font-bold truncate leading-tight ${isQuiz ? "text-slate-900 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-300" : "text-slate-700 dark:text-slate-200 group-hover:text-[#4F46E5] dark:group-hover:text-[#818cf8]"
+                                            }`}>
+                                            {item.title}
                                         </span>
-                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-200 group-hover:text-[#4F46E5] dark:group-hover:text-[#818cf8] leading-tight">{item.title}</span>
-                                        {item.duration && <span className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">{item.duration}</span>}
+                                        {item.duration && (
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">
+                                                {item.duration}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             );
@@ -147,12 +206,109 @@ export default function TopicDetailPage() {
         subtitle: '',
     });
 
+    const [quizModalState, setQuizModalState] = useState<{
+        isOpen: boolean;
+        isLoading?: boolean;
+        data: any;
+        topicId: string;
+        topicTitle: string;
+    }>({
+        isOpen: false,
+        isLoading: false,
+        data: null,
+        topicId: '',
+        topicTitle: '',
+    });
+
     const handleOpenPdf = (url: string, title: string, subtitle: string) => {
         setPdfModalState({
             isOpen: true,
             url,
             title,
             subtitle,
+        });
+    };
+
+    const handleOpenTopicQuiz = async (topic: any) => {
+        const topicIdVal = topic.topic_id || topic.topicId || '';
+        const topicTitle = topic.title || topic.topic_title || 'Topic Assessment';
+        const targetModuleId = moduleId || activeModule?.moduleId || (activeModule as any)?.id || topic.moduleId || topic.module_id || '';
+
+        // Open modal immediately with loading state
+        setQuizModalState({
+            isOpen: true,
+            isLoading: true,
+            data: null,
+            topicId: topicIdVal,
+            topicTitle: topicTitle,
+        });
+
+        try {
+            if (courseId && topicIdVal) {
+                const quizRes = await QuizAiService.getTopicQuiz(courseId, targetModuleId, topicIdVal);
+                const quizData = quizRes?.quiz || quizRes?.data || quizRes;
+                const questions = quizData?.questions || quizRes?.questions;
+
+                if (questions && questions.length > 0) {
+                    setQuizModalState({
+                        isOpen: true,
+                        isLoading: false,
+                        data: {
+                            ...quizData,
+                            title: quizData.title || `${topicTitle} Knowledge Assessment`,
+                            path: `Course Assessment • ${topicTitle}`,
+                            questions: questions,
+                            timeLimit: quizData.timeLimit || quizData.time_limit_minutes || 15,
+                            passingThreshold: quizData.passingThreshold || quizData.passing_score_percentage || 70,
+                        },
+                        topicId: topicIdVal,
+                        topicTitle: topicTitle,
+                    });
+                    return;
+                }
+            }
+        } catch (e) {
+            console.warn("[TopicDetail] Could not fetch quiz from API, using fallback quiz", e);
+        }
+
+        // Fallback default quiz structure if not yet created in DB
+        setQuizModalState({
+            isOpen: true,
+            isLoading: false,
+            data: {
+                title: `${topicTitle} Knowledge Assessment`,
+                path: `Course Assessment • ${topicTitle}`,
+                timeLimit: 15,
+                passingThreshold: 70,
+                questions: [
+                    {
+                        id: `q_sample_1_${topicIdVal}`,
+                        type: 'QA',
+                        text: `Explain the fundamental concepts, data pipeline architecture, and implementation best practices of ${topicTitle}.`,
+                        points: 2
+                    },
+                    {
+                        id: `q_sample_2_${topicIdVal}`,
+                        type: 'SINGLE_CHOICE',
+                        text: `What is the primary architectural concept introduced in ${topicTitle}?`,
+                        options: [
+                            "Core functional data architecture and pipeline transformations",
+                            "Deprecated legacy manual batch scripting",
+                            "Unmonitored unencrypted database transactions",
+                            "Single-node volatile caching storage"
+                        ],
+                        points: 1
+                    },
+                    {
+                        id: `q_sample_3_${topicIdVal}`,
+                        type: 'TRUE_FALSE',
+                        text: `True or False: The principles in ${topicTitle} enforce data validation and reproducible pipeline workflows.`,
+                        points: 1
+                    }
+                ]
+            },
+            topicId: topicIdVal,
+            topicTitle: topicTitle,
         });
     };
 
@@ -378,9 +534,9 @@ export default function TopicDetailPage() {
     return (
         <div className="min-h-screen pb-20 relative overflow-hidden font-sans text-left">
             {/* Header Section */}
-            <div className="pt-6 px-6 md:px-10 relative z-10">
-                <div className="max-w-7xl mx-auto">
-                    <button onClick={() => navigate(`/courses/${courseId}`)} className="flex items-center gap-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-bold text-xs transition-colors mb-3 uppercase tracking-widest">
+            <div className="relative z-10">
+                <div className="max-w-5xl">
+                    <button onClick={() => navigate(`/courses/${courseId}`)} className="flex items-center gap-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-bold text-xs transition-colors mb-3 uppercase tracking-widest cursor-pointer">
                         <ChevronLeft size={16} /> Back to Module Overview
                     </button>
 
@@ -401,14 +557,14 @@ export default function TopicDetailPage() {
             </div>
 
             {/* Main Content Area */}
-            <div className="max-w-7xl mx-auto pt-5">
+            <div className="max-w-5xl pt-4">
                 <div className="space-y-4">
                     <div className="flex items-center justify-between pb-1">
                         <h3 className="text-xl md:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                             Module Topics
                         </h3>
                     </div>
-                    <div className="flex flex-col gap-4 max-w-5xl">
+                    <div className="flex flex-col gap-4">
                         {(apiModuleDetail?.topics ?? []).map((topic: any, idx: number) => (
                             <TopicAccordion
                                 key={topic.topic_id || topic.topicId || idx}
@@ -418,6 +574,7 @@ export default function TopicDetailPage() {
                                 isOpen={openModule === (topic.topic_id || topic.topicId)}
                                 onToggle={() => setOpenModule(openModule === (topic.topic_id || topic.topicId) ? null : (topic.topic_id || topic.topicId))}
                                 onOpenPdf={handleOpenPdf}
+                                onOpenQuiz={handleOpenTopicQuiz}
                             />
                         ))}
                     </div>
@@ -431,6 +588,20 @@ export default function TopicDetailPage() {
                 title={pdfModalState.title}
                 subtitle={pdfModalState.subtitle}
                 onClose={() => setPdfModalState((prev) => ({ ...prev, isOpen: false }))}
+            />
+
+            {/* Topic Knowledge Assessment / Quiz Modal */}
+            <QuizModal
+                isOpen={quizModalState.isOpen}
+                isLoading={quizModalState.isLoading}
+                onClose={() => setQuizModalState((prev) => ({ ...prev, isOpen: false }))}
+                data={quizModalState.data}
+                courseId={courseId || ''}
+                moduleId={moduleId || activeModule?.moduleId}
+                topicId={quizModalState.topicId}
+                onQuizComplete={() => {
+                    // Update progress or state when quiz is completed
+                }}
             />
         </div>
     );
