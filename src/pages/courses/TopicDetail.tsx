@@ -205,11 +205,13 @@ export default function TopicDetailPage() {
 
     const [quizModalState, setQuizModalState] = useState<{
         isOpen: boolean;
+        isLoading?: boolean;
         data: any;
         topicId: string;
         topicTitle: string;
     }>({
         isOpen: false,
+        isLoading: false,
         data: null,
         topicId: '',
         topicTitle: '',
@@ -229,6 +231,15 @@ export default function TopicDetailPage() {
         const topicTitle = topic.title || topic.topic_title || 'Topic Assessment';
         const targetModuleId = moduleId || activeModule?.moduleId || (activeModule as any)?.id || topic.moduleId || topic.module_id || '';
 
+        // Open modal immediately with loading state
+        setQuizModalState({
+            isOpen: true,
+            isLoading: true,
+            data: null,
+            topicId: topicIdVal,
+            topicTitle: topicTitle,
+        });
+
         try {
             if (courseId && topicIdVal) {
                 const quizRes = await QuizAiService.getTopicQuiz(courseId, targetModuleId, topicIdVal);
@@ -238,6 +249,7 @@ export default function TopicDetailPage() {
                 if (questions && questions.length > 0) {
                     setQuizModalState({
                         isOpen: true,
+                        isLoading: false,
                         data: {
                             ...quizData,
                             title: quizData.title || `${topicTitle} Knowledge Assessment`,
@@ -259,6 +271,7 @@ export default function TopicDetailPage() {
         // Fallback default quiz structure if not yet created in DB
         setQuizModalState({
             isOpen: true,
+            isLoading: false,
             data: {
                 title: `${topicTitle} Knowledge Assessment`,
                 path: `Course Assessment • ${topicTitle}`,
@@ -577,6 +590,7 @@ export default function TopicDetailPage() {
             {/* Topic Knowledge Assessment / Quiz Modal */}
             <QuizModal
                 isOpen={quizModalState.isOpen}
+                isLoading={quizModalState.isLoading}
                 onClose={() => setQuizModalState((prev) => ({ ...prev, isOpen: false }))}
                 data={quizModalState.data}
                 courseId={courseId || ''}

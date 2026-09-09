@@ -15,6 +15,7 @@ interface Props {
   courseId: string;
   topicId?: string;
   moduleId?: string;
+  isLoading?: boolean;
 }
 
 export default function QuizModal({
@@ -26,6 +27,7 @@ export default function QuizModal({
   courseId,
   topicId,
   moduleId,
+  isLoading = false,
 }: Props) {
   const navigate = useNavigate();
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -38,7 +40,7 @@ export default function QuizModal({
 
   const rawQuestions = data?.questions || [];
   const questions: QuizQuestion[] = rawQuestions.map((q: any, idx: number) => {
-    const rawType = (q.type || "SINGLE_CHOICE").toUpperCase();
+    const rawType = (q.type || q.question_type || "SINGLE_CHOICE").toUpperCase();
     const normalizedType: QuestionType =
       rawType === "QUESTION_ANSWER" || rawType === "QA"
         ? "QA"
@@ -48,23 +50,55 @@ export default function QuizModal({
         ? "MULTIPLE_CHOICE"
         : "SINGLE_CHOICE";
 
+    const qText =
+      (q.text && q.text !== "Question" && q.text.trim() !== "") ? q.text :
+      (q.question && q.question !== "Question" && q.question.trim() !== "") ? q.question :
+      (q.questionText && q.questionText !== "Question" && q.questionText.trim() !== "") ? q.questionText :
+      (q.question_text && q.question_text !== "Question" && q.question_text.trim() !== "") ? q.question_text :
+      q.prompt ||
+      q.title ||
+      q.statement ||
+      q.body ||
+      q.name ||
+      `Question ${idx + 1}`;
+
+    const rawOptions = q.options || q.choices || q.answers || [];
+    const formattedOptions = Array.isArray(rawOptions)
+      ? rawOptions.map((opt: any) =>
+          typeof opt === "string" ? opt : opt?.text || opt?.label || opt?.option || opt?.title || String(opt)
+        )
+      : [];
+
+    const cAnswer =
+      q.correctAnswer ||
+      q.correct_answer ||
+      q.expectedAnswer ||
+      q.expected_answer ||
+      q.model_answer ||
+      q.solution ||
+      q.target_answer ||
+      q.answer ||
+      q.correct ||
+      q.correctOption ||
+      q.correct_option;
+
     return {
-      id: q.id || `q_${idx}`,
-      text: q.text || q.question || `Question ${idx + 1}`,
-      question: q.question || q.text,
+      id: q.id || q.question_id || q.questionId || `q_${idx}`,
+      text: qText,
+      question: qText,
       type: normalizedType,
-      options: q.options || [],
-      points: Number(q.points) || (normalizedType === "QA" ? 2 : 1),
+      options: formattedOptions,
+      points: Number(q.points || q.max_score || q.score) || (normalizedType === "QA" ? 2 : 1),
       sequenceOrder: String(q.sequenceOrder || q.sequence_order || idx + 1),
-      correctAnswer: q.correctAnswer || q.correct_answer || q.expected_answer,
-      correct_answer: q.correct_answer || q.correctAnswer,
-      explanation: q.explanation,
+      correctAnswer: cAnswer,
+      correct_answer: cAnswer,
+      explanation: q.explanation || q.correctExplanation || q.correct_explanation || q.feedback,
     };
   });
 
   const currentQuestion = questions[currentIdx] || {
     id: `q_${currentIdx}`,
-    text: "Question",
+    text: `Question ${currentIdx + 1}`,
     type: "SINGLE_CHOICE",
   };
   const currentQId = currentQuestion.id;
@@ -83,16 +117,34 @@ export default function QuizModal({
 
   // Timer countdown
   useEffect(() => {
-    if (timeLeft <= 0 && !submissionResult && isOpen && !isSubmitting) {
+    if (timeLeft <= 0 && !submissionResult && isOpen && !isSubmitting && !isLoading) {
       handleSubmitQuiz();
       return;
     }
-    if (timeLeft <= 0 || submissionResult || !isOpen) return;
+    if (timeLeft <= 0 || submissionResult || !isOpen || isLoading) return;
     const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
     return () => clearInterval(timer);
-  }, [timeLeft, submissionResult, isOpen, isSubmitting]);
+  }, [timeLeft, submissionResult, isOpen, isSubmitting, isLoading]);
 
   if (!isOpen) return null;
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+        <div className="bg-white dark:bg-[#16171d] w-full max-w-md rounded-[36px] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col items-center justify-center p-12 text-center animate-in zoom-in-95 duration-200 relative">
+            <button
+              onClick={onClose}
+              className="absolute top-6 right-6 p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-400 transition-colors cursor-pointer"
+            >
+              <X size={20} />
+            </button>
+            <Loader2 size={48} className="animate-spin text-indigo-600 dark:text-indigo-400 mb-6" />
+            <h3 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2">Generating Assessment</h3>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Please wait while our AI is generating your personalized knowledge assessment...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleAnswerChange = (payload: { answer?: string; selectedAnswers?: string[] }) => {
     setUserAnswers((prev) => ({
@@ -128,11 +180,26 @@ export default function QuizModal({
 
     const submissionAnswers = questions.map((q) => {
       const qAns = userAnswers[q.id] || {};
+      const answerVal = qAns.answer || (qAns.selectedAnswers ? qAns.selectedAnswers.join(", ") : "");
       return {
         questionId: q.id,
         question_id: q.id,
-        answer: qAns.answer || (qAns.selectedAnswers ? qAns.selectedAnswers.join(", ") : ""),
+        questionText: q.text,
+        question_text: q.text,
+        question: q.text,
+        type: q.type,
+        question_type: q.type,
+        options: q.options,
+        expectedAnswer: q.correctAnswer || q.expected_answer || q.correct_answer,
+        expected_answer: q.correctAnswer || q.expected_answer || q.correct_answer,
+        correctAnswer: q.correctAnswer || q.expected_answer || q.correct_answer,
+        correct_answer: q.correctAnswer || q.expected_answer || q.correct_answer,
+        explanation: q.explanation,
+        answer: answerVal,
+        user_answer: answerVal,
+        userAnswer: answerVal,
         selectedAnswers: qAns.selectedAnswers || (qAns.answer ? [qAns.answer] : []),
+        selected_answers: qAns.selectedAnswers || (qAns.answer ? [qAns.answer] : []),
       };
     });
 
@@ -156,7 +223,143 @@ export default function QuizModal({
       );
 
       if (res && (res.score !== undefined || res.percentage !== undefined)) {
-        setSubmissionResult(res);
+        const rawEvals = (res.feedback && res.feedback.length > 0 ? res.feedback : res.evaluations) || [];
+
+        const enrichedFeedback = questions.map((q, idx) => {
+          const evalItem =
+            rawEvals.find((e: any) => String(e.questionId || e.question_id || e.id) === String(q.id)) ||
+            rawEvals[idx] ||
+            {};
+
+          const qAns = userAnswers[q.id] || {};
+          let userSubmittedAnswer =
+            qAns.answer ||
+            (qAns.selectedAnswers && qAns.selectedAnswers.length > 0 ? qAns.selectedAnswers.join(", ") : "") ||
+            evalItem.userAnswer ||
+            evalItem.user_answer ||
+            "Not answered";
+
+          const questionText =
+            (q.text && q.text !== "Question" && q.text.trim() !== "")
+              ? q.text
+              : (q.question && q.question !== "Question" && q.question.trim() !== "")
+              ? q.question
+              : (evalItem.questionText && evalItem.questionText !== "Question" && evalItem.questionText.trim() !== "")
+              ? evalItem.questionText
+              : (evalItem.question_text && evalItem.question_text !== "Question" && evalItem.question_text.trim() !== "")
+              ? evalItem.question_text
+              : `Question ${idx + 1}`;
+
+          let expectedAnswer =
+            q.correctAnswer ||
+            q.correct_answer ||
+            q.expected_answer ||
+            evalItem.expectedAnswer ||
+            evalItem.expected_answer ||
+            evalItem.correctAnswer ||
+            evalItem.correct_answer;
+
+          if (
+            !expectedAnswer ||
+            expectedAnswer === "A clear, accurate technical explanation." ||
+            expectedAnswer === "Verified Concept" ||
+            expectedAnswer === "Verified Model" ||
+            expectedAnswer === "Verified Solution"
+          ) {
+            if (q.options && q.options.length > 0) {
+              expectedAnswer = typeof q.options[0] === "string" ? q.options[0] : q.options[0]?.text || q.options[0]?.label || "Option 1";
+            } else if (q.type === "TRUE_FALSE") {
+              expectedAnswer = "True";
+            } else if (q.explanation) {
+              expectedAnswer = q.explanation;
+            } else {
+              expectedAnswer = "Model solution not specified";
+            }
+          }
+
+          // Format index-based answers if options are available
+          if (q.options && q.options.length > 0) {
+            const uIdx = parseInt(userSubmittedAnswer, 10);
+            if (!isNaN(uIdx) && q.options[uIdx]) {
+              const opt = q.options[uIdx];
+              userSubmittedAnswer = typeof opt === "string" ? opt : opt?.text || opt?.label || userSubmittedAnswer;
+            }
+
+            const cIdx = parseInt(String(expectedAnswer), 10);
+            if (!isNaN(cIdx) && q.options[cIdx]) {
+              const opt = q.options[cIdx];
+              expectedAnswer = typeof opt === "string" ? opt : opt?.text || opt?.label || expectedAnswer;
+            }
+          }
+
+          const explanation =
+            q.explanation ||
+            evalItem.explanation ||
+            evalItem.correctExplanation ||
+            "This question tests core architectural and algorithmic principles from the topic curriculum.";
+
+          const isMatch =
+            evalItem.isCorrect ??
+            evalItem.is_correct ??
+            (userSubmittedAnswer.trim() !== "" &&
+              userSubmittedAnswer !== "Not answered" &&
+              (userSubmittedAnswer.trim().toLowerCase() === String(expectedAnswer).trim().toLowerCase() ||
+                (qAns.selectedAnswers &&
+                  qAns.selectedAnswers.some((sa) => sa.trim().toLowerCase() === String(expectedAnswer).trim().toLowerCase()))));
+
+          const maxPts = q.points || evalItem.max_score || evalItem.points || 1;
+          const awardedPts = evalItem.pointsEarned ?? evalItem.score ?? (isMatch ? maxPts : 0);
+
+          return {
+            ...evalItem,
+            questionId: q.id,
+            question_id: q.id,
+            id: q.id,
+            questionText,
+            question_text: questionText,
+            type: q.type || evalItem.type || evalItem.question_type,
+            question_type: q.type || evalItem.question_type || evalItem.type,
+            options: q.options || evalItem.options || [],
+            userAnswer: userSubmittedAnswer,
+            user_answer: userSubmittedAnswer,
+            expectedAnswer: String(expectedAnswer),
+            expected_answer: String(expectedAnswer),
+            correctAnswer: String(expectedAnswer),
+            correct_answer: String(expectedAnswer),
+            isCorrect: Boolean(isMatch),
+            is_correct: Boolean(isMatch),
+            pointsEarned: awardedPts,
+            score: awardedPts,
+            max_score: maxPts,
+            points: maxPts,
+            technicalScore: evalItem.technicalScore ?? (isMatch ? 100 : 35),
+            completenessScore: evalItem.completenessScore ?? (isMatch ? 100 : 40),
+            clarityScore: evalItem.clarityScore ?? (isMatch ? 95 : 60),
+            explanation,
+            correctExplanation: explanation,
+            whatWentWrong:
+              evalItem.whatWentWrong ||
+              evalItem.what_went_wrong ||
+              (isMatch
+                ? undefined
+                : userSubmittedAnswer === "Not answered" || userSubmittedAnswer.trim() === ""
+                ? "No answer was provided or submitted for this question."
+                : `Selected "${userSubmittedAnswer}", but the expected solution is "${expectedAnswer}".`),
+            recommendations:
+              evalItem.recommendations ||
+              evalItem.how_to_improve ||
+              (isMatch
+                ? "Concept mastered! Ready for production architecture."
+                : `Review the topic documentation regarding ${questionText}. Takeaway: ${explanation}`),
+          };
+        });
+
+        setSubmissionResult({
+          ...res,
+          feedback: enrichedFeedback,
+          evaluations: enrichedFeedback,
+        });
+
         if (res.passed) {
           onQuizComplete?.();
         }
@@ -170,9 +373,23 @@ export default function QuizModal({
       let earnedPoints = 0;
       const evals = questions.map((q, idx) => {
         const qAns = userAnswers[q.id] || {};
-        const uAns = qAns.answer || (qAns.selectedAnswers ? qAns.selectedAnswers.join(", ") : "");
-        const cAns = q.correctAnswer || q.correct_answer || (q.options && q.options[0]) || "Verified Model";
+        let uAns = qAns.answer || (qAns.selectedAnswers && qAns.selectedAnswers.length > 0 ? qAns.selectedAnswers.join(", ") : "");
+        let cAns = q.correctAnswer || q.correct_answer || (q.options && q.options[0]) || (q.type === "TRUE_FALSE" ? "True" : "Verified Model");
         const maxPts = q.points || 1;
+
+        if (q.options && q.options.length > 0) {
+          const uIdx = parseInt(uAns, 10);
+          if (!isNaN(uIdx) && q.options[uIdx]) {
+            const opt = q.options[uIdx];
+            uAns = typeof opt === "string" ? opt : opt?.text || opt?.label || uAns;
+          }
+
+          const cIdx = parseInt(String(cAns), 10);
+          if (!isNaN(cIdx) && q.options[cIdx]) {
+            const opt = q.options[cIdx];
+            cAns = typeof opt === "string" ? opt : opt?.text || opt?.label || cAns;
+          }
+        }
 
         const isMatch =
           uAns.trim() !== "" &&
@@ -192,10 +409,12 @@ export default function QuizModal({
         return {
           questionId: q.id,
           question_id: q.id,
+          id: q.id,
           questionText: q.text,
           question_text: q.text,
           type: q.type,
           question_type: q.type,
+          options: q.options || [],
           userAnswer: uAns || "Not answered",
           user_answer: uAns || "Not answered",
           expectedAnswer: String(cAns),
@@ -266,15 +485,15 @@ export default function QuizModal({
   // Render Result Breakdown if finished
   if (submissionResult) {
     return (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 sm:p-6 animate-in fade-in duration-200">
-        <div className="bg-[#0b0d14] w-full max-w-4xl h-[88vh] max-h-[900px] rounded-[32px] border border-slate-800 shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
-          <div className="flex items-center justify-between px-6 sm:px-8 py-3.5 border-b border-slate-800/80 bg-slate-950/80 shrink-0">
-            <h3 className="text-xs sm:text-sm font-extrabold text-white flex items-center gap-2">
-              <Sparkles size={15} className="text-indigo-400" /> Assessment Result Breakdown
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 sm:p-6 animate-in fade-in duration-200">
+        <div className="bg-white dark:bg-[#0b0d14] w-full max-w-4xl h-[88vh] max-h-[900px] rounded-[32px] border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+          <div className="flex items-center justify-between px-6 sm:px-8 py-3.5 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/80 shrink-0">
+            <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+              <Sparkles size={15} className="text-indigo-600 dark:text-indigo-400" /> Assessment Result Breakdown
             </h3>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X size={18} />
             </button>
@@ -304,13 +523,14 @@ export default function QuizModal({
     );
   }
 
-  const isCurrentAnswered =
-    userAnswers[currentQId]?.answer !== undefined &&
-    userAnswers[currentQId]?.answer !== "" &&
-    (userAnswers[currentQId]?.selectedAnswers?.length ?? 0) >= 0;
+  const answeredCount = questions.filter(q => {
+    const uAns = userAnswers[q.id];
+    return (uAns?.answer !== undefined && uAns?.answer !== "" && uAns?.answer !== null) ||
+           (uAns?.selectedAnswers !== undefined && uAns?.selectedAnswers.length > 0);
+  }).length;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-12 backdrop-blur-sm bg-slate-950/50 animate-in fade-in duration-200">
       <div className="bg-white dark:bg-[#16171d] w-full max-w-5xl rounded-[36px] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col md:flex-row h-[740px] animate-in zoom-in-95 duration-200">
         {/* Main Quiz Area */}
         <div className="flex-1 p-6 sm:p-10 flex flex-col justify-between overflow-y-auto">
@@ -335,17 +555,12 @@ export default function QuizModal({
 
             {/* Question Statement & Meta Header */}
             <div className="text-left space-y-4">
-              <div className="flex items-center justify-between gap-2 flex-wrap pb-2 border-b border-slate-100 dark:border-slate-800/80">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-black text-slate-400 uppercase tracking-wider">
-                    Question {currentIdx + 1} of {questions.length}
-                  </span>
-                  <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900/50 uppercase tracking-wider">
-                    {getQuestionTypeLabel(currentQuestion.type)}
-                  </span>
-                </div>
-                <span className="text-xs font-black text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 rounded-lg">
-                  {currentQuestion.points || 1} {currentQuestion.points === 1 ? "Point" : "Points"}
+              <div className="flex items-center gap-2 flex-wrap pb-2 border-b border-slate-100 dark:border-slate-800/80">
+                <span className="text-xs font-black text-slate-400 uppercase tracking-wider">
+                  Question {currentIdx + 1} of {questions.length}
+                </span>
+                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-900/50 uppercase tracking-wider">
+                  {getQuestionTypeLabel(currentQuestion.type)}
                 </span>
               </div>
 
@@ -384,20 +599,27 @@ export default function QuizModal({
                 Next <ChevronRight size={16} />
               </button>
             ) : (
-              <button
-                type="button"
-                disabled={isSubmitting}
-                onClick={handleSubmitQuiz}
-                className="flex items-center gap-2 px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-extrabold text-xs shadow-lg shadow-indigo-600/25 transition-all cursor-pointer disabled:opacity-50"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" /> Evaluating with AI...
-                  </>
-                ) : (
-                  "Submit & Complete Assessment"
+              <div className="flex items-center gap-3">
+                {answeredCount < 5 && (
+                  <span className="text-[11px] font-bold text-red-500">
+                    Answer at least 5 questions
+                  </span>
                 )}
-              </button>
+                <button
+                  type="button"
+                  disabled={isSubmitting || answeredCount < 5}
+                  onClick={handleSubmitQuiz}
+                  className="flex items-center gap-2 px-8 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-extrabold text-xs shadow-lg shadow-indigo-600/25 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" /> Evaluating with AI...
+                    </>
+                  ) : (
+                    "Submit & Complete Assessment"
+                  )}
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -426,10 +648,10 @@ export default function QuizModal({
               </span>
               <div className="grid grid-cols-5 gap-2">
                 {questions.map((q, i) => {
+                  const uAns = userAnswers[q.id];
                   const isAnswered =
-                    userAnswers[q.id]?.answer !== undefined &&
-                    userAnswers[q.id]?.answer !== "" &&
-                    userAnswers[q.id]?.answer !== null;
+                    (uAns?.answer !== undefined && uAns?.answer !== "" && uAns?.answer !== null) ||
+                    (uAns?.selectedAnswers !== undefined && uAns?.selectedAnswers.length > 0);
                   const isCurrent = currentIdx === i;
 
                   return (
@@ -457,15 +679,15 @@ export default function QuizModal({
             <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/40 p-4 rounded-xl flex gap-3 text-amber-800 dark:text-amber-300">
               <Info size={16} className="shrink-0 mt-0.5" />
               <p className="text-xs font-medium leading-relaxed">
-                Ensure all questions are completed before submitting. Answers are graded by Palantir AI.
+                Ensure at least 5 questions are answered before submitting. Answers are graded by Palantir AI.
               </p>
             </div>
 
             <button
               type="button"
-              disabled={isSubmitting}
+              disabled={isSubmitting || answeredCount < 5}
               onClick={handleSubmitQuiz}
-              className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-xs shadow-xl shadow-indigo-500/20 transition-all cursor-pointer disabled:opacity-50"
+              className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-xs shadow-xl shadow-indigo-500/20 transition-all cursor-pointer disabled:opacity-50 flex items-center justify-center"
             >
               {isSubmitting ? "Evaluating Assessment..." : "Submit Test"}
             </button>
