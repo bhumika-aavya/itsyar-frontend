@@ -14,6 +14,7 @@ import InAppPdfModal from '@/components/pdf/InAppPdfModal';
 import { PdfService } from '@/services/pdf.service';
 import QuizModal from '@/pages/courses/QuizModal';
 import { QuizAiService } from '@/services/quiz-ai.service';
+import { toast } from 'sonner';
 
 interface TopicAccordionProps {
     topic: any;
@@ -43,7 +44,7 @@ const TopicAccordion: React.FC<TopicAccordionProps> = ({
         }
         return true;
     });
-    
+
     // Only display Step 05: Topic Quiz & Knowledge Assessment when topic has quiz enabled
     const subItems = [...baseSubItems];
     if (topicHasQuiz && !subItems.some((it: any) => it.type === 'topic-quiz' || it.type === 'quiz')) {
@@ -87,6 +88,7 @@ const TopicAccordion: React.FC<TopicAccordionProps> = ({
                         {subItems.length > 0 && subItems.map((item: any, assetIdx: number) => {
                             const isQuiz = item.type === 'topic-quiz' || item.type === 'quiz';
                             const isDoc = !isQuiz && (item.type === 'topic-documentation' || item.type === 'interview-questions' || item.type === 'documentation' || item.type === 'interview_pdf' || item.type === 'interview');
+                            const hasUrl = Boolean(item.url);
 
                             const handleAssetClick = async () => {
                                 if (isQuiz) {
@@ -124,18 +126,16 @@ const TopicAccordion: React.FC<TopicAccordionProps> = ({
                                 <div
                                     key={assetIdx}
                                     onClick={handleAssetClick}
-                                    className={`flex items-center gap-4 p-4 border rounded-xl cursor-pointer group transition-all ${
-                                        isQuiz
-                                            ? "bg-amber-50/40 dark:bg-amber-950/20 hover:bg-amber-50/80 dark:hover:bg-amber-950/40 border-amber-200/70 dark:border-amber-800/40 hover:border-amber-400 dark:hover:border-amber-600"
-                                            : "bg-slate-50 dark:bg-[#1C1D24] hover:bg-[#EEF0FF] dark:hover:bg-[#1e1b4b]/40 border-slate-100 dark:border-white/5 hover:border-[#4F46E5] dark:hover:border-[#4F46E5]"
-                                    }`}
+                                    className={`flex items-center gap-4 p-4 border rounded-xl cursor-pointer group transition-all ${isQuiz
+                                        ? "bg-amber-50/40 dark:bg-amber-950/20 hover:bg-amber-50/80 dark:hover:bg-amber-950/40 border-amber-200/70 dark:border-amber-800/40 hover:border-amber-400 dark:hover:border-amber-600"
+                                        : "bg-slate-50 dark:bg-[#1C1D24] hover:bg-[#EEF0FF] dark:hover:bg-[#1e1b4b]/40 border-slate-100 dark:border-white/5 hover:border-[#4F46E5] dark:hover:border-[#4F46E5]"
+                                        }`}
                                 >
                                     <div className="relative">
-                                        <div className={`p-2.5 rounded-lg bg-white dark:bg-[#16171d] shadow-sm dark:shadow-none transition-all ${
-                                            isQuiz
-                                                ? "text-amber-600 dark:text-amber-400 group-hover:text-amber-700 dark:group-hover:text-amber-300 group-hover:shadow-md"
-                                                : "text-slate-400 group-hover:text-[#4F46E5] group-hover:shadow-md"
-                                        }`}>
+                                        <div className={`p-2.5 rounded-lg bg-white dark:bg-[#16171d] shadow-sm dark:shadow-none transition-all ${isQuiz
+                                            ? "text-amber-600 dark:text-amber-400 group-hover:text-amber-700 dark:group-hover:text-amber-300 group-hover:shadow-md"
+                                            : "text-slate-400 group-hover:text-[#4F46E5] group-hover:shadow-md"
+                                            }`}>
                                             {isQuiz ? (
                                                 <BrainCircuit size={18} />
                                             ) : isDoc ? (
@@ -144,19 +144,17 @@ const TopicAccordion: React.FC<TopicAccordionProps> = ({
                                                 <PlayCircle size={18} />
                                             )}
                                         </div>
-                                        <div className={`absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full text-[10px] font-extrabold flex items-center justify-center shadow-xs border border-white dark:border-[#16171d] transition-all duration-200 ${
-                                            isQuiz
-                                                ? "bg-amber-500 group-hover:bg-amber-600 text-white"
-                                                : "bg-slate-200 dark:bg-[#252630] group-hover:bg-[#4F46E5] text-slate-600 dark:text-slate-300 group-hover:text-white"
-                                        }`}>
+                                        <div className={`absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full text-[10px] font-extrabold flex items-center justify-center shadow-xs border border-white dark:border-[#16171d] transition-all duration-200 ${isQuiz
+                                            ? "bg-amber-500 group-hover:bg-amber-600 text-white"
+                                            : "bg-slate-200 dark:bg-[#252630] group-hover:bg-[#4F46E5] text-slate-600 dark:text-slate-300 group-hover:text-white"
+                                            }`}>
                                             {assetIdx + 1}
                                         </div>
                                     </div>
                                     <div className="flex flex-col flex-1 min-w-0">
                                         <div className="flex items-center gap-2 mb-0.5">
-                                            <span className={`text-[10px] font-extrabold uppercase tracking-wider ${
-                                                isQuiz ? "text-amber-600 dark:text-amber-400" : "text-[#4F46E5] dark:text-[#818cf8] opacity-60 group-hover:opacity-100"
-                                            }`}>
+                                            <span className={`text-[10px] font-extrabold uppercase tracking-wider ${isQuiz ? "text-amber-600 dark:text-amber-400" : "text-[#4F46E5] dark:text-[#818cf8] opacity-60 group-hover:opacity-100"
+                                                }`}>
                                                 Step 0{assetIdx + 1}
                                             </span>
                                             {isQuiz && (
@@ -165,9 +163,8 @@ const TopicAccordion: React.FC<TopicAccordionProps> = ({
                                                 </span>
                                             )}
                                         </div>
-                                        <span className={`text-sm font-bold truncate leading-tight ${
-                                            isQuiz ? "text-slate-900 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-300" : "text-slate-700 dark:text-slate-200 group-hover:text-[#4F46E5] dark:group-hover:text-[#818cf8]"
-                                        }`}>
+                                        <span className={`text-sm font-bold truncate leading-tight ${isQuiz ? "text-slate-900 dark:text-slate-100 group-hover:text-amber-700 dark:group-hover:text-amber-300" : "text-slate-700 dark:text-slate-200 group-hover:text-[#4F46E5] dark:group-hover:text-[#818cf8]"
+                                            }`}>
                                             {item.title}
                                         </span>
                                         {item.duration && (

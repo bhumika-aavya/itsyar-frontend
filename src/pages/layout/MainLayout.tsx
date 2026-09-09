@@ -74,6 +74,13 @@ export default function MainLayout() {
 
   const menuItems = allMenuItems.filter(item => !item.roles || item.roles.includes(role));
 
+  const isActive = (path: string) =>
+    path === '/dashboard'
+      ? location.pathname === '/dashboard'
+      : location.pathname.startsWith(path) || (path === '/courses' && location.pathname.startsWith('/course/'));
+
+  const activeLabel = menuItems.find(n => isActive(n.path))?.label ?? 'Dashboard';
+
   return (
     <div className="flex min-h-screen bg-[#F9FAFD] dark:bg-[#111217] transition-colors duration-300">
       {/* Sidebar */}
@@ -99,7 +106,7 @@ export default function MainLayout() {
               key={item.label}
               {...item}
               collapsed={collapsed}
-              active={location.pathname === item.path || location.pathname.startsWith(item.path + '/') || (item.path === '/courses' && location.pathname.startsWith('/course/'))}
+              active={isActive(item.path)}
               onClick={() => navigate(item.path)}
             />
           ))}
@@ -117,76 +124,77 @@ export default function MainLayout() {
             </button>
           </div>
         )}
-
-        {/* Bottom User & Preferences Section */}
-        {!collapsed ? (
-          <div className="pt-4 mt-auto border-t border-slate-100 dark:border-[#2e303a] space-y-3">
-            <div className="flex items-center justify-between gap-2 p-2 rounded-2xl bg-slate-50/80 dark:bg-[#1C1D24]/80 border border-slate-100 dark:border-white/5">
-              <div
-                onClick={() => navigate('/profile')}
-                className="flex items-center gap-2.5 min-w-0 flex-1 cursor-pointer hover:opacity-80 transition-opacity"
-                title="View Profile"
-              >
-                <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-900/30 shrink-0 flex items-center justify-center overflow-hidden">
-                  {user?.avatarUrl ? (
-                    <img src={user.avatarUrl} alt={user?.fullName ?? "User"} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-[#4F46E5] dark:text-[#818cf8] font-extrabold text-xs uppercase">
-                      {user?.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
-                    </span>
-                  )}
-                </div>
-                <div className="min-w-0 flex-1 text-left">
-                  <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate leading-tight">
-                    {user?.fullName || "Guest User"}
-                  </p>
-                  <p className="text-[10px] font-extrabold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-                    {(user?.role?.toLowerCase() === 'student' ? 'Learner' : user?.role) || "Member"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-0.5 shrink-0">
-                <ThemeToggle />
-                <button
-                  onClick={() => logout()}
-                  title="Sign Out"
-                  className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all cursor-pointer"
-                >
-                  <LogOut size={16} />
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="pt-4 mt-auto border-t border-slate-100 dark:border-[#2e303a] flex flex-col items-center gap-3">
-            <ThemeToggle />
-            <div
-              onClick={() => navigate('/profile')}
-              className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-900/30 flex items-center justify-center cursor-pointer hover:scale-105 transition-all overflow-hidden"
-              title={`${user?.fullName || 'User'} (${user?.role || 'Member'})`}
-            >
-              {user?.avatarUrl ? (
-                <img src={user.avatarUrl} alt={user?.fullName ?? "User"} className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-[#4F46E5] dark:text-[#818cf8] font-extrabold text-sm uppercase">
-                  {user?.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
-                </span>
-              )}
-            </div>
-            <button
-              onClick={() => logout()}
-              title="Sign Out"
-              className="p-2.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all cursor-pointer"
-            >
-              <LogOut size={16} />
-            </button>
-          </div>
-        )}
       </aside>
 
       {/* Main Area */}
       <main className="flex-1 flex flex-col min-w-0">
+        {/* Top Header */}
+        <header className="h-16 bg-white dark:bg-[#16171d] border-b border-slate-100 dark:border-[#2e303a] flex items-center justify-between px-6 md:px-10 sticky top-0 z-40 shrink-0">
+          <div>
+            <p className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-0.5">
+              {(user?.role?.toLowerCase() === 'student' ? 'Learner' : user?.role) || 'Member'}
+            </p>
+            <p className="text-sm font-extrabold text-slate-900 dark:text-slate-100 leading-none">
+              {activeLabel}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsDropdownOpen(v => !v)}
+                className="flex items-center gap-2.5 p-1.5 pr-3 rounded-2xl hover:bg-slate-50 dark:hover:bg-[#1f2028] transition-all border border-transparent hover:border-slate-100 dark:hover:border-[#2e303a] cursor-pointer"
+              >
+                <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-100 dark:border-indigo-900/30 flex items-center justify-center overflow-hidden shrink-0">
+                  {user?.avatarUrl ? (
+                    <img src={user.avatarUrl} alt={user?.fullName ?? "User"} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-[#4F46E5] dark:text-[#818cf8] font-extrabold text-sm uppercase">
+                      {user?.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
+                    </span>
+                  )}
+                </div>
+                <div className="text-right hidden sm:block">
+                  <div className="text-xs font-bold text-slate-900 dark:text-slate-100 leading-tight truncate max-w-[140px]">
+                    {user?.fullName || "Guest User"}
+                  </div>
+                  <div className="text-[10px] font-extrabold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
+                    {(user?.role?.toLowerCase() === 'student' ? 'Learner' : user?.role) || "Member"}
+                  </div>
+                </div>
+                <ChevronDown
+                  size={15}
+                  className={`text-slate-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                />
+              </button>
+
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-[#1f2028] rounded-2xl shadow-2xl border border-slate-100 dark:border-[#2e303a] py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-4 py-3 border-b border-slate-50 dark:border-[#2e303a] mb-1">
+                    <p className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Signed in as</p>
+                    <p className="text-sm font-bold text-slate-700 dark:text-slate-300 truncate">{user?.email || user?.fullName}</p>
+                  </div>
+                  <button
+                    onClick={() => { navigate('/profile'); setIsDropdownOpen(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#252630] hover:text-[#4F46E5] dark:hover:text-[#818cf8] transition-colors cursor-pointer"
+                  >
+                    <User size={15} /> My Profile
+                  </button>
+                  <div className="h-px bg-slate-50 dark:bg-[#2e303a] my-1 mx-2" />
+                  <button
+                    onClick={() => { logout(); setIsDropdownOpen(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors cursor-pointer"
+                  >
+                    <LogOut size={15} /> Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
+
         <div className="p-6 md:p-10 flex-1 overflow-y-auto">
           <Outlet />
         </div>
