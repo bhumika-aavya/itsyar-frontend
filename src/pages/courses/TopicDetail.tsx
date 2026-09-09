@@ -534,9 +534,9 @@ export default function TopicDetailPage() {
     return (
         <div className="min-h-screen pb-20 relative overflow-hidden font-sans text-left">
             {/* Header Section */}
-            <div className="pt-6 px-6 md:px-10 relative z-10">
-                <div className="max-w-7xl mx-auto">
-                    <button onClick={() => navigate(`/courses/${courseId}`)} className="flex items-center gap-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-bold text-xs transition-colors mb-3 uppercase tracking-widest">
+            <div className="relative z-10">
+                <div className="max-w-5xl">
+                    <button onClick={() => navigate(`/courses/${courseId}`)} className="flex items-center gap-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-bold text-xs transition-colors mb-3 uppercase tracking-widest cursor-pointer">
                         <ChevronLeft size={16} /> Back to Module Overview
                     </button>
 
@@ -557,14 +557,14 @@ export default function TopicDetailPage() {
             </div>
 
             {/* Main Content Area */}
-            <div className="max-w-7xl mx-auto pt-5">
+            <div className="max-w-5xl pt-4">
                 <div className="space-y-4">
                     <div className="flex items-center justify-between pb-1">
                         <h3 className="text-xl md:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                             Module Topics
                         </h3>
                     </div>
-                    <div className="flex flex-col gap-4 max-w-5xl">
+                    <div className="flex flex-col gap-4">
                         {(apiModuleDetail?.topics ?? []).map((topic: any, idx: number) => (
                             <TopicAccordion
                                 key={topic.topic_id || topic.topicId || idx}

@@ -124,16 +124,16 @@ export default function CourseDetailPage() {
     }
 
     return (
-        <div className="bg-slate-50/50 min-h-screen pb-20 relative overflow-hidden font-sans">
+        <div className="bg-slate-50/50 min-h-screen pb-20 relative overflow-hidden font-sans text-left">
             {/* Decorative Background Elements */}
             <div className="absolute top-0 left-0 w-full h-[450px] bg-gradient-to-b from-indigo-50/40 via-purple-50/15 to-transparent dark:from-indigo-950/20 dark:via-transparent -z-10" />
             <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full bg-indigo-300/5 dark:bg-indigo-950/10 blur-[120px] pointer-events-none -z-10" />
             <div className="absolute top-[10%] right-[-5%] w-[50%] h-[50%] rounded-full bg-purple-300/5 dark:bg-purple-950/10 blur-[120px] pointer-events-none -z-10" />
 
             {/* Header Section */}
-            <div className="pt-6 px-6 md:px-10 relative z-10">
-                <div className="max-w-7xl mx-auto">
-                    <button onClick={() => navigate('/courses')} className="flex items-center gap-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-bold text-xs transition-colors mb-3 uppercase tracking-widest">
+            <div className="relative z-10">
+                <div className="max-w-7xl">
+                    <button onClick={() => navigate('/courses')} className="flex items-center gap-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-bold text-xs transition-colors mb-3 uppercase tracking-widest cursor-pointer">
                         <ChevronLeft size={16} /> Back to Courses
                     </button>
 
@@ -146,20 +146,12 @@ export default function CourseDetailPage() {
                                 Explore all {course?.modulesCount} modules, progress, and upcoming topics in a beautifully structured learning path.
                             </p>
                         </div>
-
-                        {/* Global Action Button */}
-                        {/* <button
-                            onClick={() => navigate(`/courses/${courseId}/lessons/${course?.curriculum?.[0]?.items?.[0]?.id || 1}`)}
-                            className="shrink-0 flex items-center gap-3 px-8 py-4.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-extrabold text-[15px] shadow-xl shadow-indigo-200 dark:shadow-none hover:shadow-2xl hover:shadow-indigo-500 dark:hover:shadow-none hover:-translate-y-1 transition-all duration-300 active:scale-[0.98]"
-                        >
-                            <PlayCircle size={22} className="opacity-90" /> Continue Learning
-                        </button> */}
                     </div>
                 </div>
             </div>
 
             {/* Main Content Area */}
-            <div className="max-w-7xl mx-auto pt-5">
+            <div className="max-w-7xl pt-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                     {(course?.curriculum ?? []).map((module, idx) => (
                         <ModuleGridCard
