@@ -36,11 +36,17 @@ const TopicAccordion: React.FC<TopicAccordionProps> = ({
     onOpenQuiz,
 }) => {
     const displayNum = index + 1;
-    const baseSubItems = topic.assets ?? topic.subItems ?? [];
+    const topicHasQuiz = Boolean(topic.isQuiz ?? topic.isquiz ?? topic.is_quiz ?? false);
+    const baseSubItems = (topic.assets ?? topic.subItems ?? []).filter((it: any) => {
+        if (!topicHasQuiz && (it.type === 'topic-quiz' || it.type === 'quiz')) {
+            return false;
+        }
+        return true;
+    });
     
-    // Ensure Step 05: Topic Quiz & Knowledge Assessment is present alongside learning assets
+    // Only display Step 05: Topic Quiz & Knowledge Assessment when topic has quiz enabled
     const subItems = [...baseSubItems];
-    if (!subItems.some((it: any) => it.type === 'topic-quiz' || it.type === 'quiz')) {
+    if (topicHasQuiz && !subItems.some((it: any) => it.type === 'topic-quiz' || it.type === 'quiz')) {
         subItems.push({
             type: 'topic-quiz',
             title: 'Topic Quiz & Knowledge Assessment',
