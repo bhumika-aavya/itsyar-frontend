@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   PlayCircle, FileText, ChevronDown, ChevronUp, Zap, ChevronLeft,
-  Loader2, CheckCircle2, Download
+  Loader2, CheckCircle2, AlertCircle
 } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CourseService } from '@/services/course.service';
 import { ApiModuleDetail, ApiTopic, ApiAsset } from '@/services/course-detail.schema';
 import InAppPdfViewer from '@/components/pdf/InAppPdfViewer';
 import { PdfService } from '@/services/pdf.service';
+import { toast } from 'sonner';
 
 export default function LessonView() {
   const navigate = useNavigate();
@@ -26,31 +27,32 @@ export default function LessonView() {
     if (paramModuleId) {
       return {
         targetModuleId: paramModuleId,
-        topicId: paramTopicId || null,
-        assetType: paramAssetType || null
+        topicId: paramTopicId || '',
+        assetType: paramAssetType || 'video',
       };
     }
-    if (lessonId) {
+    if (lessonId && lessonId.includes('__')) {
       const parts = lessonId.split('__');
       return {
-        targetModuleId: parts[0] || null,
-        topicId: parts[1] || null,
-        assetType: parts[2] || null
+        targetModuleId: parts[0] || '',
+        topicId: parts[1] || '',
+        assetType: parts[2] || 'video',
       };
     }
-    return { targetModuleId: null, topicId: null, assetType: null };
-  }, [paramModuleId, paramTopicId, paramAssetType, lessonId]);
+    return {
+      targetModuleId: lessonId || '',
+      topicId: '',
+      assetType: 'video',
+    };
+  }, [lessonId, paramModuleId, paramTopicId, paramAssetType]);
 
+  // Fetch Module Details
   useEffect(() => {
+    if (!courseId || !targetModuleId) return;
+
     const loadContent = async () => {
-      if (!courseId || !targetModuleId) return;
-      if (moduleData) setIsUpdatingVideo(true);
-      else setIsInitialLoading(true);
-
-      setVideoEnded(false);
-
       try {
-        // Call GET /api/courses/{courseId}/{targetModuleId}
+        setIsUpdatingVideo(true);
         const detail = await CourseService.getModuleTopics(courseId, targetModuleId);
         setModuleData(detail);
       } catch (err) {
@@ -93,35 +95,44 @@ export default function LessonView() {
   const handleVideoEnded = async () => {
     setVideoEnded(true);
     try {
-      await CourseService.completeCourse(courseId!);
-    } catch (e) { }
+      const cId = courseId || '';
+      const mId = targetModuleId || '';
+      const tId = currentTopic?.topic_id || currentTopic?.topicId || '';
+      if (cId && mId && tId) {
+        await CourseService.markTopicComplete(cId, mId, tId);
+      }
+    } catch (e) {
+      console.error("Failed to mark topic as complete", e);
+    }
   };
 
   // Next asset link calculation
   const nextAssetLink = useMemo(() => {
-    if (!currentTopic || !currentAsset || !targetModuleId) return null;
+    if (!currentTopic || !currentAsset || !moduleData) return null;
+    const tId = currentTopic.topic_id || currentTopic.topicId;
     const assetIdx = currentTopic.assets.findIndex(a => a.type === currentAsset.type);
     if (assetIdx >= 0 && assetIdx < currentTopic.assets.length - 1) {
       const nAsset = currentTopic.assets[assetIdx + 1];
-      const tId = currentTopic.topic_id || currentTopic.topicId;
       return paramModuleId
         ? `/course/${courseId}/module/${targetModuleId}/topic/${tId}?asset=${nAsset.type}`
         : `/courses/${courseId}/lessons/${targetModuleId}__${tId}__${nAsset.type}`;
     }
-    const topicIdx = activeTopics.findIndex(t => (t.topic_id || t.topicId) === (currentTopic.topic_id || currentTopic.topicId));
+    const topicIdx = activeTopics.findIndex(t => (t.topic_id || t.topicId) === tId);
     if (topicIdx >= 0 && topicIdx < activeTopics.length - 1) {
       const nTopic = activeTopics[topicIdx + 1];
+      const nTId = nTopic.topic_id || nTopic.topicId;
       if (nTopic.assets?.[0]) {
-        const nTId = nTopic.topic_id || nTopic.topicId;
         return paramModuleId
           ? `/course/${courseId}/module/${targetModuleId}/topic/${nTId}?asset=${nTopic.assets[0].type}`
           : `/courses/${courseId}/lessons/${targetModuleId}__${nTId}__${nTopic.assets[0].type}`;
       }
     }
     return null;
-  }, [currentTopic, currentAsset, targetModuleId, activeTopics, courseId, paramModuleId]);
+  }, [currentTopic, currentAsset, activeTopics, moduleData, courseId, targetModuleId, paramModuleId]);
 
-  const isDocument = currentAsset?.type === 'documentation' ||
+  const isDocument =
+    currentAsset?.type === 'documentation' ||
+    currentAsset?.type === 'topic-documentation' ||
     currentAsset?.type === 'interview_pdf';
 
   const [resolvedPdfUrl, setResolvedPdfUrl] = useState<string>('');
@@ -142,8 +153,6 @@ export default function LessonView() {
     resolveDoc();
   }, [isDocument, currentAsset, courseId, targetModuleId, currentTopic]);
 
-  const token = localStorage.getItem("token") || "";
-
   if (isInitialLoading) {
     return (
       <div className="h-screen flex items-center justify-center bg-[#F9FAFD]">
@@ -152,30 +161,31 @@ export default function LessonView() {
     );
   }
   // Build video streaming URL or fallback
-  const videoSrc = `${import.meta.env.VITE_API_URL}${currentAsset?.url}`
-    ;
+  const videoSrc = currentAsset?.url ? `${import.meta.env.VITE_API_URL}${currentAsset.url}` : "";
   const moduleTitle = moduleData?.title || moduleData?.moduleTitle || "Module";
   const assetTitle = currentAsset?.title || currentTopic?.title || "";
   // Header title format: "Module Name - Video Name"
   const displayTitle = assetTitle ? `${moduleTitle} - ${assetTitle}` : moduleTitle;
 
   return (
-    <div className="min-h-screen bg-[#F9FAFD] dark:bg-[#111217] flex flex-col text-left transition-colors duration-300">
-      {/* Top Bar Header */}
-      <header className="bg-white border-b border-slate-100 sticky top-0 z-30 px-6 py-4">
+    <div className="min-h-screen bg-[#F9FAFD] dark:bg-[#0b0c0e] text-slate-900 dark:text-white flex flex-col font-sans">
+      {/* Top Header / Navbar */}
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#121316]/80 backdrop-blur-md border-b border-slate-100 dark:border-[#22232b] px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => targetModuleId ? navigate(`/courses/${courseId}/modules/${targetModuleId}`) : navigate(`/courses/${courseId}`)}
-              className="p-2 hover:bg-slate-50 rounded-xl text-slate-400 hover:text-slate-600 transition-colors"
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-[#252630] hover:bg-slate-50 dark:hover:bg-[#1c1d24] text-slate-600 dark:text-slate-300 transition-colors"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={18} />
             </button>
-            <div className="h-8 w-px bg-slate-100 hidden md:block" />
             <div>
-              <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                {displayTitle}
-              </h2>
+              <span className="text-[11px] font-extrabold text-[#4F46E5] uppercase tracking-wider block">
+                {moduleTitle}
+              </span>
+              <h1 className="text-base font-extrabold text-slate-900 dark:text-white leading-tight">
+                {currentTopic?.title || "Lesson"}
+              </h1>
             </div>
           </div>
         </div>
@@ -216,6 +226,25 @@ export default function LessonView() {
                     window.open(`/pdf-viewer?${params.toString()}`, '_blank');
                   }}
                 />
+              ) : !currentAsset?.url ? (
+                <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-center px-6 py-12">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center text-rose-400 mb-4 border border-slate-700 shadow-inner">
+                    <AlertCircle size={32} />
+                  </div>
+                  <h3 className="text-white text-lg font-extrabold mb-1">Video not found</h3>
+                  <p className="text-slate-400 text-xs max-w-md mb-6 font-medium">
+                    This video has not been uploaded yet for this lesson.
+                  </p>
+                  {nextAssetLink && (
+                    <button
+                      onClick={() => navigate(nextAssetLink)}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-indigo-950 cursor-pointer"
+                    >
+                      <PlayCircle size={16} />
+                      <span>Next Lesson</span>
+                    </button>
+                  )}
+                </div>
               ) : (
                 <>
                   <video
@@ -292,20 +321,21 @@ export default function LessonView() {
                         });
                         window.open(`/pdf-viewer?${params.toString()}`, '_blank');
                       }}
-                      className="flex items-center justify-between p-3.5 bg-white dark:bg-[#16171d] border border-slate-100 dark:border-[#2e303a] rounded-2xl hover:border-[#4F46E5] hover:shadow-md dark:hover:shadow-none group transition-all shadow-sm dark:shadow-none cursor-pointer"
+                      className="flex items-center justify-between p-4 bg-white dark:bg-[#16171d] rounded-2xl border border-slate-100 dark:border-[#2e303a] hover:border-indigo-100 dark:hover:border-indigo-950 transition-all cursor-pointer group shadow-xs dark:shadow-none"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center text-[#4F46E5] dark:text-[#818cf8] group-hover:bg-[#4F46E5] group-hover:text-white transition-all">
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-[#1e1b4b] text-[#4F46E5] dark:text-[#818cf8] flex items-center justify-center shrink-0">
                           <FileText size={18} />
                         </div>
                         <div>
-                          <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#4F46E5] transition-colors">{docAsset.title}</h4>
-                          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">In-App PDF Reader</p>
+                          <p className="text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-[#4F46E5] dark:group-hover:text-[#818cf8] transition-colors leading-snug">
+                            {docAsset.title}
+                          </p>
+                          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                            PDF Document
+                          </span>
                         </div>
                       </div>
-                      <span className="text-[11px] font-extrabold text-[#4F46E5] opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                        Read →
-                      </span>
                     </div>
                   )) || <p className="text-xs text-slate-400 font-medium">No additional materials available.</p>}
                 </div>
@@ -358,13 +388,17 @@ export default function LessonView() {
                                   navigate(`/courses/${courseId}/lessons/${targetModuleId}__${tId}__${asset.type}`);
                                 }
                               }}
-                              className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all ${isCurrentAsset
-                                ? "bg-[#EEF0FF] dark:bg-[#1e1b4b] text-[#4F46E5] dark:text-[#818cf8] font-extrabold border border-indigo-100 dark:border-indigo-950 shadow-xs dark:shadow-none"
-                                : "text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-[#1c1d24]"
-                                }`}
+                              className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all ${
+                                isCurrentAsset
+                                  ? "bg-[#EEF0FF] dark:bg-[#1e1b4b] text-[#4F46E5] dark:text-[#818cf8] font-extrabold border border-indigo-100 dark:border-indigo-950 shadow-xs dark:shadow-none"
+                                  : "text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-[#1c1d24]"
+                              }`}
                             >
-                              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isCurrentAsset ? "bg-white dark:bg-[#252630] text-[#4F46E5] dark:text-[#818cf8] shadow-xs dark:shadow-none" : "bg-slate-50 dark:bg-[#1c1d24] text-slate-400 dark:text-slate-500"
-                                }`}>
+                              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                                isCurrentAsset
+                                  ? "bg-white dark:bg-[#252630] text-[#4F46E5] dark:text-[#818cf8] shadow-xs dark:shadow-none"
+                                  : "bg-slate-50 dark:bg-[#1c1d24] text-slate-400 dark:text-slate-500"
+                              }`}>
                                 {isDoc ? <FileText size={16} /> : <PlayCircle size={16} />}
                               </div>
                               <span className="text-xs leading-snug">{asset.title}</span>

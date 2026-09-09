@@ -12,6 +12,7 @@ import { COURSE_LIFETIME_PRICE, CURRENCY } from '@/types/payment.types';
 
 import InAppPdfModal from '@/components/pdf/InAppPdfModal';
 import { PdfService } from '@/services/pdf.service';
+import { toast } from 'sonner';
 
 // --- Sub-component: Curriculum Accordion ---
 const TopicAccordion = ({
@@ -63,6 +64,7 @@ const TopicAccordion = ({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {subItems.length > 0 && subItems.map((item: any, assetIdx: number) => {
                             const isDoc = item.type === 'topic-documentation' || item.type === 'interview-questions' || item.type === 'documentation' || item.type === 'interview_pdf' || item.type === 'interview';
+                            const hasUrl = Boolean(item.url);
 
                             const handleAssetClick = async () => {
                                 if (isDoc) {
@@ -99,7 +101,7 @@ const TopicAccordion = ({
                                 >
                                     <div className="relative">
                                         <div className="p-2.5 rounded-lg bg-white dark:bg-[#16171d] shadow-sm dark:shadow-none text-slate-400 group-hover:text-[#4F46E5] group-hover:shadow-md transition-all">
-                                            {item.type === 'topic-documentation' || item.type === 'interview-questions' || item.type === 'documentation' || item.type === 'interview_pdf' ? <FileText size={18} /> : <PlayCircle size={18} />}
+                                            {isDoc ? <FileText size={18} /> : <PlayCircle size={18} />}
                                         </div>
                                         <div className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-slate-200 dark:bg-[#252630] group-hover:bg-[#4F46E5] text-slate-600 dark:text-slate-300 group-hover:text-white text-[10px] font-extrabold flex items-center justify-center shadow-xs border border-white dark:border-[#16171d] transition-all duration-200">
                                             {assetIdx + 1}

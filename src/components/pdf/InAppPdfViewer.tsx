@@ -190,7 +190,7 @@ export default function InAppPdfViewer({
           loadingTask = pdfjsLib.getDocument({ data: uint8 });
         }
       } else {
-        throw new Error("No PDF source provided");
+        throw new Error("Asset not found");
       }
 
       const doc = await loadingTask.promise;
@@ -213,12 +213,14 @@ export default function InAppPdfViewer({
       setPagesMeta(metaList);
     } catch (err: any) {
       console.error("[InAppPdfViewer] Failed to load PDF:", err);
-      if (err?.status === 401 || err?.response?.status === 401) {
+      if (err?.message === "Asset not found" || err?.message === "PDF not found") {
+        setError("This PDF document has not been uploaded yet or is unavailable.");
+      } else if (err?.status === 401 || err?.response?.status === 401) {
         setError("You don't have permission to access this document. Please log in.");
       } else if (err?.status === 403 || err?.response?.status === 403) {
         setError("You don't have permission to access this document.");
       } else if (err?.status === 404 || err?.response?.status === 404) {
-        setError("Document not found.");
+        setError("This PDF document has not been uploaded yet or is unavailable.");
       } else {
         setError("Unable to load the document. Check your connection and try again.");
       }
@@ -641,7 +643,7 @@ export default function InAppPdfViewer({
             <div className="w-12 h-12 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center">
               <AlertCircle size={24} />
             </div>
-            <h4 className="text-sm font-black text-white">Document Unavailable</h4>
+            <h4 className="text-sm font-black text-white">PDF not found</h4>
             <p className="text-xs font-medium text-slate-400 leading-relaxed">{error}</p>
             <button
               type="button"
