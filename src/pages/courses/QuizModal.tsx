@@ -37,6 +37,7 @@ export default function QuizModal({
   const [timeLeft, setTimeLeft] = useState((data?.timeLimit || data?.time_limit_minutes || 15) * 60);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<TestSubmissionResponse | null>(null);
+  const [evalProgress, setEvalProgress] = useState(0);
 
   const rawQuestions = data?.questions || [];
   const questions: QuizQuestion[] = rawQuestions.map((q: any, idx: number) => {
@@ -111,6 +112,7 @@ export default function QuizModal({
       setUserAnswers({});
       setTimeLeft((data?.timeLimit || data?.time_limit_minutes || 15) * 60);
       setIsSubmitting(false);
+      setEvalProgress(0);
       setSubmissionResult(null);
     }
   }, [isOpen, data]);
@@ -125,6 +127,25 @@ export default function QuizModal({
     const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
     return () => clearInterval(timer);
   }, [timeLeft, submissionResult, isOpen, isSubmitting, isLoading]);
+
+  // Evaluation Progress Simulation
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isSubmitting) {
+      setEvalProgress(0);
+      interval = setInterval(() => {
+        setEvalProgress((prev) => {
+          if (prev >= 99) return 99;
+          if (prev < 60) return prev + Math.floor(Math.random() * 6) + 3;
+          if (prev < 85) return prev + Math.floor(Math.random() * 4) + 1;
+          if (prev < 95) return prev + 1;
+          if (Math.random() < 0.3) return prev + 1;
+          return prev;
+        });
+      }, 800);
+    }
+    return () => clearInterval(interval);
+  }, [isSubmitting]);
 
   if (!isOpen) return null;
 
@@ -141,6 +162,54 @@ export default function QuizModal({
             <Loader2 size={48} className="animate-spin text-indigo-600 dark:text-indigo-400 mb-6" />
             <h3 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2">Generating Assessment</h3>
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Please wait while our AI is generating your personalized knowledge assessment...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isSubmitting) {
+    return (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+        <div className="bg-white dark:bg-[#16171d] w-full max-w-md rounded-[36px] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col items-center justify-center p-12 text-center animate-in zoom-in-95 duration-200 relative">
+          <div className="relative w-28 h-28 mb-8 flex items-center justify-center">
+            <svg className="w-full h-full transform -rotate-90 absolute inset-0" viewBox="0 0 100 100">
+              <circle
+                cx="50"
+                cy="50"
+                r="45"
+                className="stroke-slate-100 dark:stroke-slate-800"
+                strokeWidth="8"
+                fill="none"
+              />
+              <circle
+                cx="50"
+                cy="50"
+                r="45"
+                className="stroke-indigo-600 dark:stroke-indigo-500 transition-all duration-300 ease-out"
+                strokeWidth="8"
+                fill="none"
+                strokeDasharray={`${2 * Math.PI * 45}`}
+                strokeDashoffset={`${2 * Math.PI * 45 * (1 - evalProgress / 100)}`}
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className="flex flex-col items-center justify-center z-10">
+              <span className="text-2xl font-black text-slate-900 dark:text-white tabular-nums tracking-tighter">
+                {evalProgress}%
+              </span>
+            </div>
+          </div>
+          
+          <h3 className="text-xl font-extrabold text-slate-900 dark:text-white mb-2">Evaluating Assessment</h3>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 min-h-[40px]">
+            {evalProgress < 40 
+              ? "Our AI is carefully reading your answers. This may take a few moments..."
+              : evalProgress < 75
+              ? "Cross-referencing your solutions with expected technical outcomes..."
+              : evalProgress < 95
+              ? "Generating personalized feedback and scoring your accuracy..."
+              : "Finalizing assessment results and preparing breakdown..."}
+          </p>
         </div>
       </div>
     );
