@@ -5,6 +5,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { CourseService } from '@/services/course.service';
 import { CourseDetail, CourseModule } from '@/services/course-detail.schema';
+import { capitalizeTitle } from '@/lib/utils';
 
 // --- Sub-component: Module Grid Card ---
 const ModuleGridCard = ({ module, index }: { module: CourseModule, index: number }) => {
@@ -25,7 +26,7 @@ const ModuleGridCard = ({ module, index }: { module: CourseModule, index: number
                     </div>
                     <div className="flex-1 min-w-0">
                         <h3 className="font-extrabold text-slate-900 dark:text-white text-base md:text-[17px] leading-snug group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2">
-                            Module {displayNum}: {module.title}
+                            Module {displayNum}: {capitalizeTitle(module.title)}
                         </h3>
                     </div>
                 </div>
@@ -42,7 +43,7 @@ const ModuleGridCard = ({ module, index }: { module: CourseModule, index: number
                         <ul className="space-y-2 pl-3">
                             {(module.topics || []).slice(0, 4).map((topic: string, i: number) => (
                                 <li key={i} className="text-xs font-medium text-slate-600 dark:text-slate-300 truncate">
-                                    {i + 1}. {topic}
+                                    {i + 1}. {capitalizeTitle(topic)}
                                 </li>
                             ))}
                         </ul>

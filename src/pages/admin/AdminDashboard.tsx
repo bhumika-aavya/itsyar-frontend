@@ -8,6 +8,7 @@ import { AdminService, AdminOverview, CourseCompletionRate, ScoreDistributionPoi
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { capitalizeTitle } from "@/lib/utils";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -275,7 +276,7 @@ function PlatformLeaderboard() {
               {courseCompletion.map(c => (
                 <div key={c.courseId}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-bold text-slate-500 truncate max-w-[280px]">{c.courseTitle}</span>
+                    <span className="text-xs font-bold text-slate-500 truncate max-w-[280px]">{capitalizeTitle(c.courseTitle)}</span>
                     <span className="text-xs font-extrabold text-slate-700">{c.completionPercentage.toFixed(1)}%</span>
                   </div>
                   <div className="h-2 bg-slate-100 rounded-full overflow-hidden">

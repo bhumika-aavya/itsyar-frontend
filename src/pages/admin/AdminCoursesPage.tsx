@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { AdminService, AdminCourse } from "@/services/admin.service";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
+import { capitalizeTitle } from "@/lib/utils";
 
 type FilterTab = "all" | "published" | "draft";
 
@@ -260,7 +261,7 @@ export default function AdminCoursesPage() {
                 <div className="p-5 space-y-3.5 flex-1 flex flex-col justify-between">
                   <div className="space-y-1.5">
                     <h3 className="font-black text-base text-slate-900 dark:text-slate-100 group-hover:text-[#4F46E5] dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
-                      {course.title}
+                      {capitalizeTitle(course.title)}
                     </h3>
                     <p className="text-xs font-bold text-slate-400">
                       Instructor: {course.instructor ?? (course as any).author ?? "—"}

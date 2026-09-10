@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Search, BookOpen, Loader2, ExternalLink } from "lucide-react";
 import { CourseService } from "@/services/course.service";
 import { useNavigate } from "react-router-dom";
+import { capitalizeTitle } from "@/lib/utils";
 
 export default function MentorCoursesPage() {
   const navigate = useNavigate();
@@ -71,7 +72,7 @@ export default function MentorCoursesPage() {
                 } alt={course.title} className="w-full h-36 object-cover" />
                 <div className="p-5 space-y-3">
                   <div>
-                    <p className="font-extrabold text-slate-900 leading-snug">{course.title}</p>
+                    <p className="font-extrabold text-slate-900 leading-snug">{capitalizeTitle(course.title)}</p>
                     <p className="text-xs font-bold text-slate-400 mt-1">{course.instructor ?? course.author ?? "—"}</p>
                   </div>
                   <div className="flex items-center justify-between">

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { DashboardService } from '@/services/dashboard.service';
 import { getCurrentStreak } from '@/lib/streakStore';
+import { capitalizeTitle } from '@/lib/utils';
 
 const COURSE_ICONS: Record<string, React.ReactNode> = {
   'Python Core': <Code2 size={18} className="text-slate-500" />,
@@ -24,7 +25,7 @@ function CourseCard({ course, primary }: { course: any; primary: boolean }) {
           {course.tag}
         </span>
       </div>
-      <h3 className="font-extrabold text-slate-900 text-base leading-snug">{course.title}</h3>
+      <h3 className="font-extrabold text-slate-900 text-base leading-snug">{capitalizeTitle(course.title)}</h3>
       <p className="text-[11px] font-medium text-slate-400 mt-1">Current: {course.currentLesson}</p>
       <div className="mt-3 mb-4">
         <div className="flex justify-between text-[10px] font-extrabold text-slate-500 mb-1.5">

@@ -4,6 +4,7 @@ import { ArrowLeft, BookOpen, Edit2, Trash2, Loader2, Save, X, Users } from "luc
 import { AdminService } from "@/services/admin.service";
 import { CourseStudioApi } from "./course-studio/courseApi";
 import Swal from "sweetalert2";
+import { capitalizeTitle } from "@/lib/utils";
 
 interface CourseForm {
   title: string;
@@ -145,7 +146,7 @@ export default function AdminCourseDetailPage() {
         <div className="p-8 space-y-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-extrabold text-slate-900">{course.title}</h2>
+              <h2 className="text-2xl font-extrabold text-slate-900">{capitalizeTitle(course.title)}</h2>
               <p className="text-sm font-bold text-slate-400 mt-1">
                 {course.instructor ?? course.author ?? "—"}
               </p>

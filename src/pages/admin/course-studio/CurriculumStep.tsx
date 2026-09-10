@@ -91,20 +91,18 @@ export default function CurriculumStep({
                   <div
                     key={m.id}
                     onClick={() => setSelectedModuleId(m.id)}
-                    className={`p-4 rounded-2xl border transition-all cursor-pointer group relative ${
-                      isSelected
+                    className={`p-4 rounded-2xl border transition-all cursor-pointer group relative ${isSelected
                         ? "bg-indigo-50/50 dark:bg-indigo-950/20 border-[#4F46E5] dark:border-indigo-500 shadow-xs"
                         : "bg-slate-50/60 dark:bg-[#1c1d24]/60 border-slate-200/70 dark:border-[#2e303a] hover:border-slate-300"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <span
-                          className={`w-6 h-6 rounded-lg text-[11px] font-black flex items-center justify-center ${
-                            isSelected
+                          className={`w-6 h-6 rounded-lg text-[11px] font-black flex items-center justify-center ${isSelected
                               ? "bg-[#4F46E5] text-white"
                               : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
-                          }`}
+                            }`}
                         >
                           {idx + 1}
                         </span>
@@ -209,7 +207,7 @@ export default function CurriculumStep({
                   <button
                     type="button"
                     onClick={() => onOpenCreateTopic(selectedModule.id)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#4F46E5] text-white rounded-xl text-xs font-extrabold hover:bg-[#4338CA] transition-all shadow-xs cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#4F46E5] text-white rounded-xl text-xs font-extrabold hover:bg-[#4338CA] transition-all shadow-xs cursor-pointer mt-1"
                   >
                     <Plus size={14} /> Add Topic to Module
                   </button>
@@ -269,11 +267,10 @@ export default function CurriculumStep({
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 pt-2 border-t border-slate-200/60 dark:border-[#2e303a]/60">
                           {/* 1. Topic Video */}
                           <div
-                            className={`flex items-center gap-2 p-2 rounded-xl text-xs font-bold ${
-                              hasVid
+                            className={`flex items-center gap-2 p-2 rounded-xl text-xs font-bold ${hasVid
                                 ? "bg-indigo-50 dark:bg-indigo-950/30 text-[#4F46E5] dark:text-indigo-300"
                                 : "bg-slate-100/70 dark:bg-[#16171d]/60 text-slate-400"
-                            }`}
+                              }`}
                           >
                             <PlayCircle size={15} />
                             <span className="truncate">Topic Video</span>
@@ -282,11 +279,10 @@ export default function CurriculumStep({
 
                           {/* 2. Walkthrough Video */}
                           <div
-                            className={`flex items-center gap-2 p-2 rounded-xl text-xs font-bold ${
-                              hasPrac
+                            className={`flex items-center gap-2 p-2 rounded-xl text-xs font-bold ${hasPrac
                                 ? "bg-indigo-50 dark:bg-indigo-950/30 text-[#4F46E5] dark:text-indigo-300"
                                 : "bg-slate-100/70 dark:bg-[#16171d]/60 text-slate-400"
-                            }`}
+                              }`}
                           >
                             <Video size={15} />
                             <span className="truncate">Walkthrough</span>
@@ -295,11 +291,10 @@ export default function CurriculumStep({
 
                           {/* 3. Topic Docs */}
                           <div
-                            className={`flex items-center gap-2 p-2 rounded-xl text-xs font-bold ${
-                              hasDoc
+                            className={`flex items-center gap-2 p-2 rounded-xl text-xs font-bold ${hasDoc
                                 ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-300"
                                 : "bg-slate-100/70 dark:bg-[#16171d]/60 text-slate-400"
-                            }`}
+                              }`}
                           >
                             <FileText size={15} />
                             <span className="truncate">Documentation</span>
@@ -308,11 +303,10 @@ export default function CurriculumStep({
 
                           {/* 4. Interview PDF */}
                           <div
-                            className={`flex items-center gap-2 p-2 rounded-xl text-xs font-bold ${
-                              hasInt
+                            className={`flex items-center gap-2 p-2 rounded-xl text-xs font-bold ${hasInt
                                 ? "bg-purple-50 dark:bg-purple-950/30 text-purple-600 dark:text-purple-300"
                                 : "bg-slate-100/70 dark:bg-[#16171d]/60 text-slate-400"
-                            }`}
+                              }`}
                           >
                             <HelpCircle size={15} />
                             <span className="truncate">Interview PDF</span>

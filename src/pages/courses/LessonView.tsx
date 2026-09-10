@@ -8,6 +8,7 @@ import { CourseService } from '@/services/course.service';
 import { ApiModuleDetail, ApiTopic, ApiAsset } from '@/services/course-detail.schema';
 import InAppPdfViewer from '@/components/pdf/InAppPdfViewer';
 import { PdfService } from '@/services/pdf.service';
+import { capitalizeTitle } from '@/lib/utils';
 import { toast } from 'sonner';
 
 export default function LessonView() {
@@ -181,24 +182,23 @@ export default function LessonView() {
             </button>
             <div>
               <span className="text-[11px] font-extrabold text-[#4F46E5] uppercase tracking-wider block">
-                {moduleTitle}
+                {capitalizeTitle(moduleTitle)}
               </span>
-              <h1 className="text-base font-extrabold text-slate-900 dark:text-white leading-tight">
-                {currentTopic?.title || "Lesson"}
-              </h1>
+              <h2 className="text-base font-extrabold text-slate-900 dark:text-white leading-tight">
+                {capitalizeTitle(currentTopic?.title) || "Lesson"}
+              </h2>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content Layout */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 py-4">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Viewer Area */}
           <div className="lg:col-span-8 space-y-8">
-            <div className={`relative w-full bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl shadow-indigo-900 dark:shadow-none border border-slate-800 ${
-              isDocument ? "min-h-[640px] h-[75vh]" : "aspect-video"
-            }`}>
+            <div className={`relative w-full bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl shadow-indigo-900 dark:shadow-none border border-slate-800 ${isDocument ? "min-h-[640px] h-[75vh]" : "aspect-video"
+              }`}>
               {isUpdatingVideo && (
                 <div className="absolute inset-0 z-20 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center">
                   <Loader2 className="animate-spin text-white" size={36} />
@@ -228,17 +228,17 @@ export default function LessonView() {
                 />
               ) : !currentAsset?.url ? (
                 <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-center px-6 py-12">
-                  <div className="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center text-rose-400 mb-4 border border-slate-700 shadow-inner">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center text-rose-400 mb-1 border border-slate-700 shadow-inner">
                     <AlertCircle size={32} />
                   </div>
-                  <h3 className="text-white text-lg font-extrabold mb-1">Video not found</h3>
-                  <p className="text-slate-400 text-xs max-w-md mb-6 font-medium">
+                  <p className="text-slate-400 text-lg font-extrabold mb-1">Video not found</p>
+                  <p className="text-slate-400 text-xs max-w-md font-medium">
                     This video has not been uploaded yet for this lesson.
                   </p>
                   {nextAssetLink && (
                     <button
                       onClick={() => navigate(nextAssetLink)}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-indigo-950 cursor-pointer"
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-[#4F46E5] hover:bg-[#4338CA] text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-indigo-950 cursor-pointer mt-1"
                     >
                       <PlayCircle size={16} />
                       <span>Next Lesson</span>
@@ -368,7 +368,7 @@ export default function LessonView() {
                           }`}>
                           Topic {topicIdx + 1}
                         </p>
-                        <p className="text-sm font-extrabold leading-tight">{topic.title}</p>
+                        <p className="text-sm font-extrabold leading-tight">{capitalizeTitle(topic.title)}</p>
                       </div>
                       {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                     </button>
@@ -388,17 +388,15 @@ export default function LessonView() {
                                   navigate(`/courses/${courseId}/lessons/${targetModuleId}__${tId}__${asset.type}`);
                                 }
                               }}
-                              className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all ${
-                                isCurrentAsset
-                                  ? "bg-[#EEF0FF] dark:bg-[#1e1b4b] text-[#4F46E5] dark:text-[#818cf8] font-extrabold border border-indigo-100 dark:border-indigo-950 shadow-xs dark:shadow-none"
-                                  : "text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-[#1c1d24]"
-                              }`}
+                              className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all ${isCurrentAsset
+                                ? "bg-[#EEF0FF] dark:bg-[#1e1b4b] text-[#4F46E5] dark:text-[#818cf8] font-extrabold border border-indigo-100 dark:border-indigo-950 shadow-xs dark:shadow-none"
+                                : "text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-[#1c1d24]"
+                                }`}
                             >
-                              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
-                                isCurrentAsset
-                                  ? "bg-white dark:bg-[#252630] text-[#4F46E5] dark:text-[#818cf8] shadow-xs dark:shadow-none"
-                                  : "bg-slate-50 dark:bg-[#1c1d24] text-slate-400 dark:text-slate-500"
-                              }`}>
+                              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isCurrentAsset
+                                ? "bg-white dark:bg-[#252630] text-[#4F46E5] dark:text-[#818cf8] shadow-xs dark:shadow-none"
+                                : "bg-slate-50 dark:bg-[#1c1d24] text-slate-400 dark:text-slate-500"
+                                }`}>
                                 {isDoc ? <FileText size={16} /> : <PlayCircle size={16} />}
                               </div>
                               <span className="text-xs leading-snug">{asset.title}</span>

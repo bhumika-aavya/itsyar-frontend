@@ -6,6 +6,7 @@ import { CourseService } from '@/services/course.service';
 import { MyCourse } from '@/schemas/course.schema';
 import { ProfileService } from '@/services/profile.service';
 import { fileToResizedDataUrl } from '@/lib/imageUtils';
+import { capitalizeTitle } from '@/lib/utils';
 
 const roleLabel = (r: string) => {
   if (r.toLowerCase() === "student") return "Learner";
@@ -172,7 +173,7 @@ export default function ProfilePage() {
                         <span className="text-lg">📘</span>
                       </div>
                       <div>
-                        <p className="text-sm font-extrabold text-slate-900">{course.title}</p>
+                        <p className="text-sm font-extrabold text-slate-900">{capitalizeTitle(course.title)}</p>
                         <p className="text-[11px] font-medium text-slate-400">{course.courseCompletionPercentage}% Complete</p>
                       </div>
                     </div>

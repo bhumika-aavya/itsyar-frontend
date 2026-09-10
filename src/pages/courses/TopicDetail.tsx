@@ -9,6 +9,7 @@ import { CourseService } from '@/services/course.service';
 import { PaymentService } from '@/services/payment.service';
 import { CourseDetail, CourseModule, ApiModuleDetail } from '@/services/course-detail.schema';
 import { COURSE_LIFETIME_PRICE, CURRENCY } from '@/types/payment.types';
+import { capitalizeTitle } from '@/lib/utils';
 
 import InAppPdfModal from '@/components/pdf/InAppPdfModal';
 import { PdfService } from '@/services/pdf.service';
@@ -68,7 +69,7 @@ const TopicAccordion: React.FC<TopicAccordionProps> = ({
                         {displayNum < 10 ? `0${displayNum}` : displayNum}
                     </span>
                     <div>
-                        <h4 className="font-bold text-slate-900 dark:text-white">{topic.title || topic.topic_title}</h4>
+                        <h4 className="font-bold text-slate-900 dark:text-white">{capitalizeTitle(topic.title || topic.topic_title)}</h4>
                         {topic.duration && (
                             <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500">{topic.duration}</span>
                         )}
@@ -546,7 +547,7 @@ export default function TopicDetailPage() {
                                 Module {activeModule?.order || ''}
                             </span>
                             <h2 className="md:text-[50px] text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.1]">
-                                {activeModule?.title || course?.title}
+                                {capitalizeTitle(activeModule?.title || course?.title)}
                             </h2>
                             <p className="text-slate-500 dark:text-slate-400 font-medium text-[17px] mt-2 leading-relaxed">
                                 {activeModule?.summary || course?.description}

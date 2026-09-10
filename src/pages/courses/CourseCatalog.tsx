@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { CourseService } from '@/services/course.service';
 import { Course, MyCourse } from '@/schemas/course.schema';
 import { PaymentService } from '@/services/payment.service';
+import { capitalizeTitle } from '@/lib/utils';
 
 // 1. Icon Mapper for "Continue Learning" section
 const iconMap: Record<string, React.ElementType> = {
@@ -28,7 +29,7 @@ const ContinueCard = ({ data }: { data: MyCourse }) => {
       <div className={`${colors} w-12 h-12 rounded-2xl flex items-center justify-center mb-6`}>
         <Icon size={24} />
       </div>
-      <h4 className="font-bold text-slate-900 mb-4 leading-tight">{data.title}</h4>
+      <h4 className="font-bold text-slate-900 mb-4 leading-tight">{capitalizeTitle(data.title)}</h4>
       <div className="flex items-center justify-between mb-4">
         <div className="text-[11px] font-bold text-slate-400">{data.courseCompletionPercentage}% Complete</div>
         <div className="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-1 rounded-md uppercase">{data.level}</div>
@@ -86,7 +87,7 @@ const CourseGridCard = ({ data }: { data: Course }) => {
             {data.duration}
           </span>
         </div>
-        <h3 className="font-bold text-slate-900 mb-3 group-hover:text-[#4F46E5] transition-colors">{data.title}</h3>
+        <h3 className="font-bold text-slate-900 mb-3 group-hover:text-[#4F46E5] transition-colors">{capitalizeTitle(data.title)}</h3>
         <p className="text-xs text-slate-400 leading-relaxed font-medium mb-6 flex-1">{data.description.slice(0, 150)}</p>
 
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-50">

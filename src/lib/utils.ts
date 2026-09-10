@@ -9,7 +9,10 @@ export function capitalizeTitle(str: string | undefined | null): string {
   if (!str) return "";
   return str
     .trim()
-    .split(/\s+/)
-    .map(word => (word ? word.charAt(0).toUpperCase() + word.slice(1) : ""))
-    .join(" ");
+    .split(/(\s+)/)
+    .map(segment => {
+      // For each whitespace-separated word, also capitalize after / and -
+      return segment.replace(/(^|[\/\-])([a-zA-Z])/g, (_, delim, char) => delim + char.toUpperCase());
+    })
+    .join("");
 }
