@@ -84,10 +84,10 @@ const ModuleGridCard = ({ module, index }: { module: CourseModule, index: number
                             <div className="absolute inset-0 bg-white/20 w-full h-full animate-pulse" />
                         </div>
                     </div>
-                    <div className="flex justify-between items-center text-[11px] font-bold text-slate-400 dark:text-slate-500">
+                    {/* <div className="flex justify-between items-center text-[11px] font-bold text-slate-400 dark:text-slate-500">
                         <span>{Math.round((items.length * (module.progress || 0)) / 100)} Topics</span>
                         <span>{items.length} Topics</span>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Action Button */}
