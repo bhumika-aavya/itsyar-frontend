@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     ChevronLeft, BarChart2, BookOpen, Clock, CheckCircle2,
     PlayCircle, FileText, HelpCircle, ChevronDown, ChevronUp,
@@ -220,12 +220,14 @@ export default function TopicDetailPage() {
         data: any;
         topicId: string;
         topicTitle: string;
+        initialResult?: any;
     }>({
         isOpen: false,
         isLoading: false,
         data: null,
         topicId: '',
         topicTitle: '',
+        initialResult: undefined,
     });
 
     const handleOpenPdf = (url: string, title: string, subtitle: string) => {
@@ -241,7 +243,48 @@ export default function TopicDetailPage() {
         const topicIdVal = topic.topic_id || topic.topicId || '';
         const topicTitle = topic.title || topic.topic_title || 'Topic Assessment';
         const targetModuleId = moduleId || activeModule?.moduleId || (activeModule as any)?.id || topic.moduleId || topic.module_id || '';
+        const topicHasAttempt = Boolean(topic.hasAttempt ?? topic.has_attempt ?? false);
 
+        // If the topic already has a completed attempt, fetch and show results directly
+        if (topicHasAttempt && courseId && targetModuleId && topicIdVal) {
+            setQuizModalState({
+                isOpen: true,
+                isLoading: true,
+                data: null,
+                topicId: topicIdVal,
+                topicTitle,
+                initialResult: undefined,
+            });
+            try {
+                const result = await QuizAiService.getTopicQuizResult(courseId, targetModuleId, topicIdVal);
+                setQuizModalState({
+                    isOpen: true,
+                    isLoading: false,
+                    data: { title: `${topicTitle} Knowledge Assessment`, path: `Course Assessment • ${topicTitle}` },
+                    topicId: topicIdVal,
+                    topicTitle,
+                    initialResult: result,
+                });
+            } catch (err) {
+                console.warn('[TopicDetail] Could not fetch quiz result, falling through to quiz flow', err);
+                // Fall through to normal quiz flow if result fetch fails
+                setQuizModalState((prev) => ({ ...prev, isLoading: false, initialResult: undefined }));
+                await _loadAndOpenQuiz(courseId, targetModuleId, topicIdVal, topicTitle, topic);
+            }
+            return;
+        }
+
+        // Normal flow: open quiz questions
+        await _loadAndOpenQuiz(courseId || '', targetModuleId, topicIdVal, topicTitle, topic);
+    };
+
+    const _loadAndOpenQuiz = async (
+        cId: string,
+        targetModuleId: string,
+        topicIdVal: string,
+        topicTitle: string,
+        topic: any
+    ) => {
         // Open modal immediately with loading state
         setQuizModalState({
             isOpen: true,
@@ -249,11 +292,12 @@ export default function TopicDetailPage() {
             data: null,
             topicId: topicIdVal,
             topicTitle: topicTitle,
+            initialResult: undefined,
         });
 
         try {
-            if (courseId && topicIdVal) {
-                const quizRes = await QuizAiService.getTopicQuiz(courseId, targetModuleId, topicIdVal);
+            if (cId && topicIdVal) {
+                const quizRes = await QuizAiService.getTopicQuiz(cId, targetModuleId, topicIdVal);
                 const quizData = quizRes?.quiz || quizRes?.data || quizRes;
                 const questions = quizData?.questions || quizRes?.questions;
 
@@ -264,13 +308,14 @@ export default function TopicDetailPage() {
                         data: {
                             ...quizData,
                             title: quizData.title || `${topicTitle} Knowledge Assessment`,
-                            path: `Course Assessment â€¢ ${topicTitle}`,
+                            path: `Course Assessment • ${topicTitle}`,
                             questions: questions,
                             timeLimit: quizData.timeLimit || quizData.time_limit_minutes || 15,
                             passingThreshold: quizData.passingThreshold || quizData.passing_score_percentage || 70,
                         },
                         topicId: topicIdVal,
                         topicTitle: topicTitle,
+                        initialResult: undefined,
                     });
                     return;
                 }
@@ -285,7 +330,7 @@ export default function TopicDetailPage() {
             isLoading: false,
             data: {
                 title: `${topicTitle} Knowledge Assessment`,
-                path: `Course Assessment â€¢ ${topicTitle}`,
+                path: `Course Assessment • ${topicTitle}`,
                 timeLimit: 15,
                 passingThreshold: 70,
                 questions: [
@@ -317,6 +362,7 @@ export default function TopicDetailPage() {
             },
             topicId: topicIdVal,
             topicTitle: topicTitle,
+            initialResult: undefined,
         });
     };
 
@@ -602,11 +648,12 @@ export default function TopicDetailPage() {
             <QuizModal
                 isOpen={quizModalState.isOpen}
                 isLoading={quizModalState.isLoading}
-                onClose={() => setQuizModalState((prev) => ({ ...prev, isOpen: false }))}
+                onClose={() => setQuizModalState((prev) => ({ ...prev, isOpen: false, initialResult: undefined }))}
                 data={quizModalState.data}
                 courseId={courseId || ''}
                 moduleId={moduleId || activeModule?.moduleId}
                 topicId={quizModalState.topicId}
+                initialResult={quizModalState.initialResult}
                 onQuizComplete={() => {
                     // Update progress or state when quiz is completed
                 }}

@@ -16,6 +16,8 @@ interface Props {
   topicId?: string;
   moduleId?: string;
   isLoading?: boolean;
+  /** When provided, skip the quiz and immediately show this previous attempt result. */
+  initialResult?: TestSubmissionResponse | null;
 }
 
 export default function QuizModal({
@@ -28,6 +30,7 @@ export default function QuizModal({
   topicId,
   moduleId,
   isLoading = false,
+  initialResult,
 }: Props) {
   const navigate = useNavigate();
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -113,9 +116,11 @@ export default function QuizModal({
       setTimeLeft((data?.timeLimit || data?.time_limit_minutes || 15) * 60);
       setIsSubmitting(false);
       setEvalProgress(0);
-      setSubmissionResult(null);
+      // If a previous attempt result is passed in, seed it directly so the
+      // results breakdown is shown immediately without going through the quiz.
+      setSubmissionResult(initialResult ?? null);
     }
-  }, [isOpen, data]);
+  }, [isOpen, data, initialResult]);
 
   // Timer countdown
   useEffect(() => {
@@ -551,7 +556,7 @@ export default function QuizModal({
     }
   };
 
-  // Render Result Breakdown if finished
+  // Render Result Breakdown if finished (or if a previous attempt result was injected)
   if (submissionResult) {
     return (
       <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 sm:p-6 animate-in fade-in duration-200">
@@ -572,7 +577,8 @@ export default function QuizModal({
             <QuizResultBreakdown
               result={submissionResult}
               isFinalQuiz={isFinalQuiz}
-              onRetake={() => {
+              onRetake={initialResult ? undefined : () => {
+                // Only allow retake for newly submitted results, not pre-loaded ones
                 setSubmissionResult(null);
                 setCurrentIdx(0);
                 setUserAnswers({});

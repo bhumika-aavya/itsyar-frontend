@@ -1,7 +1,7 @@
 import React from "react";
 import {
   X, FileText, HelpCircle, PlayCircle, Video,
-  BrainCircuit, Edit3, Trash2, Clock, Award, Plus, Loader2
+  BrainCircuit, Edit3, Trash2, Clock, Award, Plus, Loader2, ExternalLink
 } from "lucide-react";
 import { TopicModalProps } from "./types";
 
@@ -148,6 +148,17 @@ export default function TopicModal({
                   placeholder="Or paste direct document link..."
                   className="w-full h-8 px-2.5 bg-white dark:bg-[#16171d] border border-slate-200 dark:border-[#2e303a] rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 outline-none"
                 />
+                {topicDocPdf.url && (
+                  <a
+                    href={topicDocPdf.url.startsWith('http') ? topicDocPdf.url : `${import.meta.env.VITE_API_URL || ''}${topicDocPdf.url}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-1.5 w-full h-8 px-3 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 rounded-lg text-xs font-bold hover:bg-emerald-100 dark:hover:bg-emerald-950/60 transition-all"
+                  >
+                    <ExternalLink size={12} />
+                    Preview PDF
+                  </a>
+                )}
               </div>
 
               {/* 2. Interview Question PDF */}
@@ -184,6 +195,17 @@ export default function TopicModal({
                   placeholder="Or paste interview PDF link..."
                   className="w-full h-8 px-2.5 bg-white dark:bg-[#16171d] border border-slate-200 dark:border-[#2e303a] rounded-lg text-xs font-medium text-slate-700 dark:text-slate-300 outline-none"
                 />
+                {interviewPdf.url && (
+                  <a
+                    href={interviewPdf.url.startsWith('http') ? interviewPdf.url : `${import.meta.env.VITE_API_URL || ''}${interviewPdf.url}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-1.5 w-full h-8 px-3 bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800/50 rounded-lg text-xs font-bold hover:bg-purple-100 dark:hover:bg-purple-950/60 transition-all"
+                  >
+                    <ExternalLink size={12} />
+                    Preview PDF
+                  </a>
+                )}
 
                 <div className="flex items-center gap-1.5 text-[10px] font-semibold text-purple-600 dark:text-purple-400 bg-purple-50/80 dark:bg-purple-950/40 px-2 py-1 rounded-md border border-purple-100 dark:border-purple-900/30">
                   <BrainCircuit size={12} className="shrink-0" />

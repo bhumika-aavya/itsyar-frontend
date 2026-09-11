@@ -161,4 +161,20 @@ export const QuizAiService = {
       return altResponse.data;
     }
   },
+
+  /**
+   * Fetch the existing quiz attempt result for a topic.
+   * GET /api/courses/{course_id}/modules/{module_id}/topics/{topic_id}/quiz/result
+   */
+  getTopicQuizResult: async (
+    courseId: string,
+    moduleId: string,
+    topicId: string
+  ): Promise<TestSubmissionResponse> => {
+    const response = await api.get(
+      `/courses/${courseId}/modules/${moduleId}/topics/${topicId}/quiz/result`,
+      getAuthHeaders()
+    );
+    return response.data;
+  },
 };
