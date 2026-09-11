@@ -15,7 +15,7 @@ const ModuleGridCard = ({ module, index }: { module: CourseModule, index: number
     const { courseId } = useParams();
 
     return (
-        <div className="bg-white/80 dark:bg-[#16171d]/80 backdrop-blur-xl border border-slate-200/60 dark:border-[#2e303a]/60 rounded-[24px] p-6 flex flex-col justify-between hover:shadow-md hover:shadow-indigo-500/10 dark:hover:shadow-md dark:hover:shadow-indigo-500/10 hover:border-indigo-200 dark:hover:border-indigo-900/60 transition-all duration-300 group cursor-pointer hover:-translate-y-0.5"
+        <div className="bg-white/80 dark:bg-[#16171d]/80 backdrop-blur-xl border border-slate-200/60 dark:border-[#2e303a]/60 rounded-[24px] p-6 flex flex-col justify-between hover:shadow-md hover:shadow-indigo-500/10 dark:hover:shadow-md dark:hover:shadow-indigo-500/10 hover:border-indigo-200 dark:hover:border-indigo-900/60 transition-all duration-300 group cursor-pointer hover:-translate-y-0.5 relative hover:z-30"
             onClick={() => navigate(`/courses/${courseId}/modules/${module.id}`)}
         >
             <div>
@@ -31,10 +31,22 @@ const ModuleGridCard = ({ module, index }: { module: CourseModule, index: number
                     </div>
                 </div>
 
-                {/* Summary */}
-                <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm leading-relaxed mb-5 min-h-[38px] font-medium line-clamp-2">
-                    {module.summary.length > 80 ? module.summary.slice(0, 80) + "..." : module.summary}
-                </p>
+                {/* Summary with tooltip on hover */}
+                {module.summary?.trim() && (
+                    <div className="relative group/summary mb-4">
+                        <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm leading-relaxed font-medium line-clamp-2 cursor-default">
+                            {module.summary.length > 80 ? module.summary.slice(0, 80) + "..." : module.summary}
+                        </p>
+                        {module.summary.length > 80 && (
+                            <div className="absolute bottom-full left-0 mb-2 z-50 hidden group-hover/summary:block w-72 pointer-events-none">
+                                <div className="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium rounded-xl p-3 shadow-xl shadow-slate-900/10 dark:shadow-slate-950/50 leading-relaxed border border-slate-200 dark:border-slate-700">
+                                    {module.summary}
+                                    <div className="absolute top-full left-4 -mt-px border-4 border-transparent border-t-white dark:border-t-slate-800" />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Topics List Box */}
                 <div className="bg-slate-50 dark:bg-[#1C1D24] rounded-2xl p-3.5 mb-4 border border-slate-100 dark:border-white/5 min-h-[148px] flex flex-col justify-between">
@@ -132,7 +144,7 @@ export default function CourseDetailPage() {
             <div className="absolute top-[10%] right-[-5%] w-[50%] h-[50%] rounded-full bg-purple-300/5 dark:bg-purple-950/10 blur-[120px] pointer-events-none -z-10" />
 
             {/* Header Section */}
-            <div className="relative z-10">
+            <div className="relative">
                 <div className="max-w-7xl">
                     <button onClick={() => navigate('/courses')} className="flex items-center gap-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-bold text-xs transition-colors mb-3 uppercase tracking-widest cursor-pointer">
                         <ChevronLeft size={16} /> Back to Courses
@@ -152,7 +164,7 @@ export default function CourseDetailPage() {
             </div>
 
             {/* Main Content Area */}
-            <div className="max-w-7xl pt-4">
+            <div className="max-w-7xl pt-4 relative z-20">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
                     {(course?.curriculum ?? []).map((module, idx) => (
                         <ModuleGridCard

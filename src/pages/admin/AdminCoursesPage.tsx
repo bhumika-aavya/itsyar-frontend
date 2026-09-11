@@ -260,16 +260,33 @@ export default function AdminCoursesPage() {
                 {/* Card Body */}
                 <div className="p-5 space-y-3.5 flex-1 flex flex-col justify-between">
                   <div className="space-y-1.5">
-                    <h3 className="font-black text-base text-slate-900 dark:text-slate-100 group-hover:text-[#4F46E5] dark:group-hover:text-indigo-400 transition-colors line-clamp-1">
-                      {capitalizeTitle(course.title)}
-                    </h3>
+                    {/* Course title with tooltip */}
+                    <div className="relative group/title">
+                      <h3 className="font-black text-base text-slate-900 dark:text-slate-100 group-hover:text-[#4F46E5] dark:group-hover:text-indigo-400 transition-colors line-clamp-1 cursor-default">
+                        {capitalizeTitle(course.title)}
+                      </h3>
+                      <div className="absolute bottom-full left-0 mb-2 z-50 hidden group-hover/title:block pointer-events-none">
+                        <div className="bg-slate-900 dark:bg-slate-800 text-white text-xs font-medium rounded-xl px-3 py-2 shadow-xl leading-relaxed border border-slate-700/50 whitespace-nowrap max-w-[260px]">
+                          {capitalizeTitle(course.title)}
+                          <div className="absolute top-full left-4 -mt-px border-4 border-transparent border-t-slate-900 dark:border-t-slate-800" />
+                        </div>
+                      </div>
+                    </div>
                     <p className="text-xs font-bold text-slate-400">
                       Instructor: {course.instructor ?? (course as any).author ?? "—"}
                     </p>
-                    {course.description && (
-                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400 line-clamp-2 pt-0.5">
-                        {course.description}
-                      </p>
+                    {course.description?.trim() && (
+                      <div className="relative group/desc pt-0.5">
+                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 line-clamp-2 cursor-default">
+                          {course.description}
+                        </p>
+                        <div className="absolute bottom-full left-0 mb-2 z-50 hidden group-hover/desc:block w-72 pointer-events-none">
+                          <div className="bg-slate-900 dark:bg-slate-800 text-white text-xs font-medium rounded-xl px-3.5 py-2.5 shadow-xl leading-relaxed border border-slate-700/50">
+                            {course.description}
+                            <div className="absolute top-full left-4 -mt-px border-4 border-transparent border-t-slate-900 dark:border-t-slate-800" />
+                          </div>
+                        </div>
+                      </div>
                     )}
                   </div>
 

@@ -79,10 +79,8 @@ const TopicAccordion: React.FC<TopicAccordionProps> = ({
             </button>
             {isOpen && (
                 <div className="px-5 pb-5 border-t border-slate-50 dark:border-[#2e303a] pt-5">
-                    {topic.topic_summary ? (
+                    {topic.topic_summary?.trim() && (
                         <p className="text-[13px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed mb-4">{topic.topic_summary}</p>
-                    ) : (
-                        <p className="text-[13px] text-slate-500 dark:text-slate-400 font-medium leading-relaxed mb-4">Master the art of writing PRDs, defining user personas, and scoping MVPs.</p>
                     )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -602,9 +600,11 @@ export default function TopicDetailPage() {
                             <h2 className="md:text-[50px] text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.1]">
                                 {capitalizeTitle(activeModule?.title || course?.title)}
                             </h2>
-                            <p className="text-slate-500 dark:text-slate-400 font-medium text-[17px] mt-2 leading-relaxed">
-                                {activeModule?.summary || course?.description}
-                            </p>
+                            {(activeModule?.summary || course?.description)?.trim() && (
+                                <p className="text-slate-500 dark:text-slate-400 font-medium text-[17px] mt-2 leading-relaxed">
+                                    {activeModule?.summary || course?.description}
+                                </p>
+                            )}
                         </div>
                     </div>
                 </div>

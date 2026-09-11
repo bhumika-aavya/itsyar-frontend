@@ -113,9 +113,10 @@ export default function OrganizerLayout() {
       {/* Main */}
       <main className="flex-1 flex flex-col min-w-0">
         <header className="h-16 bg-white dark:bg-[#16171d] border-b border-slate-100 dark:border-[#2e303a] flex items-center justify-between px-8 sticky top-0 z-40">
-          <div>
-            <p className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-0.5">Organizer</p>
-            <p className="text-sm font-extrabold text-slate-900 dark:text-slate-100 leading-none">{activeLabel}</p>
+          <div className="flex items-center gap-2 text-sm font-extrabold text-slate-900 dark:text-slate-100">
+            <span className="uppercase tracking-wider">Organizer</span>
+            <ChevronRight size={14} className="text-slate-400 dark:text-slate-500 shrink-0" />
+            <span>{activeLabel}</span>
           </div>
           
           <div className="flex items-center gap-4">

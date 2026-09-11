@@ -130,13 +130,14 @@ export default function MainLayout() {
       <main className="flex-1 flex flex-col min-w-0">
         {/* Top Header */}
         <header className="h-16 bg-white dark:bg-[#16171d] border-b border-slate-100 dark:border-[#2e303a] flex items-center justify-between px-6 md:px-10 sticky top-0 z-40 shrink-0">
-          <div>
-            <p className="text-[10px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-0.5">
+          <div className="flex items-center gap-2 text-sm font-extrabold text-slate-900 dark:text-slate-100">
+            <span className="uppercase tracking-wider">
               {(user?.role?.toLowerCase() === 'student' ? 'Learner' : user?.role) || 'Member'}
-            </p>
-            <p className="text-sm font-extrabold text-slate-900 dark:text-slate-100 leading-none">
+            </span>
+            <ChevronRight size={14} className="text-slate-400 dark:text-slate-500 shrink-0" />
+            <span>
               {activeLabel}
-            </p>
+            </span>
           </div>
 
           <div className="flex items-center gap-3">

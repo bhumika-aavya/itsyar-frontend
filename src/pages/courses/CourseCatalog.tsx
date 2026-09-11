@@ -88,7 +88,22 @@ const CourseGridCard = ({ data }: { data: Course }) => {
           </span>
         </div>
         <h3 className="font-bold text-slate-900 mb-3 group-hover:text-[#4F46E5] transition-colors">{capitalizeTitle(data.title)}</h3>
-        <p className="text-xs text-slate-400 leading-relaxed font-medium mb-6 flex-1">{data.description.slice(0, 150)}</p>
+        {/* Description with tooltip */}
+        {data.description?.trim() && (
+          <div className="relative group/desc mb-4">
+            <p className="text-xs text-slate-400 leading-relaxed font-medium line-clamp-3 cursor-default">
+              {data.description.slice(0, 150)}
+            </p>
+            {data.description.length > 150 && (
+              <div className="absolute bottom-full left-0 mb-2 z-50 hidden group-hover/desc:block w-72 pointer-events-none">
+                <div className="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium rounded-xl p-3 shadow-xl shadow-slate-900/10 dark:shadow-slate-950/50 leading-relaxed border border-slate-200 dark:border-slate-700">
+                  {data.description}
+                  <div className="absolute top-full left-4 -mt-px border-4 border-transparent border-t-white dark:border-t-slate-800" />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-50">
           <div className="flex items-center gap-2">

@@ -91,7 +91,7 @@ export default function RegisterForm() {
       <div className="w-full rounded-[40px] bg-white shadow-2xl border border-slate-100 overflow-hidden">
         <div className="px-10 pt-10 pb-2">
           <div className="text-center mb-10">
-            <h2 className="text-[32px] font-bold text-[#1A1C1E] tracking-tight">{`Join as a ${watch('userType') === 'Student' ? 'Learner' : 'Participant'}`}</h2>
+            <h2 className="text-[32px] font-bold text-[#1A1C1E] tracking-tight">{`Join as a Member`}</h2>
             <p className="mt-2 text-sm text-slate-500 max-w-[420px] mx-auto leading-relaxed font-medium">
               Register to access courses, track your progress and grow your skills.
             </p>
