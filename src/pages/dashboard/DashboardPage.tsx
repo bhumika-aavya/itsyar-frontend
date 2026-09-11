@@ -130,7 +130,7 @@ export default function DashboardPage() {
       myLearnings.some(m => String(m.id) === String(course.id) || String(m.courseId) === String(course.id));
 
     const matchedMyCourse = myLearnings.find(m => String(m.id) === String(course.id) || String(m.courseId) === String(course.id));
-
+    console.log('hello dashboard')
     // Progress calculation
     const progress = matchedMyCourse?.courseCompletionPercentage ??
       0
