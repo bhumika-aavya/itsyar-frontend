@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import InAppPdfViewer from '@/components/pdf/InAppPdfViewer';
 import { PdfService } from '@/services/pdf.service';
 import { Loader2 } from 'lucide-react';
+import { CourseService } from '@/services/course.service';
 
 export default function PdfViewerPage() {
   const [searchParams] = useSearchParams();
@@ -49,6 +50,15 @@ export default function PdfViewerPage() {
     resolveUrl();
   }, [urlParam, courseId, moduleId, topicId, docType]);
 
+
+  // ─── PDF viewed tracking ───────────────────────────────────────────────────
+  // Mark the PDF as viewed (= completed) the moment this page loads.
+  // This fires once per unique topic+pdf-type combination.
+  useEffect(() => {
+    if (!courseId || !moduleId || !topicId) return;
+    CourseService.markPdfViewed(courseId, moduleId, topicId, docType);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [courseId, moduleId, topicId, docType]);
   const handleClose = () => {
     // If opened in a new tab, close it. Otherwise navigate back.
     if (window.opener) {

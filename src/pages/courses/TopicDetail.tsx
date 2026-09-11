@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import {
     ChevronLeft, BarChart2, BookOpen, Clock, CheckCircle2,
     PlayCircle, FileText, HelpCircle, ChevronDown, ChevronUp,
@@ -104,7 +104,7 @@ const TopicAccordion: React.FC<TopicAccordionProps> = ({
                                         targetUrl = await PdfService.resolvePdfUrl(courseId, moduleId, topicIdVal, docType);
                                     }
                                     const docTitle = item.title || (docType === 'interview' ? 'Interview Questions' : 'Topic Documentation');
-                                    const subtitle = `${topic.title || topic.topic_title || 'Topic'} • Documentation`;
+                                    const subtitle = `${topic.title || topic.topic_title || 'Topic'} â€¢ Documentation`;
 
                                     const params = new URLSearchParams({
                                         url: targetUrl || '',
@@ -117,6 +117,13 @@ const TopicAccordion: React.FC<TopicAccordionProps> = ({
                                     });
 
                                     // Open in new tab in full screen
+                                    // Mark PDF as viewed for progress tracking (fire-and-forget)
+                                    CourseService.markPdfViewed(
+                                        courseId || '',
+                                        moduleId || '',
+                                        topicIdVal,
+                                        docType as 'documentation' | 'interview',
+                                    );
                                     window.open(`/pdf-viewer?${params.toString()}`, '_blank');
                                 } else {
                                     navigate(`/course/${courseId}/module/${moduleId}/topic/${topicIdVal}?asset=${item.type}`);
@@ -257,7 +264,7 @@ export default function TopicDetailPage() {
                         data: {
                             ...quizData,
                             title: quizData.title || `${topicTitle} Knowledge Assessment`,
-                            path: `Course Assessment • ${topicTitle}`,
+                            path: `Course Assessment â€¢ ${topicTitle}`,
                             questions: questions,
                             timeLimit: quizData.timeLimit || quizData.time_limit_minutes || 15,
                             passingThreshold: quizData.passingThreshold || quizData.passing_score_percentage || 70,
@@ -278,7 +285,7 @@ export default function TopicDetailPage() {
             isLoading: false,
             data: {
                 title: `${topicTitle} Knowledge Assessment`,
-                path: `Course Assessment • ${topicTitle}`,
+                path: `Course Assessment â€¢ ${topicTitle}`,
                 timeLimit: 15,
                 passingThreshold: 70,
                 questions: [

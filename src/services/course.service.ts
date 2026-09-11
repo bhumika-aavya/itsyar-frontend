@@ -1,4 +1,4 @@
-import api from "@/lib/axios";
+﻿import api from "@/lib/axios";
 import { capitalizeTitle } from "@/lib/utils";
 import { CertificateData, Course, MyCourse } from "@/schemas/course.schema";
 import { CourseDetail, CourseModule, ApiModuleList, ApiTopic, ApiModuleDetail } from "./course-detail.schema";
@@ -224,5 +224,78 @@ export const CourseService = {
             console.warn("API Error: getResults failed");
             return [];
         }
-    }
+    },
+
+    // ─── New Topic-Level Progress Tracking ─────────────────────────────────────
+
+    /**
+     * Report video watch progress. Call every ~10s during playback.
+     * Backend ignores calls below the 90% threshold (cheap no-op ack).
+     * Returns { crossed_threshold, topic_status, module_progress?, course_progress? }
+     */
+    trackVideoProgress: async (
+        courseId: string,
+        moduleId: string,
+        topicId: string,
+        videoType: 'topic' | 'practical',
+        playedSeconds: number,
+        totalSeconds: number,
+    ): Promise<any> => {
+        try {
+            const response = await api.post(
+                `/courses/${courseId}/${moduleId}/${topicId}/video-progress`,
+                { video_type: videoType, played_seconds: playedSeconds, total_seconds: totalSeconds },
+                getAuthHeaders(),
+            );
+            return response.data;
+        } catch (error) {
+            console.warn('[CourseService] trackVideoProgress failed silently', error);
+            return { success: false };
+        }
+    },
+
+    /**
+     * Mark a PDF as viewed. Call once when the user opens the PDF.
+     * Returns { topic_status, module_progress?, course_progress? }
+     */
+    markPdfViewed: async (
+        courseId: string,
+        moduleId: string,
+        topicId: string,
+        pdfType: 'documentation' | 'interview',
+    ): Promise<any> => {
+        try {
+            const response = await api.post(
+                `/courses/${courseId}/${moduleId}/${topicId}/pdf-viewed`,
+                { pdf_type: pdfType },
+                getAuthHeaders(),
+            );
+            return response.data;
+        } catch (error) {
+            console.warn('[CourseService] markPdfViewed failed silently', error);
+            return { success: false };
+        }
+    },
+
+    /** Get overall course completion for the current user (use on page load, not as poll target). */
+    getCourseProgress: async (courseId: string): Promise<any> => {
+        try {
+            const response = await api.get(`/courses/${courseId}/progress`, getAuthHeaders());
+            return response.data;
+        } catch (error) {
+            console.warn('[CourseService] getCourseProgress failed silently', error);
+            return { success: false, percent: 0, completed_modules: 0, total_modules: 0 };
+        }
+    },
+
+    /** Get per-module progress breakdown (use on page load, not as poll target). */
+    getModulesProgress: async (courseId: string): Promise<any> => {
+        try {
+            const response = await api.get(`/courses/${courseId}/modules-progress`, getAuthHeaders());
+            return response.data;
+        } catch (error) {
+            console.warn('[CourseService] getModulesProgress failed silently', error);
+            return { success: false, modules: [] };
+        }
+    },
 };

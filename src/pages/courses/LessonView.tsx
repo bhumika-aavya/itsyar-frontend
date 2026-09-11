@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+﻿  import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
   PlayCircle, FileText, ChevronDown, ChevronUp, Zap, ChevronLeft,
   Loader2, CheckCircle2, AlertCircle
@@ -93,19 +93,51 @@ export default function LessonView() {
     return currentTopic.assets[0];
   }, [currentTopic, assetType]);
 
-  const handleVideoEnded = async () => {
-    setVideoEnded(true);
-    try {
+  // ─── Video progress tracking (90% threshold heartbeat) ──────────────────────
+  // Tracks last time (in seconds) we sent a progress ping so we do not flood the API.
+  const lastProgressPingRef = useRef<number>(0);
+  // Once the backend acknowledges crossing the 90% threshold, stop sending further pings.
+  const thresholdCrossedRef = useRef<boolean>(false);
+
+  // Reset tracking state whenever the topic or asset changes (new video loaded).
+  useEffect(() => {
+    lastProgressPingRef.current = 0;
+    thresholdCrossedRef.current = false;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentTopic?.topic_id, currentTopic?.topicId, currentAsset?.type]);
+
+  const handleTimeUpdate = useCallback(
+    async (e: React.SyntheticEvent<HTMLVideoElement>) => {
+      if (thresholdCrossedRef.current) return;
+      const video = e.currentTarget;
+      if (!video.duration || video.duration <= 0) return;
+      const played = video.currentTime;
+      const total = video.duration;
+      if (played - lastProgressPingRef.current < 10) return; // only ping every ~10 s
+      lastProgressPingRef.current = played;
       const cId = courseId || '';
       const mId = targetModuleId || '';
       const tId = currentTopic?.topic_id || currentTopic?.topicId || '';
-      if (cId && mId && tId) {
-        await CourseService.markTopicComplete(cId, mId, tId);
-      }
-    } catch (e) {
-      console.error("Failed to mark topic as complete", e);
+      if (!cId || !mId || !tId) return;
+      const videoType = (currentAsset?.type === 'practical' || currentAsset?.type === 'practical_video') ? 'practical' : 'topic';
+      const result = await CourseService.trackVideoProgress(cId, mId, tId, videoType, played, total);
+      if (result?.crossed_threshold) thresholdCrossedRef.current = true;
+    },
+    [courseId, targetModuleId, currentTopic, currentAsset],
+  );
+
+  const handleVideoEnded = useCallback(async () => {
+    setVideoEnded(true);
+    const cId = courseId || '';
+    const mId = targetModuleId || '';
+    const tId = currentTopic?.topic_id || currentTopic?.topicId || '';
+    if (cId && mId && tId) {
+      // Final 100 % ping so the backend always registers the asset even if
+      // the 10 s heartbeat did not fire close enough to the end of the video.
+      const videoType = (currentAsset?.type === 'practical' || currentAsset?.type === 'practical_video') ? 'practical' : 'topic';
+      await CourseService.trackVideoProgress(cId, mId, tId, videoType, 1, 1);
     }
-  };
+  }, [courseId, targetModuleId, currentTopic, currentAsset]);
 
   // Next asset link calculation
   const nextAssetLink = useMemo(() => {
@@ -153,6 +185,18 @@ export default function LessonView() {
     };
     resolveDoc();
   }, [isDocument, currentAsset, courseId, targetModuleId, currentTopic]);
+
+  // ─── Inline PDF viewed tracking ─────────────────────────────────────────────
+  // When the user views a PDF inline (inside LessonView), mark it as viewed once.
+  useEffect(() => {
+    if (!isDocument || !courseId || !targetModuleId) return;
+    const tId = currentTopic?.topic_id || currentTopic?.topicId;
+    if (!tId || !currentAsset) return;
+    const pdfType = (currentAsset.type.includes('interview')) ? 'interview' : 'documentation';
+    CourseService.markPdfViewed(courseId, targetModuleId, tId, pdfType);
+  // Run once per topic+asset combination when the document view is active.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDocument, currentTopic?.topic_id, currentTopic?.topicId, currentAsset?.type, courseId, targetModuleId]);
 
   if (isInitialLoading) {
     return (
@@ -253,6 +297,7 @@ export default function LessonView() {
                     controls
                     autoPlay={false}
                     onEnded={handleVideoEnded}
+                    onTimeUpdate={handleTimeUpdate}
                   >
                     {videoSrc && <source src={videoSrc} type="video/mp4" />}
                     Your browser does not support the video tag.
