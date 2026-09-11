@@ -38,10 +38,10 @@ const ModuleGridCard = ({ module, index }: { module: CourseModule, index: number
                             {module.summary.length > 80 ? module.summary.slice(0, 80) + "..." : module.summary}
                         </p>
                         {module.summary.length > 80 && (
-                            <div className="absolute bottom-full left-0 mb-2 z-50 hidden group-hover/summary:block w-72 pointer-events-none">
-                                <div className="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-medium rounded-xl p-3 shadow-xl shadow-slate-900/10 dark:shadow-slate-950/50 leading-relaxed border border-slate-200 dark:border-slate-700">
+                            <div className="absolute top-full left-0 mt-2 z-50 hidden group-hover/summary:block w-72 pointer-events-none animate-in fade-in zoom-in-95 duration-150">
+                                <div className="relative bg-white dark:bg-[#1c1d24] text-slate-700 dark:text-slate-200 text-xs font-medium rounded-2xl p-3.5 shadow-2xl shadow-slate-900/15 dark:shadow-black/60 leading-relaxed border border-slate-200/80 dark:border-[#2e303a]">
+                                    <div className="absolute bottom-full left-4 -mb-px border-4 border-transparent border-b-white dark:border-b-[#1c1d24]" />
                                     {module.summary}
-                                    <div className="absolute top-full left-4 -mt-px border-4 border-transparent border-t-white dark:border-t-slate-800" />
                                 </div>
                             </div>
                         )}

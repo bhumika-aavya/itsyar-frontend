@@ -133,7 +133,7 @@ export default function DashboardPage() {
 
     // Progress calculation
     const progress = matchedMyCourse?.courseCompletionPercentage ??
-      (isEnrolled ? (idx === 0 ? 68 : idx === 1 ? 40 : 15) : (idx === 0 ? 35 : 0));
+      0
 
     return {
       ...course,
