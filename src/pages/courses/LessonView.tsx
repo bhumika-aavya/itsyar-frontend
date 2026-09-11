@@ -1,13 +1,15 @@
-﻿  import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import {
   PlayCircle, FileText, ChevronDown, ChevronUp, Zap, ChevronLeft,
-  Loader2, CheckCircle2, AlertCircle
+  Loader2, CheckCircle2, AlertCircle, BrainCircuit, Sparkles
 } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CourseService } from '@/services/course.service';
 import { ApiModuleDetail, ApiTopic, ApiAsset } from '@/services/course-detail.schema';
 import InAppPdfViewer from '@/components/pdf/InAppPdfViewer';
 import { PdfService } from '@/services/pdf.service';
+import { QuizAiService } from '@/services/quiz-ai.service';
+import QuizModal from '@/pages/courses/QuizModal';
 import { capitalizeTitle } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -22,6 +24,22 @@ export default function LessonView() {
   const [isUpdatingVideo, setIsUpdatingVideo] = useState(false);
   const [videoEnded, setVideoEnded] = useState(false);
   const [openTopicId, setOpenTopicId] = useState<string | null>(null);
+
+  const [quizModalState, setQuizModalState] = useState<{
+    isOpen: boolean;
+    isLoading?: boolean;
+    data: any;
+    topicId: string;
+    topicTitle: string;
+    initialResult?: any;
+  }>({
+    isOpen: false,
+    isLoading: false,
+    data: null,
+    topicId: '',
+    topicTitle: '',
+    initialResult: undefined,
+  });
 
   // Extract targetModuleId, topicId, assetType
   const { targetModuleId, topicId, assetType } = useMemo(() => {
@@ -198,6 +216,148 @@ export default function LessonView() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDocument, currentTopic?.topic_id, currentTopic?.topicId, currentAsset?.type, courseId, targetModuleId]);
 
+  // ─── Quiz Handler Methods ──────────────────────────────────────────────────
+  const handleOpenTopicQuiz = useCallback(async (topic: any) => {
+    const topicIdVal = topic.topic_id || topic.topicId || '';
+    const topicTitle = topic.title || topic.topic_title || 'Topic Assessment';
+    const mId = targetModuleId || topic.moduleId || topic.module_id || '';
+    const topicHasAttempt = Boolean(topic.hasAttempt ?? topic.has_attempt ?? false);
+
+    if (topicHasAttempt && courseId && mId && topicIdVal) {
+      setQuizModalState({
+        isOpen: true,
+        isLoading: true,
+        data: null,
+        topicId: topicIdVal,
+        topicTitle,
+        initialResult: undefined,
+      });
+      try {
+        const result = await QuizAiService.getTopicQuizResult(courseId, mId, topicIdVal);
+        setQuizModalState({
+          isOpen: true,
+          isLoading: false,
+          data: { title: `${topicTitle} Knowledge Assessment`, path: `Course Assessment • ${topicTitle}` },
+          topicId: topicIdVal,
+          topicTitle,
+          initialResult: result,
+        });
+      } catch (err) {
+        console.warn('[LessonView] Could not fetch quiz result, falling through to quiz flow', err);
+        setQuizModalState(prev => ({ ...prev, isLoading: false, initialResult: undefined }));
+        await _loadAndOpenQuiz(courseId, mId, topicIdVal, topicTitle);
+      }
+      return;
+    }
+
+    await _loadAndOpenQuiz(courseId || '', mId, topicIdVal, topicTitle);
+  }, [courseId, targetModuleId]);
+
+  const _loadAndOpenQuiz = async (
+    cId: string,
+    mId: string,
+    topicIdVal: string,
+    topicTitle: string
+  ) => {
+    setQuizModalState({
+      isOpen: true,
+      isLoading: true,
+      data: null,
+      topicId: topicIdVal,
+      topicTitle: topicTitle,
+      initialResult: undefined,
+    });
+
+    try {
+      if (cId && topicIdVal) {
+        const quizRes = await QuizAiService.getTopicQuiz(cId, mId, topicIdVal);
+        const quizData = quizRes?.quiz || quizRes?.data || quizRes;
+        const questions = quizData?.questions || quizRes?.questions;
+
+        if (questions && questions.length > 0) {
+          setQuizModalState({
+            isOpen: true,
+            isLoading: false,
+            data: {
+              ...quizData,
+              title: quizData.title || `${topicTitle} Knowledge Assessment`,
+              path: `Course Assessment • ${topicTitle}`,
+              questions: questions,
+              timeLimit: quizData.timeLimit || quizData.time_limit_minutes || 15,
+              passingThreshold: quizData.passingThreshold || quizData.passing_score_percentage || 70,
+            },
+            topicId: topicIdVal,
+            topicTitle: topicTitle,
+            initialResult: undefined,
+          });
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn("[LessonView] Could not fetch quiz from API, using fallback quiz", e);
+    }
+
+    // Fallback default quiz structure
+    setQuizModalState({
+      isOpen: true,
+      isLoading: false,
+      data: {
+        title: `${topicTitle} Knowledge Assessment`,
+        path: `Course Assessment • ${topicTitle}`,
+        timeLimit: 15,
+        passingThreshold: 70,
+        questions: [
+          {
+            id: `q_sample_1_${topicIdVal}`,
+            type: 'QA',
+            text: `Explain the fundamental concepts, data pipeline architecture, and implementation best practices of ${topicTitle}.`,
+            points: 2
+          },
+          {
+            id: `q_sample_2_${topicIdVal}`,
+            type: 'SINGLE_CHOICE',
+            text: `Which principle is critical when architecting secure solutions in ${topicTitle}?`,
+            options: [
+              'Data isolation and role-based access control',
+              'Storing all raw credentials in source files',
+              'Bypassing pipeline schema validation',
+              'Disabling automated health checks'
+            ],
+            correctAnswer: 'Data isolation and role-based access control',
+            points: 2
+          },
+          {
+            id: `q_sample_3_${topicIdVal}`,
+            type: 'MULTIPLE_CHOICE',
+            text: `Select all best practices applicable to ${topicTitle}:`,
+            options: [
+              'Comprehensive unit testing and assertions',
+              'Modular pipeline construction and documentation',
+              'Real-time metric logging and error alerting',
+              'Hardcoding environment endpoints directly in scripts'
+            ],
+            correctAnswer: [
+              'Comprehensive unit testing and assertions',
+              'Modular pipeline construction and documentation',
+              'Real-time metric logging and error alerting'
+            ],
+            points: 3
+          }
+        ]
+      },
+      topicId: topicIdVal,
+      topicTitle: topicTitle,
+      initialResult: undefined,
+    });
+  };
+
+  // If assetType is quiz, open quiz modal for the current topic automatically
+  useEffect(() => {
+    if ((assetType === 'quiz' || assetType === 'topic-quiz') && currentTopic && !quizModalState.isOpen) {
+      handleOpenTopicQuiz(currentTopic);
+    }
+  }, [assetType, currentTopic, handleOpenTopicQuiz, quizModalState.isOpen]);
+
   if (isInitialLoading) {
     return (
       <div className="h-screen flex items-center justify-center bg-[#F9FAFD]">
@@ -213,31 +373,29 @@ export default function LessonView() {
   const displayTitle = assetTitle ? `${moduleTitle} - ${assetTitle}` : moduleTitle;
 
   return (
-    <div className="min-h-screen bg-[#F9FAFD] dark:bg-[#0b0c0e] text-slate-900 dark:text-white flex flex-col font-sans">
-      {/* Top Header / Navbar */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#121316]/80 backdrop-blur-md border-b border-slate-100 dark:border-[#22232b] px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => targetModuleId ? navigate(`/courses/${courseId}/modules/${targetModuleId}`) : navigate(`/courses/${courseId}`)}
-              className="p-2.5 rounded-xl border border-slate-200 dark:border-[#252630] hover:bg-slate-50 dark:hover:bg-[#1c1d24] text-slate-600 dark:text-slate-300 transition-colors"
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <div>
-              <span className="text-[11px] font-extrabold text-[#4F46E5] uppercase tracking-wider block">
-                {capitalizeTitle(moduleTitle)}
-              </span>
-              <h2 className="text-base font-extrabold text-slate-900 dark:text-white leading-tight">
-                {capitalizeTitle(currentTopic?.title) || "Lesson"}
-              </h2>
-            </div>
+    <div className="w-full text-slate-900 dark:text-white flex flex-col font-sans">
+      {/* Top Header */}
+      <div className="flex items-center justify-between pb-6 mb-2 border-b border-slate-100 dark:border-[#22232b]">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => targetModuleId ? navigate(`/courses/${courseId}/modules/${targetModuleId}`) : navigate(`/courses/${courseId}`)}
+            className="p-2.5 rounded-xl border border-slate-200 dark:border-[#252630] hover:bg-slate-50 dark:hover:bg-[#1c1d24] text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <div>
+            <span className="text-[11px] font-extrabold text-[#4F46E5] uppercase tracking-wider block">
+              {capitalizeTitle(moduleTitle)}
+            </span>
+            <h2 className="text-xl md:text-2xl font-extrabold text-slate-900 dark:text-white leading-tight">
+              {capitalizeTitle(currentTopic?.title) || "Lesson"}
+            </h2>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Content Layout */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 py-4">
+      <main className="flex-1 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Main Viewer Area */}
           <div className="lg:col-span-8 space-y-8">
@@ -321,7 +479,7 @@ export default function LessonView() {
                               setVideoEnded(false);
                               navigate(nextAssetLink);
                             }}
-                            className="flex items-center justify-center mx-auto gap-3 px-10 py-4 bg-white text-slate-900 rounded-2xl font-extrabold text-sm hover:bg-slate-100 transition-all"
+                            className="flex items-center justify-center mx-auto gap-3 px-10 py-4 bg-white text-slate-900 rounded-2xl font-extrabold text-sm hover:bg-slate-100 transition-all cursor-pointer"
                           >
                             <PlayCircle size={18} /> Next Lesson
                           </button>
@@ -339,7 +497,7 @@ export default function LessonView() {
                 <div className="flex items-center gap-3 font-extrabold text-[#4F46E5] uppercase text-xs tracking-widest">
                   <FileText size={18} /> Summary
                 </div>
-                <p className="text-sm font-medium text-slate-600 leading-relaxed">
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed">
                   {currentTopic?.summary || currentTopic?.topicSummary || "Master the key concepts covered in this lesson. Review course materials below."}
                 </p>
               </div>
@@ -349,7 +507,8 @@ export default function LessonView() {
                   <Zap size={18} /> Course Materials
                 </div>
                 <div className="flex flex-col gap-3">
-                  {currentTopic?.assets?.filter(a => a.type === 'documentation' || a.type === 'interview_pdf').map((docAsset, idx) => (
+                  {/* Documentation & Interview PDF Materials */}
+                  {currentTopic?.assets?.filter(a => a.type === 'documentation' || a.type === 'interview_pdf' || a.type === 'topic-documentation' || a.type === 'interview-questions').map((docAsset, idx) => (
                     <div
                       key={idx}
                       onClick={() => {
@@ -382,7 +541,7 @@ export default function LessonView() {
                         </div>
                       </div>
                     </div>
-                  )) || <p className="text-xs text-slate-400 font-medium">No additional materials available.</p>}
+                  ))}
                 </div>
               </div>
             </div>
@@ -396,6 +555,22 @@ export default function LessonView() {
                 const tId = topic.topic_id || topic.topicId || `t-${topicIdx}`;
                 const isOpen = openTopicId === tId;
                 const isCurrentTopic = (currentTopic?.topic_id || currentTopic?.topicId) === tId;
+
+                const topicHasQuiz = Boolean((topic as any).isQuiz ?? (topic as any).isquiz ?? (topic as any).is_quiz ?? (topic as any).hasQuiz ?? false);
+                const baseAssets = (topic.assets || []).filter((a: any) => {
+                  if (!topicHasQuiz && (a.type === 'topic-quiz' || a.type === 'quiz')) {
+                    return false;
+                  }
+                  return true;
+                });
+                const topicAssets = [...baseAssets];
+                if (topicHasQuiz && !topicAssets.some((a: any) => a.type === 'topic-quiz' || a.type === 'quiz')) {
+                  topicAssets.push({
+                    type: 'topic-quiz',
+                    title: 'Topic Quiz & Knowledge Assessment',
+                    duration: '10-15 mins',
+                  } as any);
+                }
 
                 return (
                   <div
@@ -420,31 +595,50 @@ export default function LessonView() {
 
                     {isOpen && (
                       <div className="bg-white dark:bg-[#16171d] p-3 space-y-2">
-                        {topic.assets?.map((asset: ApiAsset, aIdx: number) => {
-                          const isCurrentAsset = isCurrentTopic && currentAsset?.type === asset.type;
-                          const isDoc = asset.type === 'documentation' || asset.type === 'interview_pdf';
+                        {topicAssets.map((asset: any, aIdx: number) => {
+                          const isQuiz = asset.type === 'topic-quiz' || asset.type === 'quiz';
+                          const isDoc = !isQuiz && (asset.type === 'documentation' || asset.type === 'topic-documentation' || asset.type === 'interview_pdf' || asset.type === 'interview-questions');
+                          const isCurrentAsset = isCurrentTopic && !isQuiz && currentAsset?.type === asset.type;
+
                           return (
                             <div
                               key={aIdx}
                               onClick={() => {
+                                if (isQuiz) {
+                                  handleOpenTopicQuiz(topic);
+                                  return;
+                                }
                                 if (paramModuleId) {
                                   navigate(`/course/${courseId}/module/${targetModuleId}/topic/${tId}?asset=${asset.type}`);
                                 } else {
                                   navigate(`/courses/${courseId}/lessons/${targetModuleId}__${tId}__${asset.type}`);
                                 }
                               }}
-                              className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all ${isCurrentAsset
-                                ? "bg-[#EEF0FF] dark:bg-[#1e1b4b] text-[#4F46E5] dark:text-[#818cf8] font-extrabold border border-indigo-100 dark:border-indigo-950 shadow-xs dark:shadow-none"
-                                : "text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-[#1c1d24]"
+                              className={`flex items-center justify-between gap-3 p-3 rounded-2xl cursor-pointer transition-all ${
+                                isQuiz
+                                  ? "bg-amber-50/40 dark:bg-amber-950/20 hover:bg-amber-50/80 dark:hover:bg-amber-950/40 border border-amber-200/70 dark:border-amber-800/40 text-amber-900 dark:text-amber-200 font-bold"
+                                  : isCurrentAsset
+                                  ? "bg-[#EEF0FF] dark:bg-[#1e1b4b] text-[#4F46E5] dark:text-[#818cf8] font-extrabold border border-indigo-100 dark:border-indigo-950 shadow-xs dark:shadow-none"
+                                  : "text-slate-700 dark:text-slate-300 font-bold hover:bg-slate-50 dark:hover:bg-[#1c1d24]"
                                 }`}
                             >
-                              <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isCurrentAsset
-                                ? "bg-white dark:bg-[#252630] text-[#4F46E5] dark:text-[#818cf8] shadow-xs dark:shadow-none"
-                                : "bg-slate-50 dark:bg-[#1c1d24] text-slate-400 dark:text-slate-500"
-                                }`}>
-                                {isDoc ? <FileText size={16} /> : <PlayCircle size={16} />}
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                                  isQuiz
+                                    ? "bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400"
+                                    : isCurrentAsset
+                                    ? "bg-white dark:bg-[#252630] text-[#4F46E5] dark:text-[#818cf8] shadow-xs dark:shadow-none"
+                                    : "bg-slate-50 dark:bg-[#1c1d24] text-slate-400 dark:text-slate-500"
+                                  }`}>
+                                  {isQuiz ? <BrainCircuit size={16} /> : isDoc ? <FileText size={16} /> : <PlayCircle size={16} />}
+                                </div>
+                                <span className="text-xs leading-snug truncate">{asset.title}</span>
                               </div>
-                              <span className="text-xs leading-snug">{asset.title}</span>
+                              {isQuiz && (
+                                <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40 shrink-0">
+                                  AI Graded
+                                </span>
+                              )}
                             </div>
                           );
                         })}
@@ -457,6 +651,21 @@ export default function LessonView() {
           </div>
         </div>
       </main>
+
+      {/* Topic Knowledge Assessment / Quiz Modal */}
+      <QuizModal
+        isOpen={quizModalState.isOpen}
+        isLoading={quizModalState.isLoading}
+        onClose={() => setQuizModalState((prev) => ({ ...prev, isOpen: false, initialResult: undefined }))}
+        data={quizModalState.data}
+        courseId={courseId || ''}
+        moduleId={targetModuleId || (moduleData as any)?.moduleId}
+        topicId={quizModalState.topicId}
+        initialResult={quizModalState.initialResult}
+        onQuizComplete={() => {
+          toast.success("Assessment submitted successfully!");
+        }}
+      />
     </div>
   );
 }

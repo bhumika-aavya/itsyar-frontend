@@ -52,9 +52,9 @@ export default function MentorLayout() {
   const activeLabel = NAV_ITEMS.find(n => isActive(n.path))?.label ?? 'Mentor';
 
   return (
-    <div className="flex min-h-screen bg-[#F9FAFD] dark:bg-[#111217] transition-colors duration-300">
+    <div className="flex h-screen overflow-hidden bg-[#F9FAFD] dark:bg-[#111217] transition-colors duration-300">
       {/* Sidebar */}
-      <aside className={`${collapsed ? 'w-[88px] px-4 py-6' : 'w-64 p-6'} bg-white dark:bg-[#16171d] border-r border-slate-100 dark:border-[#2e303a] flex flex-col sticky top-0 h-screen transition-all duration-300 relative z-50`}>
+      <aside className={`${collapsed ? 'w-[88px] px-4 py-6' : 'w-64 p-6'} bg-white dark:bg-[#16171d] border-r border-slate-100 dark:border-[#2e303a] flex flex-col h-screen shrink-0 transition-all duration-300 relative z-50`}>
         <button
           onClick={() => setCollapsed(v => !v)}
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -63,17 +63,22 @@ export default function MentorLayout() {
           {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
         </button>
 
-        <div className={`flex items-center gap-2 mb-2 cursor-pointer ${collapsed ? 'justify-center' : 'px-2'}`} onClick={() => navigate('/mentor')}>
+        {/* Brand */}
+        <div
+          className={`flex items-center gap-2 mb-2 cursor-pointer ${collapsed ? 'justify-center' : 'px-2'}`}
+          onClick={() => navigate('/mentor')}
+        >
           <div className="bg-[#4F46E5] p-1.5 rounded-lg shrink-0">
-            <GraduationCap className="text-white" size={20} />
+            <Zap className="text-white fill-white" size={20} />
           </div>
           {!collapsed && <span className="text-xl font-bold tracking-tight truncate">ForgeInsight</span>}
         </div>
 
+        {/* Mentor badge */}
         <div className={`mb-8 ${collapsed ? 'flex justify-center' : 'mx-2'}`}>
-          <span className={`inline-flex items-center gap-1.5 py-1 bg-sky-50 rounded-lg ${collapsed ? 'px-2' : 'px-2.5'}`}>
-            <GraduationCap size={11} className="text-sky-600 shrink-0" />
-            {!collapsed && <span className="text-[11px] font-extrabold text-sky-600 uppercase tracking-widest truncate">Mentor Portal</span>}
+          <span className={`inline-flex items-center gap-1.5 py-1 bg-sky-500/10 rounded-lg ${collapsed ? 'px-2' : 'px-2.5'}`}>
+            <Award size={11} className="text-sky-600 dark:text-sky-400 shrink-0" />
+            {!collapsed && <span className="text-[11px] font-extrabold text-sky-600 dark:text-sky-400 uppercase tracking-widest truncate">Mentor Panel</span>}
           </span>
         </div>
 
@@ -90,11 +95,11 @@ export default function MentorLayout() {
           ))}
         </nav>
 
-        <div className="pt-4 border-t border-slate-100 space-y-1">
+        <div className="pt-4 border-t border-slate-100 dark:border-[#2e303a] space-y-1">
           <button
             onClick={logout}
             title={collapsed ? 'Sign Out' : undefined}
-            className={`w-full flex items-center gap-3 py-2.5 rounded-xl text-sm font-semibold text-red-400 hover:bg-red-50 transition-all cursor-pointer ${collapsed ? 'justify-center px-0' : 'px-4'}`}
+            className={`w-full flex items-center gap-3 py-2.5 rounded-xl text-sm font-semibold text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-all cursor-pointer ${collapsed ? 'justify-center px-0' : 'px-4'}`}
           >
             <LogOut size={16} className="shrink-0" />
             {!collapsed && <span className="truncate">Sign Out</span>}

@@ -82,9 +82,9 @@ export default function MainLayout() {
   const activeLabel = menuItems.find(n => isActive(n.path))?.label ?? 'Dashboard';
 
   return (
-    <div className="flex min-h-screen bg-[#F9FAFD] dark:bg-[#111217] transition-colors duration-300">
+    <div className="flex h-screen overflow-hidden bg-[#F9FAFD] dark:bg-[#111217] transition-colors duration-300">
       {/* Sidebar */}
-      <aside className={`${collapsed ? 'w-[88px] px-4 py-6' : 'w-64 p-6'} bg-white dark:bg-[#16171d] border-r border-slate-100 dark:border-[#2e303a] flex flex-col sticky top-0 h-screen transition-all duration-300 relative z-50`}>
+      <aside className={`${collapsed ? 'w-[88px] px-4 py-6' : 'w-64 p-6'} bg-white dark:bg-[#16171d] border-r border-slate-100 dark:border-[#2e303a] flex flex-col h-screen shrink-0 transition-all duration-300 relative z-50`}>
         <button
           onClick={() => setCollapsed(v => !v)}
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -127,9 +127,9 @@ export default function MainLayout() {
       </aside>
 
       {/* Main Area */}
-      <main className="flex-1 flex flex-col min-w-0">
+      <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         {/* Top Header */}
-        <header className="h-16 bg-white dark:bg-[#16171d] border-b border-slate-100 dark:border-[#2e303a] flex items-center justify-between px-6 md:px-10 sticky top-0 z-40 shrink-0">
+        <header className="h-16 bg-white dark:bg-[#16171d] border-b border-slate-100 dark:border-[#2e303a] flex items-center justify-between px-6 md:px-10 shrink-0 z-40">
           <div className="flex items-center gap-2 text-sm font-extrabold text-slate-900 dark:text-slate-100">
             <span className="uppercase tracking-wider">
               {(user?.role?.toLowerCase() === 'student' ? 'Learner' : user?.role) || 'Member'}

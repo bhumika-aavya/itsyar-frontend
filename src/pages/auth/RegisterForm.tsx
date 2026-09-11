@@ -88,186 +88,215 @@ export default function RegisterForm() {
         <Logo />
       </div>
 
-      <div className="w-full rounded-[40px] bg-white shadow-2xl border border-slate-100 overflow-hidden">
-        <div className="px-10 pt-10 pb-2">
-          <div className="text-center mb-10">
-            <h2 className="text-[32px] font-bold text-[#1A1C1E] tracking-tight">{`Join as a Member`}</h2>
-            <p className="mt-2 text-sm text-slate-500 max-w-[420px] mx-auto leading-relaxed font-medium">
-              Register to access courses, track your progress and grow your skills.
-            </p>
-          </div>
-
-          {serverError && (
-            <div className="mb-6 p-3 bg-red-50 text-red-500 rounded-xl text-sm text-center font-bold border border-red-100">
-              {serverError}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Full Name */}
-            <div className="flex flex-col space-y-1.5 items-start">
-              <label className="text-[13px] font-bold text-slate-800 ml-1">Full Name <span className="text-red-400">*</span></label>
-              <div className="relative w-full">
-                <User className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.fullName ? 'text-red-400' : 'text-slate-400'}`} size={18} />
-                <input
-                  {...register("fullName")}
-                  placeholder="Enter your full name"
-                  className={`h-14 w-full rounded-xl border-2 pl-12 pr-4 outline-none transition-all font-medium text-slate-900 dark:text-slate-100 ${errors.fullName ? "border-red-400" : "border-transparent bg-[#F8F6FC] dark:bg-[#1c1d24] focus:border-[#3AADDD] dark:focus:border-[#3AADDD] focus:bg-white dark:focus:bg-[#252630]"
-                    }`}
-                />
-              </div>
-              <ErrorMsg message={errors.fullName?.message} />
-            </div>
-
-            {/* Email */}
-            <div className="flex flex-col space-y-1.5 items-start">
-              <label className="text-[13px] font-bold text-slate-800 ml-1">Email Address <span className="text-red-400">*</span></label>
-              <div className="relative w-full">
-                <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.email ? 'text-red-400' : 'text-slate-400'}`} size={18} />
-                <input
-                  {...register("email")}
-                  type="email"
-                  placeholder="Enter your email"
-                  className={`h-14 w-full rounded-xl border-2 pl-12 pr-4 outline-none transition-all font-medium text-slate-900 dark:text-slate-100 ${errors.email ? "border-red-400" : "border-transparent bg-[#F8F6FC] dark:bg-[#1c1d24] focus:border-[#3AADDD] dark:focus:border-[#3AADDD] focus:bg-white dark:focus:bg-[#252630]"
-                    }`}
-                />
-              </div>
-              <ErrorMsg message={errors.email?.message} />
-            </div>
-
-            {/* Passwords Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col space-y-1.5 items-start">
-                <label className="text-[13px] font-bold text-slate-800 ml-1">Password <span className="text-red-400">*</span></label>
-                <div className="relative w-full">
-                  <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.password ? 'text-red-400' : 'text-slate-400'}`} size={18} />
-                  <input
-                    {...register("password")}
-                    type={showPass ? "text" : "password"}
-                    placeholder="Create password"
-                    className={`h-14 w-full rounded-xl border-2 pl-11 pr-10 outline-none transition-all font-medium text-slate-900 dark:text-slate-100 text-sm ${errors.password ? "border-red-400" : "border-transparent bg-[#F8F6FC] dark:bg-[#1c1d24] focus:border-[#3AADDD] dark:focus:border-[#3AADDD] focus:bg-white dark:focus:bg-[#252630]"
-                      }`}
-                  />
-                  {passwordValue && (
-                    <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
-                      {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex flex-col space-y-1.5 items-start">
-                <label className="text-[13px] font-bold text-slate-800 ml-1">Confirm Password <span className="text-red-400">*</span></label>
-                <div className="relative w-full">
-                  <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.confirmPassword ? 'text-red-400' : 'text-slate-400'}`} size={18} />
-                  <input
-                    {...register("confirmPassword")}
-                    type={showConfirmPass ? "text" : "password"}
-                    placeholder="Confirm password"
-                    className={`h-14 w-full rounded-xl border-2 pl-11 pr-10 outline-none transition-all font-medium text-slate-900 dark:text-slate-100 text-sm ${errors.confirmPassword ? "border-red-400" : "border-transparent bg-[#F8F6FC] dark:bg-[#1c1d24] focus:border-[#3AADDD] dark:focus:border-[#3AADDD] focus:bg-white dark:focus:bg-[#252630]"
-                      }`}
-                  />
-                  {confirmPasswordValue && (
-                    <button type="button" onClick={() => setShowConfirmPass(!showConfirmPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
-                      {showConfirmPass ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-col items-center">
-              <ErrorMsg message={errors.password?.message || errors.confirmPassword?.message} />
-            </div>
-
-            {/* Interest Dropdown */}
-            {/* <div className="flex flex-col space-y-1.5 items-start">
-              <label className="text-[13px] font-bold text-slate-800 ml-1">Learning Interest</label>
-              <div className="relative w-full">
-                <GraduationCap className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.interest ? 'text-red-400' : 'text-slate-400'}`} size={18} />
-                <select
-                  {...register("interest")}
-                  className={`h-14 w-full appearance-none rounded-xl border-2 pl-12 pr-10 outline-none transition-all cursor-pointer font-bold text-slate-700 ${errors.interest ? "border-red-400" : "border-transparent bg-[#F8F6FC] focus:border-[#3AADDD] focus:bg-white"
-                    }`}
-                >
-                  <option value="">Select your field</option>
-                  <option value="tech">Technology</option>
-                  <option value="business">Business</option>
-                  <option value="design">Design</option>
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18} />
-              </div>
-              <ErrorMsg message={errors.interest?.message} />
-            </div> */}
-
-            {/* User Type Radio */}
-            <div className="space-y-3 pt-2">
-              <label className="text-[13px] font-bold text-slate-800 ml-1 block">I am a <span className="text-red-400">*</span></label>
-              <div className="flex flex-wrap gap-6 ml-1">
-                {ROLE_OPTIONS.map((type) => (
-                  <label key={type} className="flex items-center gap-3 cursor-pointer group">
-                    <div className="relative flex items-center justify-center">
-                      <input
-                        {...register("userType")}
-                        type="radio"
-                        value={type}
-                        className="peer appearance-none h-6 w-6 rounded-full border-2 border-slate-300 checked:border-[#4F46E5] transition-all cursor-pointer"
-                      />
-                      <div className="absolute h-3 w-3 rounded-full bg-[#4F46E5] scale-0 peer-checked:scale-100 transition-all duration-200" />
-                    </div>
-                    <span className="text-[15px] font-semibold text-slate-600 group-hover:text-slate-900">{type === "Student" ? "Learner" : type}</span>
-                  </label>
-                ))}
-              </div>
-              <ErrorMsg message={errors.userType?.message} />
-            </div>
-
-            {/* Terms Checkbox */}
-            <div className="flex flex-col items-center">
-              <label className="flex items-start gap-3 pt-2 cursor-pointer group w-full text-left">
-                <input
-                  {...register("acceptTerms")}
-                  type="checkbox"
-                  className="mt-1 h-5 w-5 rounded border-2 border-slate-300 text-[#4F46E5] focus:ring-0 cursor-pointer"
-                />
-                <span className="text-[13px] leading-tight font-semibold text-slate-600 select-none">
-                  I agree to the <span className="text-[#4F46E5] font-bold hover:underline">Terms of Service</span> and <span className="text-[#4F46E5] font-bold hover:underline">Privacy Policy</span>.
-                </span>
-              </label>
-              <ErrorMsg message={errors.acceptTerms?.message} />
-            </div>
-
-            <button
-              disabled={isLoading}
-              type="submit"
-              className="h-14 w-full rounded-xl bg-[#4F46E5] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#4338CA] transition-all disabled:opacity-70 shadow-lg shadow-indigo-100 dark:shadow-none active:scale-[0.98] mt-4"
-            >
-              {isLoading ? <Loader2 className="animate-spin" /> : "Complete Enrollment"}
-            </button>
-
-            {/* Divider */}
-            <div className="flex items-center gap-4 py-1">
-              <div className="h-[1px] flex-1 bg-slate-100" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300">Or Join With</span>
-              <div className="h-[1px] flex-1 bg-slate-100" />
-            </div>
-
-            {/* Google Signup */}
-            <button
-              type="button"
-              onClick={handleGoogleSignup}
-              className="h-14 w-full rounded-xl border-2 border-slate-100 bg-white flex items-center justify-center gap-3 font-bold text-slate-700 hover:bg-slate-50 transition-all active:scale-[0.98]"
-            >
-              <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5" />
-              Sign up with Google
-            </button>
-          </form>
-        </div>
-
-        <div className="bg-[#F4F2FF] dark:bg-[#1c1d24] p-8 text-center border-t border-slate-100 dark:border-[#2e303a]">
-          <p className="text-[15px] font-bold text-slate-500">
-            Already have an account? <button onClick={() => navigate('/login')} className="text-[#4F46E5] font-extrabold hover:underline">Sign In</button>
+      <div className="w-full rounded-[32px] border border-slate-100 dark:border-[#2e303a] bg-white dark:bg-[#16171d] p-8 sm:p-10 shadow-xl shadow-slate-200/50 dark:shadow-none">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Join as a Member</h2>
+          <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400 max-w-[380px] mx-auto leading-relaxed">
+            Register to access courses, track your progress, and grow your skills.
           </p>
         </div>
+
+        {serverError && (
+          <div className="mb-6 p-3 bg-red-50 dark:bg-red-950/30 text-red-500 dark:text-red-400 rounded-xl text-sm text-center font-bold border border-red-100 dark:border-red-900/50">
+            {serverError}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4.5">
+          {/* Full Name */}
+          <div className="flex flex-col space-y-1.5 items-start">
+            <label className="text-[13px] font-bold text-slate-800 dark:text-slate-200 ml-1">
+              Full Name <span className="text-red-400">*</span>
+            </label>
+            <div className="relative w-full">
+              <User className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.fullName ? 'text-red-400' : 'text-slate-400'}`} size={18} />
+              <input
+                {...register("fullName")}
+                placeholder="Enter your full name"
+                className={`h-13 w-full rounded-xl border-2 pl-12 pr-4 bg-[#F8F6FC] dark:bg-[#1c1d24] outline-none transition-all font-medium text-slate-900 dark:text-slate-100 ${errors.fullName
+                  ? "border-red-400"
+                  : "border-transparent focus:border-[#4F46E5] dark:focus:border-[#6366F1] focus:bg-white dark:focus:bg-[#252630]"
+                  }`}
+              />
+            </div>
+            <ErrorMsg message={errors.fullName?.message} />
+          </div>
+
+          {/* Email */}
+          <div className="flex flex-col space-y-1.5 items-start">
+            <label className="text-[13px] font-bold text-slate-800 dark:text-slate-200 ml-1">
+              Email Address <span className="text-red-400">*</span>
+            </label>
+            <div className="relative w-full">
+              <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.email ? 'text-red-400' : 'text-slate-400'}`} size={18} />
+              <input
+                {...register("email")}
+                type="email"
+                placeholder="Enter your email"
+                className={`h-13 w-full rounded-xl border-2 pl-12 pr-4 bg-[#F8F6FC] dark:bg-[#1c1d24] outline-none transition-all font-medium text-slate-900 dark:text-slate-100 ${errors.email
+                  ? "border-red-400"
+                  : "border-transparent focus:border-[#4F46E5] dark:focus:border-[#6366F1] focus:bg-white dark:focus:bg-[#252630]"
+                  }`}
+              />
+            </div>
+            <ErrorMsg message={errors.email?.message} />
+          </div>
+
+          {/* Passwords Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            <div className="flex flex-col space-y-1.5 items-start">
+              <label className="text-[13px] font-bold text-slate-800 dark:text-slate-200 ml-1">
+                Password <span className="text-red-400">*</span>
+              </label>
+              <div className="relative w-full">
+                <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.password ? 'text-red-400' : 'text-slate-400'}`} size={18} />
+                <input
+                  {...register("password")}
+                  type={showPass ? "text" : "password"}
+                  placeholder="Create password"
+                  className={`h-13 w-full rounded-xl border-2 pl-11 pr-11 bg-[#F8F6FC] dark:bg-[#1c1d24] outline-none transition-all font-medium text-slate-900 dark:text-slate-100 text-sm ${errors.password
+                    ? "border-red-400"
+                    : "border-transparent focus:border-[#4F46E5] dark:focus:border-[#6366F1] focus:bg-white dark:focus:bg-[#252630]"
+                    }`}
+                />
+                {passwordValue && (
+                  <button
+                    type="button"
+                    onClick={() => setShowPass(!showPass)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer"
+                  >
+                    {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                )}
+              </div>
+              <ErrorMsg message={errors.password?.message} />
+            </div>
+
+            <div className="flex flex-col space-y-1.5 items-start">
+              <label className="text-[13px] font-bold text-slate-800 dark:text-slate-200 ml-1">
+                Confirm Password <span className="text-red-400">*</span>
+              </label>
+              <div className="relative w-full">
+                <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.confirmPassword ? 'text-red-400' : 'text-slate-400'}`} size={18} />
+                <input
+                  {...register("confirmPassword")}
+                  type={showConfirmPass ? "text" : "password"}
+                  placeholder="Confirm password"
+                  className={`h-13 w-full rounded-xl border-2 pl-11 pr-11 bg-[#F8F6FC] dark:bg-[#1c1d24] outline-none transition-all font-medium text-slate-900 dark:text-slate-100 text-sm ${errors.confirmPassword
+                    ? "border-red-400"
+                    : "border-transparent focus:border-[#4F46E5] dark:focus:border-[#6366F1] focus:bg-white dark:focus:bg-[#252630]"
+                    }`}
+                />
+                {confirmPasswordValue && (
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPass(!showConfirmPass)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer"
+                  >
+                    {showConfirmPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                )}
+              </div>
+              <ErrorMsg message={errors.confirmPassword?.message} />
+            </div>
+          </div>
+
+          {/* User Type Radio / Pills */}
+          {/* <div className="flex flex-col space-y-2 items-start pt-1">
+            <label className="text-[13px] font-bold text-slate-800 dark:text-slate-200 ml-1">
+              I am a <span className="text-red-400">*</span>
+            </label>
+            <div className="grid grid-cols-2 gap-3 w-full">
+              {ROLE_OPTIONS.map((type) => {
+                const label = type === "Student" ? "Learner" : type;
+                const isSelected = watch("userType") === type;
+                return (
+                  <label
+                    key={type}
+                    onClick={() => setValue("userType", type)}
+                    className={`flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl border-2 cursor-pointer transition-all duration-200 select-none ${
+                      isSelected
+                        ? "border-[#4F46E5] bg-indigo-50/70 dark:bg-indigo-950/40 text-[#4F46E5] dark:text-indigo-400 font-bold shadow-xs shadow-indigo-100 dark:shadow-none"
+                        : "border-slate-100 dark:border-[#2e303a] bg-[#F8F6FC] dark:bg-[#1c1d24] text-slate-600 dark:text-slate-400 font-semibold hover:border-slate-200 dark:hover:border-slate-700"
+                    }`}
+                  >
+                    <input
+                      {...register("userType")}
+                      type="radio"
+                      value={type}
+                      className="sr-only"
+                    />
+                    <div
+                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all ${
+                        isSelected
+                          ? "border-[#4F46E5] dark:border-indigo-400"
+                          : "border-slate-300 dark:border-slate-600"
+                      }`}
+                    >
+                      {isSelected && (
+                        <div className="w-2 h-2 rounded-full bg-[#4F46E5] dark:bg-indigo-400" />
+                      )}
+                    </div>
+                    <span className="text-sm">{label}</span>
+                  </label>
+                );
+              })}
+            </div>
+            <ErrorMsg message={errors.userType?.message} />
+          </div> */}
+
+          {/* Terms Checkbox */}
+          <div className="pt-0.5">
+            <label className="flex items-start gap-3 cursor-pointer group select-none">
+              <input
+                {...register("acceptTerms")}
+                type="checkbox"
+                className="mt-0.5 h-4.5 w-4.5 rounded-md border-2 border-slate-300 dark:border-slate-600 text-[#4F46E5] focus:ring-indigo-500/20 cursor-pointer transition-all accent-[#4F46E5]"
+              />
+              <span className="text-xs font-medium text-slate-600 dark:text-slate-400 leading-snug text-left">
+                I agree to the <span className="text-[#4F46E5] dark:text-indigo-400 font-bold hover:underline">Terms of Service</span> and <span className="text-[#4F46E5] dark:text-indigo-400 font-bold hover:underline">Privacy Policy</span>.
+              </span>
+            </label>
+            <ErrorMsg message={errors.acceptTerms?.message} />
+          </div>
+
+          {/* Submit Button */}
+          <button
+            disabled={isLoading}
+            type="submit"
+            className="h-13 w-full rounded-xl bg-[#4F46E5] font-bold text-white flex items-center justify-center gap-2 hover:bg-[#4338CA] transition-all disabled:opacity-70 shadow-lg shadow-indigo-100 dark:shadow-none active:scale-[0.98] cursor-pointer mt-2"
+          >
+            {isLoading ? <Loader2 className="animate-spin" size={18} /> : "Complete Enrollment"}
+          </button>
+
+          {/* Divider */}
+          <div className="flex items-center gap-4 py-0.5">
+            <div className="h-[1px] flex-1 bg-slate-100 dark:bg-[#2e303a]" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Or Join With</span>
+            <div className="h-[1px] flex-1 bg-slate-100 dark:bg-[#2e303a]" />
+          </div>
+
+          {/* Google Signup */}
+          <button
+            type="button"
+            onClick={handleGoogleSignup}
+            className="h-13 w-full rounded-xl border-2 border-slate-100 dark:border-[#2e303a] bg-white dark:bg-[#16171d] flex items-center justify-center gap-3 font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#1c1d24] transition-all active:scale-[0.98] cursor-pointer"
+          >
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5" />
+            Sign up with Google
+          </button>
+        </form>
+
+        <p className="mt-8 text-center text-sm font-semibold text-slate-500 dark:text-slate-400">
+          Already have an account?{" "}
+          <button
+            type="button"
+            onClick={() => navigate('/login')}
+            className="text-[#4F46E5] dark:text-indigo-400 font-extrabold hover:underline ml-1 cursor-pointer"
+          >
+            Sign In
+          </button>
+        </p>
       </div>
     </div>
   );
